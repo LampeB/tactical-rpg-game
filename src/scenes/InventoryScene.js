@@ -9,6 +9,16 @@ export class InventoryScene extends Scene {
         this.storageGrid = new Grid(650, 100, 8, 6, 40);
         this.draggedItem = null;
         this.dragStartGrid = null;
+        
+        // Mouse-only navigation buttons
+        this.buttons = [
+            { text: 'Reset Items', action: () => this.resetItems(), x: 50, y: 750, width: 120, height: 30 },
+            { text: 'Clear Inventory', action: () => this.clearInventory(), x: 180, y: 750, width: 140, height: 30 },
+            { text: 'Menu', action: () => this.engine.switchScene('menu'), x: 330, y: 750, width: 80, height: 30 },
+            { text: 'Battle', action: () => this.engine.switchScene('battle'), x: 420, y: 750, width: 80, height: 30 }
+        ];
+        this.hoveredButton = -1;
+        
         this.setupItems();
     }
     
@@ -35,19 +45,11 @@ export class InventoryScene extends Scene {
             }
         });
     }
-    
+        
     onEnter() {
         super.onEnter();
-        
-        // Set up input handlers
-        this.engine.inputManager.onKeyPress('KeyR', () => this.resetItems());
-        this.engine.inputManager.onKeyPress('KeyM', () => this.engine.switchScene('menu'));
-        this.engine.inputManager.onKeyPress('KeyB', () => this.engine.switchScene('battle'));
-        this.engine.inputManager.onKeyPress('Escape', () => this.engine.switchScene('menu'));
-        this.engine.inputManager.onKeyPress('KeyC', () => this.clearInventory());
-        this.engine.inputManager.onKeyPress('KeyS', () => this.saveInventoryState());
+        // No keyboard controls - all mouse-driven!
     }
-    
     resetItems() {
         this.inventoryGrid.clear();
         this.storageGrid.clear();
@@ -82,21 +84,38 @@ export class InventoryScene extends Scene {
         console.log('Inventory state saved!');
     }
     
-    update(deltaTime) {
-        const input = this.engine.inputManager;
-        const mouse = input.getMousePosition();
-        
-        // Handle mouse interactions
-        this.updateItemHighlights(mouse);
-        
-        if (input.isMouseClicked()) {
-            this.handleMouseDown(mouse);
+// Add button handling to the update method
+update(deltaTime) {
+    const input = this.engine.inputManager;
+    const mouse = input.getMousePosition();
+    
+    // Handle button hover
+    this.hoveredButton = -1;
+    this.buttons.forEach((button, index) => {
+        if (mouse.x >= button.x && mouse.x <= button.x + button.width &&
+            mouse.y >= button.y && mouse.y <= button.y + button.height) {
+            this.hoveredButton = index;
+        }
+    });
+    
+    // Handle mouse interactions
+    this.updateItemHighlights(mouse);
+    
+    if (input.isMouseClicked()) {
+        // Check button clicks first
+        if (this.hoveredButton >= 0) {
+            this.buttons[this.hoveredButton].action();
+            return;
         }
         
-        if (!input.isMousePressed() && this.draggedItem) {
-            this.handleMouseUp(mouse);
-        }
+        // Then handle item dragging
+        this.handleMouseDown(mouse);
     }
+    
+    if (!input.isMousePressed() && this.draggedItem) {
+        this.handleMouseUp(mouse);
+    }
+}
     
     updateItemHighlights(mouse) {
         // Clear all highlights
@@ -202,6 +221,28 @@ export class InventoryScene extends Scene {
         this.draggedItem = null;
         this.dragStartGrid = null;
     }
+
+// Add button rendering to the render method (add this after the existing render code)
+renderButtons(ctx) {
+    this.buttons.forEach((button, index) => {
+        const isHovered = index === this.hoveredButton;
+        
+        // Button background
+        ctx.fillStyle = isHovered ? '#3498db' : 'rgba(52, 73, 94, 0.8)';
+        ctx.fillRect(button.x, button.y, button.width, button.height);
+        
+        // Button border
+        ctx.strokeStyle = '#ecf0f1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(button.x, button.y, button.width, button.height);
+        
+        // Button text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(button.text, button.x + button.width / 2, button.y + 20);
+    });
+}
     
     render(ctx) {
         // Background
@@ -239,8 +280,14 @@ export class InventoryScene extends Scene {
         }
         
         // Grid statistics
-        this.renderGridStats(ctx);
-    }
+        this.renderGridStats(ctx);    // Add this line at the end of the render method, before the closing brace
+    this.renderButtons(ctx);
+    
+    // Update instructions
+    ctx.font = '14px Arial';
+    ctx.fillText('Drag items | Hover for relationships | Click buttons to navigate', 
+                50, this.engine.height - 10);
+}
     
     renderSkillsPanel(ctx) {
         const panelX = 50;
