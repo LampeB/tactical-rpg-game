@@ -1,88 +1,95 @@
 export class Engine {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext('2d');
-        this.width = this.canvas.width;
-        this.height = this.canvas.height;
-        
-        this.lastTime = 0;
-        this.deltaTime = 0;
-        this.fps = 0;
-        this.frameCount = 0;
-        this.isRunning = false;
-        
-        this.scenes = new Map();
-        this.currentScene = null;
-        this.inputManager = null; // Will be injected
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas.getContext("2d");
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+
+    this.lastTime = 0;
+    this.deltaTime = 0;
+    this.fps = 0;
+    this.frameCount = 0;
+    this.isRunning = false;
+
+    this.scenes = new Map();
+    this.currentScene = null;
+    this.inputManager = null; // Will be injected
+  }
+
+  setInputManager(inputManager) {
+    this.inputManager = inputManager;
+  }
+
+  addScene(name, scene) {
+    this.scenes.set(name, scene);
+    scene.setEngine(this);
+  }
+
+  switchScene(name) {
+    if (this.currentScene) {
+      this.currentScene.onExit();
     }
-    
-    setInputManager(inputManager) {
-        this.inputManager = inputManager;
+
+    this.currentScene = this.scenes.get(name);
+    if (this.currentScene) {
+      this.currentScene.onEnter();
+      document.getElementById("gameState").textContent = name;
     }
-    
-    addScene(name, scene) {
-        this.scenes.set(name, scene);
-        scene.setEngine(this);
+  }
+
+  start() {
+    this.isRunning = true;
+    this.gameLoop();
+  }
+
+  stop() {
+    this.isRunning = false;
+  }
+
+  gameLoop() {
+    if (!this.isRunning) return;
+
+    const currentTime = performance.now();
+    this.deltaTime = currentTime - this.lastTime;
+    this.lastTime = currentTime;
+
+    this.update(this.deltaTime);
+    this.render();
+
+    // Update FPS
+    this.frameCount++;
+    if (this.frameCount % 60 === 0) {
+      this.fps = Math.round(1000 / this.deltaTime);
+      document.getElementById("fps").textContent = this.fps;
     }
-    
-    switchScene(name) {
-        if (this.currentScene) {
-            this.currentScene.onExit();
-        }
-        
-        this.currentScene = this.scenes.get(name);
-        if (this.currentScene) {
-            this.currentScene.onEnter();
-            document.getElementById('gameState').textContent = name;
-        }
+
+    requestAnimationFrame(() => this.gameLoop());
+  }
+
+  update(deltaTime) {
+    // First, update input (but don't reset clicks yet)
+    if (this.inputManager) {
+      this.inputManager.update();
     }
-    
-    start() {
-        this.isRunning = true;
-        this.gameLoop();
+
+    // Then, update current scene (this will check for clicks)
+    if (this.currentScene) {
+      this.currentScene.update(deltaTime);
     }
-    
-    stop() {
-        this.isRunning = false;
+
+    // Finally, reset click state after scenes have processed
+    if (this.inputManager && this.inputManager.lateUpdate) {
+      this.inputManager.lateUpdate();
     }
-    
-    gameLoop() {
-        if (!this.isRunning) return;
-        
-        const currentTime = performance.now();
-        this.deltaTime = currentTime - this.lastTime;
-        this.lastTime = currentTime;
-        
-        this.update(this.deltaTime);
-        this.render();
-        
-        // Update FPS
-        this.frameCount++;
-        if (this.frameCount % 60 === 0) {
-            this.fps = Math.round(1000 / this.deltaTime);
-            document.getElementById('fps').textContent = this.fps;
-        }
-        
-        requestAnimationFrame(() => this.gameLoop());
+  }
+
+  render() {
+    // Clear canvas
+    this.ctx.fillStyle = "#bdc3c7";
+    this.ctx.fillRect(0, 0, this.width, this.height);
+
+    if (this.currentScene) {
+      this.currentScene.render(this.ctx);
     }
-    
-    update(deltaTime) {
-        if (this.inputManager) {
-            this.inputManager.update();
-        }
-        
-        if (this.currentScene) {
-            this.currentScene.update(deltaTime);
-        }
-    }
-    
-    render() {
-        // Clear canvas
-        this.ctx.fillStyle = '#bdc3c7';
-        this.ctx.fillRect(0, 0, this.width, this.height);
-        
-        if (this.currentScene) {
-            this.currentScene.render(this.ctx);
-        }
-    }
+  }
 }

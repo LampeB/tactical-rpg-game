@@ -200,25 +200,66 @@ export class BattleScene extends Scene {
         }
     }
     
-    onEnter() {
-        super.onEnter();
-        
-        // Battle controls
-        this.engine.inputManager.onKeyPress('KeyM', () => this.engine.switchScene('menu'));
-        this.engine.inputManager.onKeyPress('KeyI', () => this.engine.switchScene('inventory'));
-        this.engine.inputManager.onKeyPress('Escape', () => this.engine.switchScene('menu'));
-        
-        // Battle actions
-        this.engine.inputManager.onKeyPress('KeyA', () => this.quickAttack());
-        this.engine.inputManager.onKeyPress('KeyH', () => this.quickHeal());
-        this.engine.inputManager.onKeyPress('Space', () => this.skipTurn());
-        
-        // Reset battle state
-        this.battleState = 'selecting';
-        this.selectedSkill = null;
-        this.selectedTarget = null;
+onEnter() {
+    super.onEnter();
+    
+    // Add navigation buttons
+    this.buttons = [
+        { text: 'Menu', action: () => this.engine.switchScene('menu'), x: 50, y: 750, width: 80, height: 30 },
+        { text: 'Inventory', action: () => this.engine.switchScene('inventory'), x: 140, y: 750, width: 100, height: 30 },
+        { text: 'Skip Turn', action: () => this.skipTurn(), x: 250, y: 750, width: 100, height: 30 },
+        { text: 'Auto Battle', action: () => this.toggleAutoBattle(), x: 360, y: 750, width: 100, height: 30 }
+    ];
+    this.hoveredButton = -1;
+    this.autoBattle = false;
+    
+    // Reset battle state
+    this.battleState = 'selecting';
+    this.selectedSkill = null;
+    this.selectedTarget = null;
+}
+
+toggleAutoBattle() {
+    this.autoBattle = !this.autoBattle;
+    this.addToLog(`Auto battle ${this.autoBattle ? 'enabled' : 'disabled'}`);
+    
+    if (this.autoBattle && this.isPlayerTurn()) {
+        this.executeAutoPlayerTurn();
+    }
+}
+
+executeAutoPlayerTurn() {
+    if (!this.isPlayerTurn() || !this.autoBattle) return;
+    
+    const skills = this.player.getAvailableSkills();
+    if (skills.length === 0) {
+        this.skipTurn();
+        return;
     }
     
+    // Simple AI: prefer attack skills, target first alive enemy
+    const attackSkill = skills.find(s => s.type === 'physical' || s.type === 'magic');
+    const healSkill = skills.find(s => s.type === 'healing');
+    
+    let selectedSkill = null;
+    let target = null;
+    
+    // Use heal if health is low
+    if (this.player.getHpPercentage() < 0.3 && healSkill) {
+        selectedSkill = healSkill;
+        target = this.player;
+    } else if (attackSkill) {
+        selectedSkill = attackSkill;
+        target = this.enemies.find(e => e.isAlive());
+    }
+    
+    if (selectedSkill && target) {
+        setTimeout(() => this.executeSkill(this.player, selectedSkill, target), 500);
+    } else {
+        this.skipTurn();
+    }
+}
+
     quickAttack() {
         if (!this.isPlayerTurn()) return;
         
@@ -256,20 +297,42 @@ export class BattleScene extends Scene {
                this.getCurrentActor() === this.player;
     }
     
-    update(deltaTime) {
-        if (this.engine.inputManager.isMouseClicked()) {
-            this.handleMouseClick();
+update(deltaTime) {
+    const mouse = this.engine.inputManager.getMousePosition();
+    
+    // Handle button hover
+    this.hoveredButton = -1;
+    this.buttons.forEach((button, index) => {
+        if (mouse.x >= button.x && mouse.x <= button.x + button.width &&
+            mouse.y >= button.y && mouse.y <= button.y + button.height) {
+            this.hoveredButton = index;
+        }
+    });
+    
+    if (this.engine.inputManager.isMouseClicked()) {
+        // Check button clicks first
+        if (this.hoveredButton >= 0) {
+            this.buttons[this.hoveredButton].action();
+            return;
         }
         
-        // Process animations
-        if (this.animationQueue.length > 0) {
-            // Simple animation processing
-            this.animationQueue = this.animationQueue.filter(anim => {
-                anim.duration -= deltaTime;
-                return anim.duration > 0;
-            });
-        }
+        // Then handle battle interactions
+        this.handleMouseClick();
     }
+    
+    // Auto battle logic
+    if (this.autoBattle && this.isPlayerTurn() && this.battleState === 'selecting') {
+        setTimeout(() => this.executeAutoPlayerTurn(), 1000);
+    }
+    
+    // Process animations
+    if (this.animationQueue.length > 0) {
+        this.animationQueue = this.animationQueue.filter(anim => {
+            anim.duration -= deltaTime;
+            return anim.duration > 0;
+        });
+    }
+}
     
     handleMouseClick() {
         if (!this.isPlayerTurn()) return;
@@ -381,7 +444,41 @@ export class BattleScene extends Scene {
         ctx.textAlign = 'center';
         ctx.fillText('Click skills then targets | A: quick attack | H: quick heal | Space: skip | M: menu', 
                     this.engine.width / 2, this.engine.height - 10);
-    }
+    this.renderButtons(ctx);
+    
+    // Update instructions
+    ctx.fillStyle = '#ecf0f1';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Click skills then targets | Use buttons to navigate | Auto Battle available', 
+                this.engine.width / 2, this.engine.height - 10);
+}
+
+    renderButtons(ctx) {
+    this.buttons.forEach((button, index) => {
+        const isHovered = index === this.hoveredButton;
+        
+        // Special styling for Auto Battle button
+        let bgColor = 'rgba(52, 73, 94, 0.8)';
+        if (button.text === 'Auto Battle' && this.autoBattle) {
+            bgColor = '#e74c3c';
+        } else if (isHovered) {
+            bgColor = '#3498db';
+        }
+        
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(button.x, button.y, button.width, button.height);
+        
+        ctx.strokeStyle = '#ecf0f1';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(button.x, button.y, button.width, button.height);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(button.text, button.x + button.width / 2, button.y + 20);
+    });
+}
     
     renderPlayer(ctx) {
         const x = 100;
