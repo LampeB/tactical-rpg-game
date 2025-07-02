@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tactical RPG - Inventory Battle System</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>Tactical RPG - Inventory Battle System</h1>
+        <canvas id="gameCanvas" width="1200" height="800"></canvas>
+        <div id="debugInfo">
+            <div>Mouse: <span id="mousePos">0, 0</span></div>
+            <div>FPS: <span id="fps">60</span></div>
+            <div>Game State: <span id="gameState">Initializing</span></div>
+        </div>
+    </div>
+    
+    <!-- Load the game as ES6 modules -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
