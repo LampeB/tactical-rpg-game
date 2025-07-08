@@ -252,7 +252,7 @@ body {
     bottom: 20px;
     right: 20px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     pointer-events: auto;
 }
 
@@ -260,23 +260,27 @@ body {
     background: rgba(52, 73, 94, 0.9);
     border: 2px solid #ecf0f1;
     color: #fff;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
     font-family: 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     transition: all 0.3s;
+    min-width: 80px;
+    text-align: center;
 }
 
 .nav-button:hover {
     background: #3498db;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .nav-button.active {
     background: #e74c3c;
     border-color: #c0392b;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
 }
 
 /* Legacy support - keeping existing styles */
