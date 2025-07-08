@@ -71,6 +71,12 @@ export class PixiEngine {
             return false;
         }
         
+        // Don't reload the same scene
+        if (this.currentScene === newScene) {
+            console.log(`Already in scene '${name}', skipping reload`);
+            return false;
+        }
+        
         // Exit current scene
         if (this.currentScene) {
             this.currentScene.onExit();
@@ -85,6 +91,11 @@ export class PixiEngine {
         
         // Update UI
         this.updateGameStateUI(name);
+        
+        // UPDATE NAVIGATION BUTTONS AUTOMATICALLY - Add this
+        if (this.updateNavButtons) {
+            this.updateNavButtons(name);
+        }
         
         console.log(`Switched to scene: ${name}`);
         return true;
