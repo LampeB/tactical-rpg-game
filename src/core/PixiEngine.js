@@ -1,5 +1,7 @@
 export class PixiEngine {
   constructor(width = 1280, height = 720) {
+    console.log("🔧 DEBUG: PixiEngine constructor called", { width, height });
+
     this.width = width;
     this.height = height;
     this.isRunning = false;
@@ -12,6 +14,15 @@ export class PixiEngine {
       antialias: true,
       resolution: window.devicePixelRatio || 1,
       autoDensity: true,
+    });
+
+    console.log("🔧 DEBUG: PIXI Application created", {
+      width: this.app.screen.width,
+      height: this.app.screen.height,
+      renderer:
+        this.app.renderer.type === PIXI.RENDERER_TYPE.WEBGL
+          ? "WebGL"
+          : "Canvas",
     });
 
     // Scene management
@@ -28,15 +39,26 @@ export class PixiEngine {
   }
 
   setupApplication() {
+    console.log("🔧 DEBUG: Setting up application");
+
     // Add canvas to DOM
     const gameContainer = document.getElementById("gameContainer");
     if (gameContainer) {
       gameContainer.appendChild(this.app.view);
+      console.log("🔧 DEBUG: Canvas added to gameContainer");
+    } else {
+      console.error("🔧 ERROR: gameContainer element not found!");
+      return;
     }
 
     // Setup global interaction
     this.app.stage.interactive = true;
     this.app.stage.hitArea = this.app.screen;
+
+    console.log("🔧 DEBUG: Stage setup", {
+      interactive: this.app.stage.interactive,
+      children: this.app.stage.children.length,
+    });
 
     // Window resize handling
     window.addEventListener("resize", () => this.handleResize());
@@ -44,17 +66,11 @@ export class PixiEngine {
     // Performance monitoring
     this.app.ticker.add(() => this.updatePerformance());
 
-    console.log("PixiJS Engine initialized:", {
-      width: this.width,
-      height: this.height,
-      renderer:
-        this.app.renderer.type === PIXI.RENDERER_TYPE.WEBGL
-          ? "WebGL"
-          : "Canvas",
-    });
+    console.log("🔧 DEBUG: PixiJS Engine initialized successfully");
   }
 
   setInputManager(inputManager) {
+    console.log("🔧 DEBUG: Setting input manager", !!inputManager);
     this.inputManager = inputManager;
     if (inputManager) {
       inputManager.setPixiApp(this.app);
@@ -62,51 +78,82 @@ export class PixiEngine {
   }
 
   addScene(name, scene) {
+    console.log("🔧 DEBUG: Adding scene", name);
     this.scenes.set(name, scene);
     scene.setEngine(this);
-    console.log(`Scene '${name}' added to engine`);
+    console.log(
+      `🔧 DEBUG: Scene '${name}' added to engine (total: ${this.scenes.size})`
+    );
   }
 
   switchScene(name) {
+    console.log("🔧 DEBUG: switchScene called", name);
+
     const newScene = this.scenes.get(name);
     if (!newScene) {
-      console.error(`Scene '${name}' not found`);
+      console.error(
+        `🔧 ERROR: Scene '${name}' not found. Available scenes:`,
+        Array.from(this.scenes.keys())
+      );
       return false;
     }
 
     // Don't reload the same scene
     if (this.currentScene === newScene) {
-      console.log(`Already in scene '${name}', skipping reload`);
+      console.log(`🔧 DEBUG: Already in scene '${name}', skipping reload`);
       return false;
     }
 
+    console.log("🔧 DEBUG: Before scene switch", {
+      currentScene: this.currentScene?.constructor?.name || "none",
+      newScene: newScene.constructor.name,
+      stageChildren: this.app.stage.children.length,
+    });
+
     // Exit current scene
     if (this.currentScene) {
+      console.log("🔧 DEBUG: Exiting current scene");
       this.currentScene.onExit();
     }
 
-    // Clear stage
+    // Clear stage completely
+    console.log("🔧 DEBUG: Clearing stage");
     this.app.stage.removeChildren();
 
+    console.log("🔧 DEBUG: Stage cleared", {
+      stageChildren: this.app.stage.children.length,
+    });
+
     // Enter new scene
+    console.log("🔧 DEBUG: Entering new scene");
     this.currentScene = newScene;
     this.currentScene.onEnter();
+
+    console.log("🔧 DEBUG: After scene switch", {
+      currentScene: this.currentScene.constructor.name,
+      stageChildren: this.app.stage.children.length,
+      sceneIsActive: this.currentScene.isActive,
+    });
 
     // Update UI
     this.updateGameStateUI(name);
 
-    // UPDATE NAVIGATION BUTTONS AUTOMATICALLY - Add this
+    // UPDATE NAVIGATION BUTTONS AUTOMATICALLY
     if (this.updateNavButtons) {
       this.updateNavButtons(name);
     }
 
-    console.log(`Switched to scene: ${name}`);
+    console.log(`🔧 DEBUG: Successfully switched to scene: ${name}`);
     return true;
   }
 
   start() {
-    if (this.isRunning) return;
+    if (this.isRunning) {
+      console.log("🔧 DEBUG: Engine already running");
+      return;
+    }
 
+    console.log("🔧 DEBUG: Starting engine");
     this.isRunning = true;
 
     // Start main game loop
@@ -117,13 +164,13 @@ export class PixiEngine {
     // Hide loading screen
     this.hideLoadingScreen();
 
-    console.log("PixiJS Engine started");
+    console.log("🔧 DEBUG: PixiJS Engine started successfully");
   }
 
   stop() {
+    console.log("🔧 DEBUG: Stopping engine");
     this.isRunning = false;
     this.app.ticker.stop();
-    console.log("PixiJS Engine stopped");
   }
 
   gameLoop(deltaTime) {
@@ -162,7 +209,7 @@ export class PixiEngine {
   }
 
   handleResize() {
-    // Simple resize handling - could be enhanced
+    console.log("🔧 DEBUG: Handling resize");
     const container = document.getElementById("gameContainer");
     if (container) {
       this.app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -180,7 +227,6 @@ export class PixiEngine {
   }
 
   updateGameStateUI(sceneName) {
-    // Update various UI elements
     const gameStateElement = document.getElementById("gameState");
     if (gameStateElement) {
       gameStateElement.textContent = sceneName;
@@ -190,6 +236,40 @@ export class PixiEngine {
     if (engineStateElement) {
       engineStateElement.textContent = "PixiJS Running";
     }
+  }
+
+  // Debug method
+  debugFullState() {
+    console.group("🔧 FULL ENGINE DEBUG STATE");
+    console.log("Engine:", {
+      isRunning: this.isRunning,
+      width: this.width,
+      height: this.height,
+      fps: this.fps,
+      totalScenes: this.scenes.size,
+      sceneNames: Array.from(this.scenes.keys()),
+    });
+
+    console.log("PIXI App:", {
+      width: this.app.screen.width,
+      height: this.app.screen.height,
+      stageChildren: this.app.stage.children.length,
+      renderer:
+        this.app.renderer.type === PIXI.RENDERER_TYPE.WEBGL
+          ? "WebGL"
+          : "Canvas",
+    });
+
+    console.log("Current Scene:", {
+      name: this.currentScene?.constructor?.name || "none",
+      isActive: this.currentScene?.isActive || false,
+    });
+
+    if (this.currentScene && this.currentScene.debugFullState) {
+      this.currentScene.debugFullState();
+    }
+
+    console.groupEnd();
   }
 
   // Utility methods for scenes
@@ -216,6 +296,7 @@ export class PixiEngine {
 
   // Cleanup
   destroy() {
+    console.log("🔧 DEBUG: Destroying engine");
     this.stop();
 
     if (this.currentScene) {
@@ -229,6 +310,6 @@ export class PixiEngine {
       baseTexture: true,
     });
 
-    console.log("PixiJS Engine destroyed");
+    console.log("🔧 DEBUG: PixiJS Engine destroyed");
   }
 }

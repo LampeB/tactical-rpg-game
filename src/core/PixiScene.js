@@ -1,13 +1,23 @@
-// src/core/PixiScene.js
+// src/core/PixiScene.js - Fixed version with comprehensive debugging
 export class PixiScene {
   constructor() {
+    console.log("🔧 DEBUG: PixiScene constructor called");
+
     this.engine = null;
-    this.container = new PIXI.Container();
     this.sprites = [];
     this.graphics = [];
     this.isActive = false;
 
-    // Layer management
+    // Create main container
+    this.container = new PIXI.Container();
+    this.container.name = "sceneContainer";
+
+    console.log("🔧 DEBUG: Container created", {
+      container: !!this.container,
+      visible: this.container.visible,
+    });
+
+    // Layer management - Create layers as containers
     this.layers = {
       background: new PIXI.Container(),
       world: new PIXI.Container(),
@@ -15,11 +25,22 @@ export class PixiScene {
       effects: new PIXI.Container(),
     };
 
-    // Add layers to main container
+    // Name the layers for debugging
+    this.layers.background.name = "backgroundLayer";
+    this.layers.world.name = "worldLayer";
+    this.layers.ui.name = "uiLayer";
+    this.layers.effects.name = "effectsLayer";
+
+    // Add layers to main container in the correct order
     this.container.addChild(this.layers.background);
     this.container.addChild(this.layers.world);
     this.container.addChild(this.layers.ui);
     this.container.addChild(this.layers.effects);
+
+    console.log("🔧 DEBUG: Layers created and added to container", {
+      containerChildren: this.container.children.length,
+      layerNames: this.container.children.map((child) => child.name),
+    });
 
     // Input handling
     this.keys = {};
@@ -28,35 +49,65 @@ export class PixiScene {
   }
 
   setEngine(engine) {
+    console.log("🔧 DEBUG: setEngine called", !!engine);
     this.engine = engine;
   }
 
   onEnter() {
+    console.log("🔧 DEBUG: PixiScene onEnter called");
+
     this.isActive = true;
 
+    // Ensure container is visible
+    this.container.visible = true;
+
+    // Ensure all layers are visible
+    Object.values(this.layers).forEach((layer) => {
+      layer.visible = true;
+    });
+
+    console.log("🔧 DEBUG: Before adding to stage", {
+      hasEngine: !!this.engine,
+      hasApp: !!(this.engine && this.engine.app),
+      hasStage: !!(this.engine && this.engine.app && this.engine.app.stage),
+      containerVisible: this.container.visible,
+      containerChildren: this.container.children.length,
+    });
+
     // Add this scene's container to the stage
-    if (this.engine && this.engine.app) {
+    if (this.engine && this.engine.app && this.engine.app.stage) {
       this.engine.app.stage.addChild(this.container);
+      console.log("🔧 DEBUG: Container added to stage", {
+        containerParent: !!this.container.parent,
+        stageChildren: this.engine.app.stage.children.length,
+      });
+    } else {
+      console.error(
+        "🔧 ERROR: Cannot add container to stage - missing engine/app/stage"
+      );
     }
 
     // Setup input handlers
     this.setupInputHandlers();
 
-    console.log(`Scene entered: ${this.constructor.name}`);
+    console.log(`🔧 DEBUG: Scene entered: ${this.constructor.name}`);
   }
 
   onExit() {
+    console.log("🔧 DEBUG: PixiScene onExit called");
+
     this.isActive = false;
 
     // Remove from stage
     if (this.engine && this.engine.app && this.container.parent) {
       this.engine.app.stage.removeChild(this.container);
+      console.log("🔧 DEBUG: Container removed from stage");
     }
 
     // Clean up input handlers
     this.cleanupInputHandlers();
 
-    console.log(`Scene exited: ${this.constructor.name}`);
+    console.log(`🔧 DEBUG: Scene exited: ${this.constructor.name}`);
   }
 
   update(deltaTime) {
@@ -68,12 +119,15 @@ export class PixiScene {
         sprite.update(deltaTime);
       }
     });
-
-    // Override in subclasses for scene-specific logic
   }
 
   setupInputHandlers() {
-    if (!this.engine || !this.engine.app) return;
+    if (!this.engine || !this.engine.app) {
+      console.log("🔧 DEBUG: Cannot setup input handlers - no engine/app");
+      return;
+    }
+
+    console.log("🔧 DEBUG: Setting up input handlers");
 
     // Mouse/touch events
     this.container.on("pointerdown", (event) => this.onPointerDown(event));
@@ -87,9 +141,13 @@ export class PixiScene {
     // Make container interactive
     this.container.interactive = true;
     this.container.hitArea = this.engine.app.screen;
+
+    console.log("🔧 DEBUG: Input handlers setup complete");
   }
 
   cleanupInputHandlers() {
+    console.log("🔧 DEBUG: Cleaning up input handlers");
+
     if (this.container) {
       this.container.off("pointerdown");
       this.container.off("pointerup");
@@ -106,16 +164,12 @@ export class PixiScene {
     this.mousePosition.x = event.global.x;
     this.mousePosition.y = event.global.y;
     this.mouseClicked = true;
-
-    // Override in subclasses
     this.handleMouseDown(event);
   }
 
   onPointerUp(event) {
     this.mousePosition.x = event.global.x;
     this.mousePosition.y = event.global.y;
-
-    // Override in subclasses
     this.handleMouseUp(event);
   }
 
@@ -131,21 +185,16 @@ export class PixiScene {
       )}, ${Math.floor(this.mousePosition.y)}`;
     }
 
-    // Override in subclasses
     this.handleMouseMove(event);
   }
 
   onKeyDown(event) {
     this.keys[event.code] = true;
-
-    // Override in subclasses
     this.handleKeyDown(event);
   }
 
   onKeyUp(event) {
     this.keys[event.code] = false;
-
-    // Override in subclasses
     this.handleKeyUp(event);
   }
 
@@ -156,13 +205,40 @@ export class PixiScene {
   handleKeyDown(event) {}
   handleKeyUp(event) {}
 
-  // Sprite management
+  // Sprite management with enhanced debugging
   addSprite(sprite, layer = "world") {
+    console.log("🔧 DEBUG: addSprite called", {
+      spriteName: sprite.name || "unnamed",
+      layer: layer,
+      hasLayers: !!this.layers,
+      hasTargetLayer: !!(this.layers && this.layers[layer]),
+      spriteVisible: sprite.visible,
+    });
+
+    if (!sprite) {
+      console.error("🔧 ERROR: Cannot add null/undefined sprite");
+      return null;
+    }
+
+    // Add to sprites array
     this.sprites.push(sprite);
 
-    if (this.layers[layer]) {
+    // Ensure sprite is visible
+    sprite.visible = true;
+
+    // Add to appropriate layer
+    if (this.layers && this.layers[layer]) {
       this.layers[layer].addChild(sprite);
+      console.log("🔧 DEBUG: Sprite added to layer", {
+        layer: layer,
+        layerChildren: this.layers[layer].children.length,
+        spriteParent: !!sprite.parent,
+      });
     } else {
+      console.warn(
+        "🔧 WARNING: Layer not found, adding to container directly",
+        layer
+      );
       this.container.addChild(sprite);
     }
 
@@ -170,6 +246,8 @@ export class PixiScene {
   }
 
   removeSprite(sprite) {
+    console.log("🔧 DEBUG: removeSprite called", sprite.name || "unnamed");
+
     const index = this.sprites.indexOf(sprite);
     if (index > -1) {
       this.sprites.splice(index, 1);
@@ -182,9 +260,14 @@ export class PixiScene {
 
   // Graphics management
   addGraphics(graphics, layer = "world") {
+    console.log("🔧 DEBUG: addGraphics called", {
+      graphicsName: graphics.name || "unnamed",
+      layer: layer,
+    });
+
     this.graphics.push(graphics);
 
-    if (this.layers[layer]) {
+    if (this.layers && this.layers[layer]) {
       this.layers[layer].addChild(graphics);
     } else {
       this.container.addChild(graphics);
@@ -246,8 +329,45 @@ export class PixiScene {
     };
   }
 
+  // Debug methods
+  debugFullState() {
+    console.group("🔧 FULL PIXISCENE DEBUG STATE");
+    console.log("Scene State:", {
+      isActive: this.isActive,
+      hasEngine: !!this.engine,
+      containerVisible: this.container?.visible,
+      containerChildren: this.container?.children?.length,
+      containerParent: !!this.container?.parent,
+    });
+
+    console.log("Layer States:", {
+      background: {
+        visible: this.layers.background?.visible,
+        children: this.layers.background?.children?.length,
+      },
+      world: {
+        visible: this.layers.world?.visible,
+        children: this.layers.world?.children?.length,
+      },
+      ui: {
+        visible: this.layers.ui?.visible,
+        children: this.layers.ui?.children?.length,
+      },
+      effects: {
+        visible: this.layers.effects?.visible,
+        children: this.layers.effects?.children?.length,
+      },
+    });
+
+    console.log("Sprites:", this.sprites.length);
+    console.log("Graphics:", this.graphics.length);
+    console.groupEnd();
+  }
+
   // Cleanup
   destroy() {
+    console.log("🔧 DEBUG: PixiScene destroy called");
+
     this.onExit();
 
     // Clean up sprites
@@ -271,6 +391,6 @@ export class PixiScene {
       this.container.destroy({ children: true });
     }
 
-    console.log(`Scene destroyed: ${this.constructor.name}`);
+    console.log(`🔧 DEBUG: Scene destroyed: ${this.constructor.name}`);
   }
 }
