@@ -6,66 +6,27 @@ import { PixiScene } from "../core/PixiScene.js";
 export class PixiInventoryScene extends PixiScene {
   constructor() {
     super();
-    console.log("🔧 DEBUG: PixiInventoryScene constructor called");
-
-    // Store original methods for debugging
-    this.originalAddSprite = this.addSprite;
-    this.addSprite = this.debugAddSprite;
 
     this.gridCellSize = 60;
     this.inventoryGrid = { x: 50, y: 100, cols: 10, rows: 8 };
     this.storageGrid = { x: 700, y: 100, cols: 8, rows: 6 };
     this.items = [];
+
+    // Drag and drop state
     this.draggedItem = null;
-  }
+    this.dragStartGrid = null;
+    this.dragOffset = { x: 0, y: 0 };
+    this.placementPreview = null;
+    this.currentTooltip = null;
 
-  debugAddSprite(sprite, layer = "world") {
-    console.log("🔧 DEBUG: addSprite called", {
-      spriteName: sprite.name || "unnamed",
-      layer: layer,
-      hasEngine: !!this.engine,
-      hasContainer: !!this.container,
-      hasLayers: !!this.layers,
-      hasTargetLayer: !!(this.layers && this.layers[layer]),
-      isActive: this.isActive,
-    });
-
-    const result = this.originalAddSprite.call(this, sprite, layer);
-
-    console.log("🔧 DEBUG: addSprite result", {
-      returned: result,
-      spriteParent: !!sprite.parent,
-      spriteVisible: sprite.visible,
-      containerChildren: this.container.children.length,
-      layerChildren: this.layers[layer]
-        ? this.layers[layer].children.length
-        : "layer not found",
-    });
-
-    return result;
+    // Visual settings
+    this.showShapeOutlines = false;
+    this.showDimensionInfo = false;
   }
 
   onEnter() {
-    console.log("🔧 DEBUG: PixiInventoryScene onEnter called");
-    console.log("🔧 DEBUG: Engine state", {
-      hasEngine: !!this.engine,
-      hasApp: !!(this.engine && this.engine.app),
-      hasStage: !!(this.engine && this.engine.app && this.engine.app.stage),
-      stageChildren: this.engine?.app?.stage?.children?.length || "unknown",
-    });
-
     // Call parent onEnter
     super.onEnter();
-
-    console.log("🔧 DEBUG: After super.onEnter()", {
-      isActive: this.isActive,
-      containerParent: !!this.container.parent,
-      containerVisible: this.container.visible,
-      containerChildren: this.container.children.length,
-    });
-
-    // Test if we can add a simple graphic
-    this.createTestGraphic();
 
     // Create background
     this.createBackground();
@@ -73,83 +34,14 @@ export class PixiInventoryScene extends PixiScene {
     // Create grids
     this.createGrids();
 
-    // Create a super simple test item
-    this.createSimpleTestItem();
-
     // Create normal items
     this.createBasicItems();
-
-    console.log("🔧 DEBUG: Final scene state", {
-      totalItems: this.items.length,
-      containerChildren: this.container.children.length,
-      worldLayerChildren: this.layers.world.children.length,
-      backgroundLayerChildren: this.layers.background.children.length,
-      uiLayerChildren: this.layers.ui.children.length,
-    });
   }
 
-  createTestGraphic() {
-    console.log("🔧 DEBUG: Creating test graphic");
-
-    // Create a simple red square to test basic rendering
-    const testGraphic = new PIXI.Graphics();
-    testGraphic.beginFill(0xff0000);
-    testGraphic.drawRect(0, 0, 100, 100);
-    testGraphic.endFill();
-    testGraphic.x = 100;
-    testGraphic.y = 100;
-    testGraphic.name = "testGraphic";
-
-    console.log("🔧 DEBUG: Test graphic created", {
-      x: testGraphic.x,
-      y: testGraphic.y,
-      visible: testGraphic.visible,
-    });
-
-    this.addSprite(testGraphic, "world");
-  }
-
-  createSimpleTestItem() {
-    console.log("🔧 DEBUG: Creating simple test item");
-
-    // Create the simplest possible item
-    const simpleItem = new PIXI.Graphics();
-    simpleItem.beginFill(0x00ff00); // Green
-    simpleItem.drawRect(0, 0, 58, 58);
-    simpleItem.endFill();
-    simpleItem.x = this.storageGrid.x + 2;
-    simpleItem.y = this.storageGrid.y + 2;
-    simpleItem.name = "simpleTestItem";
-    simpleItem.visible = true;
-
-    console.log("🔧 DEBUG: Simple item created", {
-      x: simpleItem.x,
-      y: simpleItem.y,
-      width: simpleItem.width,
-      height: simpleItem.height,
-      visible: simpleItem.visible,
-    });
-
-    // Add it directly to container to bypass any layer issues
-    console.log("🔧 DEBUG: Adding simple item directly to container");
-    this.container.addChild(simpleItem);
-
-    console.log("🔧 DEBUG: Simple item added", {
-      parent: !!simpleItem.parent,
-      containerChildren: this.container.children.length,
-    });
-
-    // Also try adding through addSprite
-    const simpleItem2 = new PIXI.Graphics();
-    simpleItem2.beginFill(0x0000ff); // Blue
-    simpleItem2.drawRect(0, 0, 58, 58);
-    simpleItem2.endFill();
-    simpleItem2.x = this.storageGrid.x + 120;
-    simpleItem2.y = this.storageGrid.y + 2;
-    simpleItem2.name = "simpleTestItem2";
-
-    console.log("🔧 DEBUG: Adding second simple item through addSprite");
-    this.addSprite(simpleItem2, "world");
+  initializePersistentData() {
+    if (!this.items) {
+      this.items = [];
+    }
   }
 
   createBackground() {
@@ -180,10 +72,6 @@ export class PixiInventoryScene extends PixiScene {
 
     console.log("🔧 DEBUG: Background and title created");
   }
-
-  // Add this method to your PixiInventoryScene.js - replace the createGrid method
-
-  // Replace these methods in your PixiInventoryScene.js for perfect alignment
 
   createGrid(gridData, color, name) {
     console.log(`🔧 Creating ${name} grid without stroke offset`);
@@ -266,8 +154,6 @@ export class PixiInventoryScene extends PixiScene {
 
     console.log("✅ Grids created with stroke fix");
   }
-
-  // Add these missing methods to your PixiInventoryScene.js
 
   createBasicItems() {
     console.log("📦 Creating basic items...");
@@ -452,11 +338,12 @@ export class PixiInventoryScene extends PixiScene {
       return this.gridX >= 0 && this.gridY >= 0;
     };
 
-    // Make interactive
+    // Make interactive - UPDATED SECTION
     item.interactive = true;
     item.cursor = "pointer";
+    item.buttonMode = true;
 
-    // Hover effects
+    // Keep hover effects only
     item.on("pointerover", () => {
       if (!this.draggedItem) {
         item.scale.set(1.05);
@@ -471,8 +358,8 @@ export class PixiInventoryScene extends PixiScene {
       }
     });
 
-    // Drag functionality
-    item.on("pointerdown", (event) => this.startDragging(item, event));
+    // REMOVED: item.on("pointerdown", (event) => this.startDragging(item, event));
+    // Now using global handleMouseDown instead
 
     // Add glow effect for gems
     if (data.type === "gem") {
@@ -514,7 +401,7 @@ export class PixiInventoryScene extends PixiScene {
   placeItemInGrid(item, grid, gridX, gridY) {
     console.log(`📍 Placing ${item.name} at grid (${gridX}, ${gridY})`);
 
-    // EXACT positioning with stroke fix
+    // EXACT positioning
     const screenX = grid.x + gridX * this.gridCellSize;
     const screenY = grid.y + gridY * this.gridCellSize;
 
@@ -522,15 +409,27 @@ export class PixiInventoryScene extends PixiScene {
     item.y = screenY;
     item.gridX = gridX;
     item.gridY = gridY;
-    item.visible = true;
 
-    const added = this.addSprite(item, "world");
+    // FORCE VISIBILITY
+    item.visible = true;
+    item.alpha = 1;
+    item.scale.set(1);
+
+    // Remove from any existing parent first
+    if (item.parent) {
+      item.parent.removeChild(item);
+    }
+
+    // Add to world layer directly
+    this.layers.world.addChild(item);
 
     console.log(`🎯 Placed ${item.name} at screen (${screenX}, ${screenY})`);
+    console.log(
+      `   Parent: ${item.parent?.name || "none"}, Visible: ${item.visible}`
+    );
+
     return true;
   }
-
-  // Also add these utility methods you might be missing
 
   showTooltip(item) {
     const tooltip = new PIXI.Container();
@@ -591,16 +490,308 @@ export class PixiInventoryScene extends PixiScene {
     }
   }
 
-  resetItems() {
-    console.log("🔄 Resetting items...");
+  startDragging(item, event) {
+    console.log(`🖱️ Starting drag: ${item.name}`);
 
-    // Clear current items
-    this.items.forEach((item) => this.removeSprite(item));
-    this.items = [];
+    this.draggedItem = item;
+    this.dragStartGrid = this.findItemGrid(item);
 
-    // Recreate items
-    this.createBasicItems();
+    // Store original position
+    item.originalX = item.x;
+    item.originalY = item.y;
+    item.originalGridX = item.gridX;
+    item.originalGridY = item.gridY;
 
-    console.log(`✅ Items reset - ${this.items.length} items created`);
+    // Visual feedback during drag
+    item.alpha = 0.8;
+    item.scale.set(1.1);
+
+    // Move item to top of world layer for better visibility
+    this.layers.world.removeChild(item);
+    this.layers.world.addChild(item);
+
+    // Calculate drag offset from mouse to item corner
+    const globalPos = event.global;
+    item.dragOffsetX = globalPos.x - item.x;
+    item.dragOffsetY = globalPos.y - item.y;
+
+    // Clear from current grid position
+    item.gridX = -1;
+    item.gridY = -1;
+
+    console.log(`📍 Drag started at screen: ${globalPos.x}, ${globalPos.y}`);
+  }
+
+  stopDragging(event) {
+    if (!this.draggedItem) return;
+
+    console.log(`🖱️ Stopping drag: ${this.draggedItem.name}`);
+
+    const item = this.draggedItem;
+    const globalPos = event.global;
+
+    // Try to find a valid placement
+    let placed = false;
+    let targetGrid = null;
+    let gridX = -1;
+    let gridY = -1;
+
+    // Check inventory grid first
+    const invPos = this.getGridPosition(
+      this.inventoryGrid,
+      globalPos.x,
+      globalPos.y
+    );
+    if (
+      invPos &&
+      this.canPlaceItemAt(this.inventoryGrid, item, invPos.x, invPos.y)
+    ) {
+      targetGrid = this.inventoryGrid;
+      gridX = invPos.x;
+      gridY = invPos.y;
+      placed = true;
+    }
+
+    // Check storage grid if inventory failed
+    if (!placed) {
+      const storPos = this.getGridPosition(
+        this.storageGrid,
+        globalPos.x,
+        globalPos.y
+      );
+      if (
+        storPos &&
+        this.canPlaceItemAt(this.storageGrid, item, storPos.x, storPos.y)
+      ) {
+        targetGrid = this.storageGrid;
+        gridX = storPos.x;
+        gridY = storPos.y;
+        placed = true;
+      }
+    }
+
+    if (placed) {
+      // Place item in new position
+      this.placeItemInGrid(item, targetGrid, gridX, gridY);
+      console.log(`✅ Placed ${item.name} at (${gridX}, ${gridY})`);
+    } else {
+      // Return to original position
+      this.placeItemInGrid(
+        item,
+        this.dragStartGrid,
+        item.originalGridX,
+        item.originalGridY
+      );
+      console.log(`🔄 Returned ${item.name} to original position`);
+    }
+
+    // Reset visual state
+    item.alpha = 1;
+    item.scale.set(1);
+
+    // Clean up
+    this.hidePlacementPreview();
+    this.draggedItem = null;
+    this.dragStartGrid = null;
+  }
+
+  getGridPosition(grid, screenX, screenY) {
+    // Check if position is within grid bounds
+    if (
+      screenX < grid.x ||
+      screenY < grid.y ||
+      screenX >= grid.x + grid.cols * this.gridCellSize ||
+      screenY >= grid.y + grid.rows * this.gridCellSize
+    ) {
+      return null;
+    }
+
+    return {
+      x: Math.floor((screenX - grid.x) / this.gridCellSize),
+      y: Math.floor((screenY - grid.y) / this.gridCellSize),
+    };
+  }
+
+  canPlaceItemAt(grid, item, gridX, gridY) {
+    // Check bounds
+    if (
+      gridX < 0 ||
+      gridY < 0 ||
+      gridX + item.width > grid.cols ||
+      gridY + item.height > grid.rows
+    ) {
+      return false;
+    }
+
+    // Check for overlapping items
+    for (const otherItem of this.items) {
+      if (otherItem === item || otherItem.gridX < 0 || otherItem.gridY < 0)
+        continue;
+
+      // Check if this item is in the same grid
+      const otherItemGrid = this.findItemGrid(otherItem);
+      if (otherItemGrid !== grid) continue;
+
+      // Check overlap
+      if (
+        !(
+          gridX >= otherItem.gridX + otherItem.width ||
+          gridX + item.width <= otherItem.gridX ||
+          gridY >= otherItem.gridY + otherItem.height ||
+          gridY + item.height <= otherItem.gridY
+        )
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  findItemGrid(item) {
+    // Determine which grid the item belongs to based on its position
+    if (
+      item.x >= this.inventoryGrid.x &&
+      item.x <
+        this.inventoryGrid.x + this.inventoryGrid.cols * this.gridCellSize &&
+      item.y >= this.inventoryGrid.y &&
+      item.y <
+        this.inventoryGrid.y + this.inventoryGrid.rows * this.gridCellSize
+    ) {
+      return this.inventoryGrid;
+    } else {
+      return this.storageGrid;
+    }
+  }
+
+  showPlacementPreview(item, grid, gridX, gridY, canPlace) {
+    this.hidePlacementPreview();
+
+    const preview = new PIXI.Graphics();
+    const color = canPlace ? 0x2ecc71 : 0xe74c3c;
+    const alpha = canPlace ? 0.3 : 0.5;
+
+    preview.beginFill(color, alpha);
+    preview.drawRect(
+      0,
+      0,
+      item.width * this.gridCellSize,
+      item.height * this.gridCellSize
+    );
+    preview.endFill();
+
+    preview.lineStyle(2, color);
+    preview.drawRect(
+      0,
+      0,
+      item.width * this.gridCellSize,
+      item.height * this.gridCellSize
+    );
+
+    preview.x = grid.x + gridX * this.gridCellSize;
+    preview.y = grid.y + gridY * this.gridCellSize;
+
+    this.addSprite(preview, "ui");
+    this.placementPreview = preview;
+  }
+
+  hidePlacementPreview() {
+    if (this.placementPreview) {
+      this.removeSprite(this.placementPreview);
+      this.placementPreview = null;
+    }
+  }
+
+  handleMouseUp(event) {
+    if (this.draggedItem) {
+      this.stopDragging(event);
+    }
+  }
+
+  handleMouseMove(event) {
+    if (this.draggedItem) {
+      const globalPos = event.global;
+      const item = this.draggedItem;
+
+      // Update item position
+      item.x = globalPos.x - item.dragOffsetX;
+      item.y = globalPos.y - item.dragOffsetY;
+
+      // Show placement preview
+      const invPos = this.getGridPosition(
+        this.inventoryGrid,
+        globalPos.x,
+        globalPos.y
+      );
+      if (invPos) {
+        const canPlace = this.canPlaceItemAt(
+          this.inventoryGrid,
+          item,
+          invPos.x,
+          invPos.y
+        );
+        this.showPlacementPreview(
+          item,
+          this.inventoryGrid,
+          invPos.x,
+          invPos.y,
+          canPlace
+        );
+      } else {
+        const storPos = this.getGridPosition(
+          this.storageGrid,
+          globalPos.x,
+          globalPos.y
+        );
+        if (storPos) {
+          const canPlace = this.canPlaceItemAt(
+            this.storageGrid,
+            item,
+            storPos.x,
+            storPos.y
+          );
+          this.showPlacementPreview(
+            item,
+            this.storageGrid,
+            storPos.x,
+            storPos.y,
+            canPlace
+          );
+        } else {
+          this.hidePlacementPreview();
+        }
+      }
+    }
+  }
+
+  handleMouseDown(event) {
+    console.log("🖱️ Global mouse down at:", event.global.x, event.global.y);
+
+    // Find what item was clicked
+    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
+
+    if (clickedItem && clickedItem.interactive) {
+      console.log(`🎯 Found clicked item: ${clickedItem.name}`);
+      this.startDragging(clickedItem, event);
+    } else {
+      console.log("🎯 No item found under mouse");
+    }
+  }
+
+  findItemUnderMouse(mouseX, mouseY) {
+    // Check items in reverse order (top to bottom)
+    for (let i = this.items.length - 1; i >= 0; i--) {
+      const item = this.items[i];
+      if (
+        item.visible &&
+        mouseX >= item.x &&
+        mouseX <= item.x + item.width * this.gridCellSize &&
+        mouseY >= item.y &&
+        mouseY <= item.y + item.height * this.gridCellSize
+      ) {
+        return item;
+      }
+    }
+    return null;
   }
 }
