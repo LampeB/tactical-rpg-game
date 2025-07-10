@@ -4,6 +4,7 @@ import { PixiMenuScene } from "./scenes/PixiMenuScene.js";
 import { PixiInventoryScene } from "./scenes/PixiInventoryScene.js";
 import { PixiBattleScene } from "./scenes/PixiBattleScene.js";
 import { PixiWorldScene } from "./scenes/PixiWorldScene.js";
+import { PixiLootScene } from "./scenes/PixiLootScene.js";
 
 class TacticalRPG {
   constructor() {
@@ -28,11 +29,13 @@ class TacticalRPG {
     this.inventoryScene = new PixiInventoryScene();
     this.battleScene = new PixiBattleScene();
     this.worldScene = new PixiWorldScene();
+    this.lootScene = new PixiLootScene();
 
     this.engine.addScene("menu", this.menuScene);
     this.engine.addScene("inventory", this.inventoryScene);
     this.engine.addScene("battle", this.battleScene);
     this.engine.addScene("world", this.worldScene);
+    this.engine.addScene("loot", this.lootScene);
 
     // Make updateNavButtons available to engine
     this.engine.updateNavButtons = (sceneName) =>
