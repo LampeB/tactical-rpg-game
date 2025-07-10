@@ -22,6 +22,24 @@ export class PixiInventoryScene extends PixiScene {
     this.showDimensionInfo = false;
   }
 
+  addGemGlowEffect(item, pixelWidth, pixelHeight) {
+    const glow = new PIXI.Graphics();
+    glow.lineStyle(2, 0xffd700, 0.8);
+    glow.drawRoundedRect(-2, -2, pixelWidth + 4, pixelHeight + 4, 6);
+    item.addChildAt(glow, 0);
+
+    // Animate glow
+    let glowTime = Math.random() * Math.PI * 2;
+    const animateGlow = () => {
+      glowTime += 0.05;
+      glow.alpha = 0.3 + Math.sin(glowTime) * 0.3;
+      if (item.parent) {
+        requestAnimationFrame(animateGlow);
+      }
+    };
+    animateGlow();
+  }
+
   onEnter() {
     super.onEnter();
 
@@ -41,6 +59,23 @@ export class PixiInventoryScene extends PixiScene {
         }
       });
     }
+    this.instructionsText = new PIXI.Text(
+      "Drag items | Press R while dragging to rotate",
+      {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fill: 0xffffff,
+        align: "center",
+      }
+    );
+    this.instructionsText.anchor.set(0.5);
+    this.instructionsText.x = this.engine.width / 2;
+    this.instructionsText.y = this.engine.height - 20;
+
+    this.addSprite(this.instructionsText, "ui");
+
+    // Set initial instructions
+    this.updateInstructions();
   }
 
   initializePersistentData() {
@@ -601,7 +636,6 @@ export class PixiInventoryScene extends PixiScene {
     return null;
   }
 
-  // Add this helper method to find available spots
   findAndPlaceItem(item) {
     console.log(`🔍 Finding available spot for ${item.name}`);
 
@@ -633,6 +667,123 @@ export class PixiInventoryScene extends PixiScene {
     return false;
   }
 
+  handleKeyDown(event) {
+    if (event.code === "KeyR") {
+      if (this.draggedItem) {
+        this.rotateDraggedItem();
+      }
+    }
+  }
+
+  handleMouseUp(event) {
+    if (this.draggedItem) {
+      this.stopDragging(event);
+    }
+  }
+
+  handleMouseMove(event) {
+    if (this.draggedItem) {
+      const globalPos = event.global;
+      const item = this.draggedItem;
+
+      // Update item position
+      item.x = globalPos.x - item.dragOffsetX;
+      item.y = globalPos.y - item.dragOffsetY;
+
+      // Show placement preview
+      const invPos = this.getGridPosition(
+        this.inventoryGrid,
+        globalPos.x,
+        globalPos.y
+      );
+      if (invPos) {
+        const canPlace = this.canPlaceItemAt(
+          this.inventoryGrid,
+          item,
+          invPos.x,
+          invPos.y
+        );
+        this.showPlacementPreview(
+          item,
+          this.inventoryGrid,
+          invPos.x,
+          invPos.y,
+          canPlace
+        );
+      } else {
+        const storPos = this.getGridPosition(
+          this.storageGrid,
+          globalPos.x,
+          globalPos.y
+        );
+        if (storPos) {
+          const canPlace = this.canPlaceItemAt(
+            this.storageGrid,
+            item,
+            storPos.x,
+            storPos.y
+          );
+          this.showPlacementPreview(
+            item,
+            this.storageGrid,
+            storPos.x,
+            storPos.y,
+            canPlace
+          );
+        } else {
+          this.hidePlacementPreview();
+        }
+      }
+    }
+  }
+
+  handleMouseDown(event) {
+    console.log("🖱️ Global mouse down at:", event.global.x, event.global.y);
+
+    // Find what item was clicked
+    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
+
+    if (clickedItem && clickedItem.interactive) {
+      console.log(`🎯 Found clicked item: ${clickedItem.name}`);
+      this.startDragging(clickedItem, event);
+    } else {
+      console.log("🎯 No item found under mouse");
+    }
+  }
+
+  hidePlacementPreview() {
+    if (this.placementPreview) {
+      this.removeSprite(this.placementPreview);
+      this.placementPreview = null;
+    }
+  }
+
+  hideTooltip() {
+    if (this.currentTooltip) {
+      this.removeSprite(this.currentTooltip);
+      this.currentTooltip = null;
+    }
+  }
+
+  isRotationPointless(item) {
+    const bounds = ShapeHelper.getBounds(item.shapePattern);
+
+    // 1x1 items don't need rotation
+    if (bounds.width === 1 && bounds.height === 1) {
+      return true;
+    }
+
+    // Perfect squares with simple shapes don't change when rotated
+    if (
+      bounds.width === bounds.height &&
+      (item.shape === "rectangle" || !item.shape)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   makeItemInteractive(item) {
     // Add methods
     item.isPlaced = function () {
@@ -660,24 +811,6 @@ export class PixiInventoryScene extends PixiScene {
     });
 
     console.log(`🎮 Made ${item.name} interactive`);
-  }
-
-  addGemGlowEffect(item, pixelWidth, pixelHeight) {
-    const glow = new PIXI.Graphics();
-    glow.lineStyle(2, 0xffd700, 0.8);
-    glow.drawRoundedRect(-2, -2, pixelWidth + 4, pixelHeight + 4, 6);
-    item.addChildAt(glow, 0);
-
-    // Animate glow
-    let glowTime = Math.random() * Math.PI * 2;
-    const animateGlow = () => {
-      glowTime += 0.05;
-      glow.alpha = 0.3 + Math.sin(glowTime) * 0.3;
-      if (item.parent) {
-        requestAnimationFrame(animateGlow);
-      }
-    };
-    animateGlow();
   }
 
   getTypeColor(type) {
@@ -770,55 +903,58 @@ export class PixiInventoryScene extends PixiScene {
     this.currentTooltip = tooltip;
   }
 
-  hideTooltip() {
-    if (this.currentTooltip) {
-      this.removeSprite(this.currentTooltip);
-      this.currentTooltip = null;
-    }
-  }
-
   startDragging(item, event) {
-    // Prevent event bubbling to avoid conflicts
+    console.log(`🖱️ Starting drag: ${item.name}`);
+
     event.stopPropagation();
-    this.hideTooltip();
 
     this.draggedItem = item;
     this.dragStartGrid = this.findItemGrid(item);
     item.isDragging = true;
 
-    // Store original position
+    // Store original state (INCLUDING ROTATION)
     item.originalX = item.x;
     item.originalY = item.y;
     item.originalGridX = item.gridX;
     item.originalGridY = item.gridY;
+    item.originalShapePattern = [...item.shapePattern]; // Store original shape
+    item.originalGridWidth = item.gridWidth;
+    item.originalGridHeight = item.gridHeight;
+    item.rotationCount = item.rotationCount || 0;
+    item.originalRotationCount = item.rotationCount;
 
-    // Visual feedback during drag
-    item.alpha = 0.9; // Slightly less transparent
-    item.scale.set(1.05); // Slightly smaller scale
+    // Hide tooltip immediately
+    this.hideTooltip();
 
-    // Move item to top of world layer for better visibility
+    // Visual feedback
+    item.alpha = 0.9;
+    item.scale.set(1.05);
+
+    // Move to top
     this.layers.world.removeChild(item);
     this.layers.world.addChild(item);
 
-    // Calculate drag offset from mouse to item corner
+    // Calculate drag offset
     const globalPos = event.global;
     item.dragOffsetX = globalPos.x - item.x;
     item.dragOffsetY = globalPos.y - item.y;
 
-    // Clear from current grid position temporarily
-    const originalGridX = item.gridX;
-    const originalGridY = item.gridY;
+    // Clear grid position temporarily
     item.gridX = -1;
     item.gridY = -1;
+
+    this.updateInstructions();
   }
 
   stopDragging(event) {
     if (!this.draggedItem) return;
 
+    console.log(`🖱️ Stopping drag: ${this.draggedItem.name}`);
+
     const item = this.draggedItem;
     const globalPos = event.global;
 
-    // Try to find a valid placement
+    // Try to find a valid placement using CURRENT (possibly rotated) shape
     let placed = false;
     let targetGrid = null;
     let gridX = -1;
@@ -831,12 +967,16 @@ export class PixiInventoryScene extends PixiScene {
       globalPos.y
     );
     if (invPos) {
+      console.log(
+        `🎯 Trying inventory at (${invPos.x}, ${invPos.y}) with current rotation`
+      );
       const canPlace = this.canPlaceItemAt(
         this.inventoryGrid,
         item,
         invPos.x,
         invPos.y
       );
+      console.log(`   Can place in inventory: ${canPlace}`);
 
       if (canPlace) {
         targetGrid = this.inventoryGrid;
@@ -854,12 +994,16 @@ export class PixiInventoryScene extends PixiScene {
         globalPos.y
       );
       if (storPos) {
+        console.log(
+          `🎯 Trying storage at (${storPos.x}, ${storPos.y}) with current rotation`
+        );
         const canPlace = this.canPlaceItemAt(
           this.storageGrid,
           item,
           storPos.x,
           storPos.y
         );
+        console.log(`   Can place in storage: ${canPlace}`);
 
         if (canPlace) {
           targetGrid = this.storageGrid;
@@ -867,21 +1011,46 @@ export class PixiInventoryScene extends PixiScene {
           gridY = storPos.y;
           placed = true;
         }
-      } else {
       }
     }
 
     if (placed) {
-      // Place item in new position
+      // Successfully placed with current rotation
       this.placeItemInGrid(item, targetGrid, gridX, gridY);
+      console.log(
+        `✅ Placed ${item.name} at (${gridX}, ${gridY}) with rotation ${item.rotationCount}`
+      );
+
+      // Clear original state since placement succeeded
+      delete item.originalShapePattern;
+      delete item.originalGridWidth;
+      delete item.originalGridHeight;
+      delete item.originalRotationCount;
     } else {
-      // Return to original position
+      // Restore original rotation
+      if (item.originalShapePattern) {
+        item.shapePattern = [...item.originalShapePattern];
+        item.gridWidth = item.originalGridWidth;
+        item.gridHeight = item.originalGridHeight;
+        item.rotationCount = item.originalRotationCount;
+
+        // Update visuals to original rotation
+        this.updateItemVisuals(item);
+      }
+
+      // Place back in original position
       this.placeItemInGrid(
         item,
         this.dragStartGrid,
         item.originalGridX,
         item.originalGridY
       );
+
+      // Clean up stored original state
+      delete item.originalShapePattern;
+      delete item.originalGridWidth;
+      delete item.originalGridHeight;
+      delete item.originalRotationCount;
     }
 
     // Reset visual state
@@ -894,6 +1063,35 @@ export class PixiInventoryScene extends PixiScene {
     this.hidePlacementPreview();
     this.draggedItem = null;
     this.dragStartGrid = null;
+
+    this.updateInstructions();
+  }
+
+  rotateDraggedItem() {
+    const item = this.draggedItem;
+    if (!item) return;
+
+    // Can't rotate simple items
+    if (this.isRotationPointless(item)) {
+      return;
+    }
+
+    // Rotate the shape pattern
+    let newPattern = ShapeHelper.rotateClockwise(item.shapePattern);
+    newPattern = ShapeHelper.normalize(newPattern);
+
+    // Get new bounds
+    const newBounds = ShapeHelper.getBounds(newPattern);
+
+    // Update item properties
+    item.shapePattern = newPattern;
+    item.gridWidth = newBounds.width;
+    item.gridHeight = newBounds.height;
+    item.rotationCount = (item.rotationCount + 1) % 4;
+
+    // Update visuals
+    this.updateItemVisuals(item);
+    this.updateInstructions();
   }
 
   getGridPosition(grid, screenX, screenY) {
@@ -959,93 +1157,112 @@ export class PixiInventoryScene extends PixiScene {
     this.placementPreview = preview;
   }
 
-  hidePlacementPreview() {
-    if (this.placementPreview) {
-      this.removeSprite(this.placementPreview);
-      this.placementPreview = null;
-    }
-  }
-
-  handleMouseUp(event) {
-    if (this.draggedItem) {
-      this.stopDragging(event);
-    }
-  }
-
-  handleMouseMove(event) {
-    if (this.draggedItem) {
-      const globalPos = event.global;
-      const item = this.draggedItem;
-
-      // Update item position
-      item.x = globalPos.x - item.dragOffsetX;
-      item.y = globalPos.y - item.dragOffsetY;
-
-      // Show placement preview
-      const invPos = this.getGridPosition(
-        this.inventoryGrid,
-        globalPos.x,
-        globalPos.y
-      );
-      if (invPos) {
-        const canPlace = this.canPlaceItemAt(
-          this.inventoryGrid,
-          item,
-          invPos.x,
-          invPos.y
-        );
-        this.showPlacementPreview(
-          item,
-          this.inventoryGrid,
-          invPos.x,
-          invPos.y,
-          canPlace
-        );
-      } else {
-        const storPos = this.getGridPosition(
-          this.storageGrid,
-          globalPos.x,
-          globalPos.y
-        );
-        if (storPos) {
-          const canPlace = this.canPlaceItemAt(
-            this.storageGrid,
-            item,
-            storPos.x,
-            storPos.y
-          );
-          this.showPlacementPreview(
-            item,
-            this.storageGrid,
-            storPos.x,
-            storPos.y,
-            canPlace
-          );
-        } else {
-          this.hidePlacementPreview();
-        }
-      }
-    }
-  }
-
-  handleMouseDown(event) {
-    console.log("🖱️ Global mouse down at:", event.global.x, event.global.y);
-
-    // Find what item was clicked
-    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
-
-    if (clickedItem && clickedItem.interactive) {
-      console.log(`🎯 Found clicked item: ${clickedItem.name}`);
-      this.startDragging(clickedItem, event);
-    } else {
-      console.log("🎯 No item found under mouse");
-    }
-  }
-
   initializePersistentData() {
     if (!this.items) {
       this.items = [];
     }
     console.log("📋 Inventory persistent data initialized");
+  }
+
+  updateInstructions() {
+    if (this.instructionsText) {
+      if (this.draggedItem) {
+        this.instructionsText.text = `Dragging ${this.draggedItem.name} | Press R to rotate | Release to place`;
+      } else {
+        this.instructionsText.text =
+          "Drag items | Press R while dragging to rotate";
+      }
+    }
+  }
+
+  updateItemVisuals(item) {
+    console.log(`🎨 Updating visuals for ${item.name}`);
+
+    // Store the text content before clearing
+    const textElement = item.children.find(
+      (child) => child instanceof PIXI.Text
+    );
+    const textContent = textElement ? textElement.text : item.name;
+
+    // Clear all children
+    item.removeChildren();
+
+    // Redraw the item with new shape
+    const cellSize = this.gridCellSize;
+    const padding = 4;
+    const bounds = ShapeHelper.getBounds(item.shapePattern);
+
+    // Draw the new shape using the current pattern
+    item.shapePattern.forEach(([cellX, cellY]) => {
+      const cellGraphic = new PIXI.Graphics();
+
+      // Cell background
+      cellGraphic.beginFill(item.color);
+      cellGraphic.drawRoundedRect(
+        padding / 2,
+        padding / 2,
+        cellSize - padding,
+        cellSize - padding,
+        4
+      );
+      cellGraphic.endFill();
+
+      // Cell border
+      cellGraphic.lineStyle(2, 0x2c3e50);
+      cellGraphic.drawRoundedRect(
+        padding / 2,
+        padding / 2,
+        cellSize - padding,
+        cellSize - padding,
+        4
+      );
+
+      // Position the cell
+      cellGraphic.x = cellX * cellSize;
+      cellGraphic.y = cellY * cellSize;
+
+      item.addChild(cellGraphic);
+    });
+
+    // Re-add the text
+    const fontSize = Math.min(
+      (bounds.width * cellSize - padding) / 8,
+      (bounds.height * cellSize - padding) / 4,
+      14
+    );
+    const text = new PIXI.Text(textContent, {
+      fontFamily: "Arial",
+      fontSize: fontSize,
+      fill: 0xffffff,
+      align: "center",
+      fontWeight: "bold",
+      stroke: 0x000000,
+      strokeThickness: 1,
+    });
+    text.anchor.set(0.5);
+    text.x = (bounds.width * cellSize) / 2;
+    text.y = (bounds.height * cellSize) / 2;
+    item.addChild(text);
+
+    // Re-add type indicator
+    const typeIndicator = new PIXI.Graphics();
+    const indicatorColor = this.getTypeColor(item.type);
+    typeIndicator.beginFill(indicatorColor);
+    typeIndicator.drawCircle(bounds.width * cellSize - 8, 8, 4);
+    typeIndicator.endFill();
+    item.addChild(typeIndicator);
+
+    // Re-add glow effect for gems
+    if (item.type === "gem") {
+      this.addGemGlowEffect(
+        item,
+        bounds.width * cellSize,
+        bounds.height * cellSize
+      );
+    }
+
+    console.log(
+      `✅ Updated visuals for ${item.name} with new ${bounds.width}x${bounds.height} shape`
+    );
   }
 }
