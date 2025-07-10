@@ -493,6 +493,9 @@ export class PixiInventoryScene extends PixiScene {
   startDragging(item, event) {
     console.log(`🖱️ Starting drag: ${item.name}`);
 
+    // Prevent event bubbling to avoid conflicts
+    event.stopPropagation();
+
     this.draggedItem = item;
     this.dragStartGrid = this.findItemGrid(item);
 
@@ -503,8 +506,8 @@ export class PixiInventoryScene extends PixiScene {
     item.originalGridY = item.gridY;
 
     // Visual feedback during drag
-    item.alpha = 0.8;
-    item.scale.set(1.1);
+    item.alpha = 0.9; // Slightly less transparent
+    item.scale.set(1.05); // Slightly smaller scale
 
     // Move item to top of world layer for better visibility
     this.layers.world.removeChild(item);
@@ -515,11 +518,15 @@ export class PixiInventoryScene extends PixiScene {
     item.dragOffsetX = globalPos.x - item.x;
     item.dragOffsetY = globalPos.y - item.y;
 
-    // Clear from current grid position
+    // Clear from current grid position temporarily
+    const originalGridX = item.gridX;
+    const originalGridY = item.gridY;
     item.gridX = -1;
     item.gridY = -1;
 
-    console.log(`📍 Drag started at screen: ${globalPos.x}, ${globalPos.y}`);
+    console.log(
+      `📍 Drag started - item lifted from grid (${originalGridX}, ${originalGridY})`
+    );
   }
 
   stopDragging(event) {
@@ -671,23 +678,24 @@ export class PixiInventoryScene extends PixiScene {
     const color = canPlace ? 0x2ecc71 : 0xe74c3c;
     const alpha = canPlace ? 0.3 : 0.5;
 
-    preview.beginFill(color, alpha);
-    preview.drawRect(
-      0,
-      0,
-      item.width * this.gridCellSize,
-      item.height * this.gridCellSize
+    // Use the item's actual visual dimensions instead of recalculating
+    const itemBounds = item.getBounds();
+    const previewWidth = itemBounds.width;
+    const previewHeight = itemBounds.height;
+
+    console.log(
+      `Preview size: ${previewWidth}x${previewHeight} for item ${item.name}`
     );
+
+    // Draw preview to match the actual item size
+    preview.beginFill(color, alpha);
+    preview.drawRoundedRect(0, 0, previewWidth, previewHeight, 4);
     preview.endFill();
 
-    preview.lineStyle(2, color);
-    preview.drawRect(
-      0,
-      0,
-      item.width * this.gridCellSize,
-      item.height * this.gridCellSize
-    );
+    preview.lineStyle(2, color, 0.8);
+    preview.drawRoundedRect(0, 0, previewWidth, previewHeight, 4);
 
+    // Position exactly where the item would be placed
     preview.x = grid.x + gridX * this.gridCellSize;
     preview.y = grid.y + gridY * this.gridCellSize;
 
