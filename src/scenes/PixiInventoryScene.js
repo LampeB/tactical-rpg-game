@@ -327,8 +327,9 @@ export class PixiInventoryScene extends PixiScene {
     item.type = data.type;
     item.color = data.color;
     item.description = data.description || "";
-    item.width = data.width;
-    item.height = data.height;
+    item.gridWidth = data.width;
+    item.gridHeight = data.height;
+    item.originalData = data;
     item.gridX = -1;
     item.gridY = -1;
     item.visible = true;
@@ -551,14 +552,24 @@ export class PixiInventoryScene extends PixiScene {
       globalPos.x,
       globalPos.y
     );
-    if (
-      invPos &&
-      this.canPlaceItemAt(this.inventoryGrid, item, invPos.x, invPos.y)
-    ) {
-      targetGrid = this.inventoryGrid;
-      gridX = invPos.x;
-      gridY = invPos.y;
-      placed = true;
+    if (invPos) {
+      console.log(`🎯 Trying inventory at (${invPos.x}, ${invPos.y})`);
+      const canPlace = this.canPlaceItemAt(
+        this.inventoryGrid,
+        item,
+        invPos.x,
+        invPos.y
+      );
+      console.log(`   Can place in inventory: ${canPlace}`);
+
+      if (canPlace) {
+        targetGrid = this.inventoryGrid;
+        gridX = invPos.x;
+        gridY = invPos.y;
+        placed = true;
+      }
+    } else {
+      console.log(`🎯 Mouse not over inventory grid`);
     }
 
     // Check storage grid if inventory failed
@@ -568,14 +579,24 @@ export class PixiInventoryScene extends PixiScene {
         globalPos.x,
         globalPos.y
       );
-      if (
-        storPos &&
-        this.canPlaceItemAt(this.storageGrid, item, storPos.x, storPos.y)
-      ) {
-        targetGrid = this.storageGrid;
-        gridX = storPos.x;
-        gridY = storPos.y;
-        placed = true;
+      if (storPos) {
+        console.log(`🎯 Trying storage at (${storPos.x}, ${storPos.y})`);
+        const canPlace = this.canPlaceItemAt(
+          this.storageGrid,
+          item,
+          storPos.x,
+          storPos.y
+        );
+        console.log(`   Can place in storage: ${canPlace}`);
+
+        if (canPlace) {
+          targetGrid = this.storageGrid;
+          gridX = storPos.x;
+          gridY = storPos.y;
+          placed = true;
+        }
+      } else {
+        console.log(`🎯 Mouse not over storage grid`);
       }
     }
 
@@ -599,10 +620,8 @@ export class PixiInventoryScene extends PixiScene {
     item.scale.set(1);
     item.isDragging = false;
 
-    // EXPLICITLY HIDE TOOLTIP - ADD THIS LINE:
-    this.hideTooltip();
-
     // Clean up
+    this.hideTooltip();
     this.hidePlacementPreview();
     this.draggedItem = null;
     this.dragStartGrid = null;
@@ -626,55 +645,96 @@ export class PixiInventoryScene extends PixiScene {
   }
 
   canPlaceItemAt(grid, item, gridX, gridY) {
+    console.log(
+      `🔍 Checking placement for ${item.name} at (${gridX}, ${gridY}) in ${
+        grid === this.inventoryGrid ? "inventory" : "storage"
+      }`
+    );
+
+    // Use gridWidth/gridHeight instead of width/height
+    const itemGridWidth = item.gridWidth || item.originalData?.width || 1;
+    const itemGridHeight = item.gridHeight || item.originalData?.height || 1;
+
+    console.log(`   Item grid size: ${itemGridWidth} x ${itemGridHeight}`);
+
     // Check bounds
     if (
       gridX < 0 ||
       gridY < 0 ||
-      gridX + item.width > grid.cols ||
-      gridY + item.height > grid.rows
+      gridX + itemGridWidth > grid.cols ||
+      gridY + itemGridHeight > grid.rows
     ) {
+      console.log(
+        `   ❌ Out of bounds: (${gridX}, ${gridY}) + (${itemGridWidth}, ${itemGridHeight}) vs (${grid.cols}, ${grid.rows})`
+      );
       return false;
     }
 
     // Check for overlapping items
     for (const otherItem of this.items) {
-      if (otherItem === item || otherItem.gridX < 0 || otherItem.gridY < 0)
+      // Skip the item being dragged and items not placed
+      if (otherItem === item || otherItem.gridX < 0 || otherItem.gridY < 0) {
         continue;
+      }
 
       // Check if this item is in the same grid
       const otherItemGrid = this.findItemGrid(otherItem);
-      if (otherItemGrid !== grid) continue;
+      if (otherItemGrid !== grid) {
+        continue;
+      }
+
+      const otherGridWidth =
+        otherItem.gridWidth || otherItem.originalData?.width || 1;
+      const otherGridHeight =
+        otherItem.gridHeight || otherItem.originalData?.height || 1;
 
       // Check overlap
-      if (
-        !(
-          gridX >= otherItem.gridX + otherItem.width ||
-          gridX + item.width <= otherItem.gridX ||
-          gridY >= otherItem.gridY + otherItem.height ||
-          gridY + item.height <= otherItem.gridY
-        )
-      ) {
+      const itemRight = gridX + itemGridWidth;
+      const itemBottom = gridY + itemGridHeight;
+      const otherRight = otherItem.gridX + otherGridWidth;
+      const otherBottom = otherItem.gridY + otherGridHeight;
+
+      const overlaps = !(
+        gridX >= otherRight ||
+        itemRight <= otherItem.gridX ||
+        gridY >= otherBottom ||
+        itemBottom <= otherItem.gridY
+      );
+
+      if (overlaps) {
+        console.log(
+          `   ❌ Overlaps with ${otherItem.name} at (${otherItem.gridX}, ${otherItem.gridY})`
+        );
         return false;
       }
     }
 
+    console.log(`   ✅ Placement valid`);
     return true;
   }
 
   findItemGrid(item) {
-    // Determine which grid the item belongs to based on its position
+    // Use the stored original position during drag, or current position
+    const itemX = item.isDragging ? item.originalX : item.x;
+    const itemY = item.isDragging ? item.originalY : item.y;
+
+    console.log(`🔍 Finding grid for ${item.name} at (${itemX}, ${itemY})`);
+
+    // Check inventory grid
     if (
-      item.x >= this.inventoryGrid.x &&
-      item.x <
+      itemX >= this.inventoryGrid.x &&
+      itemX <
         this.inventoryGrid.x + this.inventoryGrid.cols * this.gridCellSize &&
-      item.y >= this.inventoryGrid.y &&
-      item.y <
-        this.inventoryGrid.y + this.inventoryGrid.rows * this.gridCellSize
+      itemY >= this.inventoryGrid.y &&
+      itemY < this.inventoryGrid.y + this.inventoryGrid.rows * this.gridCellSize
     ) {
+      console.log(`   Found in inventory grid`);
       return this.inventoryGrid;
-    } else {
-      return this.storageGrid;
     }
+
+    // Default to storage grid
+    console.log(`   Found in storage grid`);
+    return this.storageGrid;
   }
 
   showPlacementPreview(item, grid, gridX, gridY, canPlace) {
@@ -684,24 +744,34 @@ export class PixiInventoryScene extends PixiScene {
     const color = canPlace ? 0x2ecc71 : 0xe74c3c;
     const alpha = canPlace ? 0.3 : 0.5;
 
-    // Use the item's actual visual dimensions instead of recalculating
-    const itemBounds = item.getBounds();
-    const previewWidth = itemBounds.width;
-    const previewHeight = itemBounds.height;
+    // Use grid dimensions, not pixel dimensions
+    const itemGridWidth = item.gridWidth || item.originalData?.width || 1;
+    const itemGridHeight = item.gridHeight || item.originalData?.height || 1;
 
-    console.log(
-      `Preview size: ${previewWidth}x${previewHeight} for item ${item.name}`
-    );
+    const previewWidth = itemGridWidth * this.gridCellSize;
+    const previewHeight = itemGridHeight * this.gridCellSize;
+    const padding = 4;
 
-    // Draw preview to match the actual item size
+    // Draw with the same padding offset as the actual items
     preview.beginFill(color, alpha);
-    preview.drawRoundedRect(0, 0, previewWidth, previewHeight, 4);
+    preview.drawRoundedRect(
+      padding / 2,
+      padding / 2,
+      previewWidth - padding,
+      previewHeight - padding,
+      4
+    );
     preview.endFill();
 
     preview.lineStyle(2, color, 0.8);
-    preview.drawRoundedRect(0, 0, previewWidth, previewHeight, 4);
+    preview.drawRoundedRect(
+      padding / 2,
+      padding / 2,
+      previewWidth - padding,
+      previewHeight - padding,
+      4
+    );
 
-    // Position exactly where the item would be placed
     preview.x = grid.x + gridX * this.gridCellSize;
     preview.y = grid.y + gridY * this.gridCellSize;
 
