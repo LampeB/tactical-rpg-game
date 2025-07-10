@@ -345,14 +345,14 @@ export class PixiInventoryScene extends PixiScene {
 
     // Keep hover effects only
     item.on("pointerover", () => {
-      if (!this.draggedItem) {
+      if (!(this.draggedItem || item.isDragging)) {
         item.scale.set(1.05);
         this.showTooltip(item);
       }
     });
 
     item.on("pointerout", () => {
-      if (!this.draggedItem) {
+      if (!(this.draggedItem || item.isDragging)) {
         item.scale.set(1);
         this.hideTooltip();
       }
@@ -495,9 +495,11 @@ export class PixiInventoryScene extends PixiScene {
 
     // Prevent event bubbling to avoid conflicts
     event.stopPropagation();
+    this.hideTooltip();
 
     this.draggedItem = item;
     this.dragStartGrid = this.findItemGrid(item);
+    item.isDragging = true;
 
     // Store original position
     item.originalX = item.x;
@@ -595,6 +597,10 @@ export class PixiInventoryScene extends PixiScene {
     // Reset visual state
     item.alpha = 1;
     item.scale.set(1);
+    item.isDragging = false;
+
+    // EXPLICITLY HIDE TOOLTIP - ADD THIS LINE:
+    this.hideTooltip();
 
     // Clean up
     this.hidePlacementPreview();
