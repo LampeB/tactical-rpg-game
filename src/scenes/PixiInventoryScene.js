@@ -25,17 +25,23 @@ export class PixiInventoryScene extends PixiScene {
   }
 
   onEnter() {
-    // Call parent onEnter
     super.onEnter();
 
-    // Create background
     this.createBackground();
-
-    // Create grids
     this.createGrids();
 
-    // Create normal items
-    this.createBasicItems();
+    if (!this.isInitialized) {
+      // First time - start with empty inventory
+      this.items = [];
+      this.isInitialized = true;
+    } else {
+      // Subsequent times - restore any items that were added
+      this.items.forEach((item) => {
+        if (!item.parent) {
+          this.addSprite(item, "world");
+        }
+      });
+    }
   }
 
   initializePersistentData() {
@@ -140,107 +146,6 @@ export class PixiInventoryScene extends PixiScene {
       0x9b59b6,
       "Item Storage"
     );
-  }
-
-  createBasicItems() {
-    console.log("📦 Creating basic items...");
-
-    const itemsData = [
-      {
-        name: "Sword",
-        color: 0xe74c3c,
-        width: 1,
-        height: 3,
-        x: 0,
-        y: 0,
-        type: "weapon",
-        description: "A sharp blade for combat",
-      },
-      {
-        name: "Shield",
-        color: 0x34495e,
-        width: 2,
-        height: 2,
-        x: 2,
-        y: 0,
-        type: "armor",
-        description: "A sturdy shield for defense",
-      },
-      {
-        name: "Potion",
-        color: 0x27ae60,
-        width: 1,
-        height: 1,
-        x: 4,
-        y: 0,
-        type: "consumable",
-        description: "A healing potion",
-      },
-      {
-        name: "Staff",
-        color: 0x9b59b6,
-        width: 1,
-        height: 2,
-        x: 0,
-        y: 3,
-        type: "weapon",
-        description: "A magical staff",
-      },
-      {
-        name: "Gem",
-        color: 0xf39c12,
-        width: 1,
-        height: 1,
-        x: 2,
-        y: 3,
-        type: "gem",
-        description: "A magical enhancement gem",
-      },
-      {
-        name: "Bow",
-        color: 0x16a085,
-        width: 1,
-        height: 2,
-        x: 3,
-        y: 3,
-        type: "weapon",
-        description: "A ranged weapon",
-      },
-    ];
-
-    let itemsCreated = 0;
-
-    // Create and place items
-    itemsData.forEach((data, index) => {
-      try {
-        console.log(`Creating item ${index + 1}: ${data.name}`);
-        const item = this.createRectangleItem(data);
-
-        // Make sure item is visible
-        item.visible = true;
-
-        // Place item and verify it was added
-        const placed = this.placeItemInGrid(
-          item,
-          this.storageGrid,
-          data.x,
-          data.y
-        );
-
-        if (placed) {
-          itemsCreated++;
-          console.log(
-            `✅ Created and placed ${data.name} at (${data.x}, ${data.y})`
-          );
-        } else {
-          console.error(`❌ Failed to place ${data.name}`);
-        }
-      } catch (error) {
-        console.error(`❌ Failed to create ${data.name}:`, error);
-      }
-    });
-
-    console.log(`📦 Created ${itemsCreated} items total`);
   }
 
   createRectangleItem(data) {
