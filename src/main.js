@@ -23,7 +23,7 @@ class TacticalRPG {
   }
 
   setupScenes() {
-    // Create and register scenes (now imported from separate files)
+    // Create and register scenes
     this.menuScene = new PixiMenuScene();
     this.inventoryScene = new PixiInventoryScene();
     this.battleScene = new PixiBattleScene();
@@ -34,11 +34,11 @@ class TacticalRPG {
     this.engine.addScene("battle", this.battleScene);
     this.engine.addScene("world", this.worldScene);
 
-    // ADD THIS - Make updateNavButtons available to engine
+    // Make updateNavButtons available to engine
     this.engine.updateNavButtons = (sceneName) =>
       this.updateNavButtons(sceneName);
 
-    console.log("✅ PixiJS scenes registered from separate files");
+    console.log("✅ PixiJS scenes registered with custom shape support");
   }
 
   setupGlobalControls() {
@@ -55,14 +55,69 @@ class TacticalRPG {
       this.engine.switchScene("battle");
     });
 
-    // Remove KeyW global handler since it conflicts with world movement
-    // Users can use the World button instead
-
     // Debug controls
     this.inputManager.onKeyPress("F1", () => this.toggleDebugInfo());
     this.inputManager.onKeyPress("F2", () => this.logGameState());
+    this.inputManager.onKeyPress("F3", () => this.showShapeInfo());
 
     console.log("⌨️ Global controls setup");
+  }
+
+  showShapeInfo() {
+    console.group("🎨 Custom Shape System Info");
+    console.log("Enhanced Inventory System with Custom Shapes");
+    console.log("Controls in Inventory Scene:");
+    console.log("  S = Toggle shape outlines");
+    console.log("  D = Toggle dimension info");
+    console.log("  R = Reset items");
+    console.log("  T = Test shape creation");
+    console.log("  C = Clear inventory");
+    console.log("");
+    console.log("Available Shape Types:");
+    console.log("  • Rectangle (traditional)");
+    console.log("  • L-shapes (4 orientations)");
+    console.log("  • T-shapes (staffs, hammers)");
+    console.log("  • U-shapes (bows, horseshoes)");
+    console.log("  • Plus/Cross shapes");
+    console.log("  • Diamond shapes");
+    console.log("  • Z-shapes");
+    console.log("  • Tetris pieces");
+    console.log("  • Custom patterns");
+    console.log("  • Frames and hollow shapes");
+    console.groupEnd();
+
+    this.showNotification("Shape Info logged to console");
+  }
+
+  showNotification(message) {
+    // Simple notification system
+    const notification = document.createElement("div");
+    notification.textContent = message;
+    notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.opacity = "0";
+      notification.style.transform = "translateX(100%)";
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 2000);
   }
 
   setupUIHandlers() {
@@ -72,7 +127,6 @@ class TacticalRPG {
     const worldBtn = document.getElementById("worldBtn");
     const battleBtn = document.getElementById("battleBtn");
 
-    // Add event listeners with higher priority and debugging
     if (menuBtn) {
       menuBtn.addEventListener(
         "click",
@@ -82,7 +136,7 @@ class TacticalRPG {
           this.switchToScene("menu");
         },
         true
-      ); // Use capture phase for higher priority
+      );
     }
 
     if (inventoryBtn) {
@@ -90,7 +144,7 @@ class TacticalRPG {
         "click",
         (e) => {
           e.stopPropagation();
-          console.log("🎒 Inventory button clicked");
+          console.log("🎨 Shaped Inventory button clicked");
           this.switchToScene("inventory");
         },
         true
@@ -121,7 +175,7 @@ class TacticalRPG {
       );
     }
 
-    console.log("🖱️ UI handlers setup with enhanced event handling");
+    console.log("🖱️ UI handlers setup with shape system support");
   }
 
   switchToScene(sceneName) {
@@ -130,12 +184,11 @@ class TacticalRPG {
   }
 
   updateNavButtons(activeScene) {
-    // Update navigation button states
     const buttons = {
       menu: document.getElementById("menuBtn"),
       inventory: document.getElementById("inventoryBtn"),
-      world: document.getElementById("worldBtn"), // <-- This was missing!
       battle: document.getElementById("battleBtn"),
+      world: document.getElementById("worldBtn"),
     };
 
     Object.keys(buttons).forEach((scene) => {
@@ -165,7 +218,6 @@ class TacticalRPG {
   handleGameError(error) {
     console.error("Critical game error occurred:", error);
 
-    // Show error in UI
     const gameStateElement = document.getElementById("gameState");
     if (gameStateElement) {
       gameStateElement.textContent = "Error occurred";
@@ -196,25 +248,25 @@ class TacticalRPG {
     });
     console.log("Total Scenes:", this.engine.scenes.size);
     console.log("PixiJS Version:", PIXI.VERSION);
-    console.log("Scene Files Structure:");
-    console.log("  ├── scenes/PixiMenuScene.js");
-    console.log("  ├── scenes/PixiInventoryScene.js");
-    console.log("  ├── scenes/PixiBattleScene.js");
-    console.log("  └── scenes/PixiWorldScene.js");
+    console.log("Custom Shape System:", "ACTIVE");
     console.groupEnd();
   }
 
   start() {
-    console.group("🚀 Tactical RPG - Modular PixiJS Architecture");
+    console.group("🚀 Tactical RPG - Enhanced PixiJS with Custom Shapes");
     console.log("🎨 Graphics Engine: PixiJS WebGL");
     console.log("📁 Architecture: Modular scene files");
+    console.log("🎯 Shape System: Custom item shapes supported");
     console.log("✨ Features:");
     console.log("  ├── Hardware-accelerated 2D rendering");
-    console.log("  ├── Modular scene management");
-    console.log("  ├── Interactive drag & drop system");
-    console.log("  ├── World exploration with camera");
-    console.log("  ├── Layer-based rendering system");
-    console.log("  └── Optimized performance monitoring");
+    console.log("  ├── Custom shaped inventory items");
+    console.log("  ├── L, T, U, Diamond, Z shapes");
+    console.log("  ├── Tetris piece shapes");
+    console.log("  ├── Pattern-based shape creation");
+    console.log("  ├── Shape transformations & validation");
+    console.log("  ├── Visual drag & drop feedback");
+    console.log("  ├── ASCII shape visualization");
+    console.log("  └── 25+ pre-defined shapes");
     console.log("");
     console.log("🎮 Controls:");
     console.log("  ├── ESC = Menu");
@@ -222,7 +274,15 @@ class TacticalRPG {
     console.log("  ├── B = Battle");
     console.log("  ├── W = World");
     console.log("  ├── F1 = Toggle Debug");
-    console.log("  └── F2 = Log State");
+    console.log("  ├── F2 = Log State");
+    console.log("  └── F3 = Shape Info");
+    console.log("");
+    console.log("🎨 Inventory Shape Controls:");
+    console.log("  ├── S = Toggle shape outlines");
+    console.log("  ├── D = Toggle dimension info");
+    console.log("  ├── R = Reset items");
+    console.log("  ├── T = Test shape creation");
+    console.log("  └── C = Clear inventory");
     console.groupEnd();
 
     // Start with menu scene
@@ -233,8 +293,9 @@ class TacticalRPG {
     this.engine.start();
 
     console.log(
-      "🎯 Game started successfully with modular PixiJS architecture!"
+      "🎯 Game started successfully with custom shape inventory system!"
     );
+    console.log("🎨 Ready to create L-shaped, T-shaped, and custom items!");
   }
 
   stop() {
@@ -256,10 +317,11 @@ window.addEventListener("load", () => {
 
   // Make game globally available for debugging
   window.game = game;
-  window.PIXI = PIXI; // For console debugging
+  window.PIXI = PIXI;
 
   console.log("🎮 Game instance available as window.game");
   console.log("🎨 PixiJS available as window.PIXI");
+  console.log("🎯 Custom shape system ready!");
 });
 
 // Handle page visibility changes
