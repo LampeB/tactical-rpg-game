@@ -667,6 +667,50 @@ export class PixiInventoryScene extends PixiScene {
     return false;
   }
 
+  getGridPosition(grid, screenX, screenY) {
+    // Check if position is within grid bounds
+    if (
+      screenX < grid.x ||
+      screenY < grid.y ||
+      screenX >= grid.x + grid.cols * this.gridCellSize ||
+      screenY >= grid.y + grid.rows * this.gridCellSize
+    ) {
+      return null;
+    }
+
+    return this.getGridPositionFromScreenCoords(grid, screenX, screenY);
+  }
+
+  getGridPositionFromScreenCoords(grid, screenX, screenY) {
+    // Check if position is within grid bounds
+    if (
+      screenX < grid.x ||
+      screenY < grid.y ||
+      screenX >= grid.x + grid.cols * this.gridCellSize ||
+      screenY >= grid.y + grid.rows * this.gridCellSize
+    ) {
+      return null;
+    }
+    const epsilon = 0.001;
+
+    return {
+      x: Math.floor((screenX - grid.x + epsilon) / this.gridCellSize),
+      y: Math.floor((screenY - grid.y + epsilon) / this.gridCellSize),
+    };
+  }
+
+  getTypeColor(type) {
+    const colors = {
+      weapon: 0xe74c3c,
+      armor: 0x34495e,
+      gem: 0xf39c12,
+      consumable: 0x27ae60,
+      accessory: 0x9b59b6,
+      material: 0x95a5a6,
+    };
+    return colors[type] || 0x95a5a6;
+  }
+
   handleKeyDown(event) {
     if (event.code === "KeyR") {
       if (this.draggedItem) {
@@ -686,48 +730,88 @@ export class PixiInventoryScene extends PixiScene {
       const globalPos = event.global;
       const item = this.draggedItem;
 
-      // Update item position
-      item.x = globalPos.x - item.dragOffsetX;
-      item.y = globalPos.y - item.dragOffsetY;
+      // Update item position using the drag offset
+      const targetX = globalPos.x - item.dragOffsetX;
+      const targetY = globalPos.y - item.dragOffsetY;
 
-      // Show placement preview
-      const invPos = this.getGridPosition(
+      // Optional: Add slight snapping when near grid cells for better visual feedback
+      let snapX = targetX;
+      let snapY = targetY;
+
+      // Check if we're over a valid grid
+      const invPos = this.getGridPositionFromScreenCoords(
         this.inventoryGrid,
-        globalPos.x,
-        globalPos.y
+        targetX,
+        targetY
       );
-      if (invPos) {
+      const storPos = this.getGridPositionFromScreenCoords(
+        this.storageGrid,
+        targetX,
+        targetY
+      );
+
+      if (invPos || storPos) {
+        const grid = invPos ? this.inventoryGrid : this.storageGrid;
+        const gridPos = invPos || storPos;
+
+        // Calculate what the snapped position would be
+        const snappedScreenX = grid.x + gridPos.x * this.gridCellSize;
+        const snappedScreenY = grid.y + gridPos.y * this.gridCellSize;
+
+        // Apply gentle snapping if we're close (within 10 pixels)
+        const snapThreshold = 10;
+        if (Math.abs(targetX - snappedScreenX) < snapThreshold) {
+          snapX = snappedScreenX;
+        }
+        if (Math.abs(targetY - snappedScreenY) < snapThreshold) {
+          snapY = snappedScreenY;
+        }
+      }
+
+      item.x = snapX;
+      item.y = snapY;
+
+      // Show placement preview based on item's current position
+      const itemTopLeftX = item.x;
+      const itemTopLeftY = item.y;
+
+      const invPreviewPos = this.getGridPositionFromScreenCoords(
+        this.inventoryGrid,
+        itemTopLeftX,
+        itemTopLeftY
+      );
+      if (invPreviewPos) {
         const canPlace = this.canPlaceItemAt(
           this.inventoryGrid,
           item,
-          invPos.x,
-          invPos.y
+          invPreviewPos.x,
+          invPreviewPos.y
         );
         this.showPlacementPreview(
           item,
           this.inventoryGrid,
-          invPos.x,
-          invPos.y,
+          invPreviewPos.x,
+          invPreviewPos.y,
           canPlace
         );
       } else {
-        const storPos = this.getGridPosition(
+        const storPreviewPos = this.getGridPositionFromScreenCoords(
           this.storageGrid,
-          globalPos.x,
-          globalPos.y
+          itemTopLeftX,
+          itemTopLeftY
         );
-        if (storPos) {
+        if (storPreviewPos) {
           const canPlace = this.canPlaceItemAt(
             this.storageGrid,
             item,
-            storPos.x,
-            storPos.y
+            storPreviewPos.x,
+            storPreviewPos.y
           );
           this.showPlacementPreview(
             item,
             this.storageGrid,
-            storPos.x,
-            storPos.y,
+            storPreviewPos.x,
+            storPreviewPos.y,
             canPlace
           );
         } else {
@@ -813,20 +897,10 @@ export class PixiInventoryScene extends PixiScene {
     console.log(`🎮 Made ${item.name} interactive`);
   }
 
-  getTypeColor(type) {
-    const colors = {
-      weapon: 0xe74c3c,
-      armor: 0x34495e,
-      gem: 0xf39c12,
-      consumable: 0x27ae60,
-      accessory: 0x9b59b6,
-      material: 0x95a5a6,
-    };
-    return colors[type] || 0x95a5a6;
-  }
-
   placeItemInGrid(item, grid, gridX, gridY) {
-    // EXACT positioning
+    console.log(`📍 Placing ${item.name} at grid (${gridX}, ${gridY})`);
+
+    // Subtract half a cell to fix the offset
     const screenX = grid.x + gridX * this.gridCellSize;
     const screenY = grid.y + gridY * this.gridCellSize;
 
@@ -834,20 +908,13 @@ export class PixiInventoryScene extends PixiScene {
     item.y = screenY;
     item.gridX = gridX;
     item.gridY = gridY;
-
-    // FORCE VISIBILITY
     item.visible = true;
-    item.alpha = 1;
-    item.scale.set(1);
 
-    // Remove from any existing parent first
-    if (item.parent) {
-      item.parent.removeChild(item);
+    if (!item.parent) {
+      this.addSprite(item, "world");
     }
 
-    // Add to world layer directly
-    this.layers.world.addChild(item);
-
+    console.log(`🎯 Placed ${item.name} at screen (${screenX}, ${screenY})`);
     return true;
   }
 
@@ -952,19 +1019,22 @@ export class PixiInventoryScene extends PixiScene {
     console.log(`🖱️ Stopping drag: ${this.draggedItem.name}`);
 
     const item = this.draggedItem;
-    const globalPos = event.global;
 
-    // Try to find a valid placement using CURRENT (possibly rotated) shape
+    // Use the item's current position (top-left corner) to determine placement
+    const itemTopLeftX = item.x;
+    const itemTopLeftY = item.y;
+
+    // Try to find a valid placement using the item's position
     let placed = false;
     let targetGrid = null;
     let gridX = -1;
     let gridY = -1;
 
     // Check inventory grid first
-    const invPos = this.getGridPosition(
+    const invPos = this.getGridPositionFromScreenCoords(
       this.inventoryGrid,
-      globalPos.x,
-      globalPos.y
+      itemTopLeftX,
+      itemTopLeftY
     );
     if (invPos) {
       console.log(
@@ -988,10 +1058,10 @@ export class PixiInventoryScene extends PixiScene {
 
     // Check storage grid if inventory failed
     if (!placed) {
-      const storPos = this.getGridPosition(
+      const storPos = this.getGridPositionFromScreenCoords(
         this.storageGrid,
-        globalPos.x,
-        globalPos.y
+        itemTopLeftX,
+        itemTopLeftY
       );
       if (storPos) {
         console.log(
@@ -1027,6 +1097,11 @@ export class PixiInventoryScene extends PixiScene {
       delete item.originalGridHeight;
       delete item.originalRotationCount;
     } else {
+      // REVERT TO ORIGINAL POSITION AND ROTATION
+      console.log(
+        `🔄 Reverting ${item.name} to original position and rotation`
+      );
+
       // Restore original rotation
       if (item.originalShapePattern) {
         item.shapePattern = [...item.originalShapePattern];
@@ -1045,6 +1120,9 @@ export class PixiInventoryScene extends PixiScene {
         item.originalGridX,
         item.originalGridY
       );
+      console.log(
+        `🔄 Returned ${item.name} to original position with original rotation`
+      );
 
       // Clean up stored original state
       delete item.originalShapePattern;
@@ -1058,12 +1136,21 @@ export class PixiInventoryScene extends PixiScene {
     item.scale.set(1);
     item.isDragging = false;
 
+    // Clean up drag-specific properties
+    delete item.dragOffsetX;
+    delete item.dragOffsetY;
+    delete item.originalX;
+    delete item.originalY;
+    delete item.originalGridX;
+    delete item.originalGridY;
+
     // Clean up
     this.hideTooltip();
     this.hidePlacementPreview();
     this.draggedItem = null;
     this.dragStartGrid = null;
 
+    // Update instructions
     this.updateInstructions();
   }
 
@@ -1094,28 +1181,11 @@ export class PixiInventoryScene extends PixiScene {
     this.updateInstructions();
   }
 
-  getGridPosition(grid, screenX, screenY) {
-    // Check if position is within grid bounds
-    if (
-      screenX < grid.x ||
-      screenY < grid.y ||
-      screenX >= grid.x + grid.cols * this.gridCellSize ||
-      screenY >= grid.y + grid.rows * this.gridCellSize
-    ) {
-      return null;
-    }
-
-    return {
-      x: Math.floor((screenX - grid.x) / this.gridCellSize),
-      y: Math.floor((screenY - grid.y) / this.gridCellSize),
-    };
-  }
-
   showPlacementPreview(item, grid, gridX, gridY, canPlace) {
     this.hidePlacementPreview();
 
     const preview = new PIXI.Graphics();
-    const color = canPlace ? 0x2ecc71 : 0xe74c3c;
+    const color = canPlace ? 0x5f7ea0 : 0xe74c3c;
     const alpha = canPlace ? 0.3 : 0.5;
     const padding = 4;
 
