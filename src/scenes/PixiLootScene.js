@@ -1,100 +1,75 @@
-// src/scenes/PixiLootScene.js
-import { PixiScene } from "../core/PixiScene.js";
+import { HybridInventoryScene } from "../core/HybridInventoryScene.js";
+import { ShapeHelper } from "../utils/ShapeHelper.js";
 
-export class PixiLootScene extends PixiScene {
+export class PixiLootScene extends HybridInventoryScene {
   constructor() {
     super();
+    
+    // Loot-specific properties
     this.lootData = null;
     this.returnScene = "world";
     this.title = "💎 TREASURE FOUND!";
-    this.subtitle =
-      "Drag items from the right to your inventory or storage on the left";
-    this.draggedItem = null;
-    this.inventoryGrid = { x: 30, y: 100, cols: 8, rows: 6, cellSize: 25 };
-    this.storageGrid = { x: 250, y: 100, cols: 6, rows: 5, cellSize: 25 };
-    this.preview = null;
+    this.subtitle = "Drag items to character inventory or storage";
+    this.context = null;
+    this.showStats = false;
+    this.stats = null;
+    
+    // Loot interface state
+    this.draggedLootItem = null;
+    this.lootPreview = null;
+    
+    // Mini grid dimensions for preview
+    this.miniGridSize = 20;
+    this.previewAreas = {
+      characterGrid: { x: 50, y: 120, cols: 10, rows: 8 },
+      storageList: { x: 300, y: 120, width: 200, height: 160 }
+    };
   }
 
-  // Method to set loot data when entering the scene
   setLootData(lootData, options = {}) {
     this.lootData = lootData;
     this.returnScene = options.returnScene || "world";
     this.title = options.title || "💎 TREASURE FOUND!";
-    this.subtitle =
-      options.subtitle ||
-      "Drag items from the right to your inventory or storage on the left";
-
-    // Optional stats display (for battle context)
+    this.subtitle = options.subtitle || "Drag items to character inventory or storage";
     this.showStats = options.showStats || false;
     this.stats = options.stats || null;
+    this.context = options.context;
 
-    // Grid positioning adjustments based on context
-    if (options.context === "battle") {
-      this.inventoryGrid.y = 180;
-      this.storageGrid.y = 180;
-      this.inventoryGrid.rows = 5;
-      this.storageGrid.rows = 4;
-    } else {
-      this.inventoryGrid.y = 100;
-      this.storageGrid.y = 100;
-      this.inventoryGrid.rows = 6;
-      this.storageGrid.rows = 5;
-    }
+    console.log("🎁 Loot scene configured:", {
+      itemCount: this.lootData?.length || 0,
+      returnScene: this.returnScene,
+      showStats: this.showStats
+    });
   }
 
   onEnter() {
-    console.log("🔧 DEBUG: PixiInventoryScene onEnter called");
     super.onEnter();
-
-    // Always create background and grids
-    this.createBackground();
-    this.createGrids();
-
-    if (!this.isInitialized) {
-      // First time - start with empty inventory
-      console.log("🔧 First time entering inventory - starting empty");
-      this.items = this.items || [];
-      this.isInitialized = true;
+    this.createLootInterface();
+    
+    // Update game mode display
+    const gameModeBtn = document.getElementById("gameMode");
+    if (gameModeBtn) {
+      gameModeBtn.textContent = "💎 LOOT";
     }
 
-    // ALWAYS restore/re-add items to display (whether from loot or existing)
-    console.log(
-      `🔧 Re-entering inventory - restoring ${this.items.length} items`
-    );
-    this.items.forEach((item, index) => {
-      if (!item.parent) {
-        console.log(
-          `📦 Restoring item ${index}: ${item.name} at (${item.x}, ${item.y})`
-        );
-        this.addSprite(item, "world");
-      }
-    });
-
-    console.log(`✅ Inventory scene loaded with ${this.items.length} items`);
-  }
-
-  onExit() {
-    // Clean up drag operations
-    this.draggedItem = null;
-    this.preview = null;
-
-    super.onExit();
+    console.log("💎 Loot scene entered");
   }
 
   createLootInterface() {
-    // Create semi-transparent overlay
+    console.log("🎨 Creating loot interface");
+    
+    // Create overlay
     const overlay = new PIXI.Graphics();
     overlay.beginFill(0x000000, 0.8);
     overlay.drawRect(0, 0, this.engine.width, this.engine.height);
     overlay.endFill();
     overlay.interactive = true;
 
-    // Create main loot panel
+    // Create main panel
     const panelWidth = 900;
     const panelHeight = this.showStats ? 650 : 600;
     const panel = new PIXI.Graphics();
 
-    // Panel color based on context
     const panelColor = this.title.includes("VICTORY") ? 0x2e7d32 : 0x2c3e50;
     const borderColor = this.title.includes("VICTORY") ? 0x4caf50 : 0xf39c12;
 
@@ -107,20 +82,21 @@ export class PixiLootScene extends PixiScene {
     panel.x = this.engine.width / 2 - panelWidth / 2;
     panel.y = this.engine.height / 2 - panelHeight / 2;
 
-    // Store references
     this.overlay = overlay;
     this.panel = panel;
 
     // Build interface components
     this.createTitle(panel, panelWidth);
-    this.createStats(panel, panelWidth);
+    if (this.showStats) this.createStats(panel, panelWidth);
     this.createInstructions(panel, panelWidth);
-    this.createInventoryGrids(panel);
+    this.createInventoryPreviews(panel);
     this.createLootItems(panel);
     this.createCloseButton(panel, panelWidth, panelHeight);
 
     overlay.addChild(panel);
     this.addSprite(overlay, "effects");
+    
+    console.log("✅ Loot interface created");
   }
 
   createTitle(panel, panelWidth) {
@@ -142,8 +118,8 @@ export class PixiLootScene extends PixiScene {
 
     const statsText = new PIXI.Text(
       `Battle completed in ${this.stats.turnCount} turns\n` +
-        `Damage dealt: ${this.stats.damageDealt}\n` +
-        `Skills used: ${this.stats.skillsUsed}`,
+      `Damage dealt: ${this.stats.damageDealt}\n` +
+      `Skills used: ${this.stats.skillsUsed}`,
       {
         fontFamily: "Arial",
         fontSize: 14,
@@ -171,154 +147,144 @@ export class PixiLootScene extends PixiScene {
     panel.addChild(instructions);
   }
 
-  createInventoryGrids(panel) {
+  createInventoryPreviews(panel) {
     const baseY = this.showStats ? 40 : 0;
-
-    // Character Inventory
-    const invLabel = new PIXI.Text("🎒 Character Inventory", {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    invLabel.x = this.inventoryGrid.x;
-    invLabel.y = this.inventoryGrid.y - 20 + baseY;
-    panel.addChild(invLabel);
-
-    const invGrid = new PIXI.Graphics();
-    invGrid.beginFill(0x27ae60, 0.2);
-    invGrid.drawRect(
-      0,
-      0,
-      this.inventoryGrid.cols * this.inventoryGrid.cellSize,
-      this.inventoryGrid.rows * this.inventoryGrid.cellSize
-    );
-    invGrid.endFill();
-    invGrid.lineStyle(1, 0x2ecc71);
-
-    // Draw inventory grid lines
-    for (let col = 0; col <= this.inventoryGrid.cols; col++) {
-      const x = col * this.inventoryGrid.cellSize;
-      invGrid.moveTo(x, 0);
-      invGrid.lineTo(x, this.inventoryGrid.rows * this.inventoryGrid.cellSize);
-    }
-    for (let row = 0; row <= this.inventoryGrid.rows; row++) {
-      const y = row * this.inventoryGrid.cellSize;
-      invGrid.moveTo(0, y);
-      invGrid.lineTo(this.inventoryGrid.cols * this.inventoryGrid.cellSize, y);
-    }
-
-    invGrid.x = this.inventoryGrid.x;
-    invGrid.y = this.inventoryGrid.y + baseY;
-    panel.addChild(invGrid);
-
-    // Storage
-    const storageLabel = new PIXI.Text("📦 Storage", {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    storageLabel.x = this.storageGrid.x;
-    storageLabel.y = this.storageGrid.y - 20 + baseY;
-    panel.addChild(storageLabel);
-
-    const storageGrid = new PIXI.Graphics();
-    storageGrid.beginFill(0x8e44ad, 0.2);
-    storageGrid.drawRect(
-      0,
-      0,
-      this.storageGrid.cols * this.storageGrid.cellSize,
-      this.storageGrid.rows * this.storageGrid.cellSize
-    );
-    storageGrid.endFill();
-    storageGrid.lineStyle(1, 0x9b59b6);
-
-    // Draw storage grid lines
-    for (let col = 0; col <= this.storageGrid.cols; col++) {
-      const x = col * this.storageGrid.cellSize;
-      storageGrid.moveTo(x, 0);
-      storageGrid.lineTo(x, this.storageGrid.rows * this.storageGrid.cellSize);
-    }
-    for (let row = 0; row <= this.storageGrid.rows; row++) {
-      const y = row * this.storageGrid.cellSize;
-      storageGrid.moveTo(0, y);
-      storageGrid.lineTo(this.storageGrid.cols * this.storageGrid.cellSize, y);
-    }
-
-    storageGrid.x = this.storageGrid.x;
-    storageGrid.y = this.storageGrid.y + baseY;
-    panel.addChild(storageGrid);
-
-    // Show existing items
-    this.showExistingItems(panel, baseY);
+    
+    // Character inventory preview
+    this.createCharacterGridPreview(panel, baseY);
+    
+    // Storage preview
+    this.createStorageListPreview(panel, baseY);
   }
 
-  showExistingItems(panel, baseY) {
+  createCharacterGridPreview(panel, baseY) {
+    const preview = this.previewAreas.characterGrid;
+    
+    // Label
+    const label = new PIXI.Text("🎒 Character Inventory", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    label.x = preview.x;
+    label.y = preview.y - 20 + baseY;
+    panel.addChild(label);
+
+    // Grid background
+    const gridBg = new PIXI.Graphics();
+    gridBg.beginFill(0x2ecc71, 0.2);
+    gridBg.drawRect(0, 0, preview.cols * this.miniGridSize, preview.rows * this.miniGridSize);
+    gridBg.endFill();
+    
+    // Grid lines
+    gridBg.lineStyle(1, 0x2ecc71, 0.5);
+    for (let col = 0; col <= preview.cols; col++) {
+      const x = col * this.miniGridSize;
+      gridBg.moveTo(x, 0);
+      gridBg.lineTo(x, preview.rows * this.miniGridSize);
+    }
+    for (let row = 0; row <= preview.rows; row++) {
+      const y = row * this.miniGridSize;
+      gridBg.moveTo(0, y);
+      gridBg.lineTo(preview.cols * this.miniGridSize, y);
+    }
+    
+    gridBg.x = preview.x;
+    gridBg.y = preview.y + baseY;
+    panel.addChild(gridBg);
+
+    // Show existing items in character inventory
+    this.showCharacterInventoryItems(panel, preview, baseY);
+  }
+
+  createStorageListPreview(panel, baseY) {
+    const preview = this.previewAreas.storageList;
+    
+    // Label
+    const label = new PIXI.Text("📦 Storage (Unlimited)", {
+      fontFamily: "Arial",
+      fontSize: 14,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    label.x = preview.x;
+    label.y = preview.y - 20 + baseY;
+    panel.addChild(label);
+
+    // Storage background
+    const storageBg = new PIXI.Graphics();
+    storageBg.beginFill(0x8e44ad, 0.2);
+    storageBg.drawRect(0, 0, preview.width, preview.height);
+    storageBg.endFill();
+    storageBg.lineStyle(1, 0x9b59b6);
+    storageBg.drawRect(0, 0, preview.width, preview.height);
+    
+    storageBg.x = preview.x;
+    storageBg.y = preview.y + baseY;
+    panel.addChild(storageBg);
+
+    // Show storage item count
+    this.showStorageInfo(panel, preview, baseY);
+  }
+
+  showCharacterInventoryItems(panel, preview, baseY) {
     const inventoryScene = this.engine.scenes.get("inventory");
-    if (!inventoryScene) return;
+    if (!inventoryScene || !inventoryScene.characterItems) return;
 
-    inventoryScene.items.forEach((item) => {
+    inventoryScene.characterItems.forEach(item => {
       if (item.gridX >= 0 && item.gridY >= 0) {
-        const isInInventory =
-          item.x >= inventoryScene.inventoryGrid.x &&
-          item.x <
-            inventoryScene.inventoryGrid.x +
-              inventoryScene.inventoryGrid.cols * 40;
-
+        // Create mini version of the item shape
         const miniItem = new PIXI.Graphics();
-        miniItem.beginFill(item.color || 0x3498db);
-        miniItem.drawRect(
-          0,
-          0,
-          item.width * this.inventoryGrid.cellSize - 2,
-          item.height * this.inventoryGrid.cellSize - 2
-        );
-        miniItem.endFill();
-        miniItem.lineStyle(1, 0x2c3e50);
-        miniItem.drawRect(
-          0,
-          0,
-          item.width * this.inventoryGrid.cellSize - 2,
-          item.height * this.inventoryGrid.cellSize - 2
-        );
-
-        if (isInInventory) {
-          const gridX = Math.floor(
-            (item.x - inventoryScene.inventoryGrid.x) / 40
+        const shapePattern = item.shapePattern || [[0, 0]];
+        
+        shapePattern.forEach(([cellX, cellY]) => {
+          miniItem.beginFill(item.color || 0x3498db);
+          miniItem.drawRect(
+            (item.gridX + cellX) * this.miniGridSize + 1,
+            (item.gridY + cellY) * this.miniGridSize + 1,
+            this.miniGridSize - 2,
+            this.miniGridSize - 2
           );
-          const gridY = Math.floor(
-            (item.y - inventoryScene.inventoryGrid.y) / 40
-          );
-          miniItem.x =
-            this.inventoryGrid.x + gridX * this.inventoryGrid.cellSize + 1;
-          miniItem.y =
-            this.inventoryGrid.y +
-            gridY * this.inventoryGrid.cellSize +
-            1 +
-            baseY;
-        } else {
-          const gridX = Math.floor(
-            (item.x - inventoryScene.storageGrid.x) / 40
-          );
-          const gridY = Math.floor(
-            (item.y - inventoryScene.storageGrid.y) / 40
-          );
-          miniItem.x =
-            this.storageGrid.x + gridX * this.storageGrid.cellSize + 1;
-          miniItem.y =
-            this.storageGrid.y + gridY * this.storageGrid.cellSize + 1 + baseY;
-        }
-
+          miniItem.endFill();
+        });
+        
+        miniItem.x = preview.x;
+        miniItem.y = preview.y + baseY;
         panel.addChild(miniItem);
       }
     });
   }
 
+  showStorageInfo(panel, preview, baseY) {
+    const inventoryScene = this.engine.scenes.get("inventory");
+    if (!inventoryScene || !inventoryScene.storageItems) return;
+
+    const itemCount = inventoryScene.storageItems.length;
+    const totalQuantity = inventoryScene.storageItems.reduce(
+      (sum, item) => sum + (item.quantity || 1), 0
+    );
+
+    const infoText = new PIXI.Text(
+      `${itemCount} item types\n${totalQuantity} total items\n\n(Drag here for\nunlimited storage)`,
+      {
+        fontFamily: "Arial",
+        fontSize: 11,
+        fill: 0xecf0f1,
+        align: "center",
+        lineHeight: 14,
+      }
+    );
+    infoText.anchor.set(0.5);
+    infoText.x = preview.x + preview.width / 2;
+    infoText.y = preview.y + preview.height / 2 + baseY;
+    panel.addChild(infoText);
+  }
+
   createLootItems(panel) {
     const baseY = this.showStats ? 40 : 0;
 
-    // Loot items area title
+    // Loot area label
     const lootLabel = new PIXI.Text(
       this.title.includes("VICTORY") ? "⚔️ Battle Spoils" : "🎁 Found Items",
       {
@@ -328,32 +294,45 @@ export class PixiLootScene extends PixiScene {
         fontWeight: "bold",
       }
     );
-    lootLabel.x = 500;
-    lootLabel.y = this.inventoryGrid.y - 20 + baseY;
+    lootLabel.x = 550;
+    lootLabel.y = this.previewAreas.characterGrid.y - 20 + baseY;
     panel.addChild(lootLabel);
 
     // Create loot items
-    if (this.lootData) {
+    if (this.lootData && this.lootData.length > 0) {
       this.lootData.forEach((itemData, index) => {
-        const item = this.createDraggableLootItem(itemData, index);
-        item.x = 500 + (index % 3) * 120;
-        item.y =
-          this.inventoryGrid.y + 20 + baseY + Math.floor(index / 3) * 120;
-        panel.addChild(item);
+        const lootItem = this.createDraggableLootItem(itemData, index);
+        lootItem.x = 550 + (index % 3) * 100;
+        lootItem.y = this.previewAreas.characterGrid.y + 20 + baseY + Math.floor(index / 3) * 100;
+        panel.addChild(lootItem);
       });
+    } else {
+      // No loot message
+      const noLootText = new PIXI.Text("No items found", {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fill: 0x95a5a6,
+        align: "center",
+      });
+      noLootText.anchor.set(0.5);
+      noLootText.x = 650;
+      noLootText.y = this.previewAreas.characterGrid.y + 100 + baseY;
+      panel.addChild(noLootText);
     }
   }
 
   createDraggableLootItem(itemData, index) {
     const itemContainer = new PIXI.Container();
+    const itemSize = 80;
 
     // Item background
     const bg = new PIXI.Graphics();
-    bg.beginFill(itemData.color);
-    bg.drawRect(0, 0, itemData.width * 30, itemData.height * 30);
+    bg.beginFill(itemData.color || 0x95a5a6);
+    bg.drawRoundedRect(0, 0, itemSize, itemSize, 8);
     bg.endFill();
     bg.lineStyle(2, 0x2c3e50);
-    bg.drawRect(0, 0, itemData.width * 30, itemData.height * 30);
+    bg.drawRoundedRect(0, 0, itemSize, itemSize, 8);
+    itemContainer.addChild(bg);
 
     // Item name
     const nameText = new PIXI.Text(itemData.name, {
@@ -361,48 +340,66 @@ export class PixiLootScene extends PixiScene {
       fontSize: 10,
       fill: 0xffffff,
       align: "center",
+      fontWeight: "bold",
       wordWrap: true,
-      wordWrapWidth: itemData.width * 30,
+      wordWrapWidth: itemSize - 10,
     });
     nameText.anchor.set(0.5);
-    nameText.x = (itemData.width * 30) / 2;
-    nameText.y = (itemData.height * 30) / 2;
+    nameText.x = itemSize / 2;
+    nameText.y = itemSize / 2 - 8;
+    itemContainer.addChild(nameText);
 
-    // Item details
-    const detailsText = new PIXI.Text(
-      `${itemData.type}\n${itemData.width}x${itemData.height}`,
-      {
+    // Item type
+    const typeText = new PIXI.Text(itemData.type, {
+      fontFamily: "Arial",
+      fontSize: 8,
+      fill: 0xbdc3c7,
+      align: "center",
+    });
+    typeText.anchor.set(0.5);
+    typeText.x = itemSize / 2;
+    typeText.y = itemSize / 2 + 8;
+    itemContainer.addChild(typeText);
+
+    // Quantity if > 1
+    if (itemData.quantity && itemData.quantity > 1) {
+      const quantityBg = new PIXI.Graphics();
+      quantityBg.beginFill(0xf39c12);
+      quantityBg.drawCircle(0, 0, 10);
+      quantityBg.endFill();
+      quantityBg.x = itemSize - 12;
+      quantityBg.y = 12;
+      itemContainer.addChild(quantityBg);
+
+      const quantityText = new PIXI.Text(itemData.quantity.toString(), {
         fontFamily: "Arial",
         fontSize: 8,
-        fill: 0xbdc3c7,
+        fill: 0xffffff,
+        fontWeight: "bold",
         align: "center",
-      }
-    );
-    detailsText.anchor.set(0.5);
-    detailsText.x = (itemData.width * 30) / 2;
-    detailsText.y = itemData.height * 30 + 15;
+      });
+      quantityText.anchor.set(0.5);
+      quantityText.x = itemSize - 12;
+      quantityText.y = 12;
+      itemContainer.addChild(quantityText);
+    }
 
-    itemContainer.addChild(bg);
-    itemContainer.addChild(nameText);
-    itemContainer.addChild(detailsText);
-
-    // Add glow effect for special items
-    if (
-      itemData.type === "gem" ||
-      itemData.name.includes("Mystic") ||
-      itemData.name.includes("Elven") ||
-      itemData.name.includes("Medal")
-    ) {
+    // Add special effects for valuable items
+    if (itemData.type === "gem" || 
+        itemData.name.includes("Medal") || 
+        itemData.name.includes("Epic") ||
+        itemData.name.includes("Legendary")) {
+      
       const glow = new PIXI.Graphics();
-      glow.lineStyle(2, 0xffd700, 0.6);
-      glow.drawRect(-2, -2, itemData.width * 30 + 4, itemData.height * 30 + 4);
+      glow.lineStyle(3, 0xffd700, 0.6);
+      glow.drawRoundedRect(-3, -3, itemSize + 6, itemSize + 6, 11);
       itemContainer.addChildAt(glow, 0);
 
       // Animate glow
-      let time = 0;
+      let time = Math.random() * Math.PI * 2;
       const animate = () => {
-        time += 0.05;
-        glow.alpha = 0.4 + Math.sin(time) * 0.3;
+        time += 0.08;
+        glow.alpha = 0.4 + Math.sin(time) * 0.4;
         if (this.isActive) {
           requestAnimationFrame(animate);
         }
@@ -410,17 +407,16 @@ export class PixiLootScene extends PixiScene {
       animate();
     }
 
-    // Store item data
+    // Store item data and make interactive
     itemContainer.itemData = itemData;
     itemContainer.originalX = itemContainer.x;
     itemContainer.originalY = itemContainer.y;
-
-    // Make draggable
     itemContainer.interactive = true;
     itemContainer.cursor = "pointer";
 
+    // Add drag handlers
     itemContainer.on("pointerdown", (event) => {
-      this.startDragging(itemContainer, event);
+      this.startLootDragging(itemContainer, event);
     });
 
     return itemContainer;
@@ -431,6 +427,9 @@ export class PixiLootScene extends PixiScene {
     closeBtn.beginFill(0xe74c3c);
     closeBtn.drawRoundedRect(0, 0, 100, 35, 5);
     closeBtn.endFill();
+    closeBtn.lineStyle(1, 0xc0392b);
+    closeBtn.drawRoundedRect(0, 0, 100, 35, 5);
+    
     closeBtn.x = panelWidth / 2 - 50;
     closeBtn.y = panelHeight - 50;
     closeBtn.interactive = true;
@@ -447,6 +446,14 @@ export class PixiLootScene extends PixiScene {
     closeText.y = 17;
     closeBtn.addChild(closeText);
 
+    closeBtn.on("pointerover", () => {
+      closeBtn.tint = 0xcccccc;
+    });
+
+    closeBtn.on("pointerout", () => {
+      closeBtn.tint = 0xffffff;
+    });
+
     closeBtn.on("pointerdown", () => {
       this.engine.switchScene(this.returnScene);
     });
@@ -454,35 +461,42 @@ export class PixiLootScene extends PixiScene {
     panel.addChild(closeBtn);
   }
 
-  // Drag and drop functionality
-  startDragging(item, event) {
-    this.draggedItem = item;
+  // ============= DRAG AND DROP FOR LOOT =============
+
+  startLootDragging(item, event) {
+    console.log(`🖱️ Starting loot drag: ${item.itemData.name}`);
+    
+    this.draggedLootItem = item;
+    item.alpha = 0.8;
+    item.scale.set(1.1);
 
     // Store original position
     item.originalX = item.x;
     item.originalY = item.y;
 
-    // Make semi-transparent
-    item.alpha = 0.8;
-
     // Move to top of panel
     this.panel.removeChild(item);
     this.panel.addChild(item);
 
-    // Follow mouse
-    const onMove = (event) => {
-      if (this.draggedItem === item) {
-        const localPos = this.panel.toLocal(event.global);
-        item.x = localPos.x - (item.itemData.width * 30) / 2;
-        item.y = localPos.y - (item.itemData.height * 30) / 2;
+    // Calculate drag offset
+    const localPos = this.panel.toLocal(event.global);
+    item.dragOffsetX = localPos.x - item.x;
+    item.dragOffsetY = localPos.y - item.y;
 
-        // Show placement preview
-        this.showPlacementPreview(item, localPos);
+    // Setup mouse handlers
+    const onMove = (event) => {
+      if (this.draggedLootItem === item) {
+        const localPos = this.panel.toLocal(event.global);
+        item.x = localPos.x - item.dragOffsetX;
+        item.y = localPos.y - item.dragOffsetY;
+        
+        // Show drop preview
+        this.showLootDropPreview(item, localPos);
       }
     };
 
     const onEnd = (event) => {
-      this.stopDragging(item, event);
+      this.stopLootDragging(item, event);
       this.engine.app.stage.off("pointermove", onMove);
       this.engine.app.stage.off("pointerup", onEnd);
     };
@@ -491,492 +505,195 @@ export class PixiLootScene extends PixiScene {
     this.engine.app.stage.on("pointerup", onEnd);
   }
 
-  stopDragging(item, event) {
-    if (this.draggedItem !== item) return;
-
-    // Clear preview
-    if (this.preview) {
-      this.panel.removeChild(this.preview);
-      this.preview = null;
+  showLootDropPreview(item, localPos) {
+    // Clear previous preview
+    if (this.lootPreview) {
+      this.panel.removeChild(this.lootPreview);
+      this.lootPreview = null;
     }
+
+    const baseY = this.showStats ? 40 : 0;
+    
+    // Check if over character grid
+    const gridArea = this.previewAreas.characterGrid;
+    if (localPos.x >= gridArea.x && 
+        localPos.x <= gridArea.x + gridArea.cols * this.miniGridSize &&
+        localPos.y >= gridArea.y + baseY && 
+        localPos.y <= gridArea.y + baseY + gridArea.rows * this.miniGridSize) {
+      
+      // Show grid drop preview
+      const preview = new PIXI.Graphics();
+      preview.beginFill(0x2ecc71, 0.5);
+      preview.drawRoundedRect(0, 0, gridArea.cols * this.miniGridSize, gridArea.rows * this.miniGridSize, 4);
+      preview.endFill();
+      preview.x = gridArea.x;
+      preview.y = gridArea.y + baseY;
+      
+      this.panel.addChild(preview);
+      this.lootPreview = preview;
+      return;
+    }
+
+    // Check if over storage area
+    const storageArea = this.previewAreas.storageList;
+    if (localPos.x >= storageArea.x && 
+        localPos.x <= storageArea.x + storageArea.width &&
+        localPos.y >= storageArea.y + baseY && 
+        localPos.y <= storageArea.y + baseY + storageArea.height) {
+      
+      // Show storage drop preview
+      const preview = new PIXI.Graphics();
+      preview.beginFill(0x9b59b6, 0.5);
+      preview.drawRoundedRect(0, 0, storageArea.width, storageArea.height, 4);
+      preview.endFill();
+      preview.x = storageArea.x;
+      preview.y = storageArea.y + baseY;
+      
+      this.panel.addChild(preview);
+      this.lootPreview = preview;
+    }
+  }
+
+  stopLootDragging(item, event) {
+    if (!this.draggedLootItem || this.draggedLootItem !== item) return;
+
+    console.log(`🖱️ Stopping loot drag: ${item.itemData.name}`);
 
     const localPos = this.panel.toLocal(event.global);
     const baseY = this.showStats ? 40 : 0;
-    let placed = false;
+    let transferred = false;
 
-    // Check inventory placement
-    const invGridY = this.inventoryGrid.y + baseY;
-    if (
-      localPos.x >= this.inventoryGrid.x &&
-      localPos.x <
-        this.inventoryGrid.x +
-          this.inventoryGrid.cols * this.inventoryGrid.cellSize &&
-      localPos.y >= invGridY &&
-      localPos.y <
-        invGridY + this.inventoryGrid.rows * this.inventoryGrid.cellSize
-    ) {
-      const gridX = Math.floor(
-        (localPos.x - this.inventoryGrid.x) / this.inventoryGrid.cellSize
-      );
-      const gridY = Math.floor(
-        (localPos.y - invGridY) / this.inventoryGrid.cellSize
-      );
-
-      if (this.canPlaceItem(item.itemData, "inventory", gridX, gridY)) {
-        this.placeItem(item.itemData, "inventory", gridX, gridY);
-        placed = true;
+    // Check if dropped on character grid
+    const gridArea = this.previewAreas.characterGrid;
+    if (localPos.x >= gridArea.x && 
+        localPos.x <= gridArea.x + gridArea.cols * this.miniGridSize &&
+        localPos.y >= gridArea.y + baseY && 
+        localPos.y <= gridArea.y + baseY + gridArea.rows * this.miniGridSize) {
+      
+      transferred = this.transferToCharacterInventory(item.itemData);
+    }
+    
+    // Check if dropped on storage area
+    else {
+      const storageArea = this.previewAreas.storageList;
+      if (localPos.x >= storageArea.x && 
+          localPos.x <= storageArea.x + storageArea.width &&
+          localPos.y >= storageArea.y + baseY && 
+          localPos.y <= storageArea.y + baseY + storageArea.height) {
+        
+        transferred = this.transferToStorage(item.itemData);
       }
     }
 
-    // Check storage placement
-    if (!placed) {
-      const storageGridY = this.storageGrid.y + baseY;
-      if (
-        localPos.x >= this.storageGrid.x &&
-        localPos.x <
-          this.storageGrid.x +
-            this.storageGrid.cols * this.storageGrid.cellSize &&
-        localPos.y >= storageGridY &&
-        localPos.y <
-          storageGridY + this.storageGrid.rows * this.storageGrid.cellSize
-      ) {
-        const gridX = Math.floor(
-          (localPos.x - this.storageGrid.x) / this.storageGrid.cellSize
-        );
-        const gridY = Math.floor(
-          (localPos.y - storageGridY) / this.storageGrid.cellSize
-        );
-
-        if (this.canPlaceItem(item.itemData, "storage", gridX, gridY)) {
-          this.placeItem(item.itemData, "storage", gridX, gridY);
-          placed = true;
-        }
-      }
-    }
-
-    if (placed) {
+    if (transferred) {
       // Remove item from loot interface
       this.panel.removeChild(item);
-      this.showMessage(`${item.itemData.name} collected!`);
+      this.showTransferMessage(item.itemData.name, transferred);
+      
+      // Remove from loot data
+      const index = this.lootData.indexOf(item.itemData);
+      if (index > -1) {
+        this.lootData.splice(index, 1);
+      }
     } else {
       // Return to original position
       item.x = item.originalX;
       item.y = item.originalY;
       item.alpha = 1;
+      item.scale.set(1);
     }
 
-    this.draggedItem = null;
+    // Clear preview
+    if (this.lootPreview) {
+      this.panel.removeChild(this.lootPreview);
+      this.lootPreview = null;
+    }
+
+    this.draggedLootItem = null;
   }
 
-  showPlacementPreview(item, localPos) {
-    const baseY = this.showStats ? 40 : 0;
-
-    // Clear previous preview
-    if (this.preview) {
-      this.panel.removeChild(this.preview);
-    }
-
-    // Check if over inventory grid
-    const invGridY = this.inventoryGrid.y + baseY;
-    if (
-      localPos.x >= this.inventoryGrid.x &&
-      localPos.x <
-        this.inventoryGrid.x +
-          this.inventoryGrid.cols * this.inventoryGrid.cellSize &&
-      localPos.y >= invGridY &&
-      localPos.y <
-        invGridY + this.inventoryGrid.rows * this.inventoryGrid.cellSize
-    ) {
-      const gridX = Math.floor(
-        (localPos.x - this.inventoryGrid.x) / this.inventoryGrid.cellSize
-      );
-      const gridY = Math.floor(
-        (localPos.y - invGridY) / this.inventoryGrid.cellSize
-      );
-
-      if (this.canPlaceItem(item.itemData, "inventory", gridX, gridY)) {
-        this.createPlacementPreview(
-          item,
-          this.inventoryGrid,
-          gridX,
-          gridY,
-          0x2ecc71,
-          baseY
-        );
-      } else {
-        this.createPlacementPreview(
-          item,
-          this.inventoryGrid,
-          gridX,
-          gridY,
-          0xe74c3c,
-          baseY
-        );
-      }
-    }
-
-    // Check if over storage grid
-    const storageGridY = this.storageGrid.y + baseY;
-    if (
-      localPos.x >= this.storageGrid.x &&
-      localPos.x <
-        this.storageGrid.x +
-          this.storageGrid.cols * this.storageGrid.cellSize &&
-      localPos.y >= storageGridY &&
-      localPos.y <
-        storageGridY + this.storageGrid.rows * this.storageGrid.cellSize
-    ) {
-      const gridX = Math.floor(
-        (localPos.x - this.storageGrid.x) / this.storageGrid.cellSize
-      );
-      const gridY = Math.floor(
-        (localPos.y - storageGridY) / this.storageGrid.cellSize
-      );
-
-      if (this.canPlaceItem(item.itemData, "storage", gridX, gridY)) {
-        this.createPlacementPreview(
-          item,
-          this.storageGrid,
-          gridX,
-          gridY,
-          0x2ecc71,
-          baseY
-        );
-      } else {
-        this.createPlacementPreview(
-          item,
-          this.storageGrid,
-          gridX,
-          gridY,
-          0xe74c3c,
-          baseY
-        );
-      }
-    }
-  }
-
-  createPlacementPreview(item, grid, gridX, gridY, color, baseY) {
-    const preview = new PIXI.Graphics();
-    preview.beginFill(color, 0.3);
-    preview.drawRect(
-      0,
-      0,
-      item.itemData.width * grid.cellSize,
-      item.itemData.height * grid.cellSize
-    );
-    preview.endFill();
-    preview.lineStyle(2, color);
-    preview.drawRect(
-      0,
-      0,
-      item.itemData.width * grid.cellSize,
-      item.itemData.height * grid.cellSize
-    );
-
-    preview.x = grid.x + gridX * grid.cellSize;
-    preview.y = grid.y + gridY * grid.cellSize + baseY;
-
-    this.preview = preview;
-    this.panel.addChild(preview);
-  }
-
-  createInventoryItemForInventoryScene(itemData) {
-    console.log(
-      `Creating inventory item for inventory scene: ${itemData.name}`
-    );
-
-    // Create using the SAME method as PixiInventoryScene
-    const item = new PIXI.Container();
-
-    // Calculate pixel dimensions
-    const gridCellSize = 60; // Match PixiInventoryScene.gridCellSize
-    const pixelWidth = itemData.width * gridCellSize;
-    const pixelHeight = itemData.height * gridCellSize;
-    const padding = 4;
-
-    // Item background with same styling as PixiInventoryScene
-    const bg = new PIXI.Graphics();
-    bg.beginFill(itemData.color);
-    bg.drawRoundedRect(
-      padding / 2,
-      padding / 2,
-      pixelWidth - padding,
-      pixelHeight - padding,
-      4
-    );
-    bg.endFill();
-
-    // Item border
-    bg.lineStyle(2, 0x2c3e50);
-    bg.drawRoundedRect(
-      padding / 2,
-      padding / 2,
-      pixelWidth - padding,
-      pixelHeight - padding,
-      4
-    );
-
-    item.addChild(bg);
-
-    // Item name
-    const fontSize = Math.min(
-      (pixelWidth - padding) / 8,
-      (pixelHeight - padding) / 4,
-      14
-    );
-    const text = new PIXI.Text(itemData.name, {
-      fontFamily: "Arial",
-      fontSize: fontSize,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
-      stroke: 0x000000,
-      strokeThickness: 1,
-    });
-    text.anchor.set(0.5);
-    text.x = pixelWidth / 2;
-    text.y = pixelHeight / 2;
-    item.addChild(text);
-
-    // CRITICAL: Store properties exactly like PixiInventoryScene does
-    item.name = itemData.name;
-    item.type = itemData.type;
-    item.color = itemData.color;
-    item.description = itemData.description || "";
-    item.gridWidth = itemData.width; // Use gridWidth like PixiInventoryScene
-    item.gridHeight = itemData.height; // Use gridHeight like PixiInventoryScene
-    item.originalData = itemData; // Store original data
-    item.gridX = -1;
-    item.gridY = -1;
-    item.visible = true;
-
-    // Add methods that inventory scene expects
-    item.isPlaced = function () {
-      return this.gridX >= 0 && this.gridY >= 0;
-    };
-
-    item.canPlaceAt = function (grid, x, y) {
-      if (
-        x < 0 ||
-        y < 0 ||
-        x + this.gridWidth > grid.cols ||
-        y + this.gridHeight > grid.rows
-      ) {
-        return false;
-      }
-      return true;
-    };
-
-    // Make interactive
-    item.interactive = true;
-    item.cursor = "pointer";
-    item.buttonMode = true;
-
-    console.log(
-      `✅ Created inventory-compatible item: ${item.name} (${item.gridWidth}x${item.gridHeight})`
-    );
-    return item;
-  }
-
-  canPlaceItem(itemData, targetGrid, gridX, gridY) {
-    const inventoryScene = this.engine.scenes.get("inventory");
-    if (!inventoryScene) return false;
-
-    const grid =
-      targetGrid === "inventory"
-        ? inventoryScene.inventoryGrid
-        : inventoryScene.storageGrid;
-
-    // Check bounds
-    if (
-      gridX < 0 ||
-      gridY < 0 ||
-      gridX + itemData.width > grid.cols ||
-      gridY + itemData.height > grid.rows
-    ) {
-      return false;
-    }
-
-    // Check for overlapping items
-    for (const existingItem of inventoryScene.items) {
-      if (existingItem.gridX >= 0 && existingItem.gridY >= 0) {
-        const isInSameGrid =
-          targetGrid === "inventory"
-            ? existingItem.x >= grid.x &&
-              existingItem.x < grid.x + grid.cols * 40
-            : existingItem.x >= grid.x &&
-              existingItem.x < grid.x + grid.cols * 40;
-
-        if (isInSameGrid) {
-          const existingGridX = Math.floor((existingItem.x - grid.x) / 40);
-          const existingGridY = Math.floor((existingItem.y - grid.y) / 40);
-
-          // Check if areas overlap
-          if (
-            !(
-              gridX >= existingGridX + existingItem.width ||
-              gridX + itemData.width <= existingGridX ||
-              gridY >= existingGridY + existingItem.height ||
-              gridY + itemData.height <= existingGridY
-            )
-          ) {
-            return false;
-          }
-        }
-      }
-    }
-
-    return true;
-  }
-
-  placeItem(itemData, targetGrid, gridX, gridY) {
+  transferToCharacterInventory(itemData) {
     const inventoryScene = this.engine.scenes.get("inventory");
     if (!inventoryScene) {
-      console.error("Inventory scene not found! Cannot place item.");
+      console.error("❌ Inventory scene not found!");
       return false;
     }
 
-    // Ensure inventory scene has persistent data initialized
-    inventoryScene.initializePersistentData();
+    console.log(`📦 Attempting to transfer ${itemData.name} to character inventory`);
 
-    const grid =
-      targetGrid === "inventory"
-        ? inventoryScene.inventoryGrid
-        : inventoryScene.storageGrid;
-
-    console.log(
-      `📦 Placing ${itemData.name} in ${targetGrid} at grid ${gridX},${gridY}`
-    );
-
-    // Create item compatible with inventory scene
-    const item = this.createInventoryItemForInventoryScene(itemData);
-
-    // Position the item correctly
-    item.x = grid.x + gridX * 60 + 2; // Match PixiInventoryScene gridCellSize
-    item.y = grid.y + gridY * 60 + 2;
-    item.gridX = gridX;
-    item.gridY = gridY;
-
-    console.log(`Item positioned at screen: ${item.x}, ${item.y}`);
-
-    // Add to inventory scene's items array
-    inventoryScene.items.push(item);
-
-    // Add event handlers like PixiInventoryScene does
-    item.on("pointerover", () => {
-      if (!inventoryScene.draggedItem && !item.isDragging) {
-        item.scale.set(1.05);
-        if (inventoryScene.showTooltip) {
-          inventoryScene.showTooltip(item);
+    // Create the item
+    const newItem = inventoryScene.createGridItem(itemData);
+    
+    // Try to find a place for it in the character grid
+    for (let y = 0; y <= inventoryScene.characterGrid.rows - newItem.gridHeight; y++) {
+      for (let x = 0; x <= inventoryScene.characterGrid.cols - newItem.gridWidth; x++) {
+        if (inventoryScene.canPlaceInGrid(newItem, x, y)) {
+          inventoryScene.placeInGrid(newItem, x, y);
+          
+          // Add to scene if it's currently active
+          if (inventoryScene.isActive) {
+            inventoryScene.addSprite(newItem, "world");
+          }
+          
+          console.log(`✅ Transferred ${itemData.name} to character grid at (${x}, ${y})`);
+          return "character";
         }
       }
-    });
-
-    item.on("pointerout", () => {
-      if (!inventoryScene.draggedItem && !item.isDragging) {
-        item.scale.set(1);
-        if (inventoryScene.hideTooltip) {
-          inventoryScene.hideTooltip();
-        }
-      }
-    });
-
-    console.log(`✅ Item ${itemData.name} added to inventory data`);
-    console.log(`Total items now: ${inventoryScene.items.length}`);
-
-    // If inventory scene is currently active, also add to visual display
-    if (inventoryScene.isActive && inventoryScene.addSprite) {
-      inventoryScene.addSprite(item, "world");
-      console.log(`🎨 Item also added to active inventory display`);
-    } else {
-      console.log(
-        `📋 Item stored in data - will render when inventory scene becomes active`
-      );
     }
 
-    return true;
+    // No space in character inventory, try storage instead
+    inventoryScene.addToStorage(itemData);
+    console.log(`📚 No space in character inventory, moved ${itemData.name} to storage`);
+    return "storage";
   }
 
-  createInventoryItem(itemData) {
-    // Create a container for the item
-    const item = new PIXI.Container();
+  transferToStorage(itemData) {
+    const inventoryScene = this.engine.scenes.get("inventory");
+    if (!inventoryScene) {
+      console.error("❌ Inventory scene not found!");
+      return false;
+    }
 
-    // Item background
-    const bg = new PIXI.Graphics();
-    bg.beginFill(itemData.color);
-    bg.drawRect(0, 0, itemData.width * 40 - 4, itemData.height * 40 - 4);
-    bg.endFill();
+    console.log(`📚 Transferring ${itemData.name} to storage`);
+    inventoryScene.addToStorage(itemData);
+    return "storage";
+  }
 
-    // Item border
-    bg.lineStyle(2, 0x2c3e50);
-    bg.drawRect(0, 0, itemData.width * 40 - 4, itemData.height * 40 - 4);
-
-    // Item name
-    const text = new PIXI.Text(itemData.name, {
+  showTransferMessage(itemName, destination) {
+    const message = destination === "character" 
+      ? `${itemName} added to character inventory`
+      : `${itemName} added to storage`;
+    
+    console.log(`✅ ${message}`);
+    
+    // Create floating message
+    const messageText = new PIXI.Text(message, {
       fontFamily: "Arial",
-      fontSize: 12,
-      fill: 0xffffff,
+      fontSize: 14,
+      fill: 0x2ecc71,
+      fontWeight: "bold",
       align: "center",
     });
-    text.anchor.set(0.5);
-    text.x = (itemData.width * 40) / 2 - 2;
-    text.y = (itemData.height * 40) / 2 - 2;
-
-    item.addChild(bg);
-    item.addChild(text);
-
-    // Add highlight effect for gems
-    if (itemData.type === "gem") {
-      const highlight = new PIXI.Graphics();
-      highlight.lineStyle(2, 0xffd700, 0.8);
-      highlight.drawRect(
-        0,
-        0,
-        itemData.width * 40 - 4,
-        itemData.height * 40 - 4
-      );
-      item.addChild(highlight);
-
-      let time = 0;
-      const animate = () => {
-        time += 0.05;
-        highlight.alpha = 0.3 + Math.sin(time) * 0.3;
-        requestAnimationFrame(animate);
-      };
-      animate();
-    }
-
-    // Copy all properties from itemData
-    Object.assign(item, itemData);
-
-    // Add inventory item properties
-    item.itemData = itemData;
-    item.gridX = -1;
-    item.gridY = -1;
-
-    // Add methods for inventory system
-    item.isPlaced = function () {
-      return this.gridX >= 0 && this.gridY >= 0;
+    messageText.anchor.set(0.5);
+    messageText.x = this.panel.width / 2;
+    messageText.y = 100;
+    
+    this.panel.addChild(messageText);
+    
+    // Animate and remove
+    let alpha = 1;
+    const fadeOut = () => {
+      alpha -= 0.05;
+      messageText.alpha = alpha;
+      messageText.y -= 1;
+      
+      if (alpha <= 0) {
+        this.panel.removeChild(messageText);
+      } else {
+        requestAnimationFrame(fadeOut);
+      }
     };
-
-    item.canPlaceAt = function (grid, x, y) {
-      return !(
-        x < 0 ||
-        y < 0 ||
-        x + this.width > grid.cols ||
-        y + this.height > grid.rows
-      );
-    };
-
-    // Make interactive for dragging
-    item.interactive = true;
-    item.cursor = "pointer";
-
-    return item;
-  }
-
-  showMessage(text) {
-    console.log(text);
-    // Could add floating message here if desired
+    
+    setTimeout(() => fadeOut(), 1000);
   }
 }
