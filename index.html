@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tactical RPG - PixiJS Enhanced</title>
+    <title>Tactical RPG - Squad Enhanced</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
@@ -12,59 +12,169 @@
         <div id="loadingScreen">
             <div class="spinner"></div>
             <h2>Loading Enhanced Graphics...</h2>
-            <p>Initializing PixiJS Engine</p>
+            <p>Initializing PixiJS Engine & Squad System</p>
         </div>
 
         <!-- PixiJS canvas will be inserted here automatically -->
         
         <!-- UI Overlay -->
         <div id="ui">
-            <!-- HUD -->
+            <!-- Squad HUD -->
             <div id="hud">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <span style="font-size: 18px; margin-right: 10px;">🗡️</span>
+                <!-- Squad Header -->
+                <div id="squadHeader" style="display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #4CAF50;">
+                    <span style="font-size: 18px; margin-right: 10px;">⚔️</span>
                     <div>
-                        <strong>Hero - Level <span id="playerLevel">1</span></strong><br>
+                        <strong id="squadTitle">Squad</strong><br>
                         <div style="font-size: 11px;">Area: <span id="currentArea">Training Grounds</span></div>
                     </div>
-                </div>
-                
-                <div>
-                    HP: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span>
-                    <div class="health-bar">
-                        <div class="health-fill" id="healthFill" style="width: 100%"></div>
+                    <div style="margin-left: auto; font-size: 12px; color: #4CAF50;">
+                        <span id="squadSize">0/3</span> Members
                     </div>
                 </div>
                 
-                <div>
-                    MP: <span id="playerMp">50</span>/<span id="playerMaxMp">50</span>
-                    <div class="mp-bar">
-                        <div class="mp-fill" id="mpFill" style="width: 100%"></div>
+                <!-- Squad Members Container -->
+                <div id="squadMembers">
+                    <!-- Character 1 -->
+                    <div class="character-panel" id="character1" style="display: none;">
+                        <div class="character-header">
+                            <span class="character-portrait" id="char1Portrait">👤</span>
+                            <div class="character-info">
+                                <strong class="character-name" id="char1Name">Hero</strong>
+                                <div class="character-details">
+                                    <span class="character-class" id="char1Class">Adventurer</span> • 
+                                    <span class="character-level">Lv.<span id="char1Level">1</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="character-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">HP:</span>
+                                <span class="stat-values">
+                                    <span id="char1Hp">100</span>/<span id="char1MaxHp">100</span>
+                                </span>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="char1HealthFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <span class="stat-label">MP:</span>
+                                <span class="stat-values">
+                                    <span id="char1Mp">50</span>/<span id="char1MaxMp">50</span>
+                                </span>
+                                <div class="mp-bar">
+                                    <div class="mp-fill" id="char1MpFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Character 2 -->
+                    <div class="character-panel" id="character2" style="display: none;">
+                        <div class="character-header">
+                            <span class="character-portrait" id="char2Portrait">👤</span>
+                            <div class="character-info">
+                                <strong class="character-name" id="char2Name">Hero</strong>
+                                <div class="character-details">
+                                    <span class="character-class" id="char2Class">Adventurer</span> • 
+                                    <span class="character-level">Lv.<span id="char2Level">1</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="character-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">HP:</span>
+                                <span class="stat-values">
+                                    <span id="char2Hp">100</span>/<span id="char2MaxHp">100</span>
+                                </span>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="char2HealthFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <span class="stat-label">MP:</span>
+                                <span class="stat-values">
+                                    <span id="char2Mp">50</span>/<span id="char2MaxMp">50</span>
+                                </span>
+                                <div class="mp-bar">
+                                    <div class="mp-fill" id="char2MpFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Character 3 -->
+                    <div class="character-panel" id="character3" style="display: none;">
+                        <div class="character-header">
+                            <span class="character-portrait" id="char3Portrait">👤</span>
+                            <div class="character-info">
+                                <strong class="character-name" id="char3Name">Hero</strong>
+                                <div class="character-details">
+                                    <span class="character-class" id="char3Class">Adventurer</span> • 
+                                    <span class="character-level">Lv.<span id="char3Level">1</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="character-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">HP:</span>
+                                <span class="stat-values">
+                                    <span id="char3Hp">100</span>/<span id="char3MaxHp">100</span>
+                                </span>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="char3HealthFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-row">
+                                <span class="stat-label">MP:</span>
+                                <span class="stat-values">
+                                    <span id="char3Mp">50</span>/<span id="char3MaxMp">50</span>
+                                </span>
+                                <div class="mp-bar">
+                                    <div class="mp-fill" id="char3MpFill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div style="margin-top: 10px;">
-                    <strong>Inventory:</strong>
-                    <div class="inventory-grid" id="inventoryGrid"></div>
+
+                <!-- Squad Equipment Summary -->
+                <div id="squadEquipment" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #4CAF50;">
+                    <strong style="font-size: 11px;">Squad Equipment:</strong>
+                    <div class="equipment-summary" id="equipmentSummary" style="display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap;">
+                        <!-- Equipment icons will be added dynamically -->
+                    </div>
                 </div>
             </div>
 
             <div id="controls">
-              <strong>🎮 CONTROLS</strong><br>
+              <strong>🎮 SQUAD CONTROLS</strong><br>
               Mouse - Drag & Drop items<br>
               Click - Interact with objects<br>
-              I - Toggle Inventory mode<br>
+              1,2,3 - Select squad member<br>
+              Tab - Cycle characters<br>
+              U - Squad management<br>
+              I - Inventory mode<br>
               ESC - Menu<br><br>
               <strong>🎯 Navigation:</strong><br>
               📋 Menu - Game options<br>
               🎒 Inventory - Manage items<br>
+              🎭 Squad - Manage party<br>
               🌍 World - Explore & battle<br>
               ⚔️ Battle - Combat testing<br><br>
               <strong>🎨 Features:</strong><br>
               🔮 Enhanced graphics<br>
               ✨ Particle effects<br>
               💫 Glow & lighting<br>
-              🎨 Smooth animations
+              🎨 Smooth animations<br>
+              👥 Squad management<br>
+              ⚔️ Multi-character combat
           </div>
 
             <!-- Game Mode Display -->
@@ -72,23 +182,56 @@
 
             <!-- Navigation Buttons -->
             <div class="nav-buttons">
-              <button class="nav-button" id="menuBtn">📋 Menu</button>
-              <button class="nav-button active" id="inventoryBtn">🎒 Inventory</button>
-              <button class="nav-button" id="worldBtn">🌍 World</button>
-              <button class="nav-button" id="battleBtn">⚔️ Battle</button>
+                <button class="nav-button" id="menuBtn">📋 Menu</button>
+                <button class="nav-button active" id="inventoryBtn">🎒 Inventory</button>
+                <button class="nav-button" id="squadBtn">🎭 Squad</button>
+                <button class="nav-button" id="worldBtn">🌍 World</button>
+                <button class="nav-button" id="battleBtn">⚔️ Battle</button>
             </div>
 
             <!-- Battle UI -->
             <div id="battleUI">
-                <h2 style="text-align: center; margin-bottom: 20px;">⚔️ BATTLE!</h2>
+                <h2 style="text-align: center; margin-bottom: 20px;">⚔️ SQUAD BATTLE!</h2>
                 
                 <div style="display: flex; gap: 20px; margin-bottom: 20px;">
                     <div style="flex: 1;">
-                        <h3>🛡️ You</h3>
-                        <div>HP: <span id="battlePlayerHp">100</span>/<span id="battlePlayerMaxHp">100</span></div>
-                        <div class="health-bar"><div class="health-fill" id="battlePlayerHealthFill"></div></div>
-                        <div>MP: <span id="battlePlayerMp">50</span>/<span id="battlePlayerMaxMp">50</span></div>
-                        <div class="mp-bar"><div class="mp-fill" id="battlePlayerMpFill"></div></div>
+                        <h3>🛡️ Your Squad</h3>
+                        
+                        <!-- Battle Squad Member 1 -->
+                        <div class="battle-character" id="battleChar1" style="margin-bottom: 10px; display: none;">
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span id="battleChar1Portrait">👤</span>
+                                <strong id="battleChar1Name" style="margin-left: 8px;">Hero</strong>
+                            </div>
+                            <div>HP: <span id="battleChar1Hp">100</span>/<span id="battleChar1MaxHp">100</span></div>
+                            <div class="health-bar"><div class="health-fill" id="battleChar1HealthFill"></div></div>
+                            <div>MP: <span id="battleChar1Mp">50</span>/<span id="battleChar1MaxMp">50</span></div>
+                            <div class="mp-bar"><div class="mp-fill" id="battleChar1MpFill"></div></div>
+                        </div>
+
+                        <!-- Battle Squad Member 2 -->
+                        <div class="battle-character" id="battleChar2" style="margin-bottom: 10px; display: none;">
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span id="battleChar2Portrait">👤</span>
+                                <strong id="battleChar2Name" style="margin-left: 8px;">Hero</strong>
+                            </div>
+                            <div>HP: <span id="battleChar2Hp">100</span>/<span id="battleChar2MaxHp">100</span></div>
+                            <div class="health-bar"><div class="health-fill" id="battleChar2HealthFill"></div></div>
+                            <div>MP: <span id="battleChar2Mp">50</span>/<span id="battleChar2MaxMp">50</span></div>
+                            <div class="mp-bar"><div class="mp-fill" id="battleChar2MpFill"></div></div>
+                        </div>
+
+                        <!-- Battle Squad Member 3 -->
+                        <div class="battle-character" id="battleChar3" style="margin-bottom: 10px; display: none;">
+                            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                <span id="battleChar3Portrait">👤</span>
+                                <strong id="battleChar3Name" style="margin-left: 8px;">Hero</strong>
+                            </div>
+                            <div>HP: <span id="battleChar3Hp">100</span>/<span id="battleChar3MaxHp">100</span></div>
+                            <div class="health-bar"><div class="health-fill" id="battleChar3HealthFill"></div></div>
+                            <div>MP: <span id="battleChar3Mp">50</span>/<span id="battleChar3MaxMp">50</span></div>
+                            <div class="mp-bar"><div class="mp-fill" id="battleChar3MpFill"></div></div>
+                        </div>
                     </div>
                     
                     <div style="flex: 1;">
@@ -114,6 +257,7 @@
                 <div>FPS: <span id="fps">60</span></div>
                 <div>Game State: <span id="gameState">Initializing</span></div>
                 <div>Engine: <span id="engineState">PixiJS Loading</span></div>
+                <div>Squad: <span id="debugSquadSize">0</span> members</div>
             </div>
         </div>
     </div>
@@ -121,7 +265,318 @@
     <!-- PixiJS CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     
+    <!-- Squad HUD Management Script -->
+    <script>
+        // Squad HUD Management
+        class SquadHUD {
+            constructor() {
+                this.squadMembers = [];
+                this.currentArea = "Training Grounds";
+            }
+
+            updateSquad(squad) {
+                this.squadMembers = squad || [];
+                this.refreshSquadDisplay();
+            }
+
+            refreshSquadDisplay() {
+                // Update squad header
+                const squadTitle = document.getElementById('squadTitle');
+                const squadSize = document.getElementById('squadSize');
+                const debugSquadSize = document.getElementById('debugSquadSize');
+
+                if (squadTitle) {
+                    squadTitle.textContent = this.squadMembers.length > 0 ? 
+                        `${this.squadMembers[0].name}'s Squad` : 'No Squad';
+                }
+
+                if (squadSize) {
+                    squadSize.textContent = `${this.squadMembers.length}/3`;
+                }
+
+                if (debugSquadSize) {
+                    debugSquadSize.textContent = this.squadMembers.length;
+                }
+
+                // Update individual character panels
+                for (let i = 0; i < 3; i++) {
+                    const character = this.squadMembers[i];
+                    const panel = document.getElementById(`character${i + 1}`);
+                    
+                    if (character && panel) {
+                        this.updateCharacterPanel(i + 1, character);
+                        panel.style.display = 'block';
+                    } else if (panel) {
+                        panel.style.display = 'none';
+                    }
+                }
+
+                this.updateEquipmentSummary();
+            }
+
+            updateCharacterPanel(index, character) {
+                const portrait = document.getElementById(`char${index}Portrait`);
+                const name = document.getElementById(`char${index}Name`);
+                const className = document.getElementById(`char${index}Class`);
+                const level = document.getElementById(`char${index}Level`);
+                const hp = document.getElementById(`char${index}Hp`);
+                const maxHp = document.getElementById(`char${index}MaxHp`);
+                const mp = document.getElementById(`char${index}Mp`);
+                const maxMp = document.getElementById(`char${index}MaxMp`);
+                const healthFill = document.getElementById(`char${index}HealthFill`);
+                const mpFill = document.getElementById(`char${index}MpFill`);
+
+                if (portrait) portrait.textContent = character.portrait || '👤';
+                if (name) name.textContent = character.name || 'Hero';
+                if (className) className.textContent = character.class || 'Adventurer';
+                if (level) level.textContent = character.level || 1;
+                if (hp) hp.textContent = character.hp || 100;
+                if (maxHp) maxHp.textContent = character.maxHp || 100;
+                if (mp) mp.textContent = character.mp || 50;
+                if (maxMp) maxMp.textContent = character.maxMp || 50;
+
+                // Update health bar
+                if (healthFill && character.maxHp > 0) {
+                    const hpPercent = (character.hp / character.maxHp) * 100;
+                    healthFill.style.width = `${Math.max(0, hpPercent)}%`;
+                }
+
+                // Update MP bar
+                if (mpFill && character.maxMp > 0) {
+                    const mpPercent = (character.mp / character.maxMp) * 100;
+                    mpFill.style.width = `${Math.max(0, mpPercent)}%`;
+                }
+            }
+
+            updateEquipmentSummary() {
+                const container = document.getElementById('equipmentSummary');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                // Count equipment types across all squad members
+                const equipmentCount = {
+                    weapon: 0,
+                    armor: 0,
+                    accessory: 0,
+                    consumable: 0
+                };
+
+                this.squadMembers.forEach(character => {
+                    if (character.inventory && character.inventory.items) {
+                        character.inventory.items.forEach(item => {
+                            if (item.isPlaced && item.isPlaced()) {
+                                equipmentCount[item.type] = (equipmentCount[item.type] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                // Display equipment icons
+                if (equipmentCount.weapon > 0) {
+                    container.innerHTML += `<span title="Weapons: ${equipmentCount.weapon}">⚔️${equipmentCount.weapon}</span>`;
+                }
+                if (equipmentCount.armor > 0) {
+                    container.innerHTML += `<span title="Armor: ${equipmentCount.armor}">🛡️${equipmentCount.armor}</span>`;
+                }
+                if (equipmentCount.accessory > 0) {
+                    container.innerHTML += `<span title="Accessories: ${equipmentCount.accessory}">💍${equipmentCount.accessory}</span>`;
+                }
+                if (equipmentCount.consumable > 0) {
+                    container.innerHTML += `<span title="Consumables: ${equipmentCount.consumable}">🧪${equipmentCount.consumable}</span>`;
+                }
+
+                if (container.innerHTML === '') {
+                    container.innerHTML = '<span style="color: #95a5a6;">No equipment</span>';
+                }
+            }
+
+            updateArea(area) {
+                this.currentArea = area;
+                const areaElement = document.getElementById('currentArea');
+                if (areaElement) {
+                    areaElement.textContent = area;
+                }
+            }
+
+            updateBattleDisplay(squad) {
+                // Update battle UI with squad information
+                for (let i = 0; i < 3; i++) {
+                    const character = squad[i];
+                    const battleChar = document.getElementById(`battleChar${i + 1}`);
+                    
+                    if (character && battleChar) {
+                        this.updateBattleCharacter(i + 1, character);
+                        battleChar.style.display = 'block';
+                    } else if (battleChar) {
+                        battleChar.style.display = 'none';
+                    }
+                }
+            }
+
+            updateBattleCharacter(index, character) {
+                const portrait = document.getElementById(`battleChar${index}Portrait`);
+                const name = document.getElementById(`battleChar${index}Name`);
+                const hp = document.getElementById(`battleChar${index}Hp`);
+                const maxHp = document.getElementById(`battleChar${index}MaxHp`);
+                const mp = document.getElementById(`battleChar${index}Mp`);
+                const maxMp = document.getElementById(`battleChar${index}MaxMp`);
+                const healthFill = document.getElementById(`battleChar${index}HealthFill`);
+                const mpFill = document.getElementById(`battleChar${index}MpFill`);
+
+                if (portrait) portrait.textContent = character.portrait || '👤';
+                if (name) name.textContent = character.name || 'Hero';
+                if (hp) hp.textContent = character.hp || 100;
+                if (maxHp) maxHp.textContent = character.maxHp || 100;
+                if (mp) mp.textContent = character.mp || 50;
+                if (maxMp) maxMp.textContent = character.maxMp || 50;
+
+                // Update bars
+                if (healthFill && character.maxHp > 0) {
+                    const hpPercent = (character.hp / character.maxHp) * 100;
+                    healthFill.style.width = `${Math.max(0, hpPercent)}%`;
+                }
+
+                if (mpFill && character.maxMp > 0) {
+                    const mpPercent = (character.mp / character.maxMp) * 100;
+                    mpFill.style.width = `${Math.max(0, mpPercent)}%`;
+                }
+            }
+        }
+
+        // Initialize Squad HUD
+        window.squadHUD = new SquadHUD();
+
+        // Function to update squad from game
+        window.updateSquadHUD = function(squad) {
+            if (window.squadHUD) {
+                window.squadHUD.updateSquad(squad);
+            }
+        };
+
+        // Function to update area
+        window.updateAreaHUD = function(area) {
+            if (window.squadHUD) {
+                window.squadHUD.updateArea(area);
+            }
+        };
+
+        // Function to update battle display
+        window.updateBattleHUD = function(squad) {
+            if (window.squadHUD) {
+                window.squadHUD.updateBattleDisplay(squad);
+            }
+        };
+    </script>
+    
     <!-- Your game modules -->
     <script type="module" src="src/main.js"></script>
+
+    <style>
+        /* Squad HUD Specific Styles */
+        .character-panel {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .character-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .character-portrait {
+            font-size: 20px;
+            margin-right: 8px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .character-info {
+            flex: 1;
+        }
+
+        .character-name {
+            font-size: 13px;
+            color: #ffffff;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .character-details {
+            font-size: 10px;
+            color: #cccccc;
+            line-height: 1.1;
+        }
+
+        .character-class {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .character-stats {
+            font-size: 11px;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            width: 25px;
+            color: #cccccc;
+        }
+
+        .stat-values {
+            width: 60px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .health-bar, .mp-bar {
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        .equipment-summary span {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .battle-character {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            #hud {
+                width: 200px;
+            }
+            
+            .character-panel {
+                padding: 6px;
+            }
+            
+            .character-name {
+                font-size: 12px;
+            }
+            
+            .stat-values {
+                width: 50px;
+            }
+        }
+    </style>
 </body>
 </html>
