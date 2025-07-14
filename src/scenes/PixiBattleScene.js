@@ -4,7 +4,8 @@ import { SkillGenerator } from "../core/SkillGenerator.js";
 export class PixiBattleScene extends PixiScene {
   constructor() {
     super();
-    this.player = null;
+    this.playerParty = []; // Changed from single player to party array
+    this.activePlayer = null; // Currently acting player character
     this.enemies = [];
     this.currentTurn = "player";
     this.selectedSkill = null;
@@ -52,54 +53,35 @@ export class PixiBattleScene extends PixiScene {
   }
 
   initializeBattle() {
-    // Get inventory from inventory scene
-    const inventoryScene = this.engine.scenes.get("inventory");
-    let playerSkills = [];
-
-    if (inventoryScene && inventoryScene.inventoryGrid) {
-      // Generate skills from inventory
-      playerSkills = SkillGenerator.generateSkillsFromInventory(
-        inventoryScene.inventoryGrid
-      );
-      console.log("Generated skills from inventory:", playerSkills);
-    } else {
-      // Fallback to default skills
-      playerSkills = SkillGenerator.getDefaultSkills();
-      console.log("Using default skills (no inventory found)");
+    // Get squad from character roster
+    const roster = this.engine.characterRoster;
+    if (!roster) {
+      console.error("❌ Character roster not found!");
+      return;
     }
-
-    // Create player with dynamic skills
-    this.player = {
-      name: "Hero",
-      hp: 100,
-      maxHp: 100,
-      mp: 50,
-      maxMp: 50,
-      level: 1,
-      attack: 20,
-      defense: 10,
-      speed: 12,
-      skills: playerSkills,
-    };
-
-    // Create enemies
-    this.createEnemies();
-
-    // Calculate turn order
-    this.calculateTurnOrder();
-
-    // Initialize battle log
-    this.battleLog = [];
-    this.addToBattleLog("Battle begins!");
-    this.addToBattleLog(
-      `${this.player.name} vs ${this.enemies.map((e) => e.name).join(", ")}`
-    );
-
-    // Log player's available skills
-    const skillList = this.player.skills
-      .map((s) => `${s.name} (${s.sourceItems.join(", ")})`)
-      .join(", ");
-    this.addToBattleLog(`Available skills: ${skillList}`);
+  
+    const squad = roster.getActiveSquad();
+    if (squad.length === 0) {
+      console.error("❌ No characters in active squad!");
+      return;
+    }
+  
+    // Initialize player party from squad
+    this.playerParty = squad.map(character => {
+      // Generate skills from character's inventory
+      const skills = character.inventory ? 
+        SkillGenerator.generateSkillsFromInventory(character.inventory) :
+        SkillGenerator.getDefaultSkills();
+  
+      return {
+        ...character, // Copy all character properties
+        skills: skills,
+        isPlayer: true, // Mark as player character
+        originalCharacter: character // Keep reference to original
+      };
+    });
+  
+    console.log(`⚔️ Battle party: ${this.playerParty.map(p => p.name).join(", ")}`);
   }
 
   createEnemies() {
@@ -165,8 +147,8 @@ export class PixiBattleScene extends PixiScene {
 
   calculateTurnOrder() {
     const allCombatants = [
-      this.player,
-      ...this.enemies.filter((e) => e.hp > 0),
+        ...this.playerParty.filter(p => p.hp > 0),
+        ...this.enemies.filter((e) => e.hp > 0),
     ];
 
     // Sort by speed (higher speed goes first)
@@ -236,63 +218,94 @@ export class PixiBattleScene extends PixiScene {
     // Action buttons
     this.createActionButtons();
   }
-
+  
   createPlayerDisplay() {
+    // Create displays for each party member
+    this.playerDisplays = [];
+    
+    this.playerParty.forEach((player, index) => {
+      const display = this.createSinglePlayerDisplay(player, index);
+      this.playerDisplays.push(display);
+    });
+  }
+  
+  createSinglePlayerDisplay(player, index) {
+    const displayWidth = 280;
+    const displayHeight = 150;
+    const startX = 50;
+    const startY = 100 + index * (displayHeight + 20);
+  
     const playerPanel = new PIXI.Graphics();
     playerPanel.beginFill(0x2e7d32, 0.8);
-    playerPanel.drawRoundedRect(0, 0, 300, 150, 10);
+    playerPanel.drawRoundedRect(0, 0, displayWidth, displayHeight, 10);
     playerPanel.endFill();
     playerPanel.lineStyle(2, 0x4caf50);
-    playerPanel.drawRoundedRect(0, 0, 300, 150, 10);
-    playerPanel.x = 50;
-    playerPanel.y = 100;
-
+    playerPanel.drawRoundedRect(0, 0, displayWidth, displayHeight, 10);
+    playerPanel.x = startX;
+    playerPanel.y = startY;
+  
     this.addGraphics(playerPanel, "ui");
-
-    // Player name
-    const playerName = new PIXI.Text(
-      `🛡️ ${this.player.name} (Lv.${this.player.level})`,
-      {
-        fontFamily: "Arial",
-        fontSize: 16,
-        fill: 0xffffff,
-        fontWeight: "bold",
-      }
-    );
-    playerName.x = 60;
-    playerName.y = 115;
+  
+    // Player portrait and name
+    const portrait = new PIXI.Text(player.portrait || "👤", {
+      fontFamily: "Arial",
+      fontSize: 24,
+      fill: 0xffffff,
+    });
+    portrait.x = startX + 10;
+    portrait.y = startY + 10;
+    this.addSprite(portrait, "ui");
+  
+    const playerName = new PIXI.Text(`${player.name} (${player.class})`, {
+      fontFamily: "Arial",
+      fontSize: 16,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    playerName.x = startX + 50;
+    playerName.y = startY + 15;
     this.addSprite(playerName, "ui");
-
-    // Player stats will be updated in updateBattleDisplay
-    this.battleUI.playerHpText = new PIXI.Text("", {
+  
+    // HP and MP text elements (will be updated in updateBattleDisplay)
+    const hpText = new PIXI.Text("", {
       fontFamily: "Arial",
       fontSize: 12,
       fill: 0xffffff,
     });
-    this.battleUI.playerHpText.x = 60;
-    this.battleUI.playerHpText.y = 140;
-    this.addSprite(this.battleUI.playerHpText, "ui");
-
-    this.battleUI.playerMpText = new PIXI.Text("", {
+    hpText.x = startX + 50;
+    hpText.y = startY + 40;
+    this.addSprite(hpText, "ui");
+  
+    const mpText = new PIXI.Text("", {
       fontFamily: "Arial",
       fontSize: 12,
       fill: 0xffffff,
     });
-    this.battleUI.playerMpText.x = 60;
-    this.battleUI.playerMpText.y = 160;
-    this.addSprite(this.battleUI.playerMpText, "ui");
-
+    mpText.x = startX + 50;
+    mpText.y = startY + 60;
+    this.addSprite(mpText, "ui");
+  
     // HP Bar
-    this.battleUI.playerHpBar = new PIXI.Graphics();
-    this.battleUI.playerHpBar.x = 60;
-    this.battleUI.playerHpBar.y = 180;
-    this.addGraphics(this.battleUI.playerHpBar, "ui");
-
+    const hpBar = new PIXI.Graphics();
+    hpBar.x = startX + 50;
+    hpBar.y = startY + 80;
+    this.addGraphics(hpBar, "ui");
+  
     // MP Bar
-    this.battleUI.playerMpBar = new PIXI.Graphics();
-    this.battleUI.playerMpBar.x = 60;
-    this.battleUI.playerMpBar.y = 200;
-    this.addGraphics(this.battleUI.playerMpBar, "ui");
+    const mpBar = new PIXI.Graphics();
+    mpBar.x = startX + 50;
+    mpBar.y = startY + 100;
+    this.addGraphics(mpBar, "ui");
+  
+    return {
+      player: player,
+      panel: playerPanel,
+      portrait: portrait,
+      hpText: hpText,
+      mpText: mpText,
+      hpBar: hpBar,
+      mpBar: mpBar
+    };
   }
 
   createEnemyDisplays() {
@@ -417,7 +430,9 @@ export class PixiBattleScene extends PixiScene {
   createSkillButtons() {
     this.buttons = [];
 
-    this.player.skills.forEach((skill, index) => {
+    if (!this.activePlayer) return;
+
+    this.activePlayer.skills.forEach((skill, index) => {
       const button = new PIXI.Graphics();
       const buttonWidth = 360;
       const buttonHeight = 45;
@@ -579,15 +594,17 @@ export class PixiBattleScene extends PixiScene {
   }
 
   isPlayerTurn() {
+    const currentActor = this.getCurrentActor();
     return (
-      this.getCurrentActor() === this.player && this.battleState === "selecting"
+      currentActor && currentActor.isPlayer && this.battleState === "selecting"
     );
   }
 
   selectSkill(skill, index) {
     if (!this.isPlayerTurn()) return;
-
-    if (this.player.mp < skill.cost) {
+  
+    const currentPlayer = this.getCurrentActor();
+    if (!currentPlayer || currentPlayer.mp < skill.cost) {
       this.addToBattleLog("Not enough MP!");
       return;
     }
@@ -712,13 +729,18 @@ export class PixiBattleScene extends PixiScene {
 
     const currentActor = this.getCurrentActor();
     if (currentActor?.isEnemy) {
-      // AI turn
-      this.battleState = "ai_turn";
-      setTimeout(() => this.executeAITurn(), 1000);
-    } else {
-      // Player turn
-      this.battleState = "selecting";
-    }
+        // AI turn
+        this.battleState = "ai_turn";
+        setTimeout(() => this.executeAITurn(), 1000);
+      } else if (currentActor?.isPlayer) {
+        // Player character turn
+        this.battleState = "selecting";
+        this.activePlayer = currentActor;
+        this.refreshSkillsPanel(); // Refresh skills for current player
+      } else {
+        // Skip turn if actor is invalid
+        this.nextTurn();
+      }
 
     this.updateTurnDisplay();
   }
@@ -762,10 +784,11 @@ export class PixiBattleScene extends PixiScene {
 
   checkBattleEnd() {
     const aliveEnemies = this.enemies.filter((e) => e.hp > 0);
-
-    if (this.player.hp <= 0) {
+    const aliveParty = this.playerParty.filter((p) => p.hp > 0);
+  
+    if (aliveParty.length === 0) {
       this.battleState = "defeat";
-      this.addToBattleLog("💀 DEFEAT! You have been defeated!");
+      this.addToBattleLog("💀 DEFEAT! Your entire party has been defeated!");
       this.showBattleEndScreen(false);
       return true;
     }
@@ -1071,12 +1094,49 @@ export class PixiBattleScene extends PixiScene {
   }
 
   updateBattleDisplay() {
-    // Update player display
-    if (this.battleUI.playerHpText) {
-      this.battleUI.playerHpText.text = `HP: ${this.player.hp}/${this.player.maxHp}`;
-    }
-    if (this.battleUI.playerMpText) {
-      this.battleUI.playerMpText.text = `MP: ${this.player.mp}/${this.player.maxMp}`;
+    // Update all player displays
+    if (this.playerDisplays) {
+        this.playerDisplays.forEach(display => {
+        const player = display.player;
+        
+        // Update text
+        display.hpText.text = `HP: ${player.hp}/${player.maxHp}`;
+        display.mpText.text = `MP: ${player.mp}/${player.maxMp}`;
+        
+        // Update HP bar
+        display.hpBar.clear();
+        const hpPercent = player.hp / player.maxHp;
+        
+        // Background
+        display.hpBar.beginFill(0x333333);
+        display.hpBar.drawRect(0, 0, 180, 8);
+        display.hpBar.endFill();
+        
+        // HP fill
+        const hpColor = hpPercent > 0.5 ? 0x4caf50 : hpPercent > 0.25 ? 0xff9800 : 0xf44336;
+        display.hpBar.beginFill(hpColor);
+        display.hpBar.drawRect(0, 0, 180 * hpPercent, 8);
+        display.hpBar.endFill();
+        
+        // Update MP bar
+        display.mpBar.clear();
+        const mpPercent = player.mp / player.maxMp;
+        
+        // Background
+        display.mpBar.beginFill(0x333333);
+        display.mpBar.drawRect(0, 0, 180, 6);
+        display.mpBar.endFill();
+        
+        // MP fill
+        display.mpBar.beginFill(0x2196f3);
+        display.mpBar.drawRect(0, 0, 180 * mpPercent, 6);
+        display.mpBar.endFill();
+        
+        // Highlight current player
+        const isCurrentPlayer = display.player === this.activePlayer;
+        display.panel.lineStyle(2, isCurrentPlayer ? 0xffd700 : 0x4caf50);
+        display.panel.drawRoundedRect(0, 0, 280, 150, 10);
+        });
     }
 
     // Update player HP bar
@@ -1165,8 +1225,9 @@ export class PixiBattleScene extends PixiScene {
 
     // Update skill buttons availability
     this.buttons.forEach((button, index) => {
-      const skill = this.player.skills[index];
-      if (this.player.mp < skill.cost) {
+    if (!this.activePlayer) return;
+    const skill = this.activePlayer.skills[index];
+    if (this.activePlayer.mp < skill.cost) {
         button.alpha = 0.5;
         button.interactive = false;
       } else {
@@ -1176,6 +1237,19 @@ export class PixiBattleScene extends PixiScene {
     });
 
     this.updateTurnDisplay();
+  }
+
+  refreshSkillsPanel() {
+    // Clear existing skill buttons
+    this.buttons.forEach(button => {
+      if (button.parent) {
+        button.parent.removeChild(button);
+      }
+    });
+    this.buttons = [];
+  
+    // Recreate buttons for current player
+    this.createSkillButtons();
   }
 
   // Update loop

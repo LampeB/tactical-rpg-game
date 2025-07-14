@@ -1,48 +1,57 @@
 import { PixiEngine } from "./core/PixiEngine.js";
 import { PixiInputManager } from "./core/PixiInputManager.js";
+import { CharacterRoster } from "./models/CharacterRoster.js";
 import { PixiMenuScene } from "./scenes/PixiMenuScene.js";
 import { PixiInventoryScene } from "./scenes/PixiInventoryScene.js";
+import { PixiSquadScene } from "./scenes/PixiSquadScene.js";
 import { PixiBattleScene } from "./scenes/PixiBattleScene.js";
 import { PixiWorldScene } from "./scenes/PixiWorldScene.js";
 import { PixiLootScene } from "./scenes/PixiLootScene.js";
 
 class TacticalRPG {
-  constructor() {
-    console.log("🚀 Starting Tactical RPG with PixiJS...");
+    constructor() {
+        console.log("🚀 Starting Tactical RPG with PixiJS...");
+      
+        // Create PixiJS engine
+        this.engine = new PixiEngine(1200, 800);
+      
+        // Create input manager
+        this.inputManager = new PixiInputManager();
+        this.engine.setInputManager(this.inputManager);
+      
+        // Create and initialize character roster
+        this.characterRoster = new CharacterRoster();
+        this.characterRoster.createStarterRoster();
+        this.engine.characterRoster = this.characterRoster;
+      
+        this.setupScenes();
+        this.setupGlobalControls();
+        this.setupUIHandlers();
+        this.setupErrorHandling();
+      }
 
-    // Create PixiJS engine
-    this.engine = new PixiEngine(1200, 800);
-
-    // Create input manager
-    this.inputManager = new PixiInputManager();
-    this.engine.setInputManager(this.inputManager);
-
-    this.setupScenes();
-    this.setupGlobalControls();
-    this.setupUIHandlers();
-    this.setupErrorHandling();
-  }
-
-  setupScenes() {
-    // Create and register scenes
-    this.menuScene = new PixiMenuScene();
-    this.inventoryScene = new PixiInventoryScene();
-    this.battleScene = new PixiBattleScene();
-    this.worldScene = new PixiWorldScene();
-    this.lootScene = new PixiLootScene();
-
-    this.engine.addScene("menu", this.menuScene);
-    this.engine.addScene("inventory", this.inventoryScene);
-    this.engine.addScene("battle", this.battleScene);
-    this.engine.addScene("world", this.worldScene);
-    this.engine.addScene("loot", this.lootScene);
-
-    // Make updateNavButtons available to engine
-    this.engine.updateNavButtons = (sceneName) =>
-      this.updateNavButtons(sceneName);
-
-    console.log("✅ PixiJS scenes registered with custom shape support");
-  }
+      setupScenes() {
+        // Create and register scenes
+        this.menuScene = new PixiMenuScene();
+        this.inventoryScene = new PixiInventoryScene();
+        this.squadScene = new PixiSquadScene();
+        this.battleScene = new PixiBattleScene();
+        this.worldScene = new PixiWorldScene();
+        this.lootScene = new PixiLootScene();
+      
+        this.engine.addScene("menu", this.menuScene);
+        this.engine.addScene("inventory", this.inventoryScene);
+        this.engine.addScene("squad", this.squadScene);
+        this.engine.addScene("battle", this.battleScene);
+        this.engine.addScene("world", this.worldScene);
+        this.engine.addScene("loot", this.lootScene);
+      
+        // Make updateNavButtons available to engine
+        this.engine.updateNavButtons = (sceneName) =>
+          this.updateNavButtons(sceneName);
+      
+        console.log("✅ PixiJS scenes registered with custom shape support");
+      }
 
   setupGlobalControls() {
     // Global key handlers
@@ -56,6 +65,10 @@ class TacticalRPG {
 
     this.inputManager.onKeyPress("KeyB", () => {
       this.engine.switchScene("battle");
+    });
+    
+    this.inputManager.onKeyPress("KeyU", () => {
+        this.engine.switchScene("squad");
     });
 
     // Debug controls
@@ -127,6 +140,7 @@ class TacticalRPG {
     // Navigation buttons with enhanced event handling
     const menuBtn = document.getElementById("menuBtn");
     const inventoryBtn = document.getElementById("inventoryBtn");
+    const squadBtn = document.getElementById("squadBtn");
     const worldBtn = document.getElementById("worldBtn");
     const battleBtn = document.getElementById("battleBtn");
 
@@ -149,6 +163,18 @@ class TacticalRPG {
           e.stopPropagation();
           console.log("🎨 Shaped Inventory button clicked");
           this.switchToScene("inventory");
+        },
+        true
+      );
+    }
+    
+    if (squadBtn) {
+      squadBtn.addEventListener(
+        "click",
+        (e) => {
+          e.stopPropagation();
+          console.log("🎭 Squad button clicked");
+          this.switchToScene("squad");
         },
         true
       );
@@ -177,8 +203,6 @@ class TacticalRPG {
         true
       );
     }
-
-    console.log("🖱️ UI handlers setup with shape system support");
   }
 
   switchToScene(sceneName) {
@@ -190,10 +214,11 @@ class TacticalRPG {
     const buttons = {
       menu: document.getElementById("menuBtn"),
       inventory: document.getElementById("inventoryBtn"),
+      squad: document.getElementById("squadBtn"),
       battle: document.getElementById("battleBtn"),
       world: document.getElementById("worldBtn"),
     };
-
+  
     Object.keys(buttons).forEach((scene) => {
       const btn = buttons[scene];
       if (btn) {
@@ -274,11 +299,9 @@ class TacticalRPG {
     console.log("🎮 Controls:");
     console.log("  ├── ESC = Menu");
     console.log("  ├── I = Inventory");
+    console.log("  ├── U = Squad");
     console.log("  ├── B = Battle");
     console.log("  ├── W = World");
-    console.log("  ├── F1 = Toggle Debug");
-    console.log("  ├── F2 = Log State");
-    console.log("  └── F3 = Shape Info");
     console.log("");
     console.log("🎨 Inventory Shape Controls:");
     console.log("  ├── S = Toggle shape outlines");

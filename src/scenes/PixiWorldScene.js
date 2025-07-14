@@ -3,8 +3,10 @@ import { PixiScene } from "../core/PixiScene.js";
 export class PixiWorldScene extends PixiScene {
   constructor() {
     super();
-    this.player = null;
+    this.party = null;
+    this.partyMembers = [];
     this.worldObjects = [];
+    this.partyLeader = null;
     this.camera = { x: 0, y: 0 };
     this.playerSpeed = 3;
     this.worldWidth = 2560;
@@ -12,7 +14,7 @@ export class PixiWorldScene extends PixiScene {
 
     // Persistent state
     this.isInitialized = false;
-    this.playerPosition = { x: 400, y: 300 }; // Default starting position
+    this.partyPosition  = { x: 400, y: 300 }; // Default starting position
     this.worldState = {
       removedCrystals: [], // Track which crystals have been used
       openedChests: [], // Track which chests have been opened
@@ -22,23 +24,22 @@ export class PixiWorldScene extends PixiScene {
 
   onEnter() {
     super.onEnter();
-
     if (!this.isInitialized) {
-      // First time entering - create everything
-      this.createWorld();
-      this.createPlayer();
-      this.createWorldObjects();
-      this.isInitialized = true;
-      console.log("World scene initialized for first time");
-    } else {
-      // Returning to world - restore player position and update display
-      this.restorePlayerPosition();
-      this.updateCamera();
-      console.log(
-        "Returned to world scene, restored position:",
-        this.playerPosition
-      );
-    }
+        // First time entering - create everything
+        this.createWorld();
+        this.createParty();
+        this.createWorldObjects();
+        this.isInitialized = true;
+        console.log("World scene initialized for first time");
+      } else {
+        // Returning to world - restore party position and update display
+        this.restorePartyPosition();
+        this.updateCamera();
+        console.log(
+          "Returned to world scene, restored position:",
+          this.partyPosition
+        );
+      }
 
     // Update game mode display
     const gameModeBtn = document.getElementById("gameMode");
@@ -79,11 +80,11 @@ export class PixiWorldScene extends PixiScene {
   }
 
   onExit() {
-    // Save current player position before leaving
-    if (this.player) {
-      this.playerPosition.x = this.player.x;
-      this.playerPosition.y = this.player.y;
-      console.log("Saved player position:", this.playerPosition);
+    // Save current party position before leaving
+    if (this.party) {
+      this.partyPosition.x = this.party.x;
+      this.partyPosition.y = this.party.y;
+      console.log("Saved party position:", this.partyPosition);
     }
 
     // Clean up animations but keep objects
@@ -96,11 +97,11 @@ export class PixiWorldScene extends PixiScene {
     super.onExit();
   }
 
-  restorePlayerPosition() {
-    if (this.player) {
-      this.player.x = this.playerPosition.x;
-      this.player.y = this.playerPosition.y;
-      console.log("Player restored to position:", this.playerPosition);
+  restorePartyPosition() {
+    if (this.party) {
+      this.party.x = this.partyPosition.x;
+      this.party.y = this.partyPosition.y;
+      console.log("Party restored to position:", this.partyPosition);
     }
   }
 
@@ -125,29 +126,160 @@ export class PixiWorldScene extends PixiScene {
     this.addGraphics(worldBg, "background");
   }
 
-  createPlayer() {
-    this.player = new PIXI.Graphics();
-
+  createParty() {
+    // Get active squad from roster
+    const roster = this.engine.characterRoster;
+    if (!roster) {
+      console.error("❌ Character roster not found!");
+      this.createFallbackPlayer();
+      return;
+    }
+  
+    const squad = roster.getActiveSquad();
+    if (squad.length === 0) {
+      console.warn("⚠️ No characters in active squad, creating fallback");
+      this.createFallbackPlayer();
+      return;
+    }
+  
+    console.log(`🎭 Creating party with ${squad.length} members: ${squad.map(c => c.name).join(", ")}`);
+  
+    // Create main party container
+    this.party = new PIXI.Container();
+    this.party.x = this.partyPosition.x;
+    this.party.y = this.partyPosition.y;
+  
+    // Set party leader (first character in squad)
+    this.partyLeader = squad[0];
+  
+    // Create visual representation based on squad size
+    this.createPartyVisuals(squad);
+  
+    this.addSprite(this.party, "world");
+  }
+  
+  createPartyVisuals(squad) {
+    this.partyMembers = [];
+  
+    if (squad.length === 1) {
+      // Single character - show full representation
+      const member = this.createCharacterSprite(squad[0], 0, 0);
+      this.party.addChild(member);
+      this.partyMembers.push(member);
+    } else if (squad.length === 2) {
+      // Two characters - side by side
+      const member1 = this.createCharacterSprite(squad[0], -12, 0);
+      const member2 = this.createCharacterSprite(squad[1], 12, 0);
+      this.party.addChild(member1);
+      this.party.addChild(member2);
+      this.partyMembers.push(member1, member2);
+    } else {
+      // Three characters - triangle formation
+      const leader = this.createCharacterSprite(squad[0], 0, -8);
+      const member2 = this.createCharacterSprite(squad[1], -12, 8);
+      const member3 = this.createCharacterSprite(squad[2], 12, 8);
+      this.party.addChild(leader);
+      this.party.addChild(member2);
+      this.party.addChild(member3);
+      this.partyMembers.push(leader, member2, member3);
+    }
+  
+    // Add party indicator
+    this.createPartyIndicator();
+  }
+  
+  createCharacterSprite(character, offsetX, offsetY) {
+    const memberContainer = new PIXI.Container();
+    memberContainer.x = offsetX;
+    memberContainer.y = offsetY;
+  
+    // Character body (colored by class)
+    const body = new PIXI.Graphics();
+    body.beginFill(character.primaryColor || 0x4a90e2);
+    body.drawRect(-6, -10, 12, 20);
+    body.endFill();
+    memberContainer.addChild(body);
+  
+    // Character head
+    const head = new PIXI.Graphics();
+    head.beginFill(0xfdbcb4);
+    head.drawCircle(0, -16, 6);
+    head.endFill();
+    memberContainer.addChild(head);
+  
+    // Character portrait/class indicator
+    const portrait = new PIXI.Text(character.portrait || "👤", {
+      fontFamily: "Arial",
+      fontSize: 12,
+      fill: 0xffffff,
+      align: "center",
+    });
+    portrait.anchor.set(0.5);
+    portrait.x = 0;
+    portrait.y = -16;
+    memberContainer.addChild(portrait);
+  
+    // Weapon indicator
+    if (character.hasWeapon && character.hasWeapon()) {
+      const weapon = new PIXI.Graphics();
+      weapon.beginFill(0x8b4513);
+      weapon.drawRect(-1, -25, 2, 12);
+      weapon.endFill();
+      memberContainer.addChild(weapon);
+    }
+  
+    // Store character reference
+    memberContainer.characterData = character;
+  
+    return memberContainer;
+  }
+  
+  createPartyIndicator() {
+    // Party size indicator
+    const indicator = new PIXI.Graphics();
+    indicator.beginFill(0xf39c12, 0.8);
+    indicator.drawCircle(0, 0, 8);
+    indicator.endFill();
+  
+    const sizeText = new PIXI.Text(this.partyMembers.length.toString(), {
+      fontFamily: "Arial",
+      fontSize: 10,
+      fill: 0xffffff,
+      fontWeight: "bold",
+      align: "center",
+    });
+    sizeText.anchor.set(0.5);
+    indicator.addChild(sizeText);
+  
+    indicator.x = 0;
+    indicator.y = -35;
+    this.party.addChild(indicator);
+  }
+  
+  createFallbackPlayer() {
+    // Fallback single player if no roster available
+    this.party = new PIXI.Graphics();
+  
     // Player body
-    this.player.beginFill(0x4a90e2);
-    this.player.drawRect(-8, -12, 16, 24);
-    this.player.endFill();
-
+    this.party.beginFill(0x4a90e2);
+    this.party.drawRect(-8, -12, 16, 24);
+    this.party.endFill();
+  
     // Player head
-    this.player.beginFill(0xfdbcb4);
-    this.player.drawCircle(0, -20, 8);
-    this.player.endFill();
-
+    this.party.beginFill(0xfdbcb4);
+    this.party.drawCircle(0, -20, 8);
+    this.party.endFill();
+  
     // Player weapon
-    this.player.beginFill(0x8b4513);
-    this.player.drawRect(-2, -30, 4, 15);
-    this.player.endFill();
-
+    this.party.beginFill(0x8b4513);
+    this.party.drawRect(-2, -30, 4, 15);
+    this.party.endFill();
+  
     // Set initial position
-    this.player.x = this.playerPosition.x;
-    this.player.y = this.playerPosition.y;
-
-    this.addSprite(this.player, "world");
+    this.party.x = this.partyPosition.x;
+    this.party.y = this.partyPosition.y;
+  
+    this.addSprite(this.party, "world");
   }
 
   createWorldObjects() {
@@ -368,17 +500,17 @@ export class PixiWorldScene extends PixiScene {
   // Player movement and camera
   update(deltaTime) {
     super.update(deltaTime);
-    this.updatePlayerMovement();
+    this.updatePartyMovement();
     this.updateCamera();
   }
 
-  updatePlayerMovement() {
-    if (!this.player) return;
-
+  updatePartyMovement() {
+    if (!this.party) return;
+  
     let moved = false;
-    let newX = this.player.x;
-    let newY = this.player.y;
-
+    let newX = this.party.x;
+    let newY = this.party.y;
+  
     // Check for movement keys
     if (this.keys["KeyW"] || this.keys["ArrowUp"]) {
       newY -= this.playerSpeed;
@@ -396,11 +528,11 @@ export class PixiWorldScene extends PixiScene {
       newX += this.playerSpeed;
       moved = true;
     }
-
+  
     // World boundaries
     newX = Math.max(20, Math.min(this.worldWidth - 20, newX));
     newY = Math.max(20, Math.min(this.worldHeight - 20, newY));
-
+  
     // Simple collision detection (avoid trees)
     let canMove = true;
     for (const obj of this.worldObjects) {
@@ -414,23 +546,36 @@ export class PixiWorldScene extends PixiScene {
         }
       }
     }
-
-    if (canMove) {
-      this.player.x = newX;
-      this.player.y = newY;
-
+  
+    if (canMove && moved) {
+      this.party.x = newX;
+      this.party.y = newY;
+  
       // Update stored position
-      this.playerPosition.x = newX;
-      this.playerPosition.y = newY;
+      this.partyPosition.x = newX;
+      this.partyPosition.y = newY;
+  
+      // Add walking animation effect
+      this.animatePartyMovement();
     }
+  }
+  
+  animatePartyMovement() {
+    // Simple bob animation for walking
+    const time = Date.now() * 0.01;
+    this.partyMembers.forEach((member, index) => {
+      if (member) {
+        member.y = Math.sin(time + index * 0.5) * 2;
+      }
+    });
   }
 
   updateCamera() {
-    if (!this.player) return;
-
-    // Center camera on player
-    const targetCameraX = this.player.x - this.engine.width / 2;
-    const targetCameraY = this.player.y - this.engine.height / 2;
+    if (!this.party) return;
+  
+    // Center camera on party
+    const targetCameraX = this.party.x - this.engine.width / 2;
+    const targetCameraY = this.party.y - this.engine.height / 2;
 
     // Keep camera within world bounds
     this.camera.x = Math.max(
@@ -450,15 +595,20 @@ export class PixiWorldScene extends PixiScene {
   }
 
   // Interaction methods
-  isPlayerNear(object) {
-    if (!this.player) return false;
-
+  isPartyNear(object) {
+    if (!this.party) return false;
+  
     const distance = Math.sqrt(
-      Math.pow(this.player.x - object.x, 2) +
-        Math.pow(this.player.y - object.y, 2)
+      Math.pow(this.party.x - object.x, 2) +
+        Math.pow(this.party.y - object.y, 2)
     );
-
+  
     return distance < 50;
+  }
+  
+  // Keep backward compatibility
+  isPlayerNear(object) {
+    return this.isPartyNear(object);
   }
 
   interactWithTree(tree) {
@@ -471,11 +621,19 @@ export class PixiWorldScene extends PixiScene {
   }
 
   startBattle(crystal) {
-    this.showMessage("⚔️ Battle encounter!");
-
-    // Save player position before battle
-    this.playerPosition.x = this.player.x;
-    this.playerPosition.y = this.player.y;
+    // Show different message based on party size
+    const roster = this.engine.characterRoster;
+    const squadSize = roster ? roster.getSquadSize() : 1;
+    
+    if (squadSize > 1) {
+      this.showMessage(`⚔️ Battle encounter! Your party of ${squadSize} prepares for combat!`);
+    } else {
+      this.showMessage("⚔️ Battle encounter!");
+    }
+  
+    // Save party position before battle
+    this.partyPosition.x = this.party.x;
+    this.partyPosition.y = this.party.y;
 
     // Mark crystal as removed
     this.worldState.removedCrystals.push(crystal.crystalId);
@@ -949,7 +1107,7 @@ export class PixiWorldScene extends PixiScene {
 
   showMessage(text) {
     console.log(text);
-
+  
     // Create floating message
     const message = new PIXI.Text(text, {
       fontFamily: "Arial",
@@ -957,10 +1115,10 @@ export class PixiWorldScene extends PixiScene {
       fill: 0xffd700,
       align: "center",
     });
-
+  
     message.anchor.set(0.5);
-    message.x = this.player.x;
-    message.y = this.player.y - 40;
+    message.x = this.party ? this.party.x : 400;
+    message.y = (this.party ? this.party.y : 300) - 40;
 
     this.addSprite(message, "effects");
 
@@ -980,15 +1138,75 @@ export class PixiWorldScene extends PixiScene {
     animate();
   }
 
+  displayPartyStatus() {
+    const roster = this.engine.characterRoster;
+    if (!roster) return;
+  
+    const squad = roster.getActiveSquad();
+    if (squad.length === 0) return;
+  
+    // Create party status overlay
+    const statusContainer = new PIXI.Container();
+    
+    squad.forEach((character, index) => {
+      const statusBg = new PIXI.Graphics();
+      statusBg.beginFill(0x2c3e50, 0.8);
+      statusBg.drawRoundedRect(0, 0, 200, 60, 5);
+      statusBg.endFill();
+      statusBg.x = 10;
+      statusBg.y = 100 + index * 70;
+  
+      const nameText = new PIXI.Text(`${character.portrait} ${character.name}`, {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fill: 0xffffff,
+        fontWeight: "bold",
+      });
+      nameText.x = 15;
+      nameText.y = 105 + index * 70;
+  
+      const statsText = new PIXI.Text(
+        `HP: ${character.hp}/${character.maxHp} | MP: ${character.mp}/${character.maxMp}`,
+        {
+          fontFamily: "Arial",
+          fontSize: 11,
+          fill: 0xecf0f1,
+        }
+      );
+      statsText.x = 15;
+      statsText.y = 125 + index * 70;
+  
+      statusContainer.addChild(statusBg);
+      statusContainer.addChild(nameText);
+      statusContainer.addChild(statsText);
+    });
+  
+    this.addSprite(statusContainer, "ui");
+  
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      if (statusContainer.parent) {
+        this.removeSprite(statusContainer);
+      }
+    }, 3000);
+  }
+
   handleKeyDown(event) {
     if (event.code === "Space") {
       // Interact with nearby objects
       for (const obj of this.worldObjects) {
-        if (this.isPlayerNear(obj.sprite)) {
+        if (this.isPartyNear(obj.sprite)) {
           obj.sprite.emit("pointerdown");
           break;
         }
       }
+    } else if (event.code === "Tab") {
+      // Show party status
+      event.preventDefault();
+      this.displayPartyStatus();
+    } else if (event.code === "KeyP") {
+      // Toggle party formation (future feature)
+      console.log("🎭 Party formation toggle (not implemented yet)");
     }
   }
 
