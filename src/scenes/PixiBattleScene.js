@@ -4,8 +4,7 @@ import { SkillGenerator } from "../core/SkillGenerator.js";
 export class PixiBattleScene extends PixiScene {
   constructor() {
     super();
-    this.playerParty = []; // Changed from single player to party array
-    this.activePlayer = null; // Currently acting player character
+    this.player = null;
     this.enemies = [];
     this.currentTurn = "player";
     this.selectedSkill = null;
@@ -26,10 +25,28 @@ export class PixiBattleScene extends PixiScene {
       damageDealt: 0,
       skillsUsed: 0,
     };
+
+    // Responsive design properties
+    this.layout = {
+      isPortrait: false,
+      isMobile: false,
+      scale: 1,
+      padding: 20,
+    };
+
+    // Layout breakpoints
+    this.breakpoints = {
+      mobile: 768,
+      tablet: 1024,
+      desktop: 1200,
+    };
   }
 
   onEnter() {
     super.onEnter();
+
+    // Calculate responsive layout
+    this.calculateLayout();
 
     // Initialize battle
     this.initializeBattle();
@@ -44,44 +61,179 @@ export class PixiBattleScene extends PixiScene {
       gameModeBtn.textContent = "⚔️ BATTLE";
     }
 
-    // ADD THIS - Update navigation buttons
+    // Update navigation buttons
     if (this.engine && this.engine.updateNavButtons) {
       this.engine.updateNavButtons("battle");
     }
 
-    console.log("Battle scene loaded with PixiJS");
+    // Handle window resize
+    window.addEventListener("resize", () => this.handleResize());
+
+    console.log("Battle scene loaded with responsive PixiJS interface");
+  }
+
+  onExit() {
+    // Clean up resize handler
+    window.removeEventListener("resize", this.handleResize);
+
+    // Clean up animations
+    this.animationQueue = [];
+    this.battleState = "selecting";
+    this.selectedSkill = null;
+    this.selectedTarget = null;
+
+    super.onExit();
+  }
+
+  calculateLayout() {
+    const width = this.engine.width;
+    const height = this.engine.height;
+    
+    // Determine device type and orientation
+    this.layout.isPortrait = height > width;
+    this.layout.isMobile = width < this.breakpoints.mobile;
+    this.layout.isTablet = width >= this.breakpoints.mobile && width < this.breakpoints.desktop;
+    this.layout.isDesktop = width >= this.breakpoints.desktop;
+    
+    // Calculate scaling factor
+    this.layout.scale = Math.min(width / 1200, height / 800);
+    this.layout.scale = Math.max(0.5, Math.min(1.5, this.layout.scale));
+    
+    // Adjust padding based on screen size
+    this.layout.padding = this.layout.isMobile ? 10 : 20;
+    
+    // Calculate responsive dimensions
+    this.layout.dimensions = {
+      // Character display areas
+      playerArea: {
+        width: this.layout.isMobile ? width * 0.45 : Math.min(300, width * 0.25),
+        height: this.layout.isMobile ? height * 0.2 : Math.min(180, height * 0.22),
+        x: this.layout.padding,
+        y: this.layout.isMobile ? height * 0.1 : height * 0.12,
+      },
+      
+      // Enemy area calculations
+      enemyArea: {
+        width: this.layout.isMobile ? width * 0.45 : Math.min(280, width * 0.23),
+        height: this.layout.isMobile ? height * 0.18 : Math.min(160, height * 0.2),
+        spacing: this.layout.isMobile ? 15 : 25,
+      },
+      
+      // Skills panel
+      skillsPanel: {
+        width: this.layout.isPortrait ? width * 0.9 : Math.min(450, width * 0.35),
+        height: this.layout.isPortrait ? height * 0.25 : Math.min(300, height * 0.4),
+        x: this.layout.padding,
+        y: this.layout.isPortrait ? height * 0.45 : height * 0.5,
+      },
+      
+      // Battle log
+      battleLog: {
+        width: this.layout.isPortrait ? width * 0.9 : Math.min(550, width * 0.42),
+        height: this.layout.isPortrait ? height * 0.2 : Math.min(250, height * 0.35),
+        x: this.layout.isPortrait ? this.layout.padding : width * 0.55,
+        y: this.layout.isPortrait ? height * 0.72 : height * 0.5,
+      },
+      
+      // Turn indicator
+      turnIndicator: {
+        width: Math.min(250, width * 0.4),
+        height: Math.min(40, height * 0.06),
+        x: width / 2,
+        y: Math.max(30, height * 0.05),
+      },
+      
+      // Action buttons
+      actionButtons: {
+        width: Math.min(130, width * 0.15),
+        height: Math.min(40, height * 0.05),
+        spacing: this.layout.isMobile ? 10 : 15,
+        y: height - Math.max(60, height * 0.08),
+      },
+    };
+    
+    // Font scaling
+    this.layout.fonts = {
+      title: Math.max(16, Math.min(32, 32 * this.layout.scale)),
+      subtitle: Math.max(12, Math.min(18, 18 * this.layout.scale)),
+      body: Math.max(10, Math.min(14, 14 * this.layout.scale)),
+      small: Math.max(8, Math.min(12, 12 * this.layout.scale)),
+      button: Math.max(10, Math.min(14, 14 * this.layout.scale)),
+    };
+
+    console.log("Layout calculated:", this.layout);
+  }
+
+  handleResize() {
+    if (!this.isActive) return;
+    
+    // Recalculate layout
+    this.calculateLayout();
+    
+    // Clear and recreate UI
+    this.clearUI();
+    this.createBattleUI();
+    
+    console.log("Battle scene resized and updated");
+  }
+
+  clearUI() {
+    // Remove all UI elements
+    this.layers.ui.removeChildren();
+    this.layers.effects.removeChildren();
+    this.battleUI = {};
+    this.buttons = [];
   }
 
   initializeBattle() {
-    // Get squad from character roster
-    const roster = this.engine.characterRoster;
-    if (!roster) {
-      console.error("❌ Character roster not found!");
-      return;
+    // Get inventory from inventory scene
+    const inventoryScene = this.engine.scenes.get("inventory");
+    let playerSkills = [];
+
+    if (inventoryScene && inventoryScene.inventoryGrid) {
+      // Generate skills from inventory
+      playerSkills = SkillGenerator.generateSkillsFromInventory(
+        inventoryScene.inventoryGrid
+      );
+      console.log("Generated skills from inventory:", playerSkills);
+    } else {
+      // Fallback to default skills
+      playerSkills = SkillGenerator.getDefaultSkills();
+      console.log("Using default skills (no inventory found)");
     }
-  
-    const squad = roster.getActiveSquad();
-    if (squad.length === 0) {
-      console.error("❌ No characters in active squad!");
-      return;
-    }
-  
-    // Initialize player party from squad
-    this.playerParty = squad.map(character => {
-      // Generate skills from character's inventory
-      const skills = character.inventory ? 
-        SkillGenerator.generateSkillsFromInventory(character.inventory) :
-        SkillGenerator.getDefaultSkills();
-  
-      return {
-        ...character, // Copy all character properties
-        skills: skills,
-        isPlayer: true, // Mark as player character
-        originalCharacter: character // Keep reference to original
-      };
-    });
-  
-    console.log(`⚔️ Battle party: ${this.playerParty.map(p => p.name).join(", ")}`);
+
+    // Create player with dynamic skills
+    this.player = {
+      name: "Hero",
+      hp: 100,
+      maxHp: 100,
+      mp: 50,
+      maxMp: 50,
+      level: 1,
+      attack: 20,
+      defense: 10,
+      speed: 12,
+      skills: playerSkills,
+    };
+
+    // Create enemies
+    this.createEnemies();
+
+    // Calculate turn order
+    this.calculateTurnOrder();
+
+    // Initialize battle log
+    this.battleLog = [];
+    this.addToBattleLog("Battle begins!");
+    this.addToBattleLog(
+      `${this.player.name} vs ${this.enemies.map((e) => e.name).join(", ")}`
+    );
+
+    // Log player's available skills
+    const skillList = this.player.skills
+      .map((s) => `${s.name} (${s.sourceItems.join(", ")})`)
+      .join(", ");
+    this.addToBattleLog(`Available skills: ${skillList}`);
   }
 
   createEnemies() {
@@ -147,8 +299,8 @@ export class PixiBattleScene extends PixiScene {
 
   calculateTurnOrder() {
     const allCombatants = [
-        ...this.playerParty.filter(p => p.hp > 0),
-        ...this.enemies.filter((e) => e.hp > 0),
+      this.player,
+      ...this.enemies.filter((e) => e.hp > 0),
     ];
 
     // Sort by speed (higher speed goes first)
@@ -172,13 +324,14 @@ export class PixiBattleScene extends PixiScene {
     bg.drawRect(0, 0, this.engine.width, this.engine.height);
     bg.endFill();
 
-    // Add some atmospheric elements
-    for (let i = 0; i < 20; i++) {
+    // Add atmospheric elements scaled to screen size
+    const numElements = Math.floor((this.engine.width * this.engine.height) / 50000);
+    for (let i = 0; i < numElements; i++) {
       bg.beginFill(0x6a1b9a, 0.3);
       bg.drawCircle(
         Math.random() * this.engine.width,
         Math.random() * this.engine.height,
-        Math.random() * 30 + 10
+        Math.random() * 30 * this.layout.scale + 10
       );
       bg.endFill();
     }
@@ -188,14 +341,14 @@ export class PixiBattleScene extends PixiScene {
     // Title
     const title = new PIXI.Text("BATTLE ARENA", {
       fontFamily: "Arial",
-      fontSize: 32,
+      fontSize: this.layout.fonts.title,
       fill: 0xffffff,
       align: "center",
       fontWeight: "bold",
     });
     title.anchor.set(0.5);
     title.x = this.engine.width / 2;
-    title.y = 40;
+    title.y = this.layout.dimensions.turnIndicator.y - 30;
     this.addSprite(title, "ui");
   }
 
@@ -217,110 +370,113 @@ export class PixiBattleScene extends PixiScene {
 
     // Action buttons
     this.createActionButtons();
+
+    // Initial display update
+    this.updateBattleDisplay();
   }
-  
+
   createPlayerDisplay() {
-    // Create displays for each party member
-    this.playerDisplays = [];
-    
-    this.playerParty.forEach((player, index) => {
-      const display = this.createSinglePlayerDisplay(player, index);
-      this.playerDisplays.push(display);
-    });
-  }
-  
-  createSinglePlayerDisplay(player, index) {
-    const displayWidth = 280;
-    const displayHeight = 150;
-    const startX = 50;
-    const startY = 100 + index * (displayHeight + 20);
-  
+    const dims = this.layout.dimensions.playerArea;
     const playerPanel = new PIXI.Graphics();
+    
     playerPanel.beginFill(0x2e7d32, 0.8);
-    playerPanel.drawRoundedRect(0, 0, displayWidth, displayHeight, 10);
+    playerPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
     playerPanel.endFill();
     playerPanel.lineStyle(2, 0x4caf50);
-    playerPanel.drawRoundedRect(0, 0, displayWidth, displayHeight, 10);
-    playerPanel.x = startX;
-    playerPanel.y = startY;
-  
+    playerPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
+    playerPanel.x = dims.x;
+    playerPanel.y = dims.y;
+
     this.addGraphics(playerPanel, "ui");
-  
-    // Player portrait and name
-    const portrait = new PIXI.Text(player.portrait || "👤", {
-      fontFamily: "Arial",
-      fontSize: 24,
-      fill: 0xffffff,
-    });
-    portrait.x = startX + 10;
-    portrait.y = startY + 10;
-    this.addSprite(portrait, "ui");
-  
-    const playerName = new PIXI.Text(`${player.name} (${player.class})`, {
-      fontFamily: "Arial",
-      fontSize: 16,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    playerName.x = startX + 50;
-    playerName.y = startY + 15;
+
+    // Player name
+    const playerName = new PIXI.Text(
+      `🛡️ ${this.player.name} (Lv.${this.player.level})`,
+      {
+        fontFamily: "Arial",
+        fontSize: this.layout.fonts.subtitle,
+        fill: 0xffffff,
+        fontWeight: "bold",
+      }
+    );
+    playerName.x = dims.x + 10;
+    playerName.y = dims.y + 10;
     this.addSprite(playerName, "ui");
-  
-    // HP and MP text elements (will be updated in updateBattleDisplay)
-    const hpText = new PIXI.Text("", {
+
+    // Player stats
+    this.battleUI.playerHpText = new PIXI.Text("", {
       fontFamily: "Arial",
-      fontSize: 12,
+      fontSize: this.layout.fonts.body,
       fill: 0xffffff,
     });
-    hpText.x = startX + 50;
-    hpText.y = startY + 40;
-    this.addSprite(hpText, "ui");
-  
-    const mpText = new PIXI.Text("", {
+    this.battleUI.playerHpText.x = dims.x + 10;
+    this.battleUI.playerHpText.y = dims.y + 35;
+    this.addSprite(this.battleUI.playerHpText, "ui");
+
+    this.battleUI.playerMpText = new PIXI.Text("", {
       fontFamily: "Arial",
-      fontSize: 12,
+      fontSize: this.layout.fonts.body,
       fill: 0xffffff,
     });
-    mpText.x = startX + 50;
-    mpText.y = startY + 60;
-    this.addSprite(mpText, "ui");
-  
+    this.battleUI.playerMpText.x = dims.x + 10;
+    this.battleUI.playerMpText.y = dims.y + 55;
+    this.addSprite(this.battleUI.playerMpText, "ui");
+
     // HP Bar
-    const hpBar = new PIXI.Graphics();
-    hpBar.x = startX + 50;
-    hpBar.y = startY + 80;
-    this.addGraphics(hpBar, "ui");
-  
+    this.battleUI.playerHpBar = new PIXI.Graphics();
+    this.battleUI.playerHpBar.x = dims.x + 10;
+    this.battleUI.playerHpBar.y = dims.y + 75;
+    this.addGraphics(this.battleUI.playerHpBar, "ui");
+
     // MP Bar
-    const mpBar = new PIXI.Graphics();
-    mpBar.x = startX + 50;
-    mpBar.y = startY + 100;
-    this.addGraphics(mpBar, "ui");
-  
-    return {
-      player: player,
-      panel: playerPanel,
-      portrait: portrait,
-      hpText: hpText,
-      mpText: mpText,
-      hpBar: hpBar,
-      mpBar: mpBar
-    };
+    this.battleUI.playerMpBar = new PIXI.Graphics();
+    this.battleUI.playerMpBar.x = dims.x + 10;
+    this.battleUI.playerMpBar.y = dims.y + 95;
+    this.addGraphics(this.battleUI.playerMpBar, "ui");
+
+    // Make player area interactive for self-targeting
+    playerPanel.interactive = true;
+    playerPanel.cursor = "pointer";
+    playerPanel.on("pointerdown", () => {
+      if (this.selectedSkill && this.isPlayerTurn() && this.selectedSkill.type === "healing") {
+        this.targetSelf();
+      }
+    });
+
+    playerPanel.on("pointerover", () => {
+      if (this.selectedSkill && this.isPlayerTurn() && this.selectedSkill.type === "healing") {
+        playerPanel.tint = 0x88ffff;
+      }
+    });
+
+    playerPanel.on("pointerout", () => {
+      playerPanel.tint = 0xffffff;
+    });
   }
 
   createEnemyDisplays() {
     this.battleUI.enemyDisplays = [];
-
+    const enemyDims = this.layout.dimensions.enemyArea;
+    
+    // Calculate enemy positions based on layout
+    const enemiesPerRow = this.layout.isMobile ? 2 : 3;
+    const startX = this.layout.isPortrait ? 
+      this.layout.padding : 
+      this.engine.width - enemyDims.width - this.layout.padding;
+    
     this.enemies.forEach((enemy, index) => {
+      const col = index % enemiesPerRow;
+      const row = Math.floor(index / enemiesPerRow);
+      
+      const x = startX + col * (enemyDims.width + enemyDims.spacing);
+      const y = this.layout.dimensions.playerArea.y + row * (enemyDims.height + enemyDims.spacing);
+
       const enemyPanel = new PIXI.Graphics();
       enemyPanel.beginFill(0xd32f2f, 0.8);
-      enemyPanel.drawRoundedRect(0, 0, 250, 120, 10);
+      enemyPanel.drawRoundedRect(0, 0, enemyDims.width, enemyDims.height, 10);
       enemyPanel.endFill();
       enemyPanel.lineStyle(2, 0xf44336);
-      enemyPanel.drawRoundedRect(0, 0, 250, 120, 10);
-
-      const x = 800 + (index % 2) * 280;
-      const y = 100 + Math.floor(index / 2) * 140;
+      enemyPanel.drawRoundedRect(0, 0, enemyDims.width, enemyDims.height, 10);
       enemyPanel.x = x;
       enemyPanel.y = y;
 
@@ -336,7 +492,7 @@ export class PixiBattleScene extends PixiScene {
       });
 
       enemyPanel.on("pointerover", () => {
-        if (this.selectedSkill && this.isPlayerTurn()) {
+        if (this.selectedSkill && this.isPlayerTurn() && this.selectedSkill.type !== "healing") {
           enemyPanel.tint = 0xffff88;
         }
       });
@@ -350,7 +506,7 @@ export class PixiBattleScene extends PixiScene {
       // Enemy name
       const enemyName = new PIXI.Text(`👹 ${enemy.name}`, {
         fontFamily: "Arial",
-        fontSize: 14,
+        fontSize: this.layout.fonts.body,
         fill: 0xffffff,
         fontWeight: "bold",
       });
@@ -361,7 +517,7 @@ export class PixiBattleScene extends PixiScene {
       // Enemy stats
       const enemyHpText = new PIXI.Text("", {
         fontFamily: "Arial",
-        fontSize: 11,
+        fontSize: this.layout.fonts.small,
         fill: 0xffffff,
       });
       enemyHpText.x = x + 10;
@@ -370,7 +526,7 @@ export class PixiBattleScene extends PixiScene {
 
       const enemyMpText = new PIXI.Text("", {
         fontFamily: "Arial",
-        fontSize: 11,
+        fontSize: this.layout.fonts.small,
         fill: 0xffffff,
       });
       enemyMpText.x = x + 10;
@@ -401,26 +557,28 @@ export class PixiBattleScene extends PixiScene {
   }
 
   createSkillsPanel() {
+    const dims = this.layout.dimensions.skillsPanel;
     const skillsPanel = new PIXI.Graphics();
+    
     skillsPanel.beginFill(0x1976d2, 0.9);
-    skillsPanel.drawRoundedRect(0, 0, 400, 250, 10);
+    skillsPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
     skillsPanel.endFill();
     skillsPanel.lineStyle(2, 0x2196f3);
-    skillsPanel.drawRoundedRect(0, 0, 400, 250, 10);
-    skillsPanel.x = 50;
-    skillsPanel.y = 300;
+    skillsPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
+    skillsPanel.x = dims.x;
+    skillsPanel.y = dims.y;
 
     this.addGraphics(skillsPanel, "ui");
 
     // Skills title
     const skillsTitle = new PIXI.Text("⚔️ SKILLS", {
       fontFamily: "Arial",
-      fontSize: 16,
+      fontSize: this.layout.fonts.subtitle,
       fill: 0xffffff,
       fontWeight: "bold",
     });
-    skillsTitle.x = 60;
-    skillsTitle.y = 315;
+    skillsTitle.x = dims.x + 10;
+    skillsTitle.y = dims.y + 10;
     this.addSprite(skillsTitle, "ui");
 
     // Create skill buttons
@@ -429,15 +587,18 @@ export class PixiBattleScene extends PixiScene {
 
   createSkillButtons() {
     this.buttons = [];
+    const dims = this.layout.dimensions.skillsPanel;
+    
+    // Calculate button dimensions
+    const buttonWidth = dims.width - 20;
+    const buttonHeight = this.layout.isMobile ? 50 : 40;
+    const buttonSpacing = this.layout.isMobile ? 8 : 5;
+    const maxVisibleSkills = Math.floor((dims.height - 40) / (buttonHeight + buttonSpacing));
 
-    if (!this.activePlayer) return;
-
-    this.activePlayer.skills.forEach((skill, index) => {
+    this.player.skills.slice(0, maxVisibleSkills).forEach((skill, index) => {
       const button = new PIXI.Graphics();
-      const buttonWidth = 360;
-      const buttonHeight = 45;
-      const buttonX = 60;
-      const buttonY = 340 + index * 50;
+      const buttonX = dims.x + 10;
+      const buttonY = dims.y + 40 + index * (buttonHeight + buttonSpacing);
 
       // Button background with skill type color
       const skillTypeColor = SkillGenerator.getSkillTypeColor(skill.type);
@@ -456,7 +617,7 @@ export class PixiBattleScene extends PixiScene {
       // Skill icon
       const skillIcon = new PIXI.Graphics();
       skillIcon.beginFill(skillTypeColor);
-      skillIcon.drawCircle(20, 22, 15);
+      skillIcon.drawCircle(15, buttonHeight / 2, 12);
       skillIcon.endFill();
       button.addChild(skillIcon);
 
@@ -465,31 +626,35 @@ export class PixiBattleScene extends PixiScene {
         `${skill.name} - ${skill.damage} DMG - ${skill.cost} MP`,
         {
           fontFamily: "Arial",
-          fontSize: 12,
+          fontSize: this.layout.fonts.body,
           fill: 0xffffff,
           fontWeight: "bold",
         }
       );
-      skillText.x = 45;
+      skillText.x = 35;
       skillText.y = 8;
       button.addChild(skillText);
 
-      // Source items
-      const sourceText = new PIXI.Text(
-        `From: ${skill.sourceItems.join(" + ")}`,
-        {
-          fontFamily: "Arial",
-          fontSize: 10,
-          fill: 0xcccccc,
-        }
-      );
-      sourceText.x = 45;
-      sourceText.y = 25;
-      button.addChild(sourceText);
+      // Source items (if space allows)
+      if (buttonHeight > 35) {
+        const sourceText = new PIXI.Text(
+          `From: ${skill.sourceItems.join(" + ")}`,
+          {
+            fontFamily: "Arial",
+            fontSize: this.layout.fonts.small,
+            fill: 0xcccccc,
+          }
+        );
+        sourceText.x = 35;
+        sourceText.y = 25;
+        button.addChild(sourceText);
+      }
 
       // Button events
       button.on("pointerover", () => {
-        button.tint = 0xdddddd;
+        if (this.player.mp >= skill.cost) {
+          button.tint = 0xdddddd;
+        }
       });
 
       button.on("pointerout", () => {
@@ -506,81 +671,119 @@ export class PixiBattleScene extends PixiScene {
   }
 
   createBattleLogPanel() {
+    const dims = this.layout.dimensions.battleLog;
     const logPanel = new PIXI.Graphics();
+    
     logPanel.beginFill(0x263238, 0.9);
-    logPanel.drawRoundedRect(0, 0, 650, 200, 10);
+    logPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
     logPanel.endFill();
     logPanel.lineStyle(2, 0x455a64);
-    logPanel.drawRoundedRect(0, 0, 650, 200, 10);
-    logPanel.x = 500;
-    logPanel.y = 350;
+    logPanel.drawRoundedRect(0, 0, dims.width, dims.height, 10);
+    logPanel.x = dims.x;
+    logPanel.y = dims.y;
 
     this.addGraphics(logPanel, "ui");
 
     // Log title
     const logTitle = new PIXI.Text("📜 BATTLE LOG", {
       fontFamily: "Arial",
-      fontSize: 14,
+      fontSize: this.layout.fonts.subtitle,
       fill: 0xffffff,
       fontWeight: "bold",
     });
-    logTitle.x = 515;
-    logTitle.y = 365;
+    logTitle.x = dims.x + 10;
+    logTitle.y = dims.y + 10;
     this.addSprite(logTitle, "ui");
 
     // Battle log text container
     this.battleUI.logContainer = new PIXI.Container();
-    this.battleUI.logContainer.x = 515;
-    this.battleUI.logContainer.y = 390;
+    this.battleUI.logContainer.x = dims.x + 10;
+    this.battleUI.logContainer.y = dims.y + 35;
     this.addSprite(this.battleUI.logContainer, "ui");
+
+    // Set up scrolling for log if needed
+    const logMask = new PIXI.Graphics();
+    logMask.beginFill(0x000000);
+    logMask.drawRect(dims.x + 10, dims.y + 35, dims.width - 20, dims.height - 45);
+    logMask.endFill();
+    this.battleUI.logContainer.mask = logMask;
+    this.addGraphics(logMask, "ui");
   }
 
   createTurnIndicator() {
+    const dims = this.layout.dimensions.turnIndicator;
+    
+    // Background
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0x34495e, 0.9);
+    bg.drawRoundedRect(-dims.width / 2, -dims.height / 2, dims.width, dims.height, 8);
+    bg.endFill();
+    bg.lineStyle(2, 0xecf0f1);
+    bg.drawRoundedRect(-dims.width / 2, -dims.height / 2, dims.width, dims.height, 8);
+    bg.x = dims.x;
+    bg.y = dims.y;
+    this.addGraphics(bg, "ui");
+
     this.battleUI.turnIndicator = new PIXI.Text("", {
       fontFamily: "Arial",
-      fontSize: 18,
+      fontSize: this.layout.fonts.subtitle,
       fill: 0xffd700,
       fontWeight: "bold",
       align: "center",
     });
     this.battleUI.turnIndicator.anchor.set(0.5);
-    this.battleUI.turnIndicator.x = this.engine.width / 2;
-    this.battleUI.turnIndicator.y = 80;
+    this.battleUI.turnIndicator.x = dims.x;
+    this.battleUI.turnIndicator.y = dims.y;
     this.addSprite(this.battleUI.turnIndicator, "ui");
   }
 
   createActionButtons() {
+    const dims = this.layout.dimensions.actionButtons;
     const actionButtons = [
-      { text: "🏃 Run Away", action: () => this.runAway() },
-      { text: "🔄 Skip Turn", action: () => this.skipTurn() },
+      { text: "🏃 Run", action: () => this.runAway() },
+      { text: "🔄 Skip", action: () => this.skipTurn() },
+      { text: "⚡ Auto", action: () => this.toggleAutoBattle() },
     ];
 
     actionButtons.forEach((btnData, index) => {
       const button = new PIXI.Graphics();
-      button.beginFill(0x795548);
-      button.drawRoundedRect(0, 0, 120, 35, 5);
+      const buttonX = this.layout.padding + index * (dims.width + dims.spacing);
+      
+      // Auto battle button gets different styling
+      const isAutoBattle = btnData.text.includes("Auto");
+      const bgColor = isAutoBattle && this.autoBattle ? 0xe74c3c : 0x795548;
+      
+      button.beginFill(bgColor);
+      button.drawRoundedRect(0, 0, dims.width, dims.height, 5);
       button.endFill();
-      button.lineStyle(1, 0x8d6e63);
-      button.drawRoundedRect(0, 0, 120, 35, 5);
+      button.lineStyle(1, isAutoBattle && this.autoBattle ? 0xc0392b : 0x8d6e63);
+      button.drawRoundedRect(0, 0, dims.width, dims.height, 5);
 
-      button.x = 60 + index * 140;
-      button.y = 600;
+      button.x = buttonX;
+      button.y = dims.y;
       button.interactive = true;
       button.cursor = "pointer";
 
       const buttonText = new PIXI.Text(btnData.text, {
         fontFamily: "Arial",
-        fontSize: 11,
+        fontSize: this.layout.fonts.button,
         fill: 0xffffff,
         align: "center",
+        fontWeight: "bold",
       });
       buttonText.anchor.set(0.5);
-      buttonText.x = 60;
-      buttonText.y = 17;
+      buttonText.x = dims.width / 2;
+      buttonText.y = dims.height / 2;
       button.addChild(buttonText);
 
-      button.on("pointerover", () => (button.tint = 0xcccccc));
-      button.on("pointerout", () => (button.tint = 0xffffff));
+      button.on("pointerover", () => {
+        button.tint = 0xcccccc;
+      });
+
+      button.on("pointerout", () => {
+        button.tint = 0xffffff;
+      });
+
       button.on("pointerdown", btnData.action);
 
       this.addGraphics(button, "ui");
@@ -594,24 +797,22 @@ export class PixiBattleScene extends PixiScene {
   }
 
   isPlayerTurn() {
-    const currentActor = this.getCurrentActor();
     return (
-      currentActor && currentActor.isPlayer && this.battleState === "selecting"
+      this.getCurrentActor() === this.player && this.battleState === "selecting"
     );
   }
 
   selectSkill(skill, index) {
     if (!this.isPlayerTurn()) return;
-  
-    const currentPlayer = this.getCurrentActor();
-    if (!currentPlayer || currentPlayer.mp < skill.cost) {
+
+    if (this.player.mp < skill.cost) {
       this.addToBattleLog("Not enough MP!");
       return;
     }
 
     this.selectedSkill = skill;
     this.addToBattleLog(
-      `Selected ${skill.name}. Choose target or click again to use.`
+      `Selected ${skill.name}. Choose target.`
     );
 
     // If it's a healing skill, target self immediately
@@ -729,18 +930,13 @@ export class PixiBattleScene extends PixiScene {
 
     const currentActor = this.getCurrentActor();
     if (currentActor?.isEnemy) {
-        // AI turn
-        this.battleState = "ai_turn";
-        setTimeout(() => this.executeAITurn(), 1000);
-      } else if (currentActor?.isPlayer) {
-        // Player character turn
-        this.battleState = "selecting";
-        this.activePlayer = currentActor;
-        this.refreshSkillsPanel(); // Refresh skills for current player
-      } else {
-        // Skip turn if actor is invalid
-        this.nextTurn();
-      }
+      // AI turn
+      this.battleState = "ai_turn";
+      setTimeout(() => this.executeAITurn(), 1000);
+    } else {
+      // Player turn
+      this.battleState = "selecting";
+    }
 
     this.updateTurnDisplay();
   }
@@ -784,11 +980,10 @@ export class PixiBattleScene extends PixiScene {
 
   checkBattleEnd() {
     const aliveEnemies = this.enemies.filter((e) => e.hp > 0);
-    const aliveParty = this.playerParty.filter((p) => p.hp > 0);
-  
-    if (aliveParty.length === 0) {
+
+    if (this.player.hp <= 0) {
       this.battleState = "defeat";
-      this.addToBattleLog("💀 DEFEAT! Your entire party has been defeated!");
+      this.addToBattleLog("💀 DEFEAT! You have been defeated!");
       this.showBattleEndScreen(false);
       return true;
     }
@@ -834,6 +1029,106 @@ export class PixiBattleScene extends PixiScene {
       // Show simple victory screen if no loot
       this.showSimpleVictoryScreen();
     }
+  }
+
+  showDefeatScreen() {
+    // Create defeat overlay
+    const overlay = new PIXI.Graphics();
+    overlay.beginFill(0x000000, 0.8);
+    overlay.drawRect(0, 0, this.engine.width, this.engine.height);
+    overlay.endFill();
+    overlay.interactive = true;
+
+    // Defeat text
+    const defeatText = new PIXI.Text("💀 DEFEAT!", {
+      fontFamily: "Arial",
+      fontSize: this.layout.fonts.title * 1.5,
+      fill: 0xe74c3c,
+      fontWeight: "bold",
+      align: "center",
+    });
+    defeatText.anchor.set(0.5);
+    defeatText.x = this.engine.width / 2;
+    defeatText.y = this.engine.height / 2 - 50;
+    overlay.addChild(defeatText);
+
+    // Return button
+    const returnButton = new PIXI.Graphics();
+    returnButton.beginFill(0x3498db);
+    returnButton.drawRoundedRect(0, 0, 200, 50, 10);
+    returnButton.endFill();
+    returnButton.x = this.engine.width / 2 - 100;
+    returnButton.y = this.engine.height / 2 + 20;
+    returnButton.interactive = true;
+    returnButton.cursor = "pointer";
+
+    const returnText = new PIXI.Text("Return to World", {
+      fontFamily: "Arial",
+      fontSize: this.layout.fonts.button,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    returnText.anchor.set(0.5);
+    returnText.x = 100;
+    returnText.y = 25;
+    returnButton.addChild(returnText);
+
+    returnButton.on("pointerdown", () => {
+      this.engine.switchScene("world");
+    });
+
+    overlay.addChild(returnButton);
+    this.addSprite(overlay, "effects");
+  }
+
+  showSimpleVictoryScreen() {
+    // Create victory overlay
+    const overlay = new PIXI.Graphics();
+    overlay.beginFill(0x000000, 0.8);
+    overlay.drawRect(0, 0, this.engine.width, this.engine.height);
+    overlay.endFill();
+    overlay.interactive = true;
+
+    // Victory text
+    const victoryText = new PIXI.Text("🎉 VICTORY!", {
+      fontFamily: "Arial",
+      fontSize: this.layout.fonts.title * 1.5,
+      fill: 0x27ae60,
+      fontWeight: "bold",
+      align: "center",
+    });
+    victoryText.anchor.set(0.5);
+    victoryText.x = this.engine.width / 2;
+    victoryText.y = this.engine.height / 2 - 50;
+    overlay.addChild(victoryText);
+
+    // Continue button
+    const continueButton = new PIXI.Graphics();
+    continueButton.beginFill(0x27ae60);
+    continueButton.drawRoundedRect(0, 0, 200, 50, 10);
+    continueButton.endFill();
+    continueButton.x = this.engine.width / 2 - 100;
+    continueButton.y = this.engine.height / 2 + 20;
+    continueButton.interactive = true;
+    continueButton.cursor = "pointer";
+
+    const continueText = new PIXI.Text("Continue", {
+      fontFamily: "Arial",
+      fontSize: this.layout.fonts.button,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    continueText.anchor.set(0.5);
+    continueText.x = 100;
+    continueText.y = 25;
+    continueButton.addChild(continueText);
+
+    continueButton.on("pointerdown", () => {
+      this.engine.switchScene("world");
+    });
+
+    overlay.addChild(continueButton);
+    this.addSprite(overlay, "effects");
   }
 
   generateBattleLoot() {
@@ -1049,6 +1344,52 @@ export class PixiBattleScene extends PixiScene {
     this.nextTurn();
   }
 
+  toggleAutoBattle() {
+    this.autoBattle = !this.autoBattle;
+    this.addToBattleLog(`Auto battle ${this.autoBattle ? "enabled" : "disabled"}`);
+
+    if (this.autoBattle && this.isPlayerTurn()) {
+      this.executeAutoPlayerTurn();
+    }
+  }
+
+  executeAutoPlayerTurn() {
+    if (!this.isPlayerTurn() || !this.autoBattle) return;
+
+    const skills = this.player.skills;
+    if (skills.length === 0) {
+      this.skipTurn();
+      return;
+    }
+
+    // Simple AI: prefer attack skills, target first alive enemy
+    const attackSkill = skills.find(
+      (s) => s.type === "physical" || s.type === "magic"
+    );
+    const healSkill = skills.find((s) => s.type === "healing");
+
+    let selectedSkill = null;
+    let target = null;
+
+    // Use heal if health is low
+    if (this.player.hp / this.player.maxHp < 0.3 && healSkill) {
+      selectedSkill = healSkill;
+      target = this.player;
+    } else if (attackSkill) {
+      selectedSkill = attackSkill;
+      target = this.enemies.find((e) => e.hp > 0);
+    }
+
+    if (selectedSkill && target) {
+      setTimeout(
+        () => this.executeSkill(this.player, selectedSkill, target),
+        500
+      );
+    } else {
+      this.skipTurn();
+    }
+  }
+
   addToBattleLog(message) {
     this.battleLog.push(message);
     if (this.battleLog.length > this.logMaxLines) {
@@ -1066,15 +1407,16 @@ export class PixiBattleScene extends PixiScene {
     this.battleUI.logContainer.removeChildren();
 
     // Add current log entries
+    const maxWidth = this.layout.dimensions.battleLog.width - 40;
     this.battleLog.forEach((message, index) => {
       const logEntry = new PIXI.Text(message, {
         fontFamily: "Arial",
-        fontSize: 11,
+        fontSize: this.layout.fonts.small,
         fill: 0xecf0f1,
         wordWrap: true,
-        wordWrapWidth: 620,
+        wordWrapWidth: maxWidth,
       });
-      logEntry.y = index * 15;
+      logEntry.y = index * (this.layout.fonts.small + 4);
       this.battleUI.logContainer.addChild(logEntry);
     });
   }
@@ -1094,66 +1436,30 @@ export class PixiBattleScene extends PixiScene {
   }
 
   updateBattleDisplay() {
-    // Update all player displays
-    if (this.playerDisplays) {
-        this.playerDisplays.forEach(display => {
-        const player = display.player;
-        
-        // Update text
-        display.hpText.text = `HP: ${player.hp}/${player.maxHp}`;
-        display.mpText.text = `MP: ${player.mp}/${player.maxMp}`;
-        
-        // Update HP bar
-        display.hpBar.clear();
-        const hpPercent = player.hp / player.maxHp;
-        
-        // Background
-        display.hpBar.beginFill(0x333333);
-        display.hpBar.drawRect(0, 0, 180, 8);
-        display.hpBar.endFill();
-        
-        // HP fill
-        const hpColor = hpPercent > 0.5 ? 0x4caf50 : hpPercent > 0.25 ? 0xff9800 : 0xf44336;
-        display.hpBar.beginFill(hpColor);
-        display.hpBar.drawRect(0, 0, 180 * hpPercent, 8);
-        display.hpBar.endFill();
-        
-        // Update MP bar
-        display.mpBar.clear();
-        const mpPercent = player.mp / player.maxMp;
-        
-        // Background
-        display.mpBar.beginFill(0x333333);
-        display.mpBar.drawRect(0, 0, 180, 6);
-        display.mpBar.endFill();
-        
-        // MP fill
-        display.mpBar.beginFill(0x2196f3);
-        display.mpBar.drawRect(0, 0, 180 * mpPercent, 6);
-        display.mpBar.endFill();
-        
-        // Highlight current player
-        const isCurrentPlayer = display.player === this.activePlayer;
-        display.panel.lineStyle(2, isCurrentPlayer ? 0xffd700 : 0x4caf50);
-        display.panel.drawRoundedRect(0, 0, 280, 150, 10);
-        });
+    // Update player display
+    if (this.battleUI.playerHpText) {
+      this.battleUI.playerHpText.text = `HP: ${this.player.hp}/${this.player.maxHp}`;
+    }
+    if (this.battleUI.playerMpText) {
+      this.battleUI.playerMpText.text = `MP: ${this.player.mp}/${this.player.maxMp}`;
     }
 
     // Update player HP bar
     if (this.battleUI.playerHpBar) {
       this.battleUI.playerHpBar.clear();
       const hpPercent = this.player.hp / this.player.maxHp;
+      const barWidth = Math.min(200, this.layout.dimensions.playerArea.width - 40);
 
       // Background
       this.battleUI.playerHpBar.beginFill(0x333333);
-      this.battleUI.playerHpBar.drawRect(0, 0, 200, 8);
+      this.battleUI.playerHpBar.drawRect(0, 0, barWidth, 8);
       this.battleUI.playerHpBar.endFill();
 
       // HP fill
       const hpColor =
         hpPercent > 0.5 ? 0x4caf50 : hpPercent > 0.25 ? 0xff9800 : 0xf44336;
       this.battleUI.playerHpBar.beginFill(hpColor);
-      this.battleUI.playerHpBar.drawRect(0, 0, 200 * hpPercent, 8);
+      this.battleUI.playerHpBar.drawRect(0, 0, barWidth * hpPercent, 8);
       this.battleUI.playerHpBar.endFill();
     }
 
@@ -1161,15 +1467,16 @@ export class PixiBattleScene extends PixiScene {
     if (this.battleUI.playerMpBar) {
       this.battleUI.playerMpBar.clear();
       const mpPercent = this.player.mp / this.player.maxMp;
+      const barWidth = Math.min(200, this.layout.dimensions.playerArea.width - 40);
 
       // Background
       this.battleUI.playerMpBar.beginFill(0x333333);
-      this.battleUI.playerMpBar.drawRect(0, 0, 200, 6);
+      this.battleUI.playerMpBar.drawRect(0, 0, barWidth, 6);
       this.battleUI.playerMpBar.endFill();
 
       // MP fill
       this.battleUI.playerMpBar.beginFill(0x2196f3);
-      this.battleUI.playerMpBar.drawRect(0, 0, 200 * mpPercent, 6);
+      this.battleUI.playerMpBar.drawRect(0, 0, barWidth * mpPercent, 6);
       this.battleUI.playerMpBar.endFill();
     }
 
@@ -1191,10 +1498,11 @@ export class PixiBattleScene extends PixiScene {
       // Update enemy HP bar
       display.hpBar.clear();
       const enemyHpPercent = Math.max(0, enemy.hp / enemy.maxHp);
+      const barWidth = Math.min(150, this.layout.dimensions.enemyArea.width - 40);
 
       // Background
       display.hpBar.beginFill(0x333333);
-      display.hpBar.drawRect(0, 0, 150, 8);
+      display.hpBar.drawRect(0, 0, barWidth, 8);
       display.hpBar.endFill();
 
       // HP fill
@@ -1205,7 +1513,7 @@ export class PixiBattleScene extends PixiScene {
           ? 0xff9800
           : 0xf44336;
       display.hpBar.beginFill(enemyHpColor);
-      display.hpBar.drawRect(0, 0, 150 * enemyHpPercent, 8);
+      display.hpBar.drawRect(0, 0, barWidth * enemyHpPercent, 8);
       display.hpBar.endFill();
 
       // Update enemy MP bar
@@ -1214,20 +1522,19 @@ export class PixiBattleScene extends PixiScene {
 
       // Background
       display.mpBar.beginFill(0x333333);
-      display.mpBar.drawRect(0, 0, 150, 6);
+      display.mpBar.drawRect(0, 0, barWidth, 6);
       display.mpBar.endFill();
 
       // MP fill
       display.mpBar.beginFill(0x2196f3);
-      display.mpBar.drawRect(0, 0, 150 * enemyMpPercent, 6);
+      display.mpBar.drawRect(0, 0, barWidth * enemyMpPercent, 6);
       display.mpBar.endFill();
     });
 
     // Update skill buttons availability
     this.buttons.forEach((button, index) => {
-    if (!this.activePlayer) return;
-    const skill = this.activePlayer.skills[index];
-    if (this.activePlayer.mp < skill.cost) {
+      const skill = this.player.skills[index];
+      if (this.player.mp < skill.cost) {
         button.alpha = 0.5;
         button.interactive = false;
       } else {
@@ -1239,25 +1546,21 @@ export class PixiBattleScene extends PixiScene {
     this.updateTurnDisplay();
   }
 
-  refreshSkillsPanel() {
-    // Clear existing skill buttons
-    this.buttons.forEach(button => {
-      if (button.parent) {
-        button.parent.removeChild(button);
-      }
-    });
-    this.buttons = [];
-  
-    // Recreate buttons for current player
-    this.createSkillButtons();
-  }
-
   // Update loop
   update(deltaTime) {
     super.update(deltaTime);
 
     // Update battle display periodically
     this.updateBattleDisplay();
+
+    // Auto battle logic
+    if (
+      this.autoBattle &&
+      this.isPlayerTurn() &&
+      this.battleState === "selecting"
+    ) {
+      setTimeout(() => this.executeAutoPlayerTurn(), 1000);
+    }
 
     // Process any animations
     if (this.animationQueue.length > 0) {
@@ -1277,7 +1580,7 @@ export class PixiBattleScene extends PixiScene {
       if (this.isPlayerTurn()) {
         this.skipTurn();
       }
-    } else if (event.code >= "Digit1" && event.code <= "Digit4") {
+    } else if (event.code >= "Digit1" && event.code <= "Digit9") {
       // Quick skill selection with number keys
       const skillIndex = parseInt(event.code.replace("Digit", "")) - 1;
       if (skillIndex < this.player.skills.length && this.isPlayerTurn()) {
@@ -1292,27 +1595,16 @@ export class PixiBattleScene extends PixiScene {
     if (this.selectedSkill && this.isPlayerTurn()) {
       // Check if clicking on player for self-targeting
       const mousePos = event.global;
+      const playerArea = this.layout.dimensions.playerArea;
+      
       if (
-        mousePos.x >= 50 &&
-        mousePos.x <= 350 &&
-        mousePos.y >= 100 &&
-        mousePos.y <= 250
+        mousePos.x >= playerArea.x &&
+        mousePos.x <= playerArea.x + playerArea.width &&
+        mousePos.y >= playerArea.y &&
+        mousePos.y <= playerArea.y + playerArea.height
       ) {
         this.targetSelf();
       }
     }
-  }
-
-  // Cleanup when exiting scene
-  onExit() {
-    // Clear any ongoing animations or intervals
-    this.animationQueue = [];
-
-    // Reset battle state
-    this.battleState = "selecting";
-    this.selectedSkill = null;
-    this.selectedTarget = null;
-
-    super.onExit();
   }
 }
