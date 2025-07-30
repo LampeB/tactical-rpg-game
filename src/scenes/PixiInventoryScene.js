@@ -1,43 +1,15 @@
+// src/scenes/PixiInventoryScene.js - Refactored to use base class
+import { InventoryBaseScene } from "../core/InventoryBaseScene.js";
 import { ShapeHelper } from "../utils/ShapeHelper.js";
-import { PixiScene } from "../core/PixiScene.js";
 
-export class PixiInventoryScene extends PixiScene {
+export class PixiInventoryScene extends InventoryBaseScene {
   constructor() {
     super();
 
-    this.gridCellSize = 60;
-    this.inventoryGrid = { x: 50, y: 100, cols: 10, rows: 8 };
-    this.storageGrid = { x: 700, y: 100, cols: 8, rows: 6 };
-    this.items = [];
-
-    // Drag and drop state
-    this.draggedItem = null;
-    this.dragStartGrid = null;
-    this.dragOffset = { x: 0, y: 0 };
-    this.placementPreview = null;
-    this.currentTooltip = null;
-
-    // Visual settings
+    // Inventory-specific properties
     this.showShapeOutlines = false;
     this.showDimensionInfo = false;
-  }
-
-  addGemGlowEffect(item, pixelWidth, pixelHeight) {
-    const glow = new PIXI.Graphics();
-    glow.lineStyle(2, 0xffd700, 0.8);
-    glow.drawRoundedRect(-2, -2, pixelWidth + 4, pixelHeight + 4, 6);
-    item.addChildAt(glow, 0);
-
-    // Animate glow
-    let glowTime = Math.random() * Math.PI * 2;
-    const animateGlow = () => {
-      glowTime += 0.05;
-      glow.alpha = 0.3 + Math.sin(glowTime) * 0.3;
-      if (item.parent) {
-        requestAnimationFrame(animateGlow);
-      }
-    };
-    animateGlow();
+    this.isInitialized = false;
   }
 
   onEnter() {
@@ -47,18 +19,78 @@ export class PixiInventoryScene extends PixiScene {
     this.createGrids();
 
     if (!this.isInitialized) {
-      // First time - start with empty inventory
-      this.items = [];
       this.createStarterItems();
       this.isInitialized = true;
     } else {
-      // Subsequent times - restore any items that were added
+      // Restore items that were added from other scenes
       this.items.forEach((item) => {
         if (!item.parent) {
           this.addSprite(item, "world");
         }
       });
     }
+
+    this.createInstructions();
+  }
+
+  // =================== INVENTORY-SPECIFIC METHODS ===================
+
+  createBackground() {
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0x27ae60);
+    bg.drawRect(0, 0, this.engine.width, this.engine.height);
+    bg.endFill();
+    this.addSprite(bg, "background");
+
+    // Title
+    const title = new PIXI.Text("🎒 INVENTORY MANAGEMENT", {
+      fontFamily: "Arial",
+      fontSize: 28,
+      fill: 0xffffff,
+      align: "center",
+      fontWeight: "bold",
+    });
+    title.anchor.set(0.5);
+    title.x = this.engine.width / 2;
+    title.y = 40;
+    this.addSprite(title, "ui");
+  }
+
+  createGrids() {
+    this.inventoryGrid.graphics = this.createGrid(
+      this.inventoryGrid,
+      0x2ecc71,
+      "Character Inventory"
+    );
+    this.storageGrid.graphics = this.createGrid(
+      this.storageGrid,
+      0x9b59b6,
+      "Item Storage"
+    );
+
+    // Add grid labels
+    const invLabel = new PIXI.Text("🎒 Character Inventory", {
+      fontFamily: "Arial",
+      fontSize: 16,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    invLabel.x = this.inventoryGrid.x;
+    invLabel.y = this.inventoryGrid.y - 30;
+    this.addSprite(invLabel, "ui");
+
+    const storageLabel = new PIXI.Text("📦 Item Storage", {
+      fontFamily: "Arial",
+      fontSize: 16,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    storageLabel.x = this.storageGrid.x;
+    storageLabel.y = this.storageGrid.y - 30;
+    this.addSprite(storageLabel, "ui");
+  }
+
+  createInstructions() {
     this.instructionsText = new PIXI.Text(
       "Drag items | Press R while dragging to rotate",
       {
@@ -71,305 +103,23 @@ export class PixiInventoryScene extends PixiScene {
     this.instructionsText.anchor.set(0.5);
     this.instructionsText.x = this.engine.width / 2;
     this.instructionsText.y = this.engine.height - 20;
-
     this.addSprite(this.instructionsText, "ui");
-
-    // Set initial instructions
-    this.updateInstructions();
   }
 
-  initializePersistentData() {
-    if (!this.items) {
-      this.items = [];
-    }
-  }
-
-  canPlaceItemAt(grid, item, gridX, gridY) {
-    console.log(
-      `🔍 Checking placement for ${item.name} at (${gridX}, ${gridY}) in ${
-        grid === this.inventoryGrid ? "inventory" : "storage"
-      }`
-    );
-
-    const itemGridWidth = item.gridWidth || item.originalData?.width || 1;
-    const itemGridHeight = item.gridHeight || item.originalData?.height || 1;
-
-    // Check bounds using bounding box
-    if (
-      gridX < 0 ||
-      gridY < 0 ||
-      gridX + itemGridWidth > grid.cols ||
-      gridY + itemGridHeight > grid.rows
-    ) {
-      console.log(
-        `   ❌ Out of bounds: (${gridX}, ${gridY}) + (${itemGridWidth}, ${itemGridHeight}) vs (${grid.cols}, ${grid.rows})`
-      );
-      return false;
-    }
-
-    // Get the actual shape pattern of the item being placed
-    const itemShapePattern = item.shapePattern || [[0, 0]]; // Default to single cell
-
-    // Check for overlapping with other items using ACTUAL SHAPES
-    for (const otherItem of this.items) {
-      // Skip the item being dragged and items not placed
-      if (otherItem === item || otherItem.gridX < 0 || otherItem.gridY < 0) {
-        continue;
-      }
-
-      // Check if this item is in the same grid
-      const otherItemGrid = this.findItemGrid(otherItem);
-      if (otherItemGrid !== grid) {
-        continue;
-      }
-
-      // Get the other item's shape pattern
-      const otherShapePattern = otherItem.shapePattern || [[0, 0]];
-
-      // Check if any cells of the new item overlap with any cells of the existing item
-      const hasOverlap = this.checkShapeOverlap(
-        itemShapePattern,
-        gridX,
-        gridY,
-        otherShapePattern,
-        otherItem.gridX,
-        otherItem.gridY
-      );
-
-      if (hasOverlap) {
-        console.log(
-          `   ❌ Shape overlap with ${otherItem.name} at (${otherItem.gridX}, ${otherItem.gridY})`
-        );
-        return false;
-      }
-    }
-
-    console.log(`   ✅ Placement valid - no shape conflicts`);
-    return true;
-  }
-
-  checkShapeOverlap(pattern1, x1, y1, pattern2, x2, y2) {
-    // Convert both patterns to absolute grid coordinates
-    const cells1 = pattern1.map(([cellX, cellY]) => [x1 + cellX, y1 + cellY]);
-    const cells2 = pattern2.map(([cellX, cellY]) => [x2 + cellX, y2 + cellY]);
-
-    // Check if any cell from pattern1 overlaps with any cell from pattern2
-    for (const [cell1X, cell1Y] of cells1) {
-      for (const [cell2X, cell2Y] of cells2) {
-        if (cell1X === cell2X && cell1Y === cell2Y) {
-          console.log(`     Overlap at grid cell (${cell1X}, ${cell1Y})`);
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  createBackground() {
-    const bg = new PIXI.Graphics();
-    bg.beginFill(0x27ae60);
-    bg.drawRect(0, 0, this.engine.width, this.engine.height);
-    bg.endFill();
-    bg.name = "background";
-
-    this.addSprite(bg, "background");
-
-    // Add title
-    const title = new PIXI.Text("📦 INVENTORY DEBUG", {
-      fontFamily: "Arial",
-      fontSize: 28,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
-    });
-    title.anchor.set(0.5);
-    title.x = this.engine.width / 2;
-    title.y = 40;
-    title.name = "title";
-
-    this.addSprite(title, "ui");
-  }
-
-  createGrid(gridData, color, name) {
-    const grid = new PIXI.Graphics();
-
-    // Draw background FIRST - no stroke
-    grid.beginFill(color, 0.3);
-    grid.drawRect(
-      0,
-      0,
-      gridData.cols * this.gridCellSize,
-      gridData.rows * this.gridCellSize
-    );
-    grid.endFill();
-
-    // Draw internal grid lines with proper alignment
-    grid.lineStyle({
-      width: 1,
-      color: 0xffffff,
-      alpha: 0.5,
-      alignment: 0.5, // Center the line exactly
-    });
-
-    // Vertical lines
-    for (let col = 1; col < gridData.cols; col++) {
-      const x = col * this.gridCellSize;
-      grid.moveTo(x, 0);
-      grid.lineTo(x, gridData.rows * this.gridCellSize);
-    }
-
-    // Horizontal lines
-    for (let row = 1; row < gridData.rows; row++) {
-      const y = row * this.gridCellSize;
-      grid.moveTo(0, y);
-      grid.lineTo(gridData.cols * this.gridCellSize, y);
-    }
-
-    // Draw outer border with inside alignment
-    grid.lineStyle({
-      width: 2,
-      color: 0xffffff,
-      alpha: 0.8,
-      alignment: 0, // Draw border INSIDE
-    });
-
-    grid.drawRect(
-      0,
-      0,
-      gridData.cols * this.gridCellSize,
-      gridData.rows * this.gridCellSize
-    );
-
-    grid.x = gridData.x;
-    grid.y = gridData.y;
-    grid.name = name + "Graphics";
-    grid.visible = true;
-
-    this.addGraphics(grid, "world");
-    return grid;
-  }
-
-  createGrids() {
-    // Create grids with stroke fix
-    this.inventoryGrid.graphics = this.createGrid(
-      this.inventoryGrid,
-      0x2ecc71,
-      "Character Inventory"
-    );
-    this.storageGrid.graphics = this.createGrid(
-      this.storageGrid,
-      0x9b59b6,
-      "Item Storage"
-    );
-  }
+  // =================== ITEM CREATION ===================
 
   createItem(data) {
-    console.log(
-      `🔨 Creating item: ${data.name} (${data.shape || "rectangle"})`
-    );
-
     const item = new PIXI.Container();
     const cellSize = this.gridCellSize;
     const padding = 4;
 
-    // Get shape pattern - default to rectangle if no shape specified
-    let shapePattern = [];
-
-    if (!data.shape || data.shape === "rectangle") {
-      // Default rectangle
-      shapePattern = ShapeHelper.createRectangle(data.width, data.height);
-    } else {
-      // Use ShapeHelper for all other shapes
-      switch (data.shape) {
-        case "T":
-          shapePattern = ShapeHelper.createTShape(
-            data.stemLength || 3,
-            data.topWidth || 3,
-            data.orientation || "up"
-          );
-          break;
-        case "U":
-          shapePattern = ShapeHelper.createUShape(
-            data.height || 3,
-            data.width || 3,
-            data.orientation || "up"
-          );
-          break;
-        case "L":
-          shapePattern = ShapeHelper.createLShape(
-            data.armLength || 3,
-            data.orientation || "tl"
-          );
-          break;
-        case "Plus":
-          shapePattern = ShapeHelper.createPlusShape(data.armLength || 1);
-          break;
-        case "Diamond":
-          shapePattern = ShapeHelper.createDiamond(data.size || 3);
-          break;
-        case "Z":
-          shapePattern = ShapeHelper.createZShape(
-            data.width || 3,
-            data.height || 3,
-            data.mirrored || false
-          );
-          break;
-        case "Frame":
-          shapePattern = ShapeHelper.createFrame(
-            data.width,
-            data.height,
-            data.thickness || 1
-          );
-          break;
-        case "Pattern":
-          shapePattern = ShapeHelper.createFromPattern(data.pattern);
-          break;
-        default:
-          // Try predefined shapes
-          const predefined = ShapeHelper.getPreDefinedShapes();
-          shapePattern =
-            predefined[data.shape] ||
-            ShapeHelper.createRectangle(data.width, data.height);
-      }
-
-      // Apply transformations if specified
-      if (data.rotations) {
-        for (let i = 0; i < data.rotations; i++) {
-          shapePattern = ShapeHelper.rotateClockwise(shapePattern);
-        }
-      }
-
-      if (data.mirrorH) {
-        shapePattern = ShapeHelper.mirrorHorizontal(shapePattern);
-      }
-
-      if (data.mirrorV) {
-        shapePattern = ShapeHelper.mirrorVertical(shapePattern);
-      }
-
-      // Normalize the pattern
-      shapePattern = ShapeHelper.normalize(shapePattern);
-    }
-
-    // Validate the shape
-    const validation = ShapeHelper.validateShape(shapePattern);
-    if (!validation.valid) {
-      console.warn(`⚠️ Invalid shape for ${data.name}: ${validation.error}`);
-      shapePattern = ShapeHelper.createRectangle(
-        data.width || 1,
-        data.height || 1
-      );
-    }
-
-    // Get actual bounds of the shape
+    // Get shape pattern
+    let shapePattern = this.getShapePattern(data);
     const bounds = ShapeHelper.getBounds(shapePattern);
 
-    // Draw the shape using individual cells
+    // Draw the shape
     shapePattern.forEach(([cellX, cellY]) => {
       const cellGraphic = new PIXI.Graphics();
-
-      // Cell background
       cellGraphic.beginFill(data.color);
       cellGraphic.drawRoundedRect(
         padding / 2,
@@ -379,8 +129,6 @@ export class PixiInventoryScene extends PixiScene {
         4
       );
       cellGraphic.endFill();
-
-      // Cell border
       cellGraphic.lineStyle(2, 0x2c3e50);
       cellGraphic.drawRoundedRect(
         padding / 2,
@@ -389,43 +137,65 @@ export class PixiInventoryScene extends PixiScene {
         cellSize - padding,
         4
       );
-
-      // Position the cell
       cellGraphic.x = cellX * cellSize;
       cellGraphic.y = cellY * cellSize;
-
       item.addChild(cellGraphic);
     });
 
-    // Add item name text
-    const fontSize = Math.min(
-      (bounds.width * cellSize - padding) / 8,
-      (bounds.height * cellSize - padding) / 4,
-      14
-    );
-    const text = new PIXI.Text(data.name, {
-      fontFamily: "Arial",
-      fontSize: fontSize,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
-      stroke: 0x000000,
-      strokeThickness: 1,
-    });
-    text.anchor.set(0.5);
-    text.x = (bounds.width * cellSize) / 2;
-    text.y = (bounds.height * cellSize) / 2;
-    item.addChild(text);
+    // Add text and indicators
+    this.addItemText(item, data, bounds, cellSize);
+    this.addTypeIndicator(item, data, bounds, cellSize);
 
-    // Add type indicator
-    const typeIndicator = new PIXI.Graphics();
-    const indicatorColor = this.getTypeColor(data.type);
-    typeIndicator.beginFill(indicatorColor);
-    typeIndicator.drawCircle(bounds.width * cellSize - 8, 8, 4);
-    typeIndicator.endFill();
-    item.addChild(typeIndicator);
+    // Store properties
+    this.setItemProperties(item, data, bounds, shapePattern);
 
-    // Store properties using actual bounds
+    // Make interactive
+    this.makeItemInteractive(item);
+
+    // Add to items array
+    this.items.push(item);
+
+    return item;
+  }
+
+  getShapePattern(data) {
+    if (!data.shape || data.shape === "rectangle") {
+      return ShapeHelper.createRectangle(data.width, data.height);
+    }
+
+    let pattern;
+    switch (data.shape) {
+      case "T":
+        pattern = ShapeHelper.createTShape(
+          data.stemLength || 3,
+          data.topWidth || 3,
+          data.orientation || "up"
+        );
+        break;
+      case "U":
+        pattern = ShapeHelper.createUShape(
+          data.height || 3,
+          data.width || 3,
+          data.orientation || "up"
+        );
+        break;
+      case "L":
+        pattern = ShapeHelper.createLShape(
+          data.armLength || 3,
+          data.orientation || "tl"
+        );
+        break;
+      default:
+        const predefined = ShapeHelper.getPreDefinedShapes();
+        pattern =
+          predefined[data.shape] ||
+          ShapeHelper.createRectangle(data.width, data.height);
+    }
+
+    return ShapeHelper.normalize(pattern);
+  }
+
+  setItemProperties(item, data, bounds, shapePattern) {
     item.name = data.name;
     item.type = data.type;
     item.color = data.color;
@@ -438,30 +208,66 @@ export class PixiInventoryScene extends PixiScene {
     item.gridX = -1;
     item.gridY = -1;
     item.visible = true;
-
-    // Make interactive
-    this.makeItemInteractive(item);
-
-    // Add special effects for gems
-    if (data.type === "gem") {
-      this.addGemGlowEffect(
-        item,
-        bounds.width * cellSize,
-        bounds.height * cellSize
-      );
-    }
-
-    this.items.push(item);
-
-    console.log(
-      `✅ Item created: ${data.name} (${bounds.width}x${bounds.height})`
-    );
-    if (data.shape && data.shape !== "rectangle") {
-      console.log(`   ASCII preview:\n${ShapeHelper.toAscii(shapePattern)}`);
-    }
-
-    return item;
+    item.rotationCount = 0;
   }
+
+  // =================== DRAG AND DROP ===================
+
+  handleMouseDown(event) {
+    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
+    if (clickedItem && clickedItem.interactive) {
+      this.startDragging(clickedItem, event);
+    }
+  }
+
+  startDragging(item, event) {
+    event.stopPropagation();
+
+    this.draggedItem = item;
+    this.dragStartGrid = this.findItemGrid(item);
+    item.isDragging = true;
+
+    // Store original state
+    this.storeOriginalState(item);
+
+    // Visual feedback
+    item.alpha = 0.9;
+    item.scale.set(1.05);
+    this.hideTooltip();
+
+    // Move to top and calculate offset
+    this.layers.world.removeChild(item);
+    this.layers.world.addChild(item);
+
+    const globalPos = event.global;
+    item.dragOffsetX = globalPos.x - item.x;
+    item.dragOffsetY = globalPos.y - item.y;
+
+    item.gridX = -1;
+    item.gridY = -1;
+    this.updateInstructions();
+  }
+
+  // =================== INPUT HANDLING ===================
+
+  handleKeyDown(event) {
+    if (event.code === "KeyR" && this.draggedItem) {
+      this.rotateDraggedItem();
+    }
+  }
+
+  // =================== HELPER METHODS ===================
+
+  updateInstructions() {
+    if (this.instructionsText) {
+      if (this.draggedItem) {
+        this.instructionsText.text = `Dragging ${this.draggedItem.name} | Press R to rotate | Release to place`;
+      } else {
+        this.instructionsText.text =
+          "Drag items | Press R while dragging to rotate";
+      }
+    }
+  } // Add these missing methods to src/scenes/PixiInventoryScene.js
 
   createStarterItems() {
     console.log("🎯 Creating starter items");
@@ -532,8 +338,8 @@ export class PixiInventoryScene extends PixiScene {
           this.canPlaceItemAt(this.storageGrid, item, placement.x, placement.y)
         ) {
           this.placeItemInGrid(
-            item,
             this.storageGrid,
+            item,
             placement.x,
             placement.y
           );
@@ -550,331 +356,37 @@ export class PixiInventoryScene extends PixiScene {
     console.log("✅ All starter items placed successfully");
   }
 
-  findItemGrid(item) {
-    // Use the stored original position during drag, or current position
-    const itemX = item.isDragging ? item.originalX : item.x;
-    const itemY = item.isDragging ? item.originalY : item.y;
-
-    // Check inventory grid
-    if (
-      itemX >= this.inventoryGrid.x &&
-      itemX <
-        this.inventoryGrid.x + this.inventoryGrid.cols * this.gridCellSize &&
-      itemY >= this.inventoryGrid.y &&
-      itemY < this.inventoryGrid.y + this.inventoryGrid.rows * this.gridCellSize
-    ) {
-      return this.inventoryGrid;
-    }
-
-    // Default to storage grid
-    return this.storageGrid;
+  addItemText(item, data, bounds, cellSize) {
+    const fontSize = Math.min(
+      (bounds.width * cellSize - 4) / 8,
+      (bounds.height * cellSize - 4) / 4,
+      14
+    );
+    const text = new PIXI.Text(data.name, {
+      fontFamily: "Arial",
+      fontSize: fontSize,
+      fill: 0xffffff,
+      align: "center",
+      fontWeight: "bold",
+      stroke: 0x000000,
+      strokeThickness: 1,
+    });
+    text.anchor.set(0.5);
+    text.x = (bounds.width * cellSize) / 2;
+    text.y = (bounds.height * cellSize) / 2;
+    item.addChild(text);
   }
 
-  findItemUnderMouse(mouseX, mouseY) {
-    console.log(`🔍 Looking for item under mouse at (${mouseX}, ${mouseY})`);
-
-    // Check items in reverse order (top to bottom)
-    for (let i = this.items.length - 1; i >= 0; i--) {
-      const item = this.items[i];
-
-      if (!item.visible || item.gridX < 0 || item.gridY < 0) {
-        continue;
-      }
-
-      // Convert mouse position to grid coordinates
-      let mouseGridX = -1;
-      let mouseGridY = -1;
-
-      // Check which grid the mouse is over
-      if (
-        mouseX >= this.inventoryGrid.x &&
-        mouseX <
-          this.inventoryGrid.x + this.inventoryGrid.cols * this.gridCellSize &&
-        mouseY >= this.inventoryGrid.y &&
-        mouseY <
-          this.inventoryGrid.y + this.inventoryGrid.rows * this.gridCellSize
-      ) {
-        mouseGridX = Math.floor(
-          (mouseX - this.inventoryGrid.x) / this.gridCellSize
-        );
-        mouseGridY = Math.floor(
-          (mouseY - this.inventoryGrid.y) / this.gridCellSize
-        );
-      } else if (
-        mouseX >= this.storageGrid.x &&
-        mouseX <
-          this.storageGrid.x + this.storageGrid.cols * this.gridCellSize &&
-        mouseY >= this.storageGrid.y &&
-        mouseY < this.storageGrid.y + this.storageGrid.rows * this.gridCellSize
-      ) {
-        mouseGridX = Math.floor(
-          (mouseX - this.storageGrid.x) / this.gridCellSize
-        );
-        mouseGridY = Math.floor(
-          (mouseY - this.storageGrid.y) / this.gridCellSize
-        );
-      }
-
-      if (mouseGridX >= 0 && mouseGridY >= 0) {
-        // Check if the mouse is over any cell of this item's actual shape
-        const shapePattern = item.shapePattern || [[0, 0]];
-        for (const [cellX, cellY] of shapePattern) {
-          const absoluteCellX = item.gridX + cellX;
-          const absoluteCellY = item.gridY + cellY;
-
-          if (mouseGridX === absoluteCellX && mouseGridY === absoluteCellY) {
-            console.log(
-              `   Found ${item.name} - mouse over shape cell (${cellX}, ${cellY})`
-            );
-            return item;
-          }
-        }
-      }
-    }
-
-    console.log(`   No item found under mouse`);
-    return null;
-  }
-
-  findAndPlaceItem(item) {
-    console.log(`🔍 Finding available spot for ${item.name}`);
-
-    // Try storage grid first
-    for (let y = 0; y <= this.storageGrid.rows - item.gridHeight; y++) {
-      for (let x = 0; x <= this.storageGrid.cols - item.gridWidth; x++) {
-        if (this.canPlaceItemAt(this.storageGrid, item, x, y)) {
-          this.placeItemInGrid(item, this.storageGrid, x, y);
-          console.log(`✅ Found spot for ${item.name} at (${x}, ${y})`);
-          return true;
-        }
-      }
-    }
-
-    // If storage is full, try inventory
-    for (let y = 0; y <= this.inventoryGrid.rows - item.gridHeight; y++) {
-      for (let x = 0; x <= this.inventoryGrid.cols - item.gridWidth; x++) {
-        if (this.canPlaceItemAt(this.inventoryGrid, item, x, y)) {
-          this.placeItemInGrid(item, this.inventoryGrid, x, y);
-          console.log(
-            `✅ Found spot for ${item.name} in inventory at (${x}, ${y})`
-          );
-          return true;
-        }
-      }
-    }
-
-    console.error(`❌ No available spot found for ${item.name}`);
-    return false;
-  }
-
-  getGridPosition(grid, screenX, screenY) {
-    // Check if position is within grid bounds
-    if (
-      screenX < grid.x ||
-      screenY < grid.y ||
-      screenX >= grid.x + grid.cols * this.gridCellSize ||
-      screenY >= grid.y + grid.rows * this.gridCellSize
-    ) {
-      return null;
-    }
-
-    return this.getGridPositionFromScreenCoords(grid, screenX, screenY);
-  }
-
-  getGridPositionFromScreenCoords(grid, screenX, screenY) {
-    // Check if position is within grid bounds
-    if (
-      screenX < grid.x ||
-      screenY < grid.y ||
-      screenX >= grid.x + grid.cols * this.gridCellSize ||
-      screenY >= grid.y + grid.rows * this.gridCellSize
-    ) {
-      return null;
-    }
-    const epsilon = 0.001;
-
-    return {
-      x: Math.floor((screenX - grid.x + epsilon) / this.gridCellSize),
-      y: Math.floor((screenY - grid.y + epsilon) / this.gridCellSize),
-    };
-  }
-
-  getTypeColor(type) {
-    const colors = {
-      weapon: 0xe74c3c,
-      armor: 0x34495e,
-      gem: 0xf39c12,
-      consumable: 0x27ae60,
-      accessory: 0x9b59b6,
-      material: 0x95a5a6,
-    };
-    return colors[type] || 0x95a5a6;
-  }
-
-  handleKeyDown(event) {
-    if (event.code === "KeyR") {
-      if (this.draggedItem) {
-        this.rotateDraggedItem();
-      }
-    }
-  }
-
-  handleMouseUp(event) {
-    if (this.draggedItem) {
-      this.stopDragging(event);
-    }
-  }
-
-  handleMouseMove(event) {
-    if (this.draggedItem) {
-      const globalPos = event.global;
-      const item = this.draggedItem;
-
-      // Update item position using the drag offset
-      const targetX = globalPos.x - item.dragOffsetX;
-      const targetY = globalPos.y - item.dragOffsetY;
-
-      // Optional: Add slight snapping when near grid cells for better visual feedback
-      let snapX = targetX;
-      let snapY = targetY;
-
-      // Check if we're over a valid grid
-      const invPos = this.getGridPositionFromScreenCoords(
-        this.inventoryGrid,
-        targetX,
-        targetY
-      );
-      const storPos = this.getGridPositionFromScreenCoords(
-        this.storageGrid,
-        targetX,
-        targetY
-      );
-
-      if (invPos || storPos) {
-        const grid = invPos ? this.inventoryGrid : this.storageGrid;
-        const gridPos = invPos || storPos;
-
-        // Calculate what the snapped position would be
-        const snappedScreenX = grid.x + gridPos.x * this.gridCellSize;
-        const snappedScreenY = grid.y + gridPos.y * this.gridCellSize;
-
-        // Apply gentle snapping if we're close (within 10 pixels)
-        const snapThreshold = 10;
-        if (Math.abs(targetX - snappedScreenX) < snapThreshold) {
-          snapX = snappedScreenX;
-        }
-        if (Math.abs(targetY - snappedScreenY) < snapThreshold) {
-          snapY = snappedScreenY;
-        }
-      }
-
-      item.x = snapX;
-      item.y = snapY;
-
-      // Show placement preview based on item's current position
-      const itemTopLeftX = item.x;
-      const itemTopLeftY = item.y;
-
-      const invPreviewPos = this.getGridPositionFromScreenCoords(
-        this.inventoryGrid,
-        itemTopLeftX,
-        itemTopLeftY
-      );
-      if (invPreviewPos) {
-        const canPlace = this.canPlaceItemAt(
-          this.inventoryGrid,
-          item,
-          invPreviewPos.x,
-          invPreviewPos.y
-        );
-        this.showPlacementPreview(
-          item,
-          this.inventoryGrid,
-          invPreviewPos.x,
-          invPreviewPos.y,
-          canPlace
-        );
-      } else {
-        const storPreviewPos = this.getGridPositionFromScreenCoords(
-          this.storageGrid,
-          itemTopLeftX,
-          itemTopLeftY
-        );
-        if (storPreviewPos) {
-          const canPlace = this.canPlaceItemAt(
-            this.storageGrid,
-            item,
-            storPreviewPos.x,
-            storPreviewPos.y
-          );
-          this.showPlacementPreview(
-            item,
-            this.storageGrid,
-            storPreviewPos.x,
-            storPreviewPos.y,
-            canPlace
-          );
-        } else {
-          this.hidePlacementPreview();
-        }
-      }
-    }
-  }
-
-  handleMouseDown(event) {
-    console.log("🖱️ Global mouse down at:", event.global.x, event.global.y);
-
-    // Find what item was clicked
-    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
-
-    if (clickedItem && clickedItem.interactive) {
-      console.log(`🎯 Found clicked item: ${clickedItem.name}`);
-      this.startDragging(clickedItem, event);
-    } else {
-      console.log("🎯 No item found under mouse");
-    }
-  }
-
-  hidePlacementPreview() {
-    if (this.placementPreview) {
-      this.removeSprite(this.placementPreview);
-      this.placementPreview = null;
-    }
-  }
-
-  hideTooltip() {
-    if (this.currentTooltip) {
-      this.removeSprite(this.currentTooltip);
-      this.currentTooltip = null;
-    }
-  }
-
-  isRotationPointless(item) {
-    const bounds = ShapeHelper.getBounds(item.shapePattern);
-
-    // 1x1 items don't need rotation
-    if (bounds.width === 1 && bounds.height === 1) {
-      return true;
-    }
-
-    // Perfect squares with simple shapes don't change when rotated
-    if (
-      bounds.width === bounds.height &&
-      (item.shape === "rectangle" || !item.shape)
-    ) {
-      return true;
-    }
-
-    return false;
+  addTypeIndicator(item, data, bounds, cellSize) {
+    const typeIndicator = new PIXI.Graphics();
+    const indicatorColor = this.getTypeColor(data.type);
+    typeIndicator.beginFill(indicatorColor);
+    typeIndicator.drawCircle(bounds.width * cellSize - 8, 8, 4);
+    typeIndicator.endFill();
+    item.addChild(typeIndicator);
   }
 
   makeItemInteractive(item) {
-    // Add methods
-    item.isPlaced = function () {
-      return this.gridX >= 0 && this.gridY >= 0;
-    };
-
-    // Make interactive
     item.interactive = true;
     item.cursor = "pointer";
     item.buttonMode = true;
@@ -897,238 +409,146 @@ export class PixiInventoryScene extends PixiScene {
     console.log(`🎮 Made ${item.name} interactive`);
   }
 
-  placeItemInGrid(item, grid, gridX, gridY) {
-    console.log(`📍 Placing ${item.name} at grid (${gridX}, ${gridY})`);
-
-    // Subtract half a cell to fix the offset
-    const screenX = grid.x + gridX * this.gridCellSize;
-    const screenY = grid.y + gridY * this.gridCellSize;
-
-    item.x = screenX;
-    item.y = screenY;
-    item.gridX = gridX;
-    item.gridY = gridY;
-    item.visible = true;
-
-    if (!item.parent) {
-      this.addSprite(item, "world");
-    }
-
-    console.log(`🎯 Placed ${item.name} at screen (${screenX}, ${screenY})`);
-    return true;
-  }
-
-  showTooltip(item) {
-    const tooltip = new PIXI.Container();
-
-    const bg = new PIXI.Graphics();
-    bg.beginFill(0x2c3e50, 0.95);
-    bg.drawRoundedRect(0, 0, 200, 80, 8);
-    bg.endFill();
-    bg.lineStyle(2, 0x3498db);
-    bg.drawRoundedRect(0, 0, 200, 80, 8);
-
-    const title = new PIXI.Text(item.name, {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    title.x = 10;
-    title.y = 10;
-
-    const info = new PIXI.Text(
-      [
-        `Type: ${item.type}`,
-        `Size: ${item.width}×${item.height}`,
-        item.description,
-      ].join("\n"),
-      {
-        fontFamily: "Arial",
-        fontSize: 10,
-        fill: 0xecf0f1,
-        lineHeight: 12,
-      }
-    );
-    info.x = 10;
-    info.y = 30;
-
-    tooltip.addChild(bg);
-    tooltip.addChild(title);
-    tooltip.addChild(info);
-
-    // Position tooltip
-    tooltip.x = item.x + item.width * this.gridCellSize + 10;
-    tooltip.y = item.y;
-
-    // Keep in bounds
-    if (tooltip.x + 200 > this.engine.width) {
-      tooltip.x = item.x - 210;
-    }
-
-    this.addSprite(tooltip, "ui");
-    this.currentTooltip = tooltip;
-  }
-
-  startDragging(item, event) {
-    console.log(`🖱️ Starting drag: ${item.name}`);
-
-    event.stopPropagation();
-
-    this.draggedItem = item;
-    this.dragStartGrid = this.findItemGrid(item);
-    item.isDragging = true;
-
-    // Store original state (INCLUDING ROTATION)
+  storeOriginalState(item) {
     item.originalX = item.x;
     item.originalY = item.y;
     item.originalGridX = item.gridX;
     item.originalGridY = item.gridY;
-    item.originalShapePattern = [...item.shapePattern]; // Store original shape
+    item.originalShapePattern = [...item.shapePattern];
     item.originalGridWidth = item.gridWidth;
     item.originalGridHeight = item.gridHeight;
-    item.rotationCount = item.rotationCount || 0;
-    item.originalRotationCount = item.rotationCount;
+    item.originalRotationCount = item.rotationCount || 0;
+  }
 
-    // Hide tooltip immediately
-    this.hideTooltip();
+  handleMouseMove(event) {
+    if (this.draggedItem) {
+      const globalPos = event.global;
+      const item = this.draggedItem;
 
-    // Visual feedback
-    item.alpha = 0.9;
-    item.scale.set(1.05);
+      // Update item position using the drag offset
+      const targetX = globalPos.x - item.dragOffsetX;
+      const targetY = globalPos.y - item.dragOffsetY;
 
-    // Move to top
-    this.layers.world.removeChild(item);
-    this.layers.world.addChild(item);
+      item.x = targetX;
+      item.y = targetY;
 
-    // Calculate drag offset
-    const globalPos = event.global;
-    item.dragOffsetX = globalPos.x - item.x;
-    item.dragOffsetY = globalPos.y - item.y;
+      // Show placement preview
+      const invPos = this.getGridPosition(this.inventoryGrid, targetX, targetY);
+      if (invPos) {
+        const canPlace = this.canPlaceItemAt(
+          this.inventoryGrid,
+          item,
+          invPos.x,
+          invPos.y
+        );
+        this.showPlacementPreview(
+          item,
+          this.inventoryGrid,
+          invPos.x,
+          invPos.y,
+          canPlace
+        );
+      } else {
+        const storPos = this.getGridPosition(
+          this.storageGrid,
+          targetX,
+          targetY
+        );
+        if (storPos) {
+          const canPlace = this.canPlaceItemAt(
+            this.storageGrid,
+            item,
+            storPos.x,
+            storPos.y
+          );
+          this.showPlacementPreview(
+            item,
+            this.storageGrid,
+            storPos.x,
+            storPos.y,
+            canPlace
+          );
+        } else {
+          this.hidePlacementPreview();
+        }
+      }
+    }
+  }
 
-    // Clear grid position temporarily
-    item.gridX = -1;
-    item.gridY = -1;
-
-    this.updateInstructions();
+  handleMouseUp(event) {
+    if (this.draggedItem) {
+      this.stopDragging(event);
+    }
   }
 
   stopDragging(event) {
     if (!this.draggedItem) return;
 
-    console.log(`🖱️ Stopping drag: ${this.draggedItem.name}`);
-
     const item = this.draggedItem;
-
-    // Use the item's current position (top-left corner) to determine placement
     const itemTopLeftX = item.x;
     const itemTopLeftY = item.y;
 
-    // Try to find a valid placement using the item's position
     let placed = false;
     let targetGrid = null;
     let gridX = -1;
     let gridY = -1;
 
-    // Check inventory grid first
-    const invPos = this.getGridPositionFromScreenCoords(
+    // Try inventory first
+    const invPos = this.getGridPosition(
       this.inventoryGrid,
       itemTopLeftX,
       itemTopLeftY
     );
-    if (invPos) {
-      console.log(
-        `🎯 Trying inventory at (${invPos.x}, ${invPos.y}) with current rotation`
-      );
-      const canPlace = this.canPlaceItemAt(
-        this.inventoryGrid,
-        item,
-        invPos.x,
-        invPos.y
-      );
-      console.log(`   Can place in inventory: ${canPlace}`);
-
-      if (canPlace) {
-        targetGrid = this.inventoryGrid;
-        gridX = invPos.x;
-        gridY = invPos.y;
-        placed = true;
-      }
+    if (
+      invPos &&
+      this.canPlaceItemAt(this.inventoryGrid, item, invPos.x, invPos.y)
+    ) {
+      targetGrid = this.inventoryGrid;
+      gridX = invPos.x;
+      gridY = invPos.y;
+      placed = true;
     }
 
-    // Check storage grid if inventory failed
+    // Try storage if inventory failed
     if (!placed) {
-      const storPos = this.getGridPositionFromScreenCoords(
+      const storPos = this.getGridPosition(
         this.storageGrid,
         itemTopLeftX,
         itemTopLeftY
       );
-      if (storPos) {
-        console.log(
-          `🎯 Trying storage at (${storPos.x}, ${storPos.y}) with current rotation`
-        );
-        const canPlace = this.canPlaceItemAt(
-          this.storageGrid,
-          item,
-          storPos.x,
-          storPos.y
-        );
-        console.log(`   Can place in storage: ${canPlace}`);
-
-        if (canPlace) {
-          targetGrid = this.storageGrid;
-          gridX = storPos.x;
-          gridY = storPos.y;
-          placed = true;
-        }
+      if (
+        storPos &&
+        this.canPlaceItemAt(this.storageGrid, item, storPos.x, storPos.y)
+      ) {
+        targetGrid = this.storageGrid;
+        gridX = storPos.x;
+        gridY = storPos.y;
+        placed = true;
       }
     }
 
     if (placed) {
-      // Successfully placed with current rotation
+      // Successfully placed
       this.placeItemInGrid(item, targetGrid, gridX, gridY);
-      console.log(
-        `✅ Placed ${item.name} at (${gridX}, ${gridY}) with rotation ${item.rotationCount}`
-      );
-
-      // Clear original state since placement succeeded
-      delete item.originalShapePattern;
-      delete item.originalGridWidth;
-      delete item.originalGridHeight;
-      delete item.originalRotationCount;
+      console.log(`✅ Placed ${item.name} at (${gridX}, ${gridY})`);
     } else {
-      // REVERT TO ORIGINAL POSITION AND ROTATION
-      console.log(
-        `🔄 Reverting ${item.name} to original position and rotation`
-      );
+      // Revert to original position and rotation
+      console.log(`🔄 Reverting ${item.name} to original position`);
 
-      // Restore original rotation
       if (item.originalShapePattern) {
         item.shapePattern = [...item.originalShapePattern];
         item.gridWidth = item.originalGridWidth;
         item.gridHeight = item.originalGridHeight;
         item.rotationCount = item.originalRotationCount;
-
-        // Update visuals to original rotation
         this.updateItemVisuals(item);
       }
 
-      // Place back in original position
       this.placeItemInGrid(
         item,
         this.dragStartGrid,
         item.originalGridX,
         item.originalGridY
       );
-      console.log(
-        `🔄 Returned ${item.name} to original position with original rotation`
-      );
-
-      // Clean up stored original state
-      delete item.originalShapePattern;
-      delete item.originalGridWidth;
-      delete item.originalGridHeight;
-      delete item.originalRotationCount;
     }
 
     // Reset visual state
@@ -1136,34 +556,19 @@ export class PixiInventoryScene extends PixiScene {
     item.scale.set(1);
     item.isDragging = false;
 
-    // Clean up drag-specific properties
-    delete item.dragOffsetX;
-    delete item.dragOffsetY;
-    delete item.originalX;
-    delete item.originalY;
-    delete item.originalGridX;
-    delete item.originalGridY;
-
     // Clean up
     this.hideTooltip();
     this.hidePlacementPreview();
     this.draggedItem = null;
     this.dragStartGrid = null;
-
-    // Update instructions
     this.updateInstructions();
   }
 
   rotateDraggedItem() {
     const item = this.draggedItem;
-    if (!item) return;
+    if (!item || this.isRotationPointless(item)) return;
 
-    // Can't rotate simple items
-    if (this.isRotationPointless(item)) {
-      return;
-    }
-
-    // Rotate the shape pattern
+    // Rotate the shape pattern using ShapeHelper
     let newPattern = ShapeHelper.rotateClockwise(item.shapePattern);
     newPattern = ShapeHelper.normalize(newPattern);
 
@@ -1181,68 +586,23 @@ export class PixiInventoryScene extends PixiScene {
     this.updateInstructions();
   }
 
-  showPlacementPreview(item, grid, gridX, gridY, canPlace) {
-    this.hidePlacementPreview();
+  isRotationPointless(item) {
+    const bounds = ShapeHelper.getBounds(item.shapePattern);
 
-    const preview = new PIXI.Graphics();
-    const color = canPlace ? 0x5f7ea0 : 0xe74c3c;
-    const alpha = canPlace ? 0.3 : 0.5;
-    const padding = 4;
-
-    // Use the actual shape pattern instead of bounding box
-    const shapePattern = item.shapePattern || [[0, 0]];
-
-    shapePattern.forEach(([cellX, cellY]) => {
-      const cellGraphic = new PIXI.Graphics();
-
-      cellGraphic.beginFill(color, alpha);
-      cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        this.gridCellSize - padding,
-        this.gridCellSize - padding,
-        4
-      );
-      cellGraphic.endFill();
-
-      cellGraphic.lineStyle(2, color, 0.8);
-      cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        this.gridCellSize - padding,
-        this.gridCellSize - padding,
-        4
-      );
-
-      cellGraphic.x = cellX * this.gridCellSize;
-      cellGraphic.y = cellY * this.gridCellSize;
-
-      preview.addChild(cellGraphic);
-    });
-
-    preview.x = grid.x + gridX * this.gridCellSize;
-    preview.y = grid.y + gridY * this.gridCellSize;
-
-    this.addSprite(preview, "ui");
-    this.placementPreview = preview;
-  }
-
-  initializePersistentData() {
-    if (!this.items) {
-      this.items = [];
+    // 1x1 items don't need rotation
+    if (bounds.width === 1 && bounds.height === 1) {
+      return true;
     }
-    console.log("📋 Inventory persistent data initialized");
-  }
 
-  updateInstructions() {
-    if (this.instructionsText) {
-      if (this.draggedItem) {
-        this.instructionsText.text = `Dragging ${this.draggedItem.name} | Press R to rotate | Release to place`;
-      } else {
-        this.instructionsText.text =
-          "Drag items | Press R while dragging to rotate";
-      }
+    // Perfect squares with simple shapes don't change when rotated
+    if (
+      bounds.width === bounds.height &&
+      (item.shape === "rectangle" || !item.shape)
+    ) {
+      return true;
     }
+
+    return false;
   }
 
   updateItemVisuals(item) {
@@ -1295,32 +655,10 @@ export class PixiInventoryScene extends PixiScene {
     });
 
     // Re-add the text
-    const fontSize = Math.min(
-      (bounds.width * cellSize - padding) / 8,
-      (bounds.height * cellSize - padding) / 4,
-      14
-    );
-    const text = new PIXI.Text(textContent, {
-      fontFamily: "Arial",
-      fontSize: fontSize,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
-      stroke: 0x000000,
-      strokeThickness: 1,
-    });
-    text.anchor.set(0.5);
-    text.x = (bounds.width * cellSize) / 2;
-    text.y = (bounds.height * cellSize) / 2;
-    item.addChild(text);
+    this.addItemText(item, { name: textContent }, bounds, cellSize);
 
     // Re-add type indicator
-    const typeIndicator = new PIXI.Graphics();
-    const indicatorColor = this.getTypeColor(item.type);
-    typeIndicator.beginFill(indicatorColor);
-    typeIndicator.drawCircle(bounds.width * cellSize - 8, 8, 4);
-    typeIndicator.endFill();
-    item.addChild(typeIndicator);
+    this.addTypeIndicator(item, item, bounds, cellSize);
 
     // Re-add glow effect for gems
     if (item.type === "gem") {
@@ -1334,5 +672,54 @@ export class PixiInventoryScene extends PixiScene {
     console.log(
       `✅ Updated visuals for ${item.name} with new ${bounds.width}x${bounds.height} shape`
     );
+  }
+
+  findAndPlaceItem(item) {
+    console.log(`🔍 Finding available spot for ${item.name}`);
+
+    // Try storage grid first
+    for (let y = 0; y <= this.storageGrid.rows - item.gridHeight; y++) {
+      for (let x = 0; x <= this.storageGrid.cols - item.gridWidth; x++) {
+        if (this.canPlaceItemAt(this.storageGrid, item, x, y)) {
+          this.placeItemInGrid(item, this.storageGrid, x, y);
+          console.log(`✅ Found spot for ${item.name} at (${x}, ${y})`);
+          return true;
+        }
+      }
+    }
+
+    // If storage is full, try inventory
+    for (let y = 0; y <= this.inventoryGrid.rows - item.gridHeight; y++) {
+      for (let x = 0; x <= this.inventoryGrid.cols - item.gridWidth; x++) {
+        if (this.canPlaceItemAt(this.inventoryGrid, item, x, y)) {
+          this.placeItemInGrid(item, this.inventoryGrid, x, y);
+          console.log(
+            `✅ Found spot for ${item.name} in inventory at (${x}, ${y})`
+          );
+          return true;
+        }
+      }
+    }
+
+    console.error(`❌ No available spot found for ${item.name}`);
+    return false;
+  }
+
+  addGemGlowEffect(item, pixelWidth, pixelHeight) {
+    const glow = new PIXI.Graphics();
+    glow.lineStyle(2, 0xffd700, 0.8);
+    glow.drawRoundedRect(-2, -2, pixelWidth + 4, pixelHeight + 4, 6);
+    item.addChildAt(glow, 0);
+
+    // Animate glow
+    let glowTime = Math.random() * Math.PI * 2;
+    const animateGlow = () => {
+      glowTime += 0.05;
+      glow.alpha = 0.3 + Math.sin(glowTime) * 0.3;
+      if (item.parent) {
+        requestAnimationFrame(animateGlow);
+      }
+    };
+    animateGlow();
   }
 }
