@@ -1,4 +1,5 @@
 import { Skill } from './Skill.js';
+import { COLORS, FONTS, LAYOUT } from '../utils/Constants.js';
 
 export class Grid {
     constructor(x, y, cols, rows, cellSize) {
@@ -76,124 +77,21 @@ export class Grid {
     }
     
     getItemAt(mouseX, mouseY) {
-        const gridPos = this.getGridPosition(mouseX, mouseY);
-        if (!gridPos || gridPos.y >= this.rows || gridPos.x >= this.cols) {
-            return null;
-        }
-        return this.cells[gridPos.y][gridPos.x];
+        const pos = this.getGridPosition(mouseX, mouseY);
+        if (!pos) return null;
+        
+        return this.cells[pos.y][pos.x];
     }
     
-    isPositionValid(x, y) {
-        return x >= 0 && x < this.cols && y >= 0 && y < this.rows;
-    }
-    
-    // Spatial Relationship Analysis
-    getAdjacentItems(item) {
-        if (!item.isPlaced()) return [];
-        
-        const adjacent = [];
-        const directions = [
-            {dx: -1, dy: 0}, {dx: 1, dy: 0}, // left, right
-            {dx: 0, dy: -1}, {dx: 0, dy: 1}, // up, down
-            {dx: -1, dy: -1}, {dx: 1, dy: -1}, // diagonals
-            {dx: -1, dy: 1}, {dx: 1, dy: 1}
-        ];
-        
-        // Check all cells occupied by the item
-        for (let dy = 0; dy < item.height; dy++) {
-            for (let dx = 0; dx < item.width; dx++) {
-                const itemCellX = item.gridX + dx;
-                const itemCellY = item.gridY + dy;
-                
-                // Check all directions from this cell
-                for (const dir of directions) {
-                    const checkX = itemCellX + dir.dx;
-                    const checkY = itemCellY + dir.dy;
-                    
-                    if (this.isPositionValid(checkX, checkY)) {
-                        const adjacentItem = this.cells[checkY][checkX];
-                        if (adjacentItem && adjacentItem !== item && !adjacent.includes(adjacentItem)) {
-                            adjacent.push(adjacentItem);
-                        }
-                    }
-                }
-            }
-        }
-        
-        return adjacent;
-    }
-    
-    // Skill Generation System
-    generateSkills() {
-        const skills = [];
-        const processedItems = new Set();
-        
-        // Process each item for base skills and enhancements
-        for (const item of this.items) {
-            if (processedItems.has(item)) continue;
-            
-            // Generate skills from this item's base skills
-            for (const baseSkillData of item.baseSkills) {
-                const skill = new Skill(
-                    baseSkillData.name,
-                    baseSkillData.description,
-                    baseSkillData.damage,
-                    baseSkillData.cost,
-                    baseSkillData.type
-                );
-                
-                skill.addSourceItem(item);
-                
-                // Apply enhancements from adjacent items
-                const adjacentItems = this.getAdjacentItems(item);
-                let enhancedSkillData = { ...baseSkillData };
-                
-                for (const adjItem of adjacentItems) {
-                    for (const enhancement of adjItem.enhancements) {
-                        if (this.canEnhance(enhancement, baseSkillData)) {
-                            enhancedSkillData = this.applyEnhancement(enhancedSkillData, enhancement);
-                            skill.addSourceItem(adjItem);
-                        }
-                    }
-                }
-                
-                // Update skill with final enhanced values
-                skill.name = enhancedSkillData.name;
-                skill.description = enhancedSkillData.description;
-                skill.damage = enhancedSkillData.damage;
-                skill.cost = enhancedSkillData.cost;
-                
-                skills.push(skill);
-            }
-            
-            processedItems.add(item);
-        }
-        
-        return skills;
-    }
-    
-    canEnhance(enhancement, baseSkill) {
-        // Check if enhancement targets this skill type
-        if (enhancement.targetTypes && !enhancement.targetTypes.includes(baseSkill.type)) {
-            return false;
-        }
-        
-        // Check if enhancement targets this specific skill name
-        if (enhancement.targetNames && !enhancement.targetNames.includes(baseSkill.name)) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    applyEnhancement(skillData, enhancement) {
+    // Skill Enhancement Methods
+    static applyEnhancement(skillData, enhancement) {
         const enhanced = { ...skillData };
-        
+
         // Apply name modification
         if (enhancement.nameModifier) {
             enhanced.name = enhancement.nameModifier(enhanced.name);
         }
-        
+
         // Apply damage modifications
         if (enhancement.damageMultiplier) {
             enhanced.damage = Math.floor(enhanced.damage * enhancement.damageMultiplier);
@@ -223,13 +121,13 @@ export class Grid {
     }
     
     renderBackground(ctx) {
-        ctx.fillStyle = '#ecf0f1';
+        ctx.fillStyle = COLORS.HEX.LIGHT_GRAY;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
     
     renderGridLines(ctx) {
-        ctx.strokeStyle = '#bdc3c7';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = COLORS.HEX.MEDIUM_GRAY;
+        ctx.lineWidth = LAYOUT.THIN_BORDER;
         
         // Horizontal lines
         for (let row = 0; row <= this.rows; row++) {
@@ -266,32 +164,48 @@ export class Grid {
         
         // Item background (highlight if needed)
         ctx.fillStyle = item.isHighlighted ? this.brightenColor(item.color) : item.color;
-        ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
+        ctx.fillRect(
+            x + LAYOUT.SMALL_SPACING / 2, 
+            y + LAYOUT.SMALL_SPACING / 2, 
+            w - LAYOUT.SMALL_SPACING, 
+            h - LAYOUT.SMALL_SPACING
+        );
         
         // Item border (thicker if highlighted)
-        ctx.strokeStyle = item.isHighlighted ? '#f39c12' : '#2c3e50';
-        ctx.lineWidth = item.isHighlighted ? 3 : 2;
-        ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
+        ctx.strokeStyle = item.isHighlighted ? COLORS.HEX.YELLOW : COLORS.HEX.DARK_GRAY;
+        ctx.lineWidth = item.isHighlighted ? LAYOUT.HIGHLIGHT_BORDER : LAYOUT.MEDIUM_BORDER;
+        ctx.strokeRect(
+            x + LAYOUT.SMALL_SPACING / 2, 
+            y + LAYOUT.SMALL_SPACING / 2, 
+            w - LAYOUT.SMALL_SPACING, 
+            h - LAYOUT.SMALL_SPACING
+        );
         
         // Item name
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(item.name, x + w / 2, y + h / 2 + 4);
+        ctx.fillStyle = COLORS.HEX.WHITE;
+        ctx.font = `${FONTS.SIZE.BODY}px ${FONTS.FAMILY.PRIMARY}`;
+        ctx.textAlign = FONTS.ALIGN.CENTER;
+        ctx.fillText(item.name, x + w / 2, y + h / 2 + LAYOUT.SMALL_SPACING);
         
         // Enhancement indicator
         if (item.enhancements.length > 0) {
-            ctx.fillStyle = '#f39c12';
-            ctx.font = '10px Arial';
-            ctx.fillText('✦', x + w - 8, y + 12);
+            ctx.fillStyle = COLORS.HEX.YELLOW;
+            ctx.font = `${FONTS.SIZE.SMALL}px ${FONTS.FAMILY.PRIMARY}`;
+            ctx.fillText('✦', x + w - LAYOUT.MEDIUM_SPACING, y + FONTS.SIZE.BODY);
         }
     }
     
     brightenColor(color) {
+        // Use the brightened color mappings from constants
         const colorMap = {
-            '#e74c3c': '#ff6b5a', '#9b59b6': '#b574d3', '#34495e': '#4a6377',
-            '#e67e22': '#ff9639', '#f39c12': '#ffb32e', '#27ae60': '#2ecc71',
-            '#16a085': '#1abc9c', '#7f8c8d': '#95a5a6'
+            [COLORS.HEX.RED]: COLORS.HEX.BRIGHT_RED,
+            [COLORS.HEX.PURPLE]: COLORS.HEX.BRIGHT_PURPLE,
+            [COLORS.HEX.DARK_BLUE]: COLORS.HEX.BRIGHT_DARK_BLUE,
+            [COLORS.HEX.ORANGE]: COLORS.HEX.BRIGHT_ORANGE,
+            [COLORS.HEX.YELLOW]: COLORS.HEX.BRIGHT_YELLOW,
+            [COLORS.HEX.GREEN]: COLORS.HEX.BRIGHT_GREEN,
+            [COLORS.HEX.TEAL]: COLORS.HEX.BRIGHT_TEAL,
+            [COLORS.HEX.GRAY]: COLORS.HEX.BRIGHT_GRAY,
         };
         return colorMap[color] || color;
     }

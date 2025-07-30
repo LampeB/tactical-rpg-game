@@ -1,4 +1,5 @@
 import { PixiScene } from '../core/PixiScene.js';
+import { COLORS, FONTS, UI, LAYOUT, RESPONSIVE } from '../utils/Constants.js';
 
 export class PixiMenuScene extends PixiScene {
     constructor() {
@@ -6,15 +7,15 @@ export class PixiMenuScene extends PixiScene {
         this.buttons = [];
         this.hoveredButton = -1;
         
-        // Menu layout configuration
+        // Menu layout configuration using constants
         this.menuConfig = {
-            titleOffset: { x: 0, y: -200 },
-            subtitleOffset: { x: 0, y: -140 },
-            versionOffset: { x: 0, y: -100 },
-            buttonStartOffset: { x: 0, y: -20 },
-            buttonSpacing: 80,
-            buttonWidth: 350,
-            buttonHeight: 60,
+            titleOffset: { x: 0, y: UI.MENU.TITLE_OFFSET_Y },
+            subtitleOffset: { x: 0, y: UI.MENU.SUBTITLE_OFFSET_Y },
+            versionOffset: { x: 0, y: UI.MENU.VERSION_OFFSET_Y },
+            buttonStartOffset: { x: 0, y: UI.MENU.BUTTON_START_OFFSET_Y },
+            buttonSpacing: UI.MENU.BUTTON_SPACING,
+            buttonWidth: UI.BUTTON.LARGE_WIDTH,
+            buttonHeight: UI.BUTTON.LARGE_HEIGHT,
         };
         
         // Responsive elements references
@@ -56,27 +57,27 @@ export class PixiMenuScene extends PixiScene {
     }
     
     updateMenuConfig() {
-        // Adjust spacing and sizes based on viewport
-        const baseSpacing = this.isMobile ? 60 : 80;
-        const baseButtonWidth = this.isMobile ? 280 : 350;
-        const baseButtonHeight = this.isMobile ? 50 : 60;
+        // Adjust spacing and sizes based on viewport using constants
+        const baseSpacing = this.isMobile ? UI.MENU.MOBILE_SPACING : UI.MENU.BUTTON_SPACING;
+        const baseButtonWidth = this.isMobile ? UI.BUTTON.MOBILE_LARGE_WIDTH : UI.BUTTON.LARGE_WIDTH;
+        const baseButtonHeight = this.isMobile ? UI.BUTTON.MOBILE_LARGE_HEIGHT : UI.BUTTON.LARGE_HEIGHT;
         
         this.menuConfig = {
             titleOffset: { 
                 x: 0, 
-                y: this.isMobile ? -this.viewportHeight * 0.3 : -200 
+                y: this.isMobile ? -this.viewportHeight * UI.MENU.MOBILE_TITLE_OFFSET_PERCENT : UI.MENU.TITLE_OFFSET_Y 
             },
             subtitleOffset: { 
                 x: 0, 
-                y: this.isMobile ? -this.viewportHeight * 0.22 : -140 
+                y: this.isMobile ? -this.viewportHeight * UI.MENU.MOBILE_SUBTITLE_OFFSET_PERCENT : UI.MENU.SUBTITLE_OFFSET_Y 
             },
             versionOffset: { 
                 x: 0, 
-                y: this.isMobile ? -this.viewportHeight * 0.18 : -100 
+                y: this.isMobile ? -this.viewportHeight * UI.MENU.MOBILE_VERSION_OFFSET_PERCENT : UI.MENU.VERSION_OFFSET_Y 
             },
             buttonStartOffset: { 
                 x: 0, 
-                y: this.isMobile ? -this.viewportHeight * 0.1 : -20 
+                y: this.isMobile ? -this.viewportHeight * 0.1 : UI.MENU.BUTTON_START_OFFSET_Y 
             },
             buttonSpacing: this.getScaledSize(baseSpacing),
             buttonWidth: this.getScaledSize(baseButtonWidth),
@@ -103,8 +104,8 @@ export class PixiMenuScene extends PixiScene {
         
         this.backgroundElement.clear();
         
-        // Main background
-        this.backgroundElement.beginFill(0x3498db);
+        // Main background using constants
+        this.backgroundElement.beginFill(COLORS.PIXI.MENU_WORLD);
         this.backgroundElement.drawRect(
             -this.viewportWidth / 2, 
             -this.viewportHeight / 2, 
@@ -120,25 +121,23 @@ export class PixiMenuScene extends PixiScene {
         for (let i = 0; i < numOrbs; i++) {
             const x = (Math.random() - 0.5) * this.viewportWidth;
             const y = (Math.random() - 0.5) * this.viewportHeight;
-            const alpha = 0.1 + Math.random() * 0.2;
+            const alpha = COLORS.ALPHA.VERY_LOW + Math.random() * COLORS.ALPHA.MEDIUM_LOW;
             
-            this.backgroundElement.beginFill(0xffffff, alpha);
+            this.backgroundElement.beginFill(COLORS.PIXI.WHITE, alpha);
             this.backgroundElement.drawCircle(x, y, orbSize);
             this.backgroundElement.endFill();
         }
     }
     
-
-    
     createTitle() {
         this.titleElement = new PIXI.Text('TACTICAL RPG', {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(this.isMobile ? 32 : 48),
-            fill: 0xffffff,
-            align: 'center',
-            fontWeight: 'bold',
-            stroke: 0x2c3e50,
-            strokeThickness: this.isMobile ? 2 : 4,
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_LARGE_TITLE * 1.6 : FONTS.SIZE.HUGE_TITLE * 1.7),
+            fill: COLORS.PIXI.WHITE,
+            align: FONTS.ALIGN.CENTER,
+            fontWeight: FONTS.WEIGHT.BOLD,
+            stroke: COLORS.PIXI.DARK_GRAY,
+            strokeThickness: this.isMobile ? LAYOUT.MEDIUM_BORDER : LAYOUT.THICK_BORDER + 1,
         });
         
         this.titleElement.anchor.set(0.5);
@@ -147,22 +146,20 @@ export class PixiMenuScene extends PixiScene {
             anchor: { x: 'center', y: 'center' },
             offset: this.menuConfig.titleOffset,
             scale: true,
-            minScale: 0.6,
-            maxScale: 1.4
+            minScale: RESPONSIVE.MIN_SCALE,
+            maxScale: RESPONSIVE.MAX_SCALE
         });
         
         this.addSprite(this.titleElement, 'ui');
     }
     
-
-    
     createSubtitle() {
         this.subtitleElement = new PIXI.Text('Enhanced with PixiJS', {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(this.isMobile ? 16 : 24),
-            fill: 0x64b5f6,
-            align: 'center',
-            fontWeight: 'normal',
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_SUBTITLE : FONTS.SIZE.TITLE),
+            fill: 0x64b5f6, // Light blue - could be added to constants if used elsewhere
+            align: FONTS.ALIGN.CENTER,
+            fontWeight: FONTS.WEIGHT.NORMAL,
         });
         
         this.subtitleElement.anchor.set(0.5);
@@ -182,11 +179,11 @@ export class PixiMenuScene extends PixiScene {
         const versionText = `Viewport: ${this.viewportWidth}×${this.viewportHeight} | ${this.isMobile ? 'Mobile' : 'Desktop'} | ${this.isLandscape ? 'Landscape' : 'Portrait'}`;
         
         this.versionElement = new PIXI.Text(versionText, {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(this.isMobile ? 10 : 14),
-            fill: 0xecf0f1,
-            align: 'center',
-            alpha: 0.8,
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_SMALL : FONTS.SIZE.SUBTITLE),
+            fill: COLORS.PIXI.LIGHT_GRAY,
+            align: FONTS.ALIGN.CENTER,
+            alpha: COLORS.ALPHA.HIGH,
         });
         
         this.versionElement.anchor.set(0.5);
@@ -195,8 +192,8 @@ export class PixiMenuScene extends PixiScene {
             anchor: { x: 'center', y: 'center' },
             offset: this.menuConfig.versionOffset,
             scale: true,
-            minScale: 0.8,
-            maxScale: 1.0
+            minScale: RESPONSIVE.MOBILE_MIN_SCALE,
+            maxScale: RESPONSIVE.BASE_SCALE
         });
         
         this.addSprite(this.versionElement, 'ui');
@@ -208,25 +205,25 @@ export class PixiMenuScene extends PixiScene {
                 text: '🎒 Inventory Management', 
                 icon: '🎒',
                 action: () => this.engine.switchScene('inventory'),
-                color: 0x27ae60
+                color: COLORS.PIXI.MENU_INVENTORY
             },
             { 
                 text: '⚔️ Battle Mode', 
                 icon: '⚔️',
                 action: () => this.engine.switchScene('battle'),
-                color: 0xe74c3c
+                color: COLORS.PIXI.MENU_BATTLE
             },
             { 
                 text: '🌍 World Exploration', 
                 icon: '🌍',
                 action: () => this.engine.switchScene('world'),
-                color: 0x3498db
+                color: COLORS.PIXI.MENU_WORLD
             },
             { 
                 text: '⚙️ Settings', 
                 icon: '⚙️',
                 action: () => this.showSettings(),
-                color: 0x95a5a6
+                color: COLORS.PIXI.MENU_SETTINGS
             }
         ];
         
@@ -256,20 +253,20 @@ export class PixiMenuScene extends PixiScene {
         
         // Button background with responsive sizing
         const bg = new PIXI.Graphics();
-        bg.beginFill(data.color, 0.8);
-        bg.drawRoundedRect(0, 0, config.buttonWidth, config.buttonHeight, 10);
+        bg.beginFill(data.color, COLORS.ALPHA.HIGH);
+        bg.drawRoundedRect(0, 0, config.buttonWidth, config.buttonHeight, LAYOUT.LARGE_RADIUS);
         bg.endFill();
         
-        // Button border
-        bg.lineStyle(this.getScaledSize(2), 0xffffff, 0.8);
-        bg.drawRoundedRect(0, 0, config.buttonWidth, config.buttonHeight, 10);
+        // Button border using constants
+        bg.lineStyle(this.getScaledSize(LAYOUT.MEDIUM_BORDER), COLORS.PIXI.WHITE, COLORS.ALPHA.HIGH);
+        bg.drawRoundedRect(0, 0, config.buttonWidth, config.buttonHeight, LAYOUT.LARGE_RADIUS);
         
         // Icon
         const iconText = new PIXI.Text(data.icon, {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(this.isMobile ? 20 : 28),
-            fill: 0xffffff,
-            align: 'center',
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_TITLE : FONTS.SIZE.LARGE_TITLE + 4),
+            fill: COLORS.PIXI.WHITE,
+            align: FONTS.ALIGN.CENTER,
         });
         iconText.anchor.set(0.5);
         iconText.x = this.getScaledSize(40);
@@ -277,11 +274,11 @@ export class PixiMenuScene extends PixiScene {
         
         // Button text
         const buttonText = new PIXI.Text(data.text, {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(this.isMobile ? 14 : 18),
-            fill: 0xffffff,
-            align: 'left',
-            fontWeight: 'bold',
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_SUBTITLE : FONTS.SIZE.TITLE),
+            fill: COLORS.PIXI.WHITE,
+            align: FONTS.ALIGN.LEFT,
+            fontWeight: FONTS.WEIGHT.BOLD,
             wordWrap: this.isMobile,
             wordWrapWidth: config.buttonWidth - this.getScaledSize(80),
         });
@@ -335,8 +332,8 @@ export class PixiMenuScene extends PixiScene {
     }
     
     onButtonHover(button, isHover) {
-        const targetScale = isHover ? 1.05 : 1.0;
-        const targetAlpha = isHover ? 1.0 : 0.8;
+        const targetScale = isHover ? 1.05 : RESPONSIVE.BASE_SCALE;
+        const targetAlpha = isHover ? COLORS.ALPHA.OPAQUE : COLORS.ALPHA.HIGH;
         const hoverColor = isHover ? this.lightenColor(button.originalColor) : button.originalColor;
         
         // Animate scale
@@ -357,20 +354,24 @@ export class PixiMenuScene extends PixiScene {
         // Update colors
         button.bg.clear();
         button.bg.beginFill(hoverColor, targetAlpha);
-        button.bg.drawRoundedRect(0, 0, this.menuConfig.buttonWidth, this.menuConfig.buttonHeight, 10);
+        button.bg.drawRoundedRect(0, 0, this.menuConfig.buttonWidth, this.menuConfig.buttonHeight, LAYOUT.LARGE_RADIUS);
         button.bg.endFill();
         
-        button.bg.lineStyle(this.getScaledSize(isHover ? 3 : 2), 0xffffff, isHover ? 1.0 : 0.8);
-        button.bg.drawRoundedRect(0, 0, this.menuConfig.buttonWidth, this.menuConfig.buttonHeight, 10);
+        button.bg.lineStyle(
+            this.getScaledSize(isHover ? LAYOUT.THICK_BORDER : LAYOUT.MEDIUM_BORDER), 
+            COLORS.PIXI.WHITE, 
+            isHover ? COLORS.ALPHA.OPAQUE : COLORS.ALPHA.HIGH
+        );
+        button.bg.drawRoundedRect(0, 0, this.menuConfig.buttonWidth, this.menuConfig.buttonHeight, LAYOUT.LARGE_RADIUS);
     }
     
     onButtonClick(button, action, event) {
-        // Add click animation
+        // Add click animation using constants
         button.scale.set(0.95);
         
         setTimeout(() => {
             if (button.parent) {
-                button.scale.set(1.0);
+                button.scale.set(RESPONSIVE.BASE_SCALE);
             }
         }, 100);
         
@@ -386,7 +387,7 @@ export class PixiMenuScene extends PixiScene {
     }
     
     lightenColor(color) {
-        // Simple color lightening
+        // Simple color lightening using bit operations
         const r = Math.min(255, ((color >> 16) & 0xFF) + 30);
         const g = Math.min(255, ((color >> 8) & 0xFF) + 30);
         const b = Math.min(255, (color & 0xFF) + 30);
@@ -396,61 +397,42 @@ export class PixiMenuScene extends PixiScene {
     
     showSettings() {
         console.log('Settings clicked - PixiJS responsive version!');
-        this.createSettingsPopup();
-    }
-    
-    createSettingsPopup() {
-        // Remove existing popup if any
-        const existingPopup = this.layers.effects.getChildByName('settingsPopup');
-        if (existingPopup) {
-            this.layers.effects.removeChild(existingPopup);
-        }
         
-        // Semi-transparent overlay
+        // Create settings overlay using constants
         const overlay = new PIXI.Graphics();
-        overlay.beginFill(0x000000, 0.7);
-        overlay.drawRect(
-            -this.viewportWidth / 2, 
-            -this.viewportHeight / 2, 
-            this.viewportWidth, 
-            this.viewportHeight
-        );
+        overlay.beginFill(COLORS.PIXI.OVERLAY_DARK, COLORS.ALPHA.MEDIUM);
+        overlay.drawRect(-this.viewportWidth, -this.viewportHeight, this.viewportWidth * 2, this.viewportHeight * 2);
         overlay.endFill();
         overlay.interactive = true;
-        overlay.name = 'settingsPopup';
         
-        // Settings panel with responsive sizing
-        const panelWidth = Math.min(this.getScaledSize(400), this.viewportWidth * 0.9);
-        const panelHeight = Math.min(this.getScaledSize(300), this.viewportHeight * 0.7);
+        // Settings panel dimensions using responsive constants
+        const panelWidth = Math.min(this.getScaledSize(600), this.viewportWidth - LAYOUT.PADDING * 2);
+        const panelHeight = Math.min(this.getScaledSize(400), this.viewportHeight - LAYOUT.PADDING * 2);
         
         const panel = new PIXI.Graphics();
-        panel.beginFill(0x34495e);
-        panel.drawRoundedRect(0, 0, panelWidth, panelHeight, 15);
+        panel.beginFill(COLORS.PIXI.DARK_GRAY, COLORS.ALPHA.HIGH);
+        panel.drawRoundedRect(-panelWidth / 2, -panelHeight / 2, panelWidth, panelHeight, LAYOUT.EXTRA_LARGE_RADIUS);
         panel.endFill();
-        panel.lineStyle(3, 0xf39c12);
-        panel.drawRoundedRect(0, 0, panelWidth, panelHeight, 15);
+        panel.lineStyle(LAYOUT.THICK_BORDER, COLORS.PIXI.WHITE, COLORS.ALPHA.MEDIUM_HIGH);
+        panel.drawRoundedRect(-panelWidth / 2, -panelHeight / 2, panelWidth, panelHeight, LAYOUT.EXTRA_LARGE_RADIUS);
         
-        panel.x = -panelWidth / 2;
-        panel.y = -panelHeight / 2;
-        
-        // Title
-        const title = new PIXI.Text('Settings', {
-            fontFamily: 'Arial',
-            fontSize: this.getResponsiveFontSize(24),
-            fill: 0xffffff,
-            align: 'center',
-            fontWeight: 'bold',
+        // Settings title
+        const title = new PIXI.Text('⚙️ SETTINGS', {
+            fontFamily: FONTS.FAMILY.PRIMARY,
+            fontSize: this.getResponsiveFontSize(FONTS.SIZE.TITLE + 4),
+            fill: COLORS.PIXI.WHITE,
+            align: FONTS.ALIGN.CENTER,
+            fontWeight: FONTS.WEIGHT.BOLD,
         });
-        title.anchor.set(0.5);
-        title.x = panelWidth / 2;
-        title.y = this.getResponsivePadding(40);
+        title.anchor.set(0.5, 0);
+        title.x = 0;
+        title.y = -panelHeight / 2 + LAYOUT.PADDING;
         panel.addChild(title);
         
-        // Settings content
+        // Settings content using font constants
         const viewportInfo = this.engine.getViewportInfo();
         const settingsText = new PIXI.Text(
-            `Responsive PixiJS Engine Settings\n\n` +
-            `🖥️ Viewport: ${viewportInfo.width} × ${viewportInfo.height}\n` +
+            `🖥️ Display: ${this.viewportWidth} × ${this.viewportHeight}\n` +
             `📱 Device: ${this.isMobile ? 'Mobile' : 'Desktop'}\n` +
             `🔄 Orientation: ${this.isLandscape ? 'Landscape' : 'Portrait'}\n` +
             `📐 Aspect Ratio: ${viewportInfo.aspectRatio.toFixed(2)}\n` +
@@ -461,21 +443,21 @@ export class PixiMenuScene extends PixiScene {
             `🖱️ Interactive UI: ON\n` +
             `📱 Responsive Layout: ON`,
             {
-                fontFamily: 'Arial',
-                fontSize: this.getResponsiveFontSize(this.isMobile ? 11 : 14),
-                fill: 0xecf0f1,
-                align: 'left',
-                lineHeight: this.getResponsivePadding(18),
+                fontFamily: FONTS.FAMILY.PRIMARY,
+                fontSize: this.getResponsiveFontSize(this.isMobile ? FONTS.SIZE.MOBILE_BODY + 1 : FONTS.SIZE.SUBTITLE),
+                fill: COLORS.PIXI.LIGHT_GRAY,
+                align: FONTS.ALIGN.LEFT,
+                lineHeight: this.getResponsivePadding(FONTS.SIZE.TITLE),
             }
         );
-        settingsText.x = this.getResponsivePadding(20);
-        settingsText.y = this.getResponsivePadding(80);
+        settingsText.x = this.getResponsivePadding(LAYOUT.PADDING);
+        settingsText.y = this.getResponsivePadding(LAYOUT.PADDING * 4);
         panel.addChild(settingsText);
         
-        // Close button
+        // Close button using UI constants
         const closeBtn = this.createSimpleButton(
             'Close', 
-            panelWidth / 2 - this.getScaledSize(60), 
+            panelWidth / 2 - this.getScaledSize(UI.BUTTON.MEDIUM_WIDTH + LAYOUT.PADDING), 
             panelHeight - this.getResponsivePadding(50),
             () => {
                 this.layers.effects.removeChild(overlay);
@@ -495,15 +477,15 @@ export class PixiMenuScene extends PixiScene {
         
         this.addSprite(overlay, 'effects');
         
-        // Add entrance animation
-        overlay.alpha = 0;
-        panel.scale.set(0.8);
+        // Add entrance animation using alpha constants
+        overlay.alpha = COLORS.ALPHA.INVISIBLE;
+        panel.scale.set(RESPONSIVE.MOBILE_MIN_SCALE);
         
         const animateIn = () => {
-            overlay.alpha = Math.min(1, overlay.alpha + 0.1);
-            panel.scale.set(Math.min(1, panel.scale.x + 0.05));
+            overlay.alpha = Math.min(COLORS.ALPHA.OPAQUE, overlay.alpha + 0.1);
+            panel.scale.set(Math.min(RESPONSIVE.BASE_SCALE, panel.scale.x + 0.05));
             
-            if (overlay.alpha < 1 || panel.scale.x < 1) {
+            if (overlay.alpha < COLORS.ALPHA.OPAQUE || panel.scale.x < RESPONSIVE.BASE_SCALE) {
                 requestAnimationFrame(animateIn);
             }
         };
@@ -519,44 +501,5 @@ export class PixiMenuScene extends PixiScene {
             const versionText = `Viewport: ${this.viewportWidth}×${this.viewportHeight} | ${this.isMobile ? 'Mobile' : 'Desktop'} | ${this.isLandscape ? 'Landscape' : 'Portrait'}`;
             this.versionElement.text = versionText;
         }
-        
-        // Update background if viewport changed significantly
-        if (this.backgroundElement && Math.random() < 0.005) { // 0.5% chance per frame
-            this.updateBackground();
-        }
-    }
-    
-    handleKeyDown(event) {
-        if (event.code === 'Escape') {
-            console.log('Escape pressed in responsive menu');
-        } else if (event.code === 'Enter' || event.code === 'Space') {
-            // Activate first button on Enter/Space
-            if (this.buttons.length > 0) {
-                this.buttons[0].emit('pointerdown', { stopPropagation: () => {} });
-            }
-        } else if (event.code === 'ArrowDown' || event.code === 'ArrowUp') {
-            // Navigate through buttons with arrow keys
-            this.navigateButtons(event.code === 'ArrowDown' ? 1 : -1);
-        }
-    }
-    
-    navigateButtons(direction) {
-        this.hoveredButton = Math.max(0, Math.min(this.buttons.length - 1, this.hoveredButton + direction));
-        
-        // Visual feedback for keyboard navigation
-        this.buttons.forEach((button, index) => {
-            if (index === this.hoveredButton) {
-                this.onButtonHover(button, true);
-            } else {
-                this.onButtonHover(button, false);
-            }
-        });
-    }
-    
-    onExit() {
-        // Clear any active animations
-        this.isActive = false;
-        
-        super.onExit();
     }
 }
