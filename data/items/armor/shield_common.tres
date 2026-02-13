@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="4"]
+
+[sub_resource type="Resource" id="stat_phys_def"]
+script = ExtResource("2")
+stat = 5
+modifier_type = 0
+value = 5.0
+
+[resource]
+script = ExtResource("1")
+id = "shield_common"
+display_name = "Wooden Shield"
+description = "A sturdy wooden shield. Offers basic protection."
+icon = ExtResource("4")
+item_type = 1
+category = 5
+rarity = 0
+shape = ExtResource("3")
+stat_modifiers = [SubResource("stat_phys_def")]
+damage_type = 0
+base_power = 0
+base_price = 40

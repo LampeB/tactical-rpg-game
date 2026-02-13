@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "slime"
+display_name = "Slime"
+description = "A wobbly green slime. Weak but numerous."
+max_hp = 30
+speed = 6
+physical_attack = 5
+physical_defense = 3
+special_attack = 2
+special_defense = 2
+damage_type = 0
+gold_reward = 8

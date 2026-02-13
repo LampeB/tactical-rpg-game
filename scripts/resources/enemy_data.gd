@@ -1,0 +1,37 @@
+class_name EnemyData
+extends Resource
+## Definition of an enemy type.
+
+@export_group("Identity")
+@export var id: String = ""
+@export var display_name: String = ""
+@export_multiline var description: String = ""
+@export var sprite: Texture2D
+
+@export_group("Stats")
+@export var max_hp: int = 50
+@export var speed: int = 8
+@export var physical_attack: int = 8
+@export var physical_defense: int = 5
+@export var special_attack: int = 5
+@export var special_defense: int = 5
+
+@export_group("Combat")
+@export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
+@export var skills: Array = [] ## of SkillData
+## Gold rewarded on defeat.
+@export var gold_reward: int = 10
+
+@export_group("Loot")
+## Loot table used when this enemy is defeated.
+@export var loot_table: LootTable
+
+func get_base_stat(stat: Enums.Stat) -> int:
+	match stat:
+		Enums.Stat.MAX_HP: return max_hp
+		Enums.Stat.SPEED: return speed
+		Enums.Stat.PHYSICAL_ATTACK: return physical_attack
+		Enums.Stat.PHYSICAL_DEFENSE: return physical_defense
+		Enums.Stat.SPECIAL_ATTACK: return special_attack
+		Enums.Stat.SPECIAL_DEFENSE: return special_defense
+	return 0

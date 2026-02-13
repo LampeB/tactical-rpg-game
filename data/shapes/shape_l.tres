@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemShape" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_shape.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "shape_l"
+display_name = "L-Shape"
+cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 2)])
+rotation_states = 4
