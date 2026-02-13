@@ -32,6 +32,7 @@ export class PixiLootScene extends InventoryBaseScene {
       "Drag items from the right to your inventory or storage on the left";
     this.showStats = options.showStats || false;
     this.stats = options.stats || null;
+    this.context = options.context;
 
     // Adjust grid positioning based on context
     if (options.context === "battle") {
@@ -65,6 +66,133 @@ export class PixiLootScene extends InventoryBaseScene {
     instructions.x = panelWidth / 2;
     instructions.y = this.showStats ? 120 : 70;
     panel.addChild(instructions);
+  }
+
+  calculateLayout() {
+    const width = this.engine.width;
+    const height = this.engine.height;
+
+    // Determine device type and orientation
+    this.layout.isPortrait = height > width;
+    this.layout.isMobile = width < this.breakpoints.mobile;
+    this.layout.isTablet =
+      width >= this.breakpoints.mobile && width < this.breakpoints.desktop;
+    this.layout.isDesktop = width >= this.breakpoints.desktop;
+
+    // Calculate scaling factor
+    this.layout.scale = Math.min(width / 1200, height / 800);
+    this.layout.scale = Math.max(0.6, Math.min(1.2, this.layout.scale));
+
+    // Adjust padding based on screen size
+    this.layout.padding = this.layout.isMobile ? 15 : 25;
+
+    // Calculate responsive panel dimensions
+    const maxPanelWidth = width - this.layout.padding * 2;
+    const maxPanelHeight = height - this.layout.padding * 2;
+
+    this.layout.dimensions = {
+      // Main panel
+      panel: {
+        width: Math.min(
+          this.layout.isMobile ? maxPanelWidth : 900,
+          maxPanelWidth
+        ),
+        height: Math.min(
+          this.showStats
+            ? this.layout.isMobile
+              ? maxPanelHeight
+              : 650
+            : this.layout.isMobile
+            ? maxPanelHeight
+            : 600,
+          maxPanelHeight
+        ),
+      },
+
+      // Preview areas
+      characterGrid: {
+        cols: this.layout.isMobile ? 8 : 10,
+        rows: this.layout.isMobile ? 6 : 8,
+        cellSize: Math.max(15, this.baseMiniGridSize * this.layout.scale),
+        x: this.layout.isMobile ? 20 : 30,
+        y: this.layout.isMobile ? 80 : 100,
+      },
+
+      storageList: {
+        width: this.layout.isMobile ? 180 : 200,
+        height: this.layout.isMobile ? 120 : 160,
+        x: this.layout.isMobile ? 220 : 300,
+        y: this.layout.isMobile ? 80 : 100,
+      },
+
+      // Loot items area
+      lootArea: {
+        x: this.layout.isMobile ? 20 : 450,
+        y: this.layout.isMobile ? 220 : 100,
+        itemSize: Math.max(60, 80 * this.layout.scale),
+        spacing: this.layout.isMobile ? 10 : 15,
+        itemsPerRow: this.layout.isMobile ? 3 : 4,
+      },
+
+      // Buttons
+      closeButton: {
+        width: Math.max(80, 100 * this.layout.scale),
+        height: Math.max(30, 35 * this.layout.scale),
+      },
+    };
+
+    // Update mini grid size for consistent scaling
+    this.miniGridSize = this.layout.dimensions.characterGrid.cellSize;
+
+    // Font scaling
+    this.layout.fonts = {
+      title: Math.max(18, Math.min(28, 24 * this.layout.scale)),
+      subtitle: Math.max(12, Math.min(16, 14 * this.layout.scale)),
+      body: Math.max(10, Math.min(14, 12 * this.layout.scale)),
+      small: Math.max(8, Math.min(11, 10 * this.layout.scale)),
+      button: Math.max(10, Math.min(14, 12 * this.layout.scale)),
+    };
+
+    // Update preview areas based on calculated dimensions
+    this.previewAreas = {
+      characterGrid: {
+        x: this.layout.dimensions.characterGrid.x,
+        y: this.layout.dimensions.characterGrid.y,
+        cols: this.layout.dimensions.characterGrid.cols,
+        rows: this.layout.dimensions.characterGrid.rows,
+      },
+      storageList: {
+        x: this.layout.dimensions.storageList.x,
+        y: this.layout.dimensions.storageList.y,
+        width: this.layout.dimensions.storageList.width,
+        height: this.layout.dimensions.storageList.height,
+      },
+    };
+
+    console.log("Loot scene layout calculated:", this.layout);
+  }
+
+  handleResize() {
+    if (!this.isActive) return;
+
+    // Recalculate layout
+    this.calculateLayout();
+
+    // Clear and recreate interface
+    this.clearLootInterface();
+    this.createLootInterface();
+
+    console.log("Loot scene resized and updated");
+  }
+
+  clearLootInterface() {
+    // Remove all UI elements
+    this.layers.effects.removeChildren();
+    this.overlay = null;
+    this.panel = null;
+    this.currentLootInterface = null;
+    this.lootPreview = null;
+    this.draggedLootItem = null;
   }
 
   createLootInterface() {
@@ -112,14 +240,14 @@ export class PixiLootScene extends InventoryBaseScene {
   createTitle(panel, panelWidth) {
     const title = new PIXI.Text(this.title, {
       fontFamily: "Arial",
-      fontSize: 24,
+      fontSize: this.layout.fonts.title,
       fill: 0xffd700,
       fontWeight: "bold",
       align: "center",
     });
     title.anchor.set(0.5);
     title.x = panelWidth / 2;
-    title.y = 40;
+    title.y = 30;
     panel.addChild(title);
   }
 
@@ -132,15 +260,15 @@ export class PixiLootScene extends InventoryBaseScene {
         `Skills used: ${this.stats.skillsUsed}`,
       {
         fontFamily: "Arial",
-        fontSize: 14,
+        fontSize: this.layout.fonts.body,
         fill: 0xffffff,
         align: "center",
-        lineHeight: 18,
+        lineHeight: Math.max(16, 18 * this.layout.scale),
       }
     );
     statsText.anchor.set(0.5);
     statsText.x = panelWidth / 2;
-    statsText.y = 80;
+    statsText.y = 70;
     panel.addChild(statsText);
   }
 
@@ -210,21 +338,22 @@ export class PixiLootScene extends InventoryBaseScene {
     panel.addChild(grid);
   }
 
-  createLootItems(panel) {
-    const baseY = this.showStats ? 40 : 0;
+  showStorageInfo(panel, preview, baseY) {
+    const inventoryScene = this.engine.scenes.get("inventory");
+    if (!inventoryScene || !inventoryScene.storageItems) return;
 
     // Title
     const lootLabel = new PIXI.Text(
       this.title.includes("VICTORY") ? "⚔️ Battle Spoils" : "🎁 Found Items",
       {
         fontFamily: "Arial",
-        fontSize: 16,
+        fontSize: this.layout.fonts.body,
         fill: 0xffd700,
         fontWeight: "bold",
       }
     );
-    lootLabel.x = 500;
-    lootLabel.y = this.inventoryGrid.y - 20 + baseY;
+    lootLabel.x = lootDims.x;
+    lootLabel.y = lootDims.y - 20 + baseY;
     panel.addChild(lootLabel);
 
     // Handle empty loot
@@ -257,23 +386,26 @@ export class PixiLootScene extends InventoryBaseScene {
 
   createDraggableLootItem(itemData, index) {
     const itemContainer = new PIXI.Container();
+    const itemSize = this.layout.dimensions.lootArea.itemSize;
 
     // Item background
     const bg = new PIXI.Graphics();
-    bg.beginFill(itemData.color);
-    bg.drawRect(0, 0, itemData.width * 30, itemData.height * 30);
+    bg.beginFill(itemData.color || 0x95a5a6);
+    bg.drawRoundedRect(0, 0, itemSize, itemSize, 8);
     bg.endFill();
     bg.lineStyle(2, 0x2c3e50);
-    bg.drawRect(0, 0, itemData.width * 30, itemData.height * 30);
+    bg.drawRoundedRect(0, 0, itemSize, itemSize, 8);
+    itemContainer.addChild(bg);
 
     // Item name
     const nameText = new PIXI.Text(itemData.name, {
       fontFamily: "Arial",
-      fontSize: 10,
+      fontSize: this.layout.fonts.small,
       fill: 0xffffff,
       align: "center",
+      fontWeight: "bold",
       wordWrap: true,
-      wordWrapWidth: itemData.width * 30,
+      wordWrapWidth: itemSize - 10,
     });
     nameText.anchor.set(0.5);
     nameText.x = (itemData.width * 30) / 2;
@@ -285,12 +417,18 @@ export class PixiLootScene extends InventoryBaseScene {
     // Add glow for special items
     if (itemData.type === "gem" || itemData.name.includes("Medal")) {
       const glow = new PIXI.Graphics();
-      glow.lineStyle(2, 0xffd700, 0.6);
-      glow.drawRect(-2, -2, itemData.width * 30 + 4, itemData.height * 30 + 4);
+      glow.lineStyle(glowSize, 0xffd700, 0.6);
+      glow.drawRoundedRect(
+        -glowSize,
+        -glowSize,
+        itemSize + glowSize * 2,
+        itemSize + glowSize * 2,
+        11
+      );
       itemContainer.addChildAt(glow, 0);
 
       // Animate glow
-      let time = 0;
+      let time = Math.random() * Math.PI * 2;
       const animate = () => {
         time += 0.05;
         glow.alpha = 0.4 + Math.sin(time) * 0.3;
@@ -304,6 +442,7 @@ export class PixiLootScene extends InventoryBaseScene {
     itemContainer.interactive = true;
     itemContainer.cursor = "pointer";
 
+    // Enhanced touch/mouse handling
     itemContainer.on("pointerdown", (event) => {
       this.startDraggingLootItem(itemContainer, event);
     });
@@ -312,25 +451,38 @@ export class PixiLootScene extends InventoryBaseScene {
   }
 
   createCloseButton(panel, panelWidth, panelHeight) {
+    const btnDims = this.layout.dimensions.closeButton;
     const closeBtn = new PIXI.Graphics();
+
     closeBtn.beginFill(0xe74c3c);
-    closeBtn.drawRoundedRect(0, 0, 100, 35, 5);
+    closeBtn.drawRoundedRect(0, 0, btnDims.width, btnDims.height, 5);
     closeBtn.endFill();
-    closeBtn.x = panelWidth / 2 - 50;
-    closeBtn.y = panelHeight - 50;
+    closeBtn.lineStyle(1, 0xc0392b);
+    closeBtn.drawRoundedRect(0, 0, btnDims.width, btnDims.height, 5);
+
+    closeBtn.x = (panelWidth - btnDims.width) / 2;
+    closeBtn.y = panelHeight - btnDims.height - 15;
     closeBtn.interactive = true;
     closeBtn.cursor = "pointer";
 
     const closeText = new PIXI.Text("Close", {
       fontFamily: "Arial",
-      fontSize: 14,
+      fontSize: this.layout.fonts.button,
       fill: 0xffffff,
       fontWeight: "bold",
     });
     closeText.anchor.set(0.5);
-    closeText.x = 50;
-    closeText.y = 17;
+    closeText.x = btnDims.width / 2;
+    closeText.y = btnDims.height / 2;
     closeBtn.addChild(closeText);
+
+    closeBtn.on("pointerover", () => {
+      closeBtn.tint = 0xcccccc;
+    });
+
+    closeBtn.on("pointerout", () => {
+      closeBtn.tint = 0xffffff;
+    });
 
     closeBtn.on("pointerdown", () => {
       this.engine.switchScene(this.returnScene);
@@ -375,5 +527,30 @@ export class PixiLootScene extends InventoryBaseScene {
         panel.addChild(miniItem);
       }
     });
+  }
+
+  // ============= RESPONSIVE HELPER METHODS =============
+
+  getResponsiveSize(baseSize) {
+    return Math.max(baseSize * 0.7, baseSize * this.layout.scale);
+  }
+
+  getResponsiveSpacing(baseSpacing) {
+    return Math.max(baseSpacing * 0.5, baseSpacing * this.layout.scale);
+  }
+
+  isSmallScreen() {
+    return this.layout.isMobile || this.engine.width < 600;
+  }
+
+  // ============= UPDATE METHODS =============
+
+  update(deltaTime) {
+    super.update(deltaTime);
+
+    // Update any animations or dynamic elements
+    if (this.draggedLootItem) {
+      // Could add drag momentum or smoothing here
+    }
   }
 }
