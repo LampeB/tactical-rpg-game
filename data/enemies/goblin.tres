@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "goblin"
+display_name = "Goblin"
+description = "A sneaky goblin armed with a rusty dagger."
+max_hp = 45
+speed = 12
+physical_attack = 8
+physical_defense = 4
+special_attack = 3
+special_defense = 3
+damage_type = 0
+gold_reward = 15

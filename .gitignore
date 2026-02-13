@@ -1,0 +1,14 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# Debug log (generated at runtime)
+debug_log.txt
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Old files ignored by Godot
+src/
+sprites/

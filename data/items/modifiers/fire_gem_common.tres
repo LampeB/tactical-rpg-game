@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_common.png" id="4"]
+
+[sub_resource type="Resource" id="mod_fire"]
+script = ExtResource("2")
+stat = 6
+modifier_type = 0
+value = 3.0
+
+[resource]
+script = ExtResource("1")
+id = "fire_gem_common"
+display_name = "Fire Gem"
+description = "A glowing ember gem. Adds fire damage to adjacent weapons."
+icon = ExtResource("4")
+item_type = 2
+category = 0
+rarity = 0
+shape = ExtResource("3")
+modifier_reach = 1
+modifier_bonuses = [SubResource("mod_fire")]
+base_price = 30

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="4"]
+
+[sub_resource type="Resource" id="stat_phys_atk"]
+script = ExtResource("2")
+stat = 4
+modifier_type = 0
+value = 5.0
+
+[resource]
+script = ExtResource("1")
+id = "sword_common"
+display_name = "Iron Sword"
+description = "A basic iron sword. Reliable if unexceptional."
+icon = ExtResource("4")
+item_type = 0
+category = 0
+rarity = 0
+shape = ExtResource("3")
+stat_modifiers = [SubResource("stat_phys_atk")]
+damage_type = 0
+base_power = 5
+base_price = 50
