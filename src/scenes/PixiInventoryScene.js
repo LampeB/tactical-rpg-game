@@ -1,574 +1,407 @@
-// src/scenes/PixiInventoryScene.js - Refactored to use base class
-import { InventoryBaseScene } from "../core/InventoryBaseScene.js";
+import { HybridInventoryScene } from "../core/HybridInventoryScene.js";
 import { ShapeHelper } from "../utils/ShapeHelper.js";
 
-export class PixiInventoryScene extends InventoryBaseScene {
+export class PixiInventoryScene extends HybridInventoryScene {
   constructor() {
     super();
 
-    // Inventory-specific properties
+    // Inventory-specific settings
     this.showShapeOutlines = false;
     this.showDimensionInfo = false;
     this.isInitialized = false;
+
+    // UI elements references for responsive updates
+    this.titleElement = null;
+    this.gridLabelElement = null;
+    this.storageLabelElement = null;
+    this.instructionsElement = null;
+    this.storageInfoElement = null;
+    this.actionButtons = [];
   }
 
   onEnter() {
     super.onEnter();
 
     this.createBackground();
-    this.createGrids();
+    this.createTitle();
+    this.createLabels();
+    this.createCharacterGrid();
+    this.createStorageList();
 
     if (!this.isInitialized) {
       this.createStarterItems();
       this.isInitialized = true;
     } else {
-      // Restore items that were added from other scenes
-      this.items.forEach((item) => {
-        if (!item.parent) {
-          this.addSprite(item, "world");
-        }
-      });
+      // Restore any existing items
+      this.restoreItems();
     }
 
-    this.createInstructions();
+    this.createUI();
+
+    // Update game mode display
+    const gameModeBtn = document.getElementById('gameMode');
+    if (gameModeBtn) {
+      gameModeBtn.textContent = '🎒 INVENTORY';
+    }
+
+    console.log(`✅ Responsive inventory loaded: ${this.characterItems.length} grid items, ${this.storageItems.length} storage items`);
   }
 
-  // =================== INVENTORY-SPECIFIC METHODS ===================
+  onResize(newWidth, newHeight) {
+    super.onResize(newWidth, newHeight);
+
+    // Update all UI elements for new size
+    this.updateTitleAndLabels();
+    this.updateInstructions();
+    this.updateActionButtons();
+    this.updateStorageInfo();
+
+    console.log(`Inventory scene resized to ${newWidth}x${newHeight}`);
+  }
 
   createBackground() {
+    // Remove existing background
+    const existingBg = this.layers.background.getChildByName("inventoryBackground");
+    if (existingBg) {
+      this.layers.background.removeChild(existingBg);
+    }
+
     const bg = new PIXI.Graphics();
     bg.beginFill(0x27ae60);
-    bg.drawRect(0, 0, this.engine.width, this.engine.height);
+    bg.drawRect(-this.viewportWidth/2, -this.viewportHeight/2, this.viewportWidth, this.viewportHeight);
     bg.endFill();
-    this.addSprite(bg, "background");
+    bg.name = "inventoryBackground";
 
-    // Title
-    const title = new PIXI.Text("🎒 INVENTORY MANAGEMENT", {
-      fontFamily: "Arial",
-      fontSize: 28,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
+    this.makeResponsive(bg, {
+      anchor: { x: 'center', y: 'center' },
+      offset: { x: 0, y: 0 },
+      scale: false
     });
-    title.anchor.set(0.5);
-    title.x = this.engine.width / 2;
-    title.y = 40;
-    this.addSprite(title, "ui");
+
+    this.addSprite(bg, 'background');
   }
 
-  createGrids() {
-    this.inventoryGrid.graphics = this.createGrid(
-      this.inventoryGrid,
-      0x2ecc71,
-      "Character Inventory"
-    );
-    this.storageGrid.graphics = this.createGrid(
-      this.storageGrid,
-      0x9b59b6,
-      "Item Storage"
-    );
+  createTitle() {
+    if (this.titleElement) {
+      this.removeSprite(this.titleElement);
+    }
 
-    // Add grid labels
-    const invLabel = new PIXI.Text("🎒 Character Inventory", {
-      fontFamily: "Arial",
-      fontSize: 16,
+    this.titleElement = new PIXI.Text('🎒 HYBRID INVENTORY', {
+      fontFamily: 'Arial',
+      fontSize: this.getResponsiveFontSize(this.isMobile ? 24 : 28),
       fill: 0xffffff,
-      fontWeight: "bold",
+      align: 'center',
+      fontWeight: 'bold',
+      stroke: 0x2c3e50,
+      strokeThickness: this.isMobile ? 2 : 3,
     });
-    invLabel.x = this.inventoryGrid.x;
-    invLabel.y = this.inventoryGrid.y - 30;
-    this.addSprite(invLabel, "ui");
 
-    const storageLabel = new PIXI.Text("📦 Item Storage", {
-      fontFamily: "Arial",
-      fontSize: 16,
-      fill: 0xffffff,
-      fontWeight: "bold",
+    this.titleElement.anchor.set(0.5);
+
+    this.makeResponsive(this.titleElement, {
+      anchor: { x: 'center', y: 'top' },
+      offset: { x: 0, y: this.getResponsivePadding(40) },
+      scale: true,
+      minScale: 0.7,
+      maxScale: 1.2
     });
-    storageLabel.x = this.storageGrid.x;
-    storageLabel.y = this.storageGrid.y - 30;
-    this.addSprite(storageLabel, "ui");
+
+    this.addSprite(this.titleElement, 'ui');
+  }
+
+  createLabels() {
+    this.updateTitleAndLabels();
+  }
+
+  updateTitleAndLabels() {
+    // Grid label
+    if (this.gridLabelElement) {
+      this.removeSprite(this.gridLabelElement);
+    }
+
+    this.gridLabelElement = new PIXI.Text('Character Inventory (Grid-based)', {
+      fontFamily: 'Arial',
+      fontSize: this.getResponsiveFontSize(16),
+      fill: 0xffffff,
+      fontWeight: 'bold',
+    });
+    this.gridLabelElement.x = this.characterGrid.x;
+    this.gridLabelElement.y = this.characterGrid.y - this.getResponsivePadding(25);
+    this.addSprite(this.gridLabelElement, 'ui');
+
+    // Storage label
+    if (this.storageLabelElement) {
+      this.removeSprite(this.storageLabelElement);
+    }
+
+    this.storageLabelElement = new PIXI.Text('Storage (Unlimited)', {
+      fontFamily: 'Arial',
+      fontSize: this.getResponsiveFontSize(16),
+      fill: 0xffffff,
+      fontWeight: 'bold',
+    });
+    this.storageLabelElement.x = this.storageList.x;
+    this.storageLabelElement.y = this.storageList.y - this.getResponsivePadding(25);
+    this.addSprite(this.storageLabelElement, 'ui');
+  }
+
+  createUI() {
+    this.createInstructions();
+    this.createStorageInfo();
+    this.createActionButtons();
   }
 
   createInstructions() {
-    this.instructionsText = new PIXI.Text(
-      "Drag items | Press R while dragging to rotate",
-      {
-        fontFamily: "Arial",
-        fontSize: 14,
-        fill: 0xffffff,
-        align: "center",
-      }
-    );
-    this.instructionsText.anchor.set(0.5);
-    this.instructionsText.x = this.engine.width / 2;
-    this.instructionsText.y = this.engine.height - 20;
-    this.addSprite(this.instructionsText, "ui");
-  }
-
-  // =================== ITEM CREATION ===================
-
-  createItem(data) {
-    const item = new PIXI.Container();
-    const cellSize = this.gridCellSize;
-    const padding = 4;
-
-    // Get shape pattern
-    let shapePattern = this.getShapePattern(data);
-    const bounds = ShapeHelper.getBounds(shapePattern);
-
-    // Draw the shape
-    shapePattern.forEach(([cellX, cellY]) => {
-      const cellGraphic = new PIXI.Graphics();
-      cellGraphic.beginFill(data.color);
-      cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        cellSize - padding,
-        cellSize - padding,
-        4
-      );
-      cellGraphic.endFill();
-      cellGraphic.lineStyle(2, 0x2c3e50);
-      cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        cellSize - padding,
-        cellSize - padding,
-        4
-      );
-      cellGraphic.x = cellX * cellSize;
-      cellGraphic.y = cellY * cellSize;
-      item.addChild(cellGraphic);
-    });
-
-    // Add text and indicators
-    this.addItemText(item, data, bounds, cellSize);
-    this.addTypeIndicator(item, data, bounds, cellSize);
-
-    // Store properties
-    this.setItemProperties(item, data, bounds, shapePattern);
-
-    // Make interactive
-    this.makeItemInteractive(item);
-
-    // Add to items array
-    this.items.push(item);
-
-    return item;
-  }
-
-  getShapePattern(data) {
-    if (!data.shape || data.shape === "rectangle") {
-      return ShapeHelper.createRectangle(data.width, data.height);
-    }
-
-    let pattern;
-    switch (data.shape) {
-      case "T":
-        pattern = ShapeHelper.createTShape(
-          data.stemLength || 3,
-          data.topWidth || 3,
-          data.orientation || "up"
-        );
-        break;
-      case "U":
-        pattern = ShapeHelper.createUShape(
-          data.height || 3,
-          data.width || 3,
-          data.orientation || "up"
-        );
-        break;
-      case "L":
-        pattern = ShapeHelper.createLShape(
-          data.armLength || 3,
-          data.orientation || "tl"
-        );
-        break;
-      default:
-        const predefined = ShapeHelper.getPreDefinedShapes();
-        pattern =
-          predefined[data.shape] ||
-          ShapeHelper.createRectangle(data.width, data.height);
-    }
-
-    return ShapeHelper.normalize(pattern);
-  }
-
-  setItemProperties(item, data, bounds, shapePattern) {
-    item.name = data.name;
-    item.type = data.type;
-    item.color = data.color;
-    item.description = data.description || "";
-    item.gridWidth = bounds.width;
-    item.gridHeight = bounds.height;
-    item.originalData = data;
-    item.shape = data.shape || "rectangle";
-    item.shapePattern = shapePattern;
-    item.gridX = -1;
-    item.gridY = -1;
-    item.visible = true;
-    item.rotationCount = 0;
-  }
-
-  // =================== DRAG AND DROP ===================
-
-  handleMouseDown(event) {
-    const clickedItem = this.findItemUnderMouse(event.global.x, event.global.y);
-    if (clickedItem && clickedItem.interactive) {
-      this.startDragging(clickedItem, event);
-    }
-  }
-
-  startDragging(item, event) {
-    event.stopPropagation();
-
-    this.draggedItem = item;
-    this.dragStartGrid = this.findItemGrid(item);
-    item.isDragging = true;
-
-    // Store original state
-    this.storeOriginalState(item);
-
-    // Visual feedback
-    item.alpha = 0.9;
-    item.scale.set(1.05);
-    this.hideTooltip();
-
-    // Move to top and calculate offset
-    this.layers.world.removeChild(item);
-    this.layers.world.addChild(item);
-
-    const globalPos = event.global;
-    item.dragOffsetX = globalPos.x - item.x;
-    item.dragOffsetY = globalPos.y - item.y;
-
-    item.gridX = -1;
-    item.gridY = -1;
     this.updateInstructions();
   }
 
-  // =================== INPUT HANDLING ===================
-
-  handleKeyDown(event) {
-    if (event.code === "KeyR" && this.draggedItem) {
-      this.rotateDraggedItem();
+  updateInstructions() {
+    if (this.instructionsElement) {
+      this.removeSprite(this.instructionsElement);
     }
+
+    const instructionText = this.isMobile
+      ? "Drag items • Scroll storage • R to rotate"
+      : "Drag items between grid and storage | Mouse wheel to scroll storage | R while dragging to rotate";
+
+    this.instructionsElement = new PIXI.Text(instructionText, {
+      fontFamily: 'Arial',
+      fontSize: this.getResponsiveFontSize(this.isMobile ? 12 : 14),
+      fill: 0xffffff,
+      align: 'center',
+      wordWrap: this.isMobile,
+      wordWrapWidth: this.viewportWidth - this.getResponsivePadding(40),
+    });
+
+    this.instructionsElement.anchor.set(0.5);
+
+    this.makeResponsive(this.instructionsElement, {
+      anchor: { x: 'center', y: 'bottom' },
+      offset: { x: 0, y: -this.getResponsivePadding(40) },
+      scale: true,
+      minScale: 0.8,
+      maxScale: 1.0
+    });
+
+    this.addSprite(this.instructionsElement, 'ui');
   }
 
-  // =================== HELPER METHODS ===================
+  createStorageInfo() {
+    this.updateStorageInfo();
+  }
 
-  updateInstructions() {
-    if (this.instructionsText) {
-      if (this.draggedItem) {
-        this.instructionsText.text = `Dragging ${this.draggedItem.name} | Press R to rotate | Release to place`;
-      } else {
-        this.instructionsText.text =
-          "Drag items | Press R while dragging to rotate";
-      }
+  updateStorageInfo() {
+    if (this.storageInfoElement) {
+      this.removeSprite(this.storageInfoElement);
     }
-  } // Add these missing methods to src/scenes/PixiInventoryScene.js
+
+    const total = this.storageItems.length;
+    const totalQuantity = this.storageItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+    this.storageInfoElement = new PIXI.Text(`${total} item types, ${totalQuantity} total items`, {
+      fontFamily: 'Arial',
+      fontSize: this.getResponsiveFontSize(12),
+      fill: 0xecf0f1,
+    });
+
+    this.storageInfoElement.x = this.storageList.x;
+    this.storageInfoElement.y = this.storageList.y + this.storageList.height + this.getResponsivePadding(10);
+    this.addSprite(this.storageInfoElement, 'ui');
+  }
+
+  createActionButtons() {
+    this.updateActionButtons();
+  }
+
+  updateActionButtons() {
+    // Remove existing buttons
+    this.actionButtons.forEach(button => {
+      this.removeSprite(button);
+    });
+    this.actionButtons = [];
+
+    const buttons = [
+      { text: 'Reset Items', action: () => this.resetItems() },
+      { text: 'Clear Grid', action: () => this.clearGrid() },
+      { text: 'Sort Storage', action: () => this.sortStorage() },
+      { text: 'Add Test Items', action: () => this.addTestItems() },
+    ];
+
+    const buttonWidth = this.getScaledSize(this.isMobile ? 100 : 120);
+    const buttonHeight = this.getScaledSize(this.isMobile ? 30 : 35);
+    const buttonSpacing = this.getResponsivePadding(this.isMobile ? 110 : 140);
+    const startX = this.getResponsivePadding(50);
+
+    buttons.forEach((btnData, index) => {
+      const button = new PIXI.Graphics();
+      button.beginFill(0x3498db);
+      button.drawRoundedRect(0, 0, buttonWidth, buttonHeight, 5);
+      button.endFill();
+      button.lineStyle(1, 0x2980b9);
+      button.drawRoundedRect(0, 0, buttonWidth, buttonHeight, 5);
+
+      const buttonText = new PIXI.Text(btnData.text, {
+        fontFamily: 'Arial',
+        fontSize: this.getResponsiveFontSize(this.isMobile ? 10 : 12),
+        fill: 0xffffff,
+        fontWeight: 'bold',
+        align: 'center',
+      });
+      buttonText.anchor.set(0.5);
+      buttonText.x = buttonWidth / 2;
+      buttonText.y = buttonHeight / 2;
+      button.addChild(buttonText);
+
+      button.x = startX + (index * buttonSpacing);
+      button.y = this.viewportHeight - this.getResponsivePadding(this.isMobile ? 60 : 80);
+      button.interactive = true;
+      button.cursor = 'pointer';
+
+      // Store references for hover effects
+      button.bg = button;
+      button.text = buttonText;
+
+      button.on('pointerover', () => {
+        if (!this.isMobile) {
+          button.tint = 0xcccccc;
+        }
+      });
+
+      button.on('pointerout', () => {
+        button.tint = 0xffffff;
+      });
+
+      button.on('pointerdown', btnData.action);
+
+      this.addSprite(button, 'ui');
+      this.actionButtons.push(button);
+    });
+  }
+
+  // =================== STARTER ITEMS ===================
 
   createStarterItems() {
-    console.log("🎯 Creating starter items");
+    console.log('🎯 Creating responsive starter items');
 
-    const starterItems = [
+    // Grid items (shaped items for character inventory)
+    const gridStarterItems = [
       {
-        name: "Sword",
+        name: 'Iron Sword',
         color: 0xe74c3c,
         width: 1,
         height: 3,
-        type: "weapon",
-        description: "A sharp blade",
+        type: 'weapon',
+        description: 'A sturdy iron blade',
       },
       {
-        name: "Shield",
+        name: 'Magic Staff',
+        color: 0x9b59b6,
+        shape: 'T',
+        stemLength: 3,
+        topWidth: 3,
+        orientation: 'up',
+        type: 'weapon',
+        description: 'A T-shaped magical staff',
+      },
+      {
+        name: 'Elven Bow',
+        color: 0x16a085,
+        shape: 'U',
+        width: 3,
+        height: 3,
+        orientation: 'up',
+        type: 'weapon',
+        description: 'A graceful U-shaped bow',
+      },
+      {
+        name: 'Battle Shield',
         color: 0x34495e,
         width: 2,
         height: 2,
-        type: "armor",
-        description: "A protective shield",
-      },
-      {
-        name: "Potion",
-        color: 0x27ae60,
-        width: 1,
-        height: 1,
-        type: "consumable",
-        description: "A healing potion",
-      },
-      {
-        name: "T-Staff",
-        color: 0x9b59b6,
-        shape: "T",
-        stemLength: 3,
-        topWidth: 3,
-        orientation: "up",
-        type: "weapon",
-        description: "A T-shaped magical staff",
-      },
-      {
-        name: "U-Bow",
-        color: 0x16a085,
-        shape: "U",
-        width: 3,
-        height: 3,
-        orientation: "up",
-        type: "weapon",
-        description: "A U-shaped bow",
+        type: 'armor',
+        description: 'A protective battle shield',
       },
     ];
 
-    // Compact placement ensuring everything fits in storage grid (8x6)
-    const placements = [
-      { x: 0, y: 0 }, // Sword (1x3) - left column
-      { x: 2, y: 0 }, // Shield (2x2) - top middle
-      { x: 1, y: 0 }, // Potion (1x1) - between sword and shield
-      { x: 5, y: 0 }, // T-Staff (3x3) - right side
-      { x: 2, y: 3 }, // U-Bow (3x3) - bottom middle
+    // Storage items (various consumables and materials)
+    const storageStarterItems = [
+      { name: 'Health Potion', color: 0xe74c3c, width: 1, height: 1, type: 'consumable', quantity: 5 },
+      { name: 'Mana Potion', color: 0x3498db, width: 1, height: 1, type: 'consumable', quantity: 3 },
+      { name: 'Iron Ore', color: 0x7f8c8d, width: 1, height: 1, type: 'material', quantity: 10 },
+      { name: 'Magic Crystal', color: 0x9b59b6, width: 1, height: 1, type: 'material', quantity: 2 },
+      { name: 'Dragon Scale', color: 0xf39c12, width: 1, height: 1, type: 'material', quantity: 1 },
+      { name: 'Healing Herb', color: 0x27ae60, width: 1, height: 1, type: 'consumable', quantity: 8 },
+      { name: 'Fire Gem', color: 0xe67e22, width: 1, height: 1, type: 'gem', quantity: 3 },
+      { name: 'Ice Shard', color: 0x3498db, width: 1, height: 1, type: 'material', quantity: 6 },
+      { name: 'Lightning Essence', color: 0xf1c40f, width: 1, height: 1, type: 'material', quantity: 2 },
+      { name: 'Shadow Orb', color: 0x2c3e50, width: 1, height: 1, type: 'gem', quantity: 1 },
     ];
 
-    // Create and place items
-    starterItems.forEach((itemData, index) => {
-      if (index < placements.length) {
-        const item = this.createItem(itemData);
-        const placement = placements[index];
+    // Place grid items in character inventory
+    gridStarterItems.forEach((itemData, index) => {
+      const item = this.createGridItem(itemData);
 
-        if (
-          this.canPlaceItemAt(this.storageGrid, item, placement.x, placement.y)
-        ) {
-          this.placeItemInGrid(
-            this.storageGrid,
-            item,
-            placement.x,
-            placement.y
-          );
-          console.log(
-            `✅ Placed ${itemData.name} at (${placement.x}, ${placement.y})`
-          );
-        } else {
-          console.log(`⚠️ Trying fallback placement for ${itemData.name}`);
-          this.findAndPlaceItem(item);
+      // Try different positions that work with responsive grid
+      const positions = [
+        { x: 0, y: 0 },
+        { x: 2, y: 0 },
+        { x: 5, y: 0 },
+        { x: 0, y: 4 },
+        { x: 3, y: 4 },
+        { x: 6, y: 4 },
+      ];
+
+      if (index < positions.length) {
+        const pos = positions[index];
+        if (this.canPlaceInGrid(item, pos.x, pos.y)) {
+          this.placeInGrid(item, pos.x, pos.y);
+          this.addSprite(item, 'world');
         }
       }
     });
 
-    console.log("✅ All starter items placed successfully");
-  }
-
-  addItemText(item, data, bounds, cellSize) {
-    const fontSize = Math.min(
-      (bounds.width * cellSize - 4) / 8,
-      (bounds.height * cellSize - 4) / 4,
-      14
-    );
-    const text = new PIXI.Text(data.name, {
-      fontFamily: "Arial",
-      fontSize: fontSize,
-      fill: 0xffffff,
-      align: "center",
-      fontWeight: "bold",
-      stroke: 0x000000,
-      strokeThickness: 1,
+    // Add storage items
+    storageStarterItems.forEach(itemData => {
+      this.addToStorage(itemData);
     });
-    text.anchor.set(0.5);
-    text.x = (bounds.width * cellSize) / 2;
-    text.y = (bounds.height * cellSize) / 2;
-    item.addChild(text);
+
+    console.log('✅ Responsive starter items created');
   }
 
-  addTypeIndicator(item, data, bounds, cellSize) {
-    const typeIndicator = new PIXI.Graphics();
-    const indicatorColor = this.getTypeColor(data.type);
-    typeIndicator.beginFill(indicatorColor);
-    typeIndicator.drawCircle(bounds.width * cellSize - 8, 8, 4);
-    typeIndicator.endFill();
-    item.addChild(typeIndicator);
-  }
-
-  makeItemInteractive(item) {
-    item.interactive = true;
-    item.cursor = "pointer";
-    item.buttonMode = true;
-
-    // Hover effects
-    item.on("pointerover", () => {
-      if (!this.draggedItem && !item.isDragging) {
-        item.scale.set(1.05);
-        this.showTooltip(item);
+  restoreItems() {
+    // Re-add grid items to display
+    this.characterItems.forEach(item => {
+      if (!item.parent) {
+        this.addSprite(item, 'world');
       }
     });
 
-    item.on("pointerout", () => {
-      if (!this.draggedItem && !item.isDragging) {
-        item.scale.set(1);
-        this.hideTooltip();
-      }
-    });
-
-    console.log(`🎮 Made ${item.name} interactive`);
+    // Refresh storage display
+    this.refreshStorageDisplay();
   }
 
-  storeOriginalState(item) {
-    item.originalX = item.x;
-    item.originalY = item.y;
-    item.originalGridX = item.gridX;
-    item.originalGridY = item.gridY;
-    item.originalShapePattern = [...item.shapePattern];
-    item.originalGridWidth = item.gridWidth;
-    item.originalGridHeight = item.gridHeight;
-    item.originalRotationCount = item.rotationCount || 0;
-  }
+  // ============= ROTATION SYSTEM =============
 
-  handleMouseMove(event) {
-    if (this.draggedItem) {
-      const globalPos = event.global;
-      const item = this.draggedItem;
-
-      // Update item position using the drag offset
-      const targetX = globalPos.x - item.dragOffsetX;
-      const targetY = globalPos.y - item.dragOffsetY;
-
-      item.x = targetX;
-      item.y = targetY;
-
-      // Show placement preview
-      const invPos = this.getGridPosition(this.inventoryGrid, targetX, targetY);
-      if (invPos) {
-        const canPlace = this.canPlaceItemAt(
-          this.inventoryGrid,
-          item,
-          invPos.x,
-          invPos.y
-        );
-        this.showPlacementPreview(
-          item,
-          this.inventoryGrid,
-          invPos.x,
-          invPos.y,
-          canPlace
-        );
-      } else {
-        const storPos = this.getGridPosition(
-          this.storageGrid,
-          targetX,
-          targetY
-        );
-        if (storPos) {
-          const canPlace = this.canPlaceItemAt(
-            this.storageGrid,
-            item,
-            storPos.x,
-            storPos.y
-          );
-          this.showPlacementPreview(
-            item,
-            this.storageGrid,
-            storPos.x,
-            storPos.y,
-            canPlace
-          );
-        } else {
-          this.hidePlacementPreview();
-        }
-      }
+  handleKeyDown(event) {
+    if (event.code === 'KeyR' && this.draggedItem && this.dragSource === 'grid') {
+      this.rotateDraggedItem();
     }
-  }
-
-  handleMouseUp(event) {
-    if (this.draggedItem) {
-      this.stopDragging(event);
-    }
-  }
-
-  stopDragging(event) {
-    if (!this.draggedItem) return;
-
-    const item = this.draggedItem;
-    const itemTopLeftX = item.x;
-    const itemTopLeftY = item.y;
-
-    let placed = false;
-    let targetGrid = null;
-    let gridX = -1;
-    let gridY = -1;
-
-    // Try inventory first
-    const invPos = this.getGridPosition(
-      this.inventoryGrid,
-      itemTopLeftX,
-      itemTopLeftY
-    );
-    if (
-      invPos &&
-      this.canPlaceItemAt(this.inventoryGrid, item, invPos.x, invPos.y)
-    ) {
-      targetGrid = this.inventoryGrid;
-      gridX = invPos.x;
-      gridY = invPos.y;
-      placed = true;
-    }
-
-    // Try storage if inventory failed
-    if (!placed) {
-      const storPos = this.getGridPosition(
-        this.storageGrid,
-        itemTopLeftX,
-        itemTopLeftY
-      );
-      if (
-        storPos &&
-        this.canPlaceItemAt(this.storageGrid, item, storPos.x, storPos.y)
-      ) {
-        targetGrid = this.storageGrid;
-        gridX = storPos.x;
-        gridY = storPos.y;
-        placed = true;
-      }
-    }
-
-    if (placed) {
-      // Successfully placed
-      this.placeItemInGrid(item, targetGrid, gridX, gridY);
-      console.log(`✅ Placed ${item.name} at (${gridX}, ${gridY})`);
-    } else {
-      // Revert to original position and rotation
-      console.log(`🔄 Reverting ${item.name} to original position`);
-
-      if (item.originalShapePattern) {
-        item.shapePattern = [...item.originalShapePattern];
-        item.gridWidth = item.originalGridWidth;
-        item.gridHeight = item.originalGridHeight;
-        item.rotationCount = item.originalRotationCount;
-        this.updateItemVisuals(item);
-      }
-
-      this.placeItemInGrid(
-        item,
-        this.dragStartGrid,
-        item.originalGridX,
-        item.originalGridY
-      );
-    }
-
-    // Reset visual state
-    item.alpha = 1;
-    item.scale.set(1);
-    item.isDragging = false;
-
-    // Clean up
-    this.hideTooltip();
-    this.hidePlacementPreview();
-    this.draggedItem = null;
-    this.dragStartGrid = null;
-    this.updateInstructions();
   }
 
   rotateDraggedItem() {
     const item = this.draggedItem;
     if (!item || this.isRotationPointless(item)) return;
 
-    // Rotate the shape pattern using ShapeHelper
+    console.log(`🔄 Rotating ${item.name} (responsive)`);
+
+    // Store original state if first rotation
+    if (!item.originalShapePattern) {
+      item.originalShapePattern = [...item.shapePattern];
+      item.originalGridWidth = item.gridWidth;
+      item.originalGridHeight = item.gridHeight;
+    }
+
+    // Rotate the shape pattern
     let newPattern = ShapeHelper.rotateClockwise(item.shapePattern);
     newPattern = ShapeHelper.normalize(newPattern);
 
@@ -581,145 +414,232 @@ export class PixiInventoryScene extends InventoryBaseScene {
     item.gridHeight = newBounds.height;
     item.rotationCount = (item.rotationCount + 1) % 4;
 
-    // Update visuals
+    // Update visuals with responsive sizing
     this.updateItemVisuals(item);
-    this.updateInstructions();
   }
 
   isRotationPointless(item) {
     const bounds = ShapeHelper.getBounds(item.shapePattern);
 
     // 1x1 items don't need rotation
-    if (bounds.width === 1 && bounds.height === 1) {
-      return true;
-    }
+    if (bounds.width === 1 && bounds.height === 1) return true;
 
-    // Perfect squares with simple shapes don't change when rotated
-    if (
-      bounds.width === bounds.height &&
-      (item.shape === "rectangle" || !item.shape)
-    ) {
-      return true;
-    }
+    // Perfect squares don't change when rotated
+    if (bounds.width === bounds.height &&
+        (item.shape === 'rectangle' || !item.shape)) return true;
 
     return false;
   }
 
   updateItemVisuals(item) {
-    console.log(`🎨 Updating visuals for ${item.name}`);
+    console.log(`🎨 Updating responsive visuals for ${item.name}`);
 
     // Store the text content before clearing
-    const textElement = item.children.find(
-      (child) => child instanceof PIXI.Text
-    );
+    const textElement = item.children.find(child => child instanceof PIXI.Text);
     const textContent = textElement ? textElement.text : item.name;
 
     // Clear all children
     item.removeChildren();
 
-    // Redraw the item with new shape
+    // Redraw with new shape using responsive sizing
     const cellSize = this.gridCellSize;
-    const padding = 4;
+    const padding = this.getResponsivePadding(4);
     const bounds = ShapeHelper.getBounds(item.shapePattern);
 
-    // Draw the new shape using the current pattern
+    // Draw the new shape
     item.shapePattern.forEach(([cellX, cellY]) => {
       const cellGraphic = new PIXI.Graphics();
 
-      // Cell background
       cellGraphic.beginFill(item.color);
       cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        cellSize - padding,
-        cellSize - padding,
-        4
+        padding / 2, padding / 2,
+        cellSize - padding, cellSize - padding, 4
       );
       cellGraphic.endFill();
 
-      // Cell border
-      cellGraphic.lineStyle(2, 0x2c3e50);
+      cellGraphic.lineStyle(Math.max(2, this.scaleFactor * 2), 0x2c3e50);
       cellGraphic.drawRoundedRect(
-        padding / 2,
-        padding / 2,
-        cellSize - padding,
-        cellSize - padding,
-        4
+        padding / 2, padding / 2,
+        cellSize - padding, cellSize - padding, 4
       );
 
-      // Position the cell
       cellGraphic.x = cellX * cellSize;
       cellGraphic.y = cellY * cellSize;
-
       item.addChild(cellGraphic);
     });
 
-    // Re-add the text
-    this.addItemText(item, { name: textContent }, bounds, cellSize);
+    // Re-add text with responsive font size
+    const fontSize = this.getResponsiveFontSize(Math.min((bounds.width * cellSize - padding) / 8, 14));
+    const text = new PIXI.Text(textContent, {
+      fontFamily: 'Arial',
+      fontSize: fontSize,
+      fill: 0xffffff,
+      align: 'center',
+      fontWeight: 'bold',
+      stroke: 0x000000,
+      strokeThickness: Math.max(1, this.scaleFactor),
+    });
+    text.anchor.set(0.5);
+    text.x = (bounds.width * cellSize) / 2;
+    text.y = (bounds.height * cellSize) / 2;
+    item.addChild(text);
 
-    // Re-add type indicator
-    this.addTypeIndicator(item, item, bounds, cellSize);
-
-    // Re-add glow effect for gems
-    if (item.type === "gem") {
-      this.addGemGlowEffect(
-        item,
-        bounds.width * cellSize,
-        bounds.height * cellSize
-      );
-    }
-
-    console.log(
-      `✅ Updated visuals for ${item.name} with new ${bounds.width}x${bounds.height} shape`
-    );
+    console.log(`✅ Updated responsive visuals for ${item.name} (${bounds.width}x${bounds.height})`);
   }
 
-  findAndPlaceItem(item) {
-    console.log(`🔍 Finding available spot for ${item.name}`);
+  // Override mouse up to handle rotation state restoration
+  handleMouseUp(event) {
+    if (!this.draggedItem) return;
 
-    // Try storage grid first
-    for (let y = 0; y <= this.storageGrid.rows - item.gridHeight; y++) {
-      for (let x = 0; x <= this.storageGrid.cols - item.gridWidth; x++) {
-        if (this.canPlaceItemAt(this.storageGrid, item, x, y)) {
-          this.placeItemInGrid(item, this.storageGrid, x, y);
-          console.log(`✅ Found spot for ${item.name} at (${x}, ${y})`);
-          return true;
+    const item = this.draggedItem;
+    const mouseX = event.normalizedGlobal ? event.normalizedGlobal.x : event.global.x;
+    const mouseY = event.normalizedGlobal ? event.normalizedGlobal.y : event.global.y;
+
+    // Try to place in grid
+    const gridPos = this.getGridPosition(mouseX, mouseY);
+    if (gridPos && this.canPlaceInGrid(item, gridPos.x, gridPos.y)) {
+      this.placeInGrid(item, gridPos.x, gridPos.y);
+
+      if (this.dragSource === 'list') {
+        // Remove from storage list
+        this.removeFromStorage(item.originalData, 1);
+      }
+
+      // Clear rotation state since placement succeeded
+      delete item.originalShapePattern;
+      delete item.originalGridWidth;
+      delete item.originalGridHeight;
+    } else if (this.isOverStorageArea(mouseX, mouseY)) {
+      // Drop in storage
+      if (this.dragSource === 'grid') {
+        // Move from grid to storage
+        this.addToStorage(item.originalData);
+        this.removeFromGrid(item);
+      } else {
+        // Return to list
+        this.removeSprite(item);
+      }
+    } else {
+      // Return to original position/state
+      if (this.dragSource === 'grid') {
+        // Restore original rotation if it was rotated
+        if (item.originalShapePattern) {
+          item.shapePattern = [...item.originalShapePattern];
+          item.gridWidth = item.originalGridWidth;
+          item.gridHeight = item.originalGridHeight;
+          this.updateItemVisuals(item);
+
+          delete item.originalShapePattern;
+          delete item.originalGridWidth;
+          delete item.originalGridHeight;
         }
+
+        this.placeInGrid(item, item.originalGridX, item.originalGridY);
+      } else {
+        this.removeSprite(item);
       }
     }
 
-    // If storage is full, try inventory
-    for (let y = 0; y <= this.inventoryGrid.rows - item.gridHeight; y++) {
-      for (let x = 0; x <= this.inventoryGrid.cols - item.gridWidth; x++) {
-        if (this.canPlaceItemAt(this.inventoryGrid, item, x, y)) {
-          this.placeItemInGrid(item, this.inventoryGrid, x, y);
-          console.log(
-            `✅ Found spot for ${item.name} in inventory at (${x}, ${y})`
-          );
-          return true;
-        }
-      }
-    }
-
-    console.error(`❌ No available spot found for ${item.name}`);
-    return false;
+    // Cleanup
+    this.draggedItem.alpha = 1;
+    this.draggedItem.scale.set(1);
+    this.draggedItem = null;
+    this.dragSource = null;
+    this.hidePlacementPreview();
+    this.updateStorageInfo();
   }
 
-  addGemGlowEffect(item, pixelWidth, pixelHeight) {
-    const glow = new PIXI.Graphics();
-    glow.lineStyle(2, 0xffd700, 0.8);
-    glow.drawRoundedRect(-2, -2, pixelWidth + 4, pixelHeight + 4, 6);
-    item.addChildAt(glow, 0);
+  // ============= ACTION METHODS =============
 
-    // Animate glow
-    let glowTime = Math.random() * Math.PI * 2;
-    const animateGlow = () => {
-      glowTime += 0.05;
-      glow.alpha = 0.3 + Math.sin(glowTime) * 0.3;
-      if (item.parent) {
-        requestAnimationFrame(animateGlow);
+  resetItems() {
+    console.log('🔄 Resetting all responsive items');
+
+    // Clear everything
+    this.characterItems.forEach(item => this.removeSprite(item));
+    this.characterItems = [];
+    this.storageItems = [];
+
+    // Recreate starter items
+    this.createStarterItems();
+    this.updateStorageInfo();
+  }
+
+  clearGrid() {
+    console.log('🧹 Clearing character inventory grid');
+
+    // Move all grid items to storage
+    const itemsToMove = [...this.characterItems];
+    itemsToMove.forEach(item => {
+      this.addToStorage(item.originalData);
+      this.removeFromGrid(item);
+    });
+
+    this.updateStorageInfo();
+  }
+
+  sortStorage() {
+    console.log('📊 Sorting responsive storage');
+
+    // Sort by type, then by name
+    this.storageItems.sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type.localeCompare(b.type);
       }
-    };
-    animateGlow();
+      return a.name.localeCompare(b.name);
+    });
+
+    this.storageScroll = 0;
+    this.refreshStorageDisplay();
+  }
+
+  addTestItems() {
+    console.log('🧪 Adding responsive test items');
+
+    const testItems = [
+      { name: 'Test Potion', color: 0xff6b35, type: 'consumable', quantity: 3 },
+      { name: 'Magic Dust', color: 0x9b59b6, type: 'material', quantity: 5 },
+      { name: 'Gold Coin', color: 0xf1c40f, type: 'currency', quantity: 50 },
+      { name: 'Ancient Scroll', color: 0xd4af37, type: 'quest', quantity: 1 },
+      { name: 'Phoenix Feather', color: 0xe74c3c, type: 'material', quantity: 2 },
+      { name: 'Moonstone', color: 0x9c88ff, type: 'gem', quantity: 1 },
+    ];
+
+    testItems.forEach(item => this.addToStorage(item));
+    this.updateStorageInfo();
+  }
+
+  // ============= OVERRIDE METHODS FOR RESPONSIVE UPDATES =============
+
+  addToStorage(itemData) {
+    const result = super.addToStorage(itemData);
+    this.updateStorageInfo();
+    return result;
+  }
+
+  removeFromStorage(itemData, quantity = 1) {
+    const result = super.removeFromStorage(itemData, quantity);
+    this.updateStorageInfo();
+    return result;
+  }
+
+  scrollStorage(delta) {
+    super.scrollStorage(delta);
+    this.updateStorageInfo();
+  }
+
+  refreshStorageDisplay() {
+    super.refreshStorageDisplay();
+    this.updateStorageInfo();
+  }
+
+  // ============= UPDATE METHOD =============
+
+  update(deltaTime) {
+    super.update(deltaTime);
+
+    // Update background if needed
+    if (Math.random() < 0.01) { // 1% chance per frame
+      this.createBackground();
+    }
   }
 }

@@ -1,4 +1,4 @@
-// src/core/PixiScene.js - Fixed version with comprehensive debugging
+// src/core/PixiScene.js - Enhanced version with comprehensive responsive layout support
 export class PixiScene {
   constructor() {
     console.log("🔧 DEBUG: PixiScene constructor called");
@@ -7,6 +7,16 @@ export class PixiScene {
     this.sprites = [];
     this.graphics = [];
     this.isActive = false;
+
+    // Viewport and responsive properties
+    this.viewportWidth = 0;
+    this.viewportHeight = 0;
+    this.aspectRatio = 1;
+    this.baseWidth = 1200; // Reference width for scaling calculations
+    this.baseHeight = 800; // Reference height for scaling calculations
+    this.scaleFactor = 1;
+    this.isMobile = false;
+    this.isLandscape = true;
 
     // Create main container
     this.container = new PIXI.Container();
@@ -46,17 +56,31 @@ export class PixiScene {
     this.keys = {};
     this.mousePosition = { x: 0, y: 0 };
     this.mouseClicked = false;
+
+    // Responsive positioning cache
+    this.responsiveElements = new Map();
+    
+    // Resize handlers
+    this.resizeHandlers = [];
   }
 
   setEngine(engine) {
     console.log("🔧 DEBUG: setEngine called", !!engine);
     this.engine = engine;
+    
+    // Initialize viewport properties
+    if (engine) {
+      this.updateViewportProperties();
+    }
   }
 
   onEnter() {
     console.log("🔧 DEBUG: PixiScene onEnter called");
 
     this.isActive = true;
+
+    // Update viewport properties when entering
+    this.updateViewportProperties();
 
     // Ensure container is visible
     this.container.visible = true;
@@ -90,6 +114,10 @@ export class PixiScene {
     // Setup input handlers
     this.setupInputHandlers();
 
+    // Update hit areas and responsive elements
+    this.updateHitAreas();
+    this.updateResponsiveElements();
+
     console.log(`🔧 DEBUG: Scene entered: ${this.constructor.name}`);
   }
 
@@ -107,19 +135,307 @@ export class PixiScene {
     // Clean up input handlers
     this.cleanupInputHandlers();
 
+    // Clear responsive elements cache
+    this.responsiveElements.clear();
+
+    // Clear resize handlers
+    this.resizeHandlers = [];
+
     console.log(`🔧 DEBUG: Scene exited: ${this.constructor.name}`);
   }
 
-  update(deltaTime) {
-    if (!this.isActive) return;
+  // ============= RESPONSIVE LAYOUT SYSTEM =============
 
-    // Update all sprites
-    this.sprites.forEach((sprite) => {
-      if (sprite.update && typeof sprite.update === "function") {
-        sprite.update(deltaTime);
+  /**
+   * Handle viewport resize - called by engine when window resizes
+   * Override this in subclasses for custom resize behavior
+   */
+  onResize(newWidth, newHeight) {
+    console.log(`🔧 DEBUG: onResize called: ${newWidth}x${newHeight}`);
+    
+    // Update viewport properties
+    this.updateViewportProperties(newWidth, newHeight);
+    
+    // Update hit areas
+    this.updateHitAreas();
+    
+    // Update responsive elements
+    this.updateResponsiveElements();
+    
+    // Trigger resize handlers
+    this.triggerResizeHandlers(newWidth, newHeight);
+    
+    console.log(`🔧 DEBUG: Scene resize complete for ${this.constructor.name}`);
+  }
+
+  /**
+   * Update viewport properties based on engine or provided dimensions
+   */
+  updateViewportProperties(width = null, height = null) {
+    if (this.engine) {
+      this.viewportWidth = width || this.engine.width;
+      this.viewportHeight = height || this.engine.height;
+      this.isMobile = this.engine.isMobile ? this.engine.isMobile() : false;
+      this.isLandscape = this.engine.isLandscape ? this.engine.isLandscape() : true;
+    } else {
+      this.viewportWidth = width || window.innerWidth;
+      this.viewportHeight = height || window.innerHeight;
+      this.isMobile = window.innerWidth <= 768;
+      this.isLandscape = window.innerWidth > window.innerHeight;
+    }
+
+    this.aspectRatio = this.viewportWidth / this.viewportHeight;
+    this.scaleFactor = Math.min(
+      this.viewportWidth / this.baseWidth,
+      this.viewportHeight / this.baseHeight
+    );
+
+    console.log("🔧 DEBUG: Viewport properties updated", {
+      width: this.viewportWidth,
+      height: this.viewportHeight,
+      aspectRatio: this.aspectRatio.toFixed(2),
+      scaleFactor: this.scaleFactor.toFixed(2),
+      isMobile: this.isMobile,
+      isLandscape: this.isLandscape,
+    });
+  }
+
+  /**
+   * Update hit areas for all interactive containers
+   */
+  updateHitAreas() {
+    if (!this.engine || !this.engine.app) return;
+
+    // Update main container hit area
+    this.container.hitArea = new PIXI.Rectangle(0, 0, this.viewportWidth, this.viewportHeight);
+
+    // Update layer hit areas
+    Object.values(this.layers).forEach(layer => {
+      if (layer.interactive) {
+        layer.hitArea = new PIXI.Rectangle(0, 0, this.viewportWidth, this.viewportHeight);
+      }
+    });
+
+    console.log("🔧 DEBUG: Hit areas updated", {
+      containerHitArea: !!this.container.hitArea,
+      dimensions: `${this.viewportWidth}x${this.viewportHeight}`,
+    });
+  }
+
+  /**
+   * Update positions of responsive elements
+   */
+  updateResponsiveElements() {
+    this.responsiveElements.forEach((config, element) => {
+      this.applyResponsivePosition(element, config);
+    });
+
+    console.log(`🔧 DEBUG: Updated ${this.responsiveElements.size} responsive elements`);
+  }
+
+  /**
+   * Apply responsive positioning to an element
+   */
+  applyResponsivePosition(element, config) {
+    const { anchor, offset, scale, minScale, maxScale } = config;
+
+    // Calculate position based on anchor
+    let x = 0, y = 0;
+
+    switch (anchor.x) {
+      case 'left': x = 0; break;
+      case 'center': x = this.viewportWidth / 2; break;
+      case 'right': x = this.viewportWidth; break;
+      default: x = this.viewportWidth * anchor.x; break;
+    }
+
+    switch (anchor.y) {
+      case 'top': y = 0; break;
+      case 'center': y = this.viewportHeight / 2; break;
+      case 'bottom': y = this.viewportHeight; break;
+      default: y = this.viewportHeight * anchor.y; break;
+    }
+
+    // Apply offset
+    x += offset.x * this.scaleFactor;
+    y += offset.y * this.scaleFactor;
+
+    // Update element position
+    element.x = x;
+    element.y = y;
+
+    // Apply scaling if enabled
+    if (scale) {
+      let elementScale = this.scaleFactor;
+      if (minScale !== undefined) elementScale = Math.max(elementScale, minScale);
+      if (maxScale !== undefined) elementScale = Math.min(elementScale, maxScale);
+      
+      element.scale.set(elementScale);
+    }
+  }
+
+  /**
+   * Trigger all registered resize handlers
+   */
+  triggerResizeHandlers(newWidth, newHeight) {
+    this.resizeHandlers.forEach(handler => {
+      try {
+        handler(newWidth, newHeight);
+      } catch (error) {
+        console.error("🔧 ERROR: Resize handler failed:", error);
       }
     });
   }
+
+  // ============= RESPONSIVE POSITIONING HELPERS =============
+
+  /**
+   * Register an element for responsive positioning
+   */
+  makeResponsive(element, config = {}) {
+    const defaultConfig = {
+      anchor: { x: 'left', y: 'top' },
+      offset: { x: 0, y: 0 },
+      scale: false,
+      minScale: 0.5,
+      maxScale: 2.0,
+    };
+
+    const finalConfig = { ...defaultConfig, ...config };
+    this.responsiveElements.set(element, finalConfig);
+    
+    // Apply initial positioning
+    this.applyResponsivePosition(element, finalConfig);
+
+    console.log("🔧 DEBUG: Element made responsive", {
+      elementName: element.name || "unnamed",
+      anchor: finalConfig.anchor,
+      offset: finalConfig.offset,
+    });
+
+    return element;
+  }
+
+  /**
+   * Remove responsive positioning from an element
+   */
+  removeResponsive(element) {
+    return this.responsiveElements.delete(element);
+  }
+
+  /**
+   * Add a resize handler function
+   */
+  addResizeHandler(handler) {
+    this.resizeHandlers.push(handler);
+  }
+
+  /**
+   * Remove a resize handler function
+   */
+  removeResizeHandler(handler) {
+    const index = this.resizeHandlers.indexOf(handler);
+    if (index > -1) {
+      this.resizeHandlers.splice(index, 1);
+    }
+  }
+
+  // ============= VIEWPORT UTILITIES =============
+
+  /**
+   * Get viewport-relative coordinates
+   */
+  getViewportCoordinates(x, y) {
+    return {
+      x: x / this.viewportWidth,
+      y: y / this.viewportHeight,
+    };
+  }
+
+  /**
+   * Get absolute coordinates from viewport-relative coordinates
+   */
+  getAbsoluteCoordinates(relativeX, relativeY) {
+    return {
+      x: relativeX * this.viewportWidth,
+      y: relativeY * this.viewportHeight,
+    };
+  }
+
+  /**
+   * Get scaled size based on current scale factor
+   */
+  getScaledSize(baseSize) {
+    return baseSize * this.scaleFactor;
+  }
+
+  /**
+   * Get responsive font size
+   */
+  getResponsiveFontSize(baseSize) {
+    let size = baseSize * this.scaleFactor;
+    
+    // Clamp font size for readability
+    if (this.isMobile) {
+      size = Math.max(size, 10); // Minimum 10px on mobile
+      size = Math.min(size, 24); // Maximum 24px on mobile
+    } else {
+      size = Math.max(size, 12); // Minimum 12px on desktop
+      size = Math.min(size, 32); // Maximum 32px on desktop
+    }
+    
+    return Math.round(size);
+  }
+
+  /**
+   * Get responsive padding/margin
+   */
+  getResponsivePadding(basePadding) {
+    let padding = basePadding * this.scaleFactor;
+    
+    // Adjust for mobile
+    if (this.isMobile) {
+      padding = Math.max(padding, 8); // Minimum padding on mobile
+    }
+    
+    return Math.round(padding);
+  }
+
+  /**
+   * Check if point is within viewport bounds
+   */
+  isPointInViewport(x, y) {
+    return x >= 0 && x <= this.viewportWidth && y >= 0 && y <= this.viewportHeight;
+  }
+
+  /**
+   * Clamp position to viewport bounds
+   */
+  clampToViewport(x, y, elementWidth = 0, elementHeight = 0) {
+    return {
+      x: Math.max(0, Math.min(this.viewportWidth - elementWidth, x)),
+      y: Math.max(0, Math.min(this.viewportHeight - elementHeight, y)),
+    };
+  }
+
+  /**
+   * Get safe area coordinates (avoiding notches, navigation bars, etc.)
+   */
+  getSafeAreaBounds() {
+    // Default safe area - can be enhanced with device-specific detection
+    const safeMargin = this.isMobile ? 20 : 0;
+    
+    return {
+      left: safeMargin,
+      top: safeMargin,
+      right: this.viewportWidth - safeMargin,
+      bottom: this.viewportHeight - safeMargin,
+      width: this.viewportWidth - (safeMargin * 2),
+      height: this.viewportHeight - (safeMargin * 2),
+    };
+  }
+
+  // ============= ENHANCED INPUT HANDLING =============
 
   setupInputHandlers() {
     if (!this.engine || !this.engine.app) {
@@ -127,9 +443,9 @@ export class PixiScene {
       return;
     }
 
-    console.log("🔧 DEBUG: Setting up input handlers");
+    console.log("🔧 DEBUG: Setting up responsive input handlers");
 
-    // Mouse/touch events
+    // Mouse/touch events with coordinate normalization
     this.container.on("pointerdown", (event) => this.onPointerDown(event));
     this.container.on("pointerup", (event) => this.onPointerUp(event));
     this.container.on("pointermove", (event) => this.onPointerMove(event));
@@ -140,9 +456,9 @@ export class PixiScene {
 
     // Make container interactive
     this.container.interactive = true;
-    this.container.hitArea = this.engine.app.screen;
+    this.updateHitAreas();
 
-    console.log("🔧 DEBUG: Input handlers setup complete");
+    console.log("🔧 DEBUG: Responsive input handlers setup complete");
   }
 
   cleanupInputHandlers() {
@@ -159,53 +475,115 @@ export class PixiScene {
     document.removeEventListener("keyup", this.onKeyUp.bind(this));
   }
 
-  // Input event handlers
+  // Input event handlers with responsive coordinate handling
   onPointerDown(event) {
-    this.mousePosition.x = event.global.x;
-    this.mousePosition.y = event.global.y;
+    const normalizedCoords = this.normalizeCoordinates(event.global);
+    this.mousePosition.x = normalizedCoords.x;
+    this.mousePosition.y = normalizedCoords.y;
     this.mouseClicked = true;
-    this.handleMouseDown(event);
+    
+    // Create enhanced event object
+    const enhancedEvent = {
+      ...event,
+      normalizedGlobal: normalizedCoords,
+      viewportRelative: this.getViewportCoordinates(normalizedCoords.x, normalizedCoords.y),
+      scaleFactor: this.scaleFactor,
+      isMobile: this.isMobile,
+    };
+    
+    this.handleMouseDown(enhancedEvent);
   }
 
   onPointerUp(event) {
-    this.mousePosition.x = event.global.x;
-    this.mousePosition.y = event.global.y;
-    this.handleMouseUp(event);
+    const normalizedCoords = this.normalizeCoordinates(event.global);
+    this.mousePosition.x = normalizedCoords.x;
+    this.mousePosition.y = normalizedCoords.y;
+    
+    const enhancedEvent = {
+      ...event,
+      normalizedGlobal: normalizedCoords,
+      viewportRelative: this.getViewportCoordinates(normalizedCoords.x, normalizedCoords.y),
+      scaleFactor: this.scaleFactor,
+      isMobile: this.isMobile,
+    };
+    
+    this.handleMouseUp(enhancedEvent);
   }
 
   onPointerMove(event) {
-    this.mousePosition.x = event.global.x;
-    this.mousePosition.y = event.global.y;
+    const normalizedCoords = this.normalizeCoordinates(event.global);
+    this.mousePosition.x = normalizedCoords.x;
+    this.mousePosition.y = normalizedCoords.y;
 
     // Update UI mouse position display
     const mousePosElement = document.getElementById("mousePos");
     if (mousePosElement) {
-      mousePosElement.textContent = `${Math.floor(
-        this.mousePosition.x
-      )}, ${Math.floor(this.mousePosition.y)}`;
+      mousePosElement.textContent = `${Math.floor(normalizedCoords.x)}, ${Math.floor(normalizedCoords.y)}`;
     }
 
-    this.handleMouseMove(event);
+    const enhancedEvent = {
+      ...event,
+      normalizedGlobal: normalizedCoords,
+      viewportRelative: this.getViewportCoordinates(normalizedCoords.x, normalizedCoords.y),
+      scaleFactor: this.scaleFactor,
+      isMobile: this.isMobile,
+    };
+
+    this.handleMouseMove(enhancedEvent);
   }
 
   onKeyDown(event) {
     this.keys[event.code] = true;
-    this.handleKeyDown(event);
+    
+    const enhancedEvent = {
+      ...event,
+      scaleFactor: this.scaleFactor,
+      isMobile: this.isMobile,
+      viewportWidth: this.viewportWidth,
+      viewportHeight: this.viewportHeight,
+    };
+    
+    this.handleKeyDown(enhancedEvent);
   }
 
   onKeyUp(event) {
     this.keys[event.code] = false;
-    this.handleKeyUp(event);
+    
+    const enhancedEvent = {
+      ...event,
+      scaleFactor: this.scaleFactor,
+      isMobile: this.isMobile,
+      viewportWidth: this.viewportWidth,
+      viewportHeight: this.viewportHeight,
+    };
+    
+    this.handleKeyUp(enhancedEvent);
   }
 
-  // Override these in subclasses
+  /**
+   * Normalize coordinates for different screen sizes and DPI
+   */
+  normalizeCoordinates(globalCoords) {
+    // Account for device pixel ratio and canvas scaling
+    const rect = this.engine.app.view.getBoundingClientRect();
+    const scaleX = this.engine.app.view.width / rect.width;
+    const scaleY = this.engine.app.view.height / rect.height;
+
+    return {
+      x: globalCoords.x * scaleX,
+      y: globalCoords.y * scaleY,
+    };
+  }
+
+  // Override these in subclasses for custom input handling
   handleMouseDown(event) {}
   handleMouseUp(event) {}
   handleMouseMove(event) {}
   handleKeyDown(event) {}
   handleKeyUp(event) {}
 
-  // Sprite management with enhanced debugging
+  // ============= SPRITE MANAGEMENT WITH RESPONSIVE SUPPORT =============
+
   addSprite(sprite, layer = "world") {
     console.log("🔧 DEBUG: addSprite called", {
       spriteName: sprite.name || "unnamed",
@@ -253,6 +631,9 @@ export class PixiScene {
       this.sprites.splice(index, 1);
     }
 
+    // Remove from responsive elements if present
+    this.removeResponsive(sprite);
+
     if (sprite.parent) {
       sprite.parent.removeChild(sprite);
     }
@@ -282,54 +663,88 @@ export class PixiScene {
       this.graphics.splice(index, 1);
     }
 
+    // Remove from responsive elements if present
+    this.removeResponsive(graphics);
+
     if (graphics.parent) {
       graphics.parent.removeChild(graphics);
     }
   }
 
-  // Utility methods
-  createSimpleButton(text, x, y, onClick) {
+  // ============= UTILITY METHODS =============
+
+  update(deltaTime) {
+    if (!this.isActive) return;
+
+    // Update all sprites
+    this.sprites.forEach((sprite) => {
+      if (sprite.update && typeof sprite.update === "function") {
+        sprite.update(deltaTime);
+      }
+    });
+  }
+
+  createSimpleButton(text, x, y, onClick, responsive = false) {
     const button = new PIXI.Graphics();
+    const buttonWidth = this.getScaledSize(120);
+    const buttonHeight = this.getScaledSize(40);
+    
     button.beginFill(0x3498db);
-    button.drawRoundedRect(0, 0, 120, 40, 5);
+    button.drawRoundedRect(0, 0, buttonWidth, buttonHeight, 5);
     button.endFill();
 
     const buttonText = new PIXI.Text(text, {
       fontFamily: "Arial",
-      fontSize: 14,
+      fontSize: this.getResponsiveFontSize(14),
       fill: 0xffffff,
       align: "center",
     });
 
     buttonText.anchor.set(0.5);
-    buttonText.x = 60;
-    buttonText.y = 20;
+    buttonText.x = buttonWidth / 2;
+    buttonText.y = buttonHeight / 2;
 
     button.addChild(buttonText);
-    button.x = x;
-    button.y = y;
     button.interactive = true;
     button.cursor = "pointer";
 
     button.on("pointerdown", onClick);
 
+    if (responsive) {
+      this.makeResponsive(button, {
+        anchor: { x: 'left', y: 'top' },
+        offset: { x, y },
+        scale: true,
+      });
+    } else {
+      button.x = x;
+      button.y = y;
+    }
+
     return button;
   }
 
-  // Camera/view management
+  // Camera/view management with responsive support
   setCameraPosition(x, y) {
-    this.layers.world.x = -x;
-    this.layers.world.y = -y;
+    // Scale camera movement based on viewport
+    const scaledX = x * this.scaleFactor;
+    const scaledY = y * this.scaleFactor;
+    
+    this.layers.world.x = -scaledX;
+    this.layers.world.y = -scaledY;
+    this.layers.background.x = -scaledX * 0.5; // Parallax effect
+    this.layers.background.y = -scaledY * 0.5;
   }
 
   getCameraPosition() {
     return {
-      x: -this.layers.world.x,
-      y: -this.layers.world.y,
+      x: -this.layers.world.x / this.scaleFactor,
+      y: -this.layers.world.y / this.scaleFactor,
     };
   }
 
-  // Debug methods
+  // ============= DEBUG METHODS =============
+
   debugFullState() {
     console.group("🔧 FULL PIXISCENE DEBUG STATE");
     console.log("Scene State:", {
@@ -338,6 +753,15 @@ export class PixiScene {
       containerVisible: this.container?.visible,
       containerChildren: this.container?.children?.length,
       containerParent: !!this.container?.parent,
+    });
+
+    console.log("Viewport State:", {
+      width: this.viewportWidth,
+      height: this.viewportHeight,
+      aspectRatio: this.aspectRatio.toFixed(2),
+      scaleFactor: this.scaleFactor.toFixed(2),
+      isMobile: this.isMobile,
+      isLandscape: this.isLandscape,
     });
 
     console.log("Layer States:", {
@@ -359,16 +783,23 @@ export class PixiScene {
       },
     });
 
+    console.log("Responsive Elements:", this.responsiveElements.size);
+    console.log("Resize Handlers:", this.resizeHandlers.length);
     console.log("Sprites:", this.sprites.length);
     console.log("Graphics:", this.graphics.length);
     console.groupEnd();
   }
 
-  // Cleanup
+  // ============= CLEANUP =============
+
   destroy() {
     console.log("🔧 DEBUG: PixiScene destroy called");
 
     this.onExit();
+
+    // Clean up responsive elements
+    this.responsiveElements.clear();
+    this.resizeHandlers = [];
 
     // Clean up sprites
     this.sprites.forEach((sprite) => {

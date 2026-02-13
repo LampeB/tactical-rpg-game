@@ -6,38 +6,55 @@ export class PixiWorldScene extends PixiScene {
     this.player = null;
     this.worldObjects = [];
     this.camera = { x: 0, y: 0 };
-    this.playerSpeed = 3;
-    this.worldWidth = 2560;
-    this.worldHeight = 1440;
-
+    
+    // Responsive world dimensions (will be calculated based on viewport)
+    this.worldMultiplier = 3; // World is 3x the viewport size
+    this.worldWidth = 0;
+    this.worldHeight = 0;
+    
+    // Responsive player properties
+    this.basePlayerSpeed = 3;
+    this.playerSpeed = 3; // Will be scaled responsively
+    this.playerSize = 16; // Will be scaled responsively
+    
+    // Responsive object scaling
+    this.baseObjectScale = 1;
+    this.objectScale = 1; // Will be calculated responsively
+    
     // Persistent state
     this.isInitialized = false;
-    this.playerPosition = { x: 400, y: 300 }; // Default starting position
+    this.playerPosition = { x: 0, y: 0 }; // Will be calculated relative to world center
     this.worldState = {
       removedCrystals: [], // Track which crystals have been used
       openedChests: [], // Track which chests have been opened
       discoveredItems: [], // Track found items
     };
+    
+    // UI elements for responsive updates
+    this.messageContainer = null;
+    this.activeMessages = [];
   }
 
   onEnter() {
     super.onEnter();
+    
+    // Calculate responsive world dimensions
+    this.updateWorldDimensions();
 
     if (!this.isInitialized) {
       // First time entering - create everything
       this.createWorld();
       this.createPlayer();
       this.createWorldObjects();
+      this.setupMessageSystem();
       this.isInitialized = true;
-      console.log("World scene initialized for first time");
+      console.log("Responsive world scene initialized for first time");
     } else {
       // Returning to world - restore player position and update display
       this.restorePlayerPosition();
       this.updateCamera();
-      console.log(
-        "Returned to world scene, restored position:",
-        this.playerPosition
-      );
+      this.updateAllObjectScaling();
+      console.log("Returned to responsive world scene, restored position:", this.playerPosition);
     }
 
     // Update game mode display
@@ -46,18 +63,62 @@ export class PixiWorldScene extends PixiScene {
       gameModeBtn.textContent = "🌍 EXPLORING";
     }
 
-    // UPDATE NAVIGATION BUTTONS - Add this section
+    // Update navigation buttons
     if (this.engine && this.engine.updateNavButtons) {
       this.engine.updateNavButtons("world");
     } else {
-      // Fallback: directly update buttons
       this.updateNavigationButtons();
     }
 
-    console.log("World exploration scene active");
+    console.log(`World exploration scene active: ${this.worldWidth}x${this.worldHeight} world`);
   }
 
-  // ADD THIS NEW METHOD to PixiWorldScene
+  onResize(newWidth, newHeight) {
+    super.onResize(newWidth, newHeight);
+    
+    // Recalculate world dimensions and scaling
+    this.updateWorldDimensions();
+    
+    // Update world background
+    this.updateWorldBackground();
+    
+    // Update all object scaling
+    this.updateAllObjectScaling();
+    
+    // Update camera to maintain relative position
+    this.updateCamera();
+    
+    // Update message system
+    this.updateMessageSystem();
+    
+    console.log(`World scene resized: ${newWidth}x${newHeight}, world: ${this.worldWidth}x${this.worldHeight}`);
+  }
+
+  updateWorldDimensions() {
+    // Calculate world size based on viewport
+    this.worldWidth = this.viewportWidth * this.worldMultiplier;
+    this.worldHeight = this.viewportHeight * this.worldMultiplier;
+    
+    // Update responsive scaling
+    this.playerSpeed = this.getScaledSize(this.basePlayerSpeed);
+    this.playerSize = this.getScaledSize(16);
+    this.objectScale = this.scaleFactor;
+    
+    // Set initial player position to world center if not set
+    if (this.playerPosition.x === 0 && this.playerPosition.y === 0) {
+      this.playerPosition.x = this.worldWidth / 2;
+      this.playerPosition.y = this.worldHeight / 2;
+    }
+    
+    console.log("World dimensions updated:", {
+      worldSize: `${this.worldWidth}x${this.worldHeight}`,
+      playerSpeed: this.playerSpeed,
+      playerSize: this.playerSize,
+      objectScale: this.objectScale.toFixed(2),
+      playerPosition: this.playerPosition,
+    });
+  }
+
   updateNavigationButtons() {
     const buttons = {
       menu: document.getElementById("menuBtn"),
@@ -93,6 +154,9 @@ export class PixiWorldScene extends PixiScene {
       }
     });
 
+    // Clear active messages
+    this.activeMessages = [];
+
     super.onExit();
   }
 
@@ -105,42 +169,68 @@ export class PixiWorldScene extends PixiScene {
   }
 
   createWorld() {
-    // Create world background
+    this.updateWorldBackground();
+  }
+
+  updateWorldBackground() {
+    // Remove existing background
+    const existingBg = this.layers.background.getChildByName("worldBackground");
+    if (existingBg) {
+      this.layers.background.removeChild(existingBg);
+    }
+
+    // Create responsive world background
     const worldBg = new PIXI.Graphics();
     worldBg.beginFill(0x2d5016); // Forest green
     worldBg.drawRect(0, 0, this.worldWidth, this.worldHeight);
     worldBg.endFill();
 
-    // Add some ground texture
-    for (let x = 0; x < this.worldWidth; x += 64) {
-      for (let y = 0; y < this.worldHeight; y += 64) {
-        if (Math.random() < 0.3) {
+    // Add ground texture scaled to world size
+    const textureSize = this.getScaledSize(64);
+    const textureDensity = this.isMobile ? 0.2 : 0.3; // Reduce density on mobile
+    
+    for (let x = 0; x < this.worldWidth; x += textureSize) {
+      for (let y = 0; y < this.worldHeight; y += textureSize) {
+        if (Math.random() < textureDensity) {
+          const patchSize = this.getScaledSize(32);
           worldBg.beginFill(0x228b22);
-          worldBg.drawRect(x, y, 32, 32);
+          worldBg.drawRect(x, y, patchSize, patchSize);
           worldBg.endFill();
         }
       }
     }
 
+    worldBg.name = "worldBackground";
     this.addGraphics(worldBg, "background");
   }
 
   createPlayer() {
+    if (this.player) {
+      this.removeSprite(this.player);
+    }
+
     this.player = new PIXI.Graphics();
+
+    // Responsive player size
+    const playerWidth = this.playerSize;
+    const playerHeight = this.playerSize * 1.5;
+    const headRadius = this.playerSize * 0.5;
 
     // Player body
     this.player.beginFill(0x4a90e2);
-    this.player.drawRect(-8, -12, 16, 24);
+    this.player.drawRect(-playerWidth/2, -playerHeight/2, playerWidth, playerHeight);
     this.player.endFill();
 
     // Player head
     this.player.beginFill(0xfdbcb4);
-    this.player.drawCircle(0, -20, 8);
+    this.player.drawCircle(0, -playerHeight/2 - headRadius/2, headRadius);
     this.player.endFill();
 
     // Player weapon
+    const weaponWidth = this.playerSize * 0.25;
+    const weaponHeight = this.playerSize * 0.9;
     this.player.beginFill(0x8b4513);
-    this.player.drawRect(-2, -30, 4, 15);
+    this.player.drawRect(-weaponWidth/2, -playerHeight/2 - weaponHeight, weaponWidth, weaponHeight);
     this.player.endFill();
 
     // Set initial position
@@ -151,8 +241,26 @@ export class PixiWorldScene extends PixiScene {
   }
 
   createWorldObjects() {
+    // Calculate responsive object counts based on world size
+    const worldArea = this.worldWidth * this.worldHeight;
+    const baseArea = 1920 * 1080; // Reference area
+    const areaRatio = worldArea / baseArea;
+    
+    // Scale object counts
+    const treeCount = Math.floor(30 * areaRatio);
+    const crystalCount = Math.floor(8 * Math.min(areaRatio, 2)); // Cap crystals
+    const chestCount = Math.floor(5 * Math.min(areaRatio, 2)); // Cap chests
+    const houseCount = Math.floor(2 * Math.min(areaRatio, 1.5)); // Cap houses
+    
+    console.log("Creating world objects:", {
+      trees: treeCount,
+      crystals: crystalCount,
+      chests: chestCount,
+      houses: houseCount,
+    });
+
     // Create trees
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < treeCount; i++) {
       this.createTree(
         Math.random() * this.worldWidth,
         Math.random() * this.worldHeight,
@@ -161,43 +269,79 @@ export class PixiWorldScene extends PixiScene {
     }
 
     // Create battle crystals (only if not already removed)
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < crystalCount; i++) {
       if (!this.worldState.removedCrystals.includes(i)) {
         this.createBattleCrystal(
-          200 + Math.random() * (this.worldWidth - 400),
-          200 + Math.random() * (this.worldHeight - 400),
+          this.getScaledSize(200) + Math.random() * (this.worldWidth - this.getScaledSize(400)),
+          this.getScaledSize(200) + Math.random() * (this.worldHeight - this.getScaledSize(400)),
           i
         );
       }
     }
 
     // Create treasure chests
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < chestCount; i++) {
       this.createTreasureChest(
-        100 + Math.random() * (this.worldWidth - 200),
-        100 + Math.random() * (this.worldHeight - 200),
+        this.getScaledSize(100) + Math.random() * (this.worldWidth - this.getScaledSize(200)),
+        this.getScaledSize(100) + Math.random() * (this.worldHeight - this.getScaledSize(200)),
         i
       );
     }
 
     // Create NPCs/Houses
-    this.createHouse(800, 400, 0);
-    this.createHouse(1200, 600, 1);
+    for (let i = 0; i < houseCount; i++) {
+      this.createHouse(
+        this.worldWidth * (0.3 + i * 0.4),
+        this.worldHeight * (0.3 + i * 0.4),
+        i
+      );
+    }
+  }
+
+  updateAllObjectScaling() {
+    // Update all existing objects with new scaling
+    this.worldObjects.forEach(obj => {
+      if (obj.sprite && obj.sprite.parent) {
+        this.updateObjectScale(obj);
+      }
+    });
+    
+    // Update player scaling
+    if (this.player) {
+      this.createPlayer();
+    }
+  }
+
+  updateObjectScale(obj) {
+    const sprite = obj.sprite;
+    if (!sprite) return;
+
+    // Apply responsive scaling
+    sprite.scale.set(this.objectScale);
+    
+    // Update collision bounds if needed
+    if (obj.collisionRadius) {
+      obj.collisionRadius = obj.baseCollisionRadius * this.objectScale;
+    }
   }
 
   createTree(x, y, id) {
     const tree = new PIXI.Container();
+    const baseScale = this.objectScale;
 
     // Tree trunk
+    const trunkWidth = 12 * baseScale;
+    const trunkHeight = 20 * baseScale;
     const trunk = new PIXI.Graphics();
     trunk.beginFill(0x8b4513);
-    trunk.drawRect(-6, -20, 12, 20);
+    trunk.drawRect(-trunkWidth/2, -trunkHeight, trunkWidth, trunkHeight);
     trunk.endFill();
 
     // Tree crown
+    const crownRadius = 18 * baseScale;
     const crown = new PIXI.Graphics();
     crown.beginFill(0x228b22);
-    crown.drawCircle(0, -30, 18);
+    crown.drawCircle(0, -trunkHeight - crownRadius/2, crownRadius);
     crown.endFill();
 
     tree.addChild(trunk);
@@ -205,6 +349,10 @@ export class PixiWorldScene extends PixiScene {
     tree.x = x;
     tree.y = y;
     tree.treeId = id;
+
+    // Store collision properties
+    tree.baseCollisionRadius = 20;
+    tree.collisionRadius = tree.baseCollisionRadius * baseScale;
 
     // Make interactive
     tree.interactive = true;
@@ -215,21 +363,23 @@ export class PixiWorldScene extends PixiScene {
       }
     });
 
-    this.worldObjects.push({ type: "tree", sprite: tree, x, y, id });
+    this.worldObjects.push({ type: "tree", sprite: tree, x, y, id, baseCollisionRadius: 20 });
     this.addSprite(tree, "world");
   }
 
   createBattleCrystal(x, y, id) {
     const crystal = new PIXI.Graphics();
+    const baseScale = this.objectScale;
+    const size = 10 * baseScale;
 
     // Crystal shape
     crystal.beginFill(0xff00ff);
-    crystal.moveTo(0, -20);
-    crystal.lineTo(-10, -5);
-    crystal.lineTo(-8, 10);
-    crystal.lineTo(0, 20);
-    crystal.lineTo(8, 10);
-    crystal.lineTo(10, -5);
+    crystal.moveTo(0, -20 * baseScale);
+    crystal.lineTo(-size, -5 * baseScale);
+    crystal.lineTo(-size * 0.8, 10 * baseScale);
+    crystal.lineTo(0, 20 * baseScale);
+    crystal.lineTo(size * 0.8, 10 * baseScale);
+    crystal.lineTo(size, -5 * baseScale);
     crystal.closePath();
     crystal.endFill();
 
@@ -240,12 +390,16 @@ export class PixiWorldScene extends PixiScene {
     // Floating animation
     let floatOffset = Math.random() * Math.PI * 2;
     crystal.originalY = y;
+    const floatAmount = 8 * baseScale;
 
     // Store animation in the object for later cleanup
     crystal.animationId = setInterval(() => {
-      crystal.y =
-        crystal.originalY + Math.sin(Date.now() * 0.002 + floatOffset) * 8;
+      crystal.y = crystal.originalY + Math.sin(Date.now() * 0.002 + floatOffset) * floatAmount;
     }, 16);
+
+    // Store collision properties
+    crystal.baseCollisionRadius = 15;
+    crystal.collisionRadius = crystal.baseCollisionRadius * baseScale;
 
     // Make interactive
     crystal.interactive = true;
@@ -256,21 +410,26 @@ export class PixiWorldScene extends PixiScene {
       }
     });
 
-    this.worldObjects.push({ type: "crystal", sprite: crystal, x, y, id });
+    this.worldObjects.push({ type: "crystal", sprite: crystal, x, y, id, baseCollisionRadius: 15 });
     this.addSprite(crystal, "world");
   }
 
   createTreasureChest(x, y, id) {
     const chest = new PIXI.Graphics();
     const isOpened = this.worldState.openedChests.includes(id);
+    const baseScale = this.objectScale;
 
     // Draw chest based on opened state
-    this.drawChest(chest, isOpened);
+    this.drawChest(chest, isOpened, baseScale);
 
     chest.x = x;
     chest.y = y;
     chest.chestId = id;
     chest.opened = isOpened;
+
+    // Store collision properties
+    chest.baseCollisionRadius = 25;
+    chest.collisionRadius = chest.baseCollisionRadius * baseScale;
 
     // Make interactive only if not opened
     if (!isOpened) {
@@ -283,66 +442,78 @@ export class PixiWorldScene extends PixiScene {
       });
     }
 
-    this.worldObjects.push({ type: "chest", sprite: chest, x, y, id });
+    this.worldObjects.push({ type: "chest", sprite: chest, x, y, id, baseCollisionRadius: 25 });
     this.addSprite(chest, "world");
   }
 
-  drawChest(chest, isOpened) {
+  drawChest(chest, isOpened, scale = 1) {
     chest.clear();
+
+    const width = 40 * scale;
+    const height = 20 * scale;
+    const lidHeight = 10 * scale;
 
     if (isOpened) {
       // Open chest appearance
       chest.beginFill(0x654321);
-      chest.drawRect(-20, -10, 40, 20);
+      chest.drawRect(-width/2, -height/2, width, height);
       chest.endFill();
 
       // Chest lid (open)
       chest.beginFill(0xa0522d);
-      chest.drawRect(-20, -25, 40, 10);
+      chest.drawRect(-width/2, -height/2 - lidHeight, width, lidHeight);
       chest.endFill();
 
       // Faded gold trim
-      chest.lineStyle(1, 0xb8860b, 0.5);
-      chest.drawRect(-20, -25, 40, 35);
+      chest.lineStyle(Math.max(1, scale), 0xb8860b, 0.5);
+      chest.drawRect(-width/2, -height/2 - lidHeight, width, height + lidHeight);
     } else {
       // Closed chest appearance
       chest.beginFill(0x8b4513);
-      chest.drawRect(-20, -10, 40, 20);
+      chest.drawRect(-width/2, -height/2, width, height);
       chest.endFill();
 
       // Chest lid
       chest.beginFill(0xa0522d);
-      chest.drawRect(-20, -15, 40, 10);
+      chest.drawRect(-width/2, -height/2 - lidHeight/2, width, lidHeight);
       chest.endFill();
 
       // Gold trim
-      chest.lineStyle(2, 0xffd700);
-      chest.drawRect(-20, -15, 40, 25);
+      chest.lineStyle(Math.max(2, scale * 2), 0xffd700);
+      chest.drawRect(-width/2, -height/2 - lidHeight/2, width, height + lidHeight/2);
     }
   }
 
   createHouse(x, y, id) {
     const house = new PIXI.Container();
+    const baseScale = this.objectScale;
+
+    // House dimensions
+    const houseWidth = 80 * baseScale;
+    const houseHeight = 60 * baseScale;
+    const roofHeight = 20 * baseScale;
 
     // House base
     const base = new PIXI.Graphics();
     base.beginFill(0x8b4513);
-    base.drawRect(0, 0, 80, 60);
+    base.drawRect(-houseWidth/2, -houseHeight/2, houseWidth, houseHeight);
     base.endFill();
 
     // Roof
     const roof = new PIXI.Graphics();
     roof.beginFill(0x654321);
-    roof.moveTo(0, 0);
-    roof.lineTo(40, -20);
-    roof.lineTo(80, 0);
+    roof.moveTo(-houseWidth/2, -houseHeight/2);
+    roof.lineTo(0, -houseHeight/2 - roofHeight);
+    roof.lineTo(houseWidth/2, -houseHeight/2);
     roof.closePath();
     roof.endFill();
 
     // Door
+    const doorWidth = 20 * baseScale;
+    const doorHeight = 30 * baseScale;
     const door = new PIXI.Graphics();
     door.beginFill(0x4a3c1d);
-    door.drawRect(30, 30, 20, 30);
+    door.drawRect(-doorWidth/2, houseHeight/2 - doorHeight, doorWidth, doorHeight);
     door.endFill();
 
     house.addChild(base);
@@ -351,6 +522,10 @@ export class PixiWorldScene extends PixiScene {
     house.x = x;
     house.y = y;
     house.houseId = id;
+
+    // Store collision properties
+    house.baseCollisionRadius = 50;
+    house.collisionRadius = house.baseCollisionRadius * baseScale;
 
     // Make interactive
     house.interactive = true;
@@ -361,8 +536,32 @@ export class PixiWorldScene extends PixiScene {
       }
     });
 
-    this.worldObjects.push({ type: "house", sprite: house, x, y, id });
+    this.worldObjects.push({ type: "house", sprite: house, x, y, id, baseCollisionRadius: 50 });
     this.addSprite(house, "world");
+  }
+
+  setupMessageSystem() {
+    this.updateMessageSystem();
+  }
+
+  updateMessageSystem() {
+    // Remove existing message container
+    if (this.messageContainer) {
+      this.removeSprite(this.messageContainer);
+    }
+
+    // Create new message container
+    this.messageContainer = new PIXI.Container();
+    this.messageContainer.name = "messageContainer";
+    
+    // Position message container responsively
+    this.makeResponsive(this.messageContainer, {
+      anchor: { x: 'center', y: 'center' },
+      offset: { x: 0, y: 0 },
+      scale: false
+    });
+
+    this.addSprite(this.messageContainer, "effects");
   }
 
   // Player movement and camera
@@ -370,6 +569,7 @@ export class PixiWorldScene extends PixiScene {
     super.update(deltaTime);
     this.updatePlayerMovement();
     this.updateCamera();
+    this.updateMessages(deltaTime);
   }
 
   updatePlayerMovement() {
@@ -398,17 +598,17 @@ export class PixiWorldScene extends PixiScene {
     }
 
     // World boundaries
-    newX = Math.max(20, Math.min(this.worldWidth - 20, newX));
-    newY = Math.max(20, Math.min(this.worldHeight - 20, newY));
+    const playerRadius = this.playerSize / 2;
+    newX = Math.max(playerRadius, Math.min(this.worldWidth - playerRadius, newX));
+    newY = Math.max(playerRadius, Math.min(this.worldHeight - playerRadius, newY));
 
-    // Simple collision detection (avoid trees)
+    // Responsive collision detection
     let canMove = true;
     for (const obj of this.worldObjects) {
       if (obj.type === "tree" || obj.type === "house") {
-        const distance = Math.sqrt(
-          Math.pow(newX - obj.x, 2) + Math.pow(newY - obj.y, 2)
-        );
-        if (distance < 30) {
+        const distance = Math.sqrt(Math.pow(newX - obj.x, 2) + Math.pow(newY - obj.y, 2));
+        const minDistance = playerRadius + obj.sprite.collisionRadius;
+        if (distance < minDistance) {
           canMove = false;
           break;
         }
@@ -429,18 +629,12 @@ export class PixiWorldScene extends PixiScene {
     if (!this.player) return;
 
     // Center camera on player
-    const targetCameraX = this.player.x - this.engine.width / 2;
-    const targetCameraY = this.player.y - this.engine.height / 2;
+    const targetCameraX = this.player.x - this.viewportWidth / 2;
+    const targetCameraY = this.player.y - this.viewportHeight / 2;
 
     // Keep camera within world bounds
-    this.camera.x = Math.max(
-      0,
-      Math.min(this.worldWidth - this.engine.width, targetCameraX)
-    );
-    this.camera.y = Math.max(
-      0,
-      Math.min(this.worldHeight - this.engine.height, targetCameraY)
-    );
+    this.camera.x = Math.max(0, Math.min(this.worldWidth - this.viewportWidth, targetCameraX));
+    this.camera.y = Math.max(0, Math.min(this.worldHeight - this.viewportHeight, targetCameraY));
 
     // Apply camera to world layer
     this.layers.world.x = -this.camera.x;
@@ -449,16 +643,39 @@ export class PixiWorldScene extends PixiScene {
     this.layers.background.y = -this.camera.y;
   }
 
+  updateMessages(deltaTime) {
+    // Update active messages
+    this.activeMessages = this.activeMessages.filter(message => {
+      message.timeLeft -= deltaTime;
+      
+      if (message.timeLeft <= 0) {
+        // Remove expired message
+        if (message.sprite && message.sprite.parent) {
+          this.messageContainer.removeChild(message.sprite);
+        }
+        return false;
+      }
+      
+      // Update message animation
+      if (message.sprite) {
+        message.sprite.y -= 0.5; // Float upward
+        message.sprite.alpha = Math.max(0, message.timeLeft / message.duration);
+      }
+      
+      return true;
+    });
+  }
+
   // Interaction methods
   isPlayerNear(object) {
     if (!this.player) return false;
 
     const distance = Math.sqrt(
-      Math.pow(this.player.x - object.x, 2) +
-        Math.pow(this.player.y - object.y, 2)
+      Math.pow(this.player.x - object.x, 2) + Math.pow(this.player.y - object.y, 2)
     );
 
-    return distance < 50;
+    const interactionDistance = this.getScaledSize(50);
+    return distance < interactionDistance;
   }
 
   interactWithTree(tree) {
@@ -482,9 +699,7 @@ export class PixiWorldScene extends PixiScene {
 
     // Remove crystal from world
     this.removeSprite(crystal);
-    const objIndex = this.worldObjects.findIndex(
-      (obj) => obj.sprite === crystal
-    );
+    const objIndex = this.worldObjects.findIndex(obj => obj.sprite === crystal);
     if (objIndex > -1) {
       this.worldObjects.splice(objIndex, 1);
     }
@@ -502,8 +717,6 @@ export class PixiWorldScene extends PixiScene {
     }, 1000);
   }
 
-  // Add this to src/scenes/PixiWorldScene.js - replace the openChest method and add new methods
-
   openChest(chest) {
     if (chest.opened) {
       this.showMessage("Chest is empty.");
@@ -515,7 +728,7 @@ export class PixiWorldScene extends PixiScene {
     this.worldState.openedChests.push(chest.chestId);
 
     // Update chest appearance
-    this.drawChest(chest, true);
+    this.drawChest(chest, true, this.objectScale);
 
     // Make non-interactive
     chest.interactive = false;
@@ -526,19 +739,20 @@ export class PixiWorldScene extends PixiScene {
 
     // Switch to loot scene with chest context
     const lootScene = this.engine.scenes.get("loot");
-    lootScene.setLootData(loot, {
-      returnScene: "world",
-      title: "💎 TREASURE FOUND!",
-      subtitle:
-        "Drag items from the right to your inventory or storage on the left",
-      context: "chest",
-    });
+    if (lootScene) {
+      lootScene.setLootData(loot, {
+        returnScene: "world",
+        title: "💎 TREASURE FOUND!",
+        subtitle: "Drag items from the right to your inventory or storage on the left",
+        context: "chest",
+      });
 
-    this.engine.switchScene("loot");
+      this.engine.switchScene("loot");
+    }
   }
 
   generateLoot(chestId) {
-    // Same loot generation logic as before
+    // Loot generation (same logic as before, but with responsive considerations)
     const lootTables = [
       // Chest 0 - Basic loot
       [
@@ -575,372 +789,39 @@ export class PixiWorldScene extends PixiScene {
           ],
         },
       ],
-      // Add other chest loot tables...
+      // Additional chest loot tables...
+      [
+        {
+          name: "Magic Scroll",
+          color: 0x9b59b6,
+          width: 1,
+          height: 1,
+          type: "consumable",
+          baseSkills: [
+            {
+              name: "Fireball",
+              description: "Cast a fireball",
+              damage: 25,
+              cost: 8,
+              type: "magic",
+            },
+          ],
+        },
+        {
+          name: "Gold Coins",
+          color: 0xf1c40f,
+          width: 1,
+          height: 1,
+          type: "currency",
+          quantity: 50,
+        },
+      ],
     ];
 
-    const selectedLoot = lootTables[chestId] || lootTables[0];
-    const numItems =
-      Math.random() < 0.7
-        ? selectedLoot.length
-        : Math.floor(selectedLoot.length / 2) + 1;
+    const selectedLoot = lootTables[chestId % lootTables.length] || lootTables[0];
+    const numItems = Math.random() < 0.7 ? selectedLoot.length : Math.floor(selectedLoot.length / 2) + 1;
 
     return selectedLoot.slice(0, numItems);
-  }
-
-  showDragDropLootInterface(loot) {
-    // Create semi-transparent overlay
-    const overlay = new PIXI.Graphics();
-    overlay.beginFill(0x000000, 0.8);
-    overlay.drawRect(0, 0, this.engine.width, this.engine.height);
-    overlay.endFill();
-    overlay.interactive = true;
-
-    // Create main loot panel
-    const panelWidth = 900;
-    const panelHeight = 600;
-    const panel = new PIXI.Graphics();
-    panel.beginFill(0x2c3e50);
-    panel.drawRoundedRect(0, 0, panelWidth, panelHeight, 15);
-    panel.endFill();
-    panel.lineStyle(3, 0xf39c12);
-    panel.drawRoundedRect(0, 0, panelWidth, panelHeight, 15);
-
-    panel.x = this.engine.width / 2 - panelWidth / 2;
-    panel.y = this.engine.height / 2 - panelHeight / 2;
-
-    // Title
-    const title = new PIXI.Text("💎 TREASURE FOUND!", {
-      fontFamily: "Arial",
-      fontSize: 24,
-      fill: 0xffd700,
-      fontWeight: "bold",
-      align: "center",
-    });
-    title.anchor.set(0.5);
-    title.x = panelWidth / 2;
-    title.y = 40;
-    panel.addChild(title);
-
-    // Instructions
-    const instructions = new PIXI.Text(
-      "Drag items from the right to your inventory or storage on the left",
-      {
-        fontFamily: "Arial",
-        fontSize: 14,
-        fill: 0xecf0f1,
-        align: "center",
-      }
-    );
-    instructions.anchor.set(0.5);
-    instructions.x = panelWidth / 2;
-    instructions.y = 70;
-    panel.addChild(instructions);
-
-    // Create inventory and storage grids on the left
-    this.createLootInventoryGrids(panel);
-
-    // Create loot items on the right
-    this.createDraggableLootItems(panel, loot);
-
-    // Close button
-    const closeBtn = new PIXI.Graphics();
-    closeBtn.beginFill(0xe74c3c);
-    closeBtn.drawRoundedRect(0, 0, 100, 35, 5);
-    closeBtn.endFill();
-    closeBtn.x = panelWidth / 2 - 50;
-    closeBtn.y = panelHeight - 50;
-    closeBtn.interactive = true;
-    closeBtn.cursor = "pointer";
-
-    const closeText = new PIXI.Text("Close", {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    closeText.anchor.set(0.5);
-    closeText.x = 50;
-    closeText.y = 17;
-    closeBtn.addChild(closeText);
-
-    closeBtn.on("pointerdown", () => {
-      this.removeSprite(overlay);
-      this.currentLootInterface = null;
-    });
-
-    panel.addChild(closeBtn);
-    overlay.addChild(panel);
-    this.addSprite(overlay, "effects");
-
-    // Store reference for drag operations
-    this.currentLootInterface = {
-      overlay: overlay,
-      panel: panel,
-      draggedItem: null,
-      inventoryGrid: { x: 30, y: 100, cols: 8, rows: 6, cellSize: 25 },
-      storageGrid: { x: 250, y: 100, cols: 6, rows: 5, cellSize: 25 },
-    };
-  }
-
-  createLootInventoryGrids(panel) {
-    // Character Inventory (left top)
-    const invLabel = new PIXI.Text("🎒 Character Inventory", {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    invLabel.x = 30;
-    invLabel.y = 80;
-    panel.addChild(invLabel);
-
-    const invGrid = new PIXI.Graphics();
-    invGrid.beginFill(0x27ae60, 0.2);
-    invGrid.drawRect(0, 0, 200, 150);
-    invGrid.endFill();
-    invGrid.lineStyle(1, 0x2ecc71);
-
-    // Draw inventory grid lines
-    for (let col = 0; col <= 8; col++) {
-      const x = col * 25;
-      invGrid.moveTo(x, 0);
-      invGrid.lineTo(x, 150);
-    }
-    for (let row = 0; row <= 6; row++) {
-      const y = row * 25;
-      invGrid.moveTo(0, y);
-      invGrid.lineTo(200, y);
-    }
-
-    invGrid.x = 30;
-    invGrid.y = 100;
-    panel.addChild(invGrid);
-
-    // Storage (left bottom)
-    const storageLabel = new PIXI.Text("📦 Storage", {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    storageLabel.x = 250;
-    storageLabel.y = 80;
-    panel.addChild(storageLabel);
-
-    const storageGrid = new PIXI.Graphics();
-    storageGrid.beginFill(0x8e44ad, 0.2);
-    storageGrid.drawRect(0, 0, 150, 125);
-    storageGrid.endFill();
-    storageGrid.lineStyle(1, 0x9b59b6);
-
-    // Draw storage grid lines
-    for (let col = 0; col <= 6; col++) {
-      const x = col * 25;
-      storageGrid.moveTo(x, 0);
-      storageGrid.lineTo(x, 125);
-    }
-    for (let row = 0; row <= 5; row++) {
-      const y = row * 25;
-      storageGrid.moveTo(0, y);
-      storageGrid.lineTo(150, y);
-    }
-
-    storageGrid.x = 250;
-    storageGrid.y = 100;
-    panel.addChild(storageGrid);
-
-    // Show existing items in mini format
-    this.showExistingItemsInLootInterface(panel);
-  }
-
-  addItemToStorage(itemData) {
-    const inventoryScene = this.engine.scenes.get("inventory");
-    if (!inventoryScene) return;
-
-    // Create item object compatible with inventory system
-    const item = this.createInventoryItem(itemData);
-
-    // Try to place in storage grid
-    const placed = this.tryPlaceItemInGrid(item, inventoryScene.storageGrid);
-
-    if (placed) {
-      console.log(`Added ${item.name} to storage`);
-      return true;
-    } else {
-      this.showMessage(`No space in storage for ${item.name}!`);
-      return false;
-    }
-  }
-
-  addItemToInventory(itemData) {
-    const inventoryScene = this.engine.scenes.get("inventory");
-    if (!inventoryScene) return;
-
-    // Create item object compatible with inventory system
-    const item = this.createInventoryItem(itemData);
-
-    // Try to place in character inventory
-    const placed = this.tryPlaceItemInGrid(item, inventoryScene.inventoryGrid);
-
-    if (placed) {
-      console.log(`Added ${item.name} to character inventory`);
-      return true;
-    } else {
-      this.showMessage(`No space in inventory for ${item.name}!`);
-      return false;
-    }
-  }
-
-  createInventoryItem(itemData) {
-    // Create a container for the item
-    const item = new PIXI.Container();
-
-    // Item background
-    const bg = new PIXI.Graphics();
-    bg.beginFill(itemData.color);
-    bg.drawRect(0, 0, itemData.width * 40 - 4, itemData.height * 40 - 4);
-    bg.endFill();
-
-    // Item border
-    bg.lineStyle(2, 0x2c3e50);
-    bg.drawRect(0, 0, itemData.width * 40 - 4, itemData.height * 40 - 4);
-
-    // Item name
-    const text = new PIXI.Text(itemData.name, {
-      fontFamily: "Arial",
-      fontSize: 12,
-      fill: 0xffffff,
-      align: "center",
-    });
-    text.anchor.set(0.5);
-    text.x = (itemData.width * 40) / 2 - 2;
-    text.y = (itemData.height * 40) / 2 - 2;
-
-    item.addChild(bg);
-    item.addChild(text);
-
-    // Add highlight effect for gems
-    if (
-      itemData.name.includes("Gem") ||
-      itemData.name.includes("Orb") ||
-      itemData.name.includes("Crystal")
-    ) {
-      const highlight = new PIXI.Graphics();
-      highlight.lineStyle(2, 0xffd700, 0.8);
-      highlight.drawRect(
-        0,
-        0,
-        itemData.width * 40 - 4,
-        itemData.height * 40 - 4
-      );
-      item.addChild(highlight);
-
-      let time = 0;
-      const animate = () => {
-        time += 0.05;
-        highlight.alpha = 0.3 + Math.sin(time) * 0.3;
-        requestAnimationFrame(animate);
-      };
-      animate();
-    }
-
-    // Copy all properties from itemData
-    Object.assign(item, itemData);
-
-    // Add inventory item properties
-    item.itemData = itemData;
-    item.gridX = -1;
-    item.gridY = -1;
-
-    // Add methods for inventory system
-    item.isPlaced = function () {
-      return this.gridX >= 0 && this.gridY >= 0;
-    };
-
-    item.canPlaceAt = function (grid, x, y) {
-      // Check bounds
-      if (
-        x < 0 ||
-        y < 0 ||
-        x + this.width > grid.cols ||
-        y + this.height > grid.rows
-      ) {
-        return false;
-      }
-
-      // Check for overlapping items (simplified for loot)
-      return true;
-    };
-
-    // Make interactive for dragging
-    item.interactive = true;
-    item.cursor = "pointer";
-
-    return item;
-  }
-
-  tryPlaceItemInGrid(item, grid) {
-    // Find first available spot
-    for (let y = 0; y <= grid.rows - item.height; y++) {
-      for (let x = 0; x <= grid.cols - item.width; x++) {
-        if (this.canPlaceItemAt(grid, item, x, y)) {
-          // Place the item
-          item.x = grid.x + x * 40 + 2;
-          item.y = grid.y + y * 40 + 2;
-          item.gridX = x;
-          item.gridY = y;
-
-          // Add to inventory scene
-          const inventoryScene = this.engine.scenes.get("inventory");
-          if (inventoryScene) {
-            inventoryScene.items.push(item);
-            inventoryScene.addSprite(item, "world");
-
-            // Add drag functionality
-            item.on("pointerdown", (event) =>
-              inventoryScene.startDragging(item, event)
-            );
-          }
-
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  canPlaceItemAt(grid, item, x, y) {
-    // Check bounds
-    if (
-      x < 0 ||
-      y < 0 ||
-      x + item.width > grid.cols ||
-      y + item.height > grid.rows
-    ) {
-      return false;
-    }
-
-    // Check for overlapping items
-    const inventoryScene = this.engine.scenes.get("inventory");
-    if (inventoryScene) {
-      for (const existingItem of inventoryScene.items) {
-        if (existingItem.gridX >= 0 && existingItem.gridY >= 0) {
-          // Check if the areas overlap
-          if (
-            !(
-              x >= existingItem.gridX + existingItem.width ||
-              x + item.width <= existingItem.gridX ||
-              y >= existingItem.gridY + existingItem.height ||
-              y + item.height <= existingItem.gridY
-            )
-          ) {
-            return false;
-          }
-        }
-      }
-    }
-
-    return true;
   }
 
   enterHouse(house) {
@@ -950,34 +831,40 @@ export class PixiWorldScene extends PixiScene {
   showMessage(text) {
     console.log(text);
 
-    // Create floating message
+    if (!this.messageContainer) {
+      this.updateMessageSystem();
+    }
+
+    // Create floating message with responsive sizing
     const message = new PIXI.Text(text, {
       fontFamily: "Arial",
-      fontSize: 16,
+      fontSize: this.getResponsiveFontSize(16),
       fill: 0xffd700,
       align: "center",
+      stroke: 0x000000,
+      strokeThickness: Math.max(1, this.scaleFactor),
     });
 
     message.anchor.set(0.5);
-    message.x = this.player.x;
-    message.y = this.player.y - 40;
+    
+    // Position relative to player in world coordinates
+    const worldPlayerX = this.player.x;
+    const worldPlayerY = this.player.y - this.getScaledSize(40);
+    
+    // Convert to camera-relative coordinates
+    message.x = worldPlayerX - this.camera.x;
+    message.y = worldPlayerY - this.camera.y;
 
-    this.addSprite(message, "effects");
+    this.messageContainer.addChild(message);
 
-    // Animate message
-    let time = 0;
-    const animate = () => {
-      time += 0.05;
-      message.y -= 1;
-      message.alpha = Math.max(0, 1 - time / 2);
-
-      if (message.alpha <= 0) {
-        this.removeSprite(message);
-      } else {
-        requestAnimationFrame(animate);
-      }
+    // Store message data for animation
+    const messageData = {
+      sprite: message,
+      timeLeft: 3000, // 3 seconds
+      duration: 3000,
     };
-    animate();
+
+    this.activeMessages.push(messageData);
   }
 
   handleKeyDown(event) {
@@ -989,7 +876,22 @@ export class PixiWorldScene extends PixiScene {
           break;
         }
       }
+    } else if (event.code === "KeyM") {
+      // Show world map or minimap
+      this.showWorldInfo();
     }
+  }
+
+  showWorldInfo() {
+    const info = `🌍 World Exploration
+Size: ${this.worldWidth}x${this.worldHeight}
+Player: (${Math.floor(this.player.x)}, ${Math.floor(this.player.y)})
+Objects: ${this.worldObjects.length}
+Discovered: ${this.worldState.discoveredItems.length} items
+Opened chests: ${this.worldState.openedChests.length}
+Crystals used: ${this.worldState.removedCrystals.length}`;
+
+    this.showMessage(info);
   }
 
   // Method to reset world state (for debugging or new game)
@@ -999,7 +901,7 @@ export class PixiWorldScene extends PixiScene {
       openedChests: [],
       discoveredItems: [],
     };
-    this.playerPosition = { x: 400, y: 300 };
+    this.playerPosition = { x: this.worldWidth / 2, y: this.worldHeight / 2 };
     this.isInitialized = false;
 
     // Clear current world objects
