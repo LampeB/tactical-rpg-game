@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://c5dragprvw01"]
+
+[ext_resource type="Script" path="res://scenes/inventory/ui/drag_preview.gd" id="1_script"]
+
+[node name="DragPreview" type="Control"]
+visible = false
+top_level = true
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="ShapeCells" type="Control" parent="."]
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 48.0
+offset_bottom = 48.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5

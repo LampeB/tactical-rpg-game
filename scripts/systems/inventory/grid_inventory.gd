@@ -1,0 +1,173 @@
+class_name GridInventory
+extends RefCounted
+## Manages item placement on a character's tetris-style inventory grid.
+## Pure data — no UI dependencies.
+
+var grid_template: GridTemplate
+var placed_items: Array = []  ## of PlacedItem
+var _cell_map: Dictionary = {}  ## Vector2i -> PlacedItem
+
+
+func _init(template: GridTemplate) -> void:
+	grid_template = template
+
+
+# === Placement API ===
+
+func can_place(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> bool:
+	var cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
+	return _are_cells_valid(cells)
+
+
+func place_item(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> PlacedItem:
+	if not can_place(item_data, grid_pos, rotation):
+		return null
+	var placed: PlacedItem = PlacedItem.new()
+	placed.item_data = item_data
+	placed.grid_position = grid_pos
+	placed.rotation = rotation
+	placed_items.append(placed)
+	var occupied: Array[Vector2i] = placed.get_occupied_cells()
+	for cell in occupied:
+		_cell_map[cell] = placed
+	return placed
+
+
+func remove_item(placed: PlacedItem) -> void:
+	var occupied: Array[Vector2i] = placed.get_occupied_cells()
+	for cell in occupied:
+		_cell_map.erase(cell)
+	placed_items.erase(placed)
+
+
+func get_item_at(cell: Vector2i) -> PlacedItem:
+	return _cell_map.get(cell, null)
+
+
+func get_all_placed_items() -> Array:
+	return placed_items
+
+
+func clear() -> void:
+	placed_items.clear()
+	_cell_map.clear()
+
+
+# === Modifier System ===
+
+## Returns all MODIFIER PlacedItems whose cells are within reach of the target ACTIVE_TOOL.
+func get_modifiers_affecting(target: PlacedItem) -> Array:
+	var result: Array = []
+	if target.item_data.item_type != Enums.ItemType.ACTIVE_TOOL:
+		return result
+	var target_cells: Array[Vector2i] = target.get_occupied_cells()
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type != Enums.ItemType.MODIFIER:
+			continue
+		if _items_within_reach(placed, target_cells, placed.item_data.modifier_reach):
+			result.append(placed)
+	return result
+
+
+## Returns all ACTIVE_TOOL PlacedItems affected by a given MODIFIER.
+func get_tools_affected_by(modifier_placed: PlacedItem) -> Array:
+	var result: Array = []
+	if modifier_placed.item_data.item_type != Enums.ItemType.MODIFIER:
+		return result
+	var reach: int = modifier_placed.item_data.modifier_reach
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type != Enums.ItemType.ACTIVE_TOOL:
+			continue
+		var tool_cells: Array[Vector2i] = placed.get_occupied_cells()
+		if _items_within_reach(modifier_placed, tool_cells, reach):
+			result.append(placed)
+	return result
+
+
+## Computes aggregate stat bonuses from all placed items + modifier interactions.
+func get_computed_stats() -> Dictionary:
+	var flat_bonuses: Dictionary = {}  ## Enums.Stat -> float
+	var pct_bonuses: Dictionary = {}   ## Enums.Stat -> float
+
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		var item: ItemData = placed.item_data
+		# Direct stat modifiers from the item itself
+		for mod in item.stat_modifiers:
+			if mod is StatModifier:
+				_accumulate_modifier(mod, flat_bonuses, pct_bonuses)
+
+		# Modifier bonuses from adjacent gems (only for ACTIVE_TOOLs)
+		if item.item_type == Enums.ItemType.ACTIVE_TOOL:
+			var modifiers: Array = get_modifiers_affecting(placed)
+			for j in range(modifiers.size()):
+				var gem_placed: PlacedItem = modifiers[j]
+				for gem_mod in gem_placed.item_data.modifier_bonuses:
+					if gem_mod is StatModifier:
+						_accumulate_modifier(gem_mod, flat_bonuses, pct_bonuses)
+
+	# Combine: final = flat * (1 + pct)
+	var result: Dictionary = {}
+	var all_stats: Array = []
+	all_stats.append_array(flat_bonuses.keys())
+	for k in pct_bonuses.keys():
+		if k not in all_stats:
+			all_stats.append(k)
+	for stat in all_stats:
+		var flat_val: float = flat_bonuses.get(stat, 0.0)
+		var pct_val: float = pct_bonuses.get(stat, 0.0)
+		result[stat] = flat_val * (1.0 + pct_val / 100.0)
+	return result
+
+
+# === Internal Helpers ===
+
+func _get_world_cells(shape: ItemShape, grid_pos: Vector2i, rotation: int) -> Array[Vector2i]:
+	var rotated: Array[Vector2i] = shape.get_rotated_cells(rotation)
+	var result: Array[Vector2i] = []
+	for cell in rotated:
+		result.append(grid_pos + cell)
+	return result
+
+
+func _are_cells_valid(cells: Array[Vector2i]) -> bool:
+	for cell in cells:
+		if not grid_template.is_cell_active(cell):
+			return false
+		if _cell_map.has(cell):
+			return false
+	return true
+
+
+func _items_within_reach(modifier_placed: PlacedItem, target_cells: Array[Vector2i], reach: int) -> bool:
+	var mod_cells: Array[Vector2i] = modifier_placed.get_occupied_cells()
+	for mc in mod_cells:
+		for tc in target_cells:
+			var dist: int = maxi(absi(mc.x - tc.x), absi(mc.y - tc.y))
+			if dist <= reach:
+				return true
+	return false
+
+
+func _accumulate_modifier(mod: StatModifier, flat: Dictionary, pct: Dictionary) -> void:
+	if mod.modifier_type == Enums.ModifierType.FLAT:
+		flat[mod.stat] = flat.get(mod.stat, 0.0) + mod.value
+	else:
+		pct[mod.stat] = pct.get(mod.stat, 0.0) + mod.value
+
+
+# === Inner Class ===
+
+class PlacedItem:
+	var item_data: ItemData
+	var grid_position: Vector2i
+	var rotation: int = 0
+
+	func get_occupied_cells() -> Array[Vector2i]:
+		var shape_cells: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
+		var result: Array[Vector2i] = []
+		for cell in shape_cells:
+			result.append(grid_position + cell)
+		return result

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c5stshslot01"]
+
+[ext_resource type="Script" path="res://scenes/inventory/ui/stash_slot.gd" id="1_script"]
+
+[node name="StashSlot" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 40)
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="HBox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TypeLabel" type="Label" parent="HBox"]
+layout_mode = 2
+horizontal_alignment = 2
