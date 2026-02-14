@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c5chartabs01"]
+
+[ext_resource type="Script" path="res://scenes/inventory/ui/character_tabs.gd" id="1_script"]
+
+[node name="CharacterTabs" type="HBoxContainer"]
+layout_mode = 2
+script = ExtResource("1_script")

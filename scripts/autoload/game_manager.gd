@@ -26,6 +26,7 @@ func new_game():
 	var sword := load("res://data/items/weapons/sword_common.tres") as ItemData
 	var shield := load("res://data/items/armor/shield_common.tres") as ItemData
 	var potion := load("res://data/items/consumables/potion_common.tres") as ItemData
+	var fire_gem := load("res://data/items/modifiers/fire_gem_common.tres") as ItemData
 	if sword:
 		party.add_to_stash(sword)
 	if shield:
@@ -33,6 +34,8 @@ func new_game():
 	if potion:
 		party.add_to_stash(potion)
 		party.add_to_stash(potion) # Give 2 potions
+	if fire_gem:
+		party.add_to_stash(fire_gem)
 
 	EventBus.gold_changed.emit(gold)
 	DebugLogger.log_info("New game started — Gold: %d, Roster: %d, Stash: %d" % [gold, party.roster.size(), party.get_stash_size()], "GameManager")

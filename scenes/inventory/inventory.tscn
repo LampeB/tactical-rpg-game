@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/inventory/inventory.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c5chartabs01" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
+[ext_resource type="PackedScene" uid="uid://c5gridpanl001" path="res://scenes/inventory/ui/grid_panel.tscn" id="3_grid"]
+[ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="4_stash"]
+[ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="5_drag"]
+[ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="6_tooltip"]
 
 [node name="Inventory" type="Control"]
 layout_mode = 3
@@ -25,6 +30,7 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = -20.0
+theme_override_constants/separation = 12
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -33,14 +39,40 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Inventory"
+theme_override_font_sizes/font_size = 24
 
 [node name="BackButton" type="Button" parent="VBox/TopBar"]
 layout_mode = 2
 text = "Back"
 
-[node name="Content" type="Label" parent="VBox"]
+[node name="Content" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-text = "Grid inventory will be built in Sprint 4"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/separation = 20
+
+[node name="GridSide" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 8
+
+[node name="CharacterTabs" parent="VBox/Content/GridSide" instance=ExtResource("2_tabs")]
+layout_mode = 2
+
+[node name="GridCentering" type="CenterContainer" parent="VBox/Content/GridSide"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridPanel" parent="VBox/Content/GridSide/GridCentering" instance=ExtResource("3_grid")]
+
+[node name="StashPanel" parent="VBox/Content" instance=ExtResource("4_stash")]
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="DragPreview" parent="DragLayer" instance=ExtResource("5_drag")]
+
+[node name="TooltipLayer" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6_tooltip")]
