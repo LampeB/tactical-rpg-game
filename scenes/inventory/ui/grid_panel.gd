@@ -17,6 +17,9 @@ var _last_hovered_cell: Vector2i = Vector2i(-1, -1)
 @onready var _items_layer: Control = $ItemsLayer
 
 
+func _ready() -> void:
+	mouse_exited.connect(_on_mouse_exited)
+
 func setup(grid_inventory: GridInventory) -> void:
 	_grid_inventory = grid_inventory
 	_build_cells()
@@ -201,3 +204,9 @@ func _gui_input(event: InputEvent) -> void:
 		var grid_pos: Vector2i = world_to_grid(event.global_position)
 		if _cells.has(grid_pos):
 			cell_clicked.emit(grid_pos, event.button_index)
+
+
+func _on_mouse_exited() -> void:
+	if _last_hovered_cell != Vector2i(-1, -1):
+		_last_hovered_cell = Vector2i(-1, -1)
+		cell_exited.emit()
