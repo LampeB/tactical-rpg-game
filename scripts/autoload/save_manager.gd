@@ -3,7 +3,7 @@ extends Node
 ## Single save slot at user://save.json.
 
 const SAVE_PATH := "user://save.json"
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 
 var _playtime_accumulator: float = 0.0
 var _is_tracking_playtime: bool = false
@@ -93,6 +93,7 @@ func _serialize() -> Dictionary:
 		"squad": Array(party.squad),
 		"stash": _serialize_stash(party.stash),
 		"grid_inventories": _serialize_grid_inventories(party.grid_inventories),
+		"unlocked_passives": _serialize_passives(party.unlocked_passives),
 	}
 
 func _serialize_stash(stash: Array) -> Array:
@@ -114,6 +115,12 @@ func _serialize_grid_inventories(grids: Dictionary) -> Dictionary:
 				"rotation": placed.rotation,
 			})
 		result[character_id] = placements
+	return result
+
+func _serialize_passives(passives: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for character_id: String in passives:
+		result[character_id] = Array(passives[character_id])
 	return result
 
 
@@ -176,6 +183,15 @@ func _deserialize(data: Dictionary):
 					str(entry.item_id), pos.x, pos.y, rot, char_id
 				], "SaveManager")
 
+	# Unlocked passives
+	var passives_data: Dictionary = data.get("unlocked_passives", {})
+	for char_id: String in passives_data:
+		var node_ids: Array = passives_data[char_id]
+		var typed_ids: Array[String] = []
+		for nid in node_ids:
+			typed_ids.append(str(nid))
+		party.unlocked_passives[char_id] = typed_ids
+
 	# Update UI
 	EventBus.gold_changed.emit(GameManager.gold)
 
@@ -186,9 +202,10 @@ func _validate(data: Dictionary) -> bool:
 	if not data.has("version"):
 		DebugLogger.log_error("Save file missing version field", "SaveManager")
 		return false
-	if int(data.version) != SAVE_VERSION:
-		DebugLogger.log_error("Save version mismatch: expected %d, got %s" % [
-			SAVE_VERSION, str(data.version)
+	var version: int = int(data.version)
+	if version < 1 or version > SAVE_VERSION:
+		DebugLogger.log_error("Save version unsupported: expected 1-%d, got %d" % [
+			SAVE_VERSION, version
 		], "SaveManager")
 		return false
 	return true

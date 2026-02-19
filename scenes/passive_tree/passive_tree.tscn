@@ -1,0 +1,97 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/passive_tree/passive_tree.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
+[ext_resource type="PackedScene" path="res://scenes/passive_tree/ui/tree_view.tscn" id="3_tree_view"]
+
+[node name="PassiveTree" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="VBox/TopBar"]
+layout_mode = 2
+text = "< Back"
+
+[node name="Title" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skill Tree"
+horizontal_alignment = 1
+
+[node name="GoldLabel" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+text = "Gold: 0"
+
+[node name="CharacterTabs" parent="VBox" instance=ExtResource("2_tabs")]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TreePanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="TreeView" parent="VBox/Content/TreePanel" instance=ExtResource("3_tree_view")]
+layout_mode = 2
+
+[node name="InfoPanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Content/InfoPanel"]
+layout_mode = 2
+
+[node name="NodeName" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+layout_mode = 2
+text = "Node Name"
+
+[node name="Description" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 2
+
+[node name="CostLabel" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+layout_mode = 2
+text = "Cost: 100 Gold"
+
+[node name="PrereqsLabel" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="UnlockButton" type="Button" parent="VBox/Content/InfoPanel/VBox"]
+layout_mode = 2
+text = "Unlock"

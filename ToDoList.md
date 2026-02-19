@@ -12,7 +12,7 @@
 
 [ ] add mechanic to block part of the map if certains conditions aren't met
 
-[ ] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
+[x] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
 
 [ ] chest with id to have specific loots for every chest
 

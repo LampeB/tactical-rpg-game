@@ -10,11 +10,16 @@ var character_data: CharacterData  ## Set for player entities
 var enemy_data: EnemyData          ## Set for enemy entities
 var grid_inventory: GridInventory  ## Equipment bonuses (player only)
 
+# Passive skill tree bonuses (player only)
+var passive_stat_modifiers: Array = []  ## of StatModifier
+var passive_special_effects: Array = [] ## of String (effect IDs)
+
 # Runtime combat state
 var current_hp: int = 0
 var max_hp: int = 0
 var current_mp: int = 0
 var max_mp: int = 0
+var shield_hp: int = 0  ## Absorbs damage before HP (from start_shield)
 var is_defending: bool = false
 var is_dead: bool = false
 
@@ -25,16 +30,40 @@ var status_effects: Array = []
 var cooldowns: Dictionary = {}
 
 
-static func from_character(char_data: CharacterData, inv: GridInventory) -> CombatEntity:
+static func from_character(char_data: CharacterData, inv: GridInventory, passive_bonuses: Dictionary = {}) -> CombatEntity:
 	var entity: CombatEntity = CombatEntity.new()
 	entity.entity_name = char_data.display_name
 	entity.is_player = true
 	entity.character_data = char_data
 	entity.grid_inventory = inv
 
+	# Store passive bonuses
+	entity.passive_stat_modifiers = passive_bonuses.get("stat_modifiers", [])
+	entity.passive_special_effects = passive_bonuses.get("special_effects", [])
+
 	var equip_stats: Dictionary = inv.get_computed_stats() if inv else {}
-	entity.max_hp = char_data.max_hp + int(equip_stats.get(Enums.Stat.MAX_HP, 0.0))
-	entity.max_mp = char_data.max_mp + int(equip_stats.get(Enums.Stat.MAX_MP, 0.0))
+
+	# Compute max HP/MP: base + equipment + passive flat + passive percent
+	var hp_flat: float = float(char_data.max_hp) + equip_stats.get(Enums.Stat.MAX_HP, 0.0)
+	var mp_flat: float = float(char_data.max_mp) + equip_stats.get(Enums.Stat.MAX_MP, 0.0)
+	var hp_pct: float = 0.0
+	var mp_pct: float = 0.0
+
+	for i in range(entity.passive_stat_modifiers.size()):
+		var mod: StatModifier = entity.passive_stat_modifiers[i]
+		if mod.stat == Enums.Stat.MAX_HP:
+			if mod.modifier_type == Enums.ModifierType.FLAT:
+				hp_flat += mod.value
+			else:
+				hp_pct += mod.value
+		elif mod.stat == Enums.Stat.MAX_MP:
+			if mod.modifier_type == Enums.ModifierType.FLAT:
+				mp_flat += mod.value
+			else:
+				mp_pct += mod.value
+
+	entity.max_hp = int(hp_flat * (1.0 + hp_pct / 100.0))
+	entity.max_mp = int(mp_flat * (1.0 + mp_pct / 100.0))
 	entity.current_hp = entity.max_hp
 	entity.current_mp = entity.max_mp
 	return entity
@@ -64,6 +93,19 @@ func get_effective_stat(stat: Enums.Stat) -> float:
 		var equip_stats: Dictionary = grid_inventory.get_computed_stats()
 		base += equip_stats.get(stat, 0.0)
 
+	# Passive skill tree bonuses (player only) — flat first, then percent
+	if is_player:
+		var pct_bonus: float = 0.0
+		for i in range(passive_stat_modifiers.size()):
+			var mod: StatModifier = passive_stat_modifiers[i]
+			if mod.stat == stat:
+				if mod.modifier_type == Enums.ModifierType.FLAT:
+					base += mod.value
+				elif mod.modifier_type == Enums.ModifierType.PERCENT:
+					pct_bonus += mod.value
+		if pct_bonus != 0.0:
+			base *= (1.0 + pct_bonus / 100.0)
+
 	# Status effect modifiers
 	for effect in status_effects:
 		var data: StatusEffectData = effect.data
@@ -82,6 +124,10 @@ func get_effective_stat(stat: Enums.Stat) -> float:
 				base *= data.speed_multiplier
 
 	return maxf(base, 0.0)
+
+
+func has_passive_effect(effect_id: String) -> bool:
+	return PassiveEffects.has_effect(passive_special_effects, effect_id)
 
 
 func get_available_skills() -> Array:
@@ -135,6 +181,14 @@ func get_damage_taken_multiplier() -> float:
 
 
 func take_damage(amount: int) -> int:
+	# Shield absorbs damage first
+	if shield_hp > 0:
+		if amount <= shield_hp:
+			shield_hp -= amount
+			return 0
+		else:
+			amount -= shield_hp
+			shield_hp = 0
 	var actual: int = mini(amount, current_hp)
 	current_hp -= actual
 	if current_hp <= 0:
@@ -151,6 +205,12 @@ func heal(amount: int) -> int:
 
 func spend_mp(amount: int) -> void:
 	current_mp = maxi(current_mp - amount, 0)
+
+
+func restore_mp(amount: int) -> int:
+	var actual: int = mini(amount, max_mp - current_mp)
+	current_mp += actual
+	return actual
 
 
 func apply_status(status_data: StatusEffectData) -> bool:
