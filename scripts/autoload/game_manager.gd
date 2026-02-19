@@ -16,16 +16,23 @@ func new_game():
 	story_flags.clear()
 	is_game_started = true
 
-	# Add starter character
-	var warrior := load("res://data/characters/warrior.tres") as CharacterData
-	if warrior:
-		party.add_to_roster(warrior)
-		DebugLogger.log_info("Added starter character: %s" % warrior.display_name, "GameManager")
+	# Add starter characters
+	var starter_characters: Array = ["warrior", "mage", "rogue"]
+	for char_id: String in starter_characters:
+		var character: CharacterData = CharacterDatabase.get_character(char_id)
+		if character:
+			party.add_to_roster(character)
+			DebugLogger.log_info("Added starter character: %s" % character.display_name, "GameManager")
+		else:
+			DebugLogger.log_warning("Starter character not found: %s" % char_id, "GameManager")
 
 	# Give starter items to stash (by ID from ItemDatabase)
 	var starter_items: Array = [
 		"sword_common",
 		"shield_common",
+		"staff_common",
+		"dagger_common",
+		"potion_common",
 		"potion_common",
 		"potion_common",
 		"fire_gem_common",

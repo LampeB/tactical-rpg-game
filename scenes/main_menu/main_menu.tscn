@@ -45,6 +45,10 @@ vertical_alignment = 1
 layout_mode = 2
 text = "Play"
 
+[node name="NewGameButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "New Game"
+
 [node name="InventoryButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "Inventory"

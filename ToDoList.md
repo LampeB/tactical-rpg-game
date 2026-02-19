@@ -1,25 +1,21 @@
+[x] use items ID, with an item database instead of harcoding them everytime
 
- [ ] Remove/rework sprkling mechanics in the inventory
+[x] use a character database
 
- [x] use items ID, with an item database instead of harcoding them everytime
+[ ] add possibility to increase the inventory size (at the shop for example)
 
- [ ] use a character database
+[x] skills are determined by items
 
- [ ] add possibility to increase the inventory size (at the shop for example)
+[x] save/load system
 
- [x] skills are determined by items
+[ ] make it possible to use sprites for every UI element
 
- [x] save/load system
+[ ] add mechanic to block part of the map if certains conditions aren't met
 
+[ ] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
 
- [ ] make it possible to use sprites for every UI element
+[ ] chest with id to have specific loots for every chest
 
- [ ] add mechanic to block part of the map if certains conditions aren't met
+[] fixed map, easily editable, different placable elements stored in a DB
 
- [ ] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
-
- [ ] chest with id to have specific loots for every chest
-
- [] fixed map, easily editable, different placable elements stored in a DB
-
- [x] issue when going back to the squad screen
+[x] issue when going back to the squad screen

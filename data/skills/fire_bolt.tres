@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "fire_bolt"
+display_name = "Fire Bolt"
+description = "Hurls a bolt of fire at a single enemy."
+usage = 0
+mp_cost = 5
+cooldown_turns = 0
+target_type = 2
+damage_type = 1
+power = 12
+scaling = 1.0
+heal_amount = 0
+heal_percent = 0.0

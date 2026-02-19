@@ -2,6 +2,7 @@ extends Control
 
 func _ready():
 	$VBoxContainer/PlayButton.pressed.connect(_on_play_pressed)
+	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game_pressed)
 	$VBoxContainer/InventoryButton.pressed.connect(_on_inventory_pressed)
 	$VBoxContainer/SquadButton.pressed.connect(_on_squad_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
@@ -9,7 +10,6 @@ func _ready():
 	var title = $VBoxContainer/Title
 	title.add_theme_font_size_override("font_size", 48)
 
-	# Disable inventory/squad if no game has been started
 	_update_button_states()
 
 func _update_button_states():
@@ -27,6 +27,12 @@ func _on_play_pressed():
 			SaveManager.start_playtime_tracking()
 		else:
 			GameManager.new_game()
+	SceneManager.clear_stack()
+	SceneManager.replace_scene("res://scenes/world/world.tscn")
+
+func _on_new_game_pressed():
+	SaveManager.delete_save()
+	GameManager.new_game()
 	SceneManager.clear_stack()
 	SceneManager.replace_scene("res://scenes/world/world.tscn")
 
