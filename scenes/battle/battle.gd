@@ -14,7 +14,9 @@ const ACTION_DELAY: float = 0.6  ## Seconds between actions for readability
 @onready var _turn_order_bar: HBoxContainer = $VBox/TurnOrderBar
 @onready var _enemy_list: VBoxContainer = $VBox/BattleField/EnemyPanel/EnemyList
 @onready var _party_list: VBoxContainer = $VBox/BattleField/PartyPanel/PartyList
-@onready var _target_prompt: Label = $VBox/BottomSection/TargetPrompt
+@onready var _target_prompt: HBoxContainer = $VBox/BottomSection/TargetPrompt
+@onready var _target_prompt_label: Label = $VBox/BottomSection/TargetPrompt/Label
+@onready var _target_cancel_btn: Button = $VBox/BottomSection/TargetPrompt/CancelButton
 @onready var _action_menu: PanelContainer = $VBox/BottomSection/ActionMenu
 @onready var _battle_log: PanelContainer = $VBox/BottomSection/BattleLog
 @onready var _popup_layer: CanvasLayer = $PopupLayer
@@ -38,6 +40,7 @@ func _ready() -> void:
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_target_prompt.visible = false
+	_target_cancel_btn.pressed.connect(_cancel_target_selection)
 	DebugLogger.log_info("Battle scene ready", "Battle")
 
 
@@ -281,10 +284,10 @@ func _enter_target_selection() -> void:
 	_target_prompt.visible = true
 
 	if _pending_target_type == Enums.TargetType.SINGLE_ENEMY:
-		_target_prompt.text = "Select an enemy target..."
+		_target_prompt_label.text = "Select an enemy target..."
 		DebugLogger.log_info("State -> TARGET_SELECT (enemy)", "Battle")
 	else:
-		_target_prompt.text = "Select an ally target..."
+		_target_prompt_label.text = "Select an ally target..."
 		DebugLogger.log_info("State -> TARGET_SELECT (ally)", "Battle")
 
 

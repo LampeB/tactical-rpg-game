@@ -130,15 +130,14 @@ func _deserialize(data: Dictionary):
 	var party := Party.new()
 	GameManager.party = party
 
-	# Roster: load CharacterData resources by path convention
+	# Roster: load CharacterData from CharacterDatabase
 	var roster_ids: Array = data.get("roster", [])
 	for char_id in roster_ids:
-		var path := "res://data/characters/%s.tres" % str(char_id)
-		var character := load(path) as CharacterData
+		var character: CharacterData = CharacterDatabase.get_character(str(char_id))
 		if character:
 			party.add_to_roster(character)
 		else:
-			DebugLogger.log_warning("Character not found: %s" % path, "SaveManager")
+			DebugLogger.log_warning("Character not found: %s" % str(char_id), "SaveManager")
 
 	# Squad (override what add_to_roster auto-set)
 	var squad_ids: Array = data.get("squad", [])

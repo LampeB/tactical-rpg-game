@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/grid_templates/grid_mage.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "mage"
+display_name = "Lyra"
+description = "A gifted mage who channels elemental forces. Compact 5x5 grid but devastating special attacks."
+max_hp = 80
+max_mp = 50
+speed = 8
+luck = 7
+physical_attack = 5
+physical_defense = 6
+special_attack = 16
+special_defense = 12
+grid_template = ExtResource("2")

@@ -93,13 +93,21 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TargetPrompt" type="Label" parent="VBox/BottomSection"]
+[node name="TargetPrompt" type="HBoxContainer" parent="VBox/BottomSection"]
 visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Label" type="Label" parent="VBox/BottomSection/TargetPrompt"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
 text = "Select a target..."
-horizontal_alignment = 1
+
+[node name="CancelButton" type="Button" parent="VBox/BottomSection/TargetPrompt"]
+layout_mode = 2
+text = "Cancel"
 
 [node name="ActionMenu" parent="VBox/BottomSection" instance=ExtResource("4_action")]
 layout_mode = 2
