@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/grid_templates/grid_warrior.tres" id="2"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="3_slash"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="4_pstrike"]
 
 [resource]
 script = ExtResource("1")
@@ -17,3 +19,4 @@ physical_defense = 12
 special_attack = 6
 special_defense = 8
 grid_template = ExtResource("2")
+innate_skills = [ExtResource("3_slash"), ExtResource("4_pstrike")]

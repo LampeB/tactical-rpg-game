@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/battle/battle.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c5turnordr01" path="res://scenes/battle/ui/turn_order_bar.tscn" id="2_turn"]
+[ext_resource type="PackedScene" uid="uid://c5actmenu001" path="res://scenes/battle/ui/action_menu.tscn" id="4_action"]
+[ext_resource type="PackedScene" uid="uid://c5btllog0001" path="res://scenes/battle/ui/battle_log.tscn" id="5_log"]
+[ext_resource type="PackedScene" uid="uid://c5dmgpopup01" path="res://scenes/battle/ui/damage_popup.tscn" id="6_popup"]
 
 [node name="Battle" type="Control"]
 layout_mode = 3
@@ -14,7 +18,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.3, 0.12, 0.12, 1)
+color = Color(0.18, 0.1, 0.1, 1)
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -22,22 +26,86 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
-offset_top = 20.0
+offset_top = 16.0
 offset_right = -20.0
-offset_bottom = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="VBox"]
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
-text = "Battle"
-horizontal_alignment = 1
 
-[node name="Content" type="Label" parent="VBox"]
+[node name="Title" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 22
+text = "Battle"
+
+[node name="RoundLabel" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Round 1"
+
+[node name="TurnOrderBar" parent="VBox" instance=ExtResource("2_turn")]
+layout_mode = 2
+
+[node name="BattleField" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-text = "Combat system will be built in Sprint 5"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/separation = 40
 
-[node name="FleeButton" type="Button" parent="VBox"]
+[node name="EnemyPanel" type="VBoxContainer" parent="VBox/BattleField"]
 layout_mode = 2
-text = "Flee (return to world)"
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EnemyLabel" type="Label" parent="VBox/BattleField/EnemyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.4, 0.4, 1)
+text = "Enemies"
+
+[node name="EnemyList" type="VBoxContainer" parent="VBox/BattleField/EnemyPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="CenterSpacer" type="Control" parent="VBox/BattleField"]
+layout_mode = 2
+custom_minimum_size = Vector2(40, 0)
+
+[node name="PartyPanel" type="VBoxContainer" parent="VBox/BattleField"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="PartyLabel" type="Label" parent="VBox/BattleField/PartyPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.4, 0.7, 1, 1)
+text = "Party"
+
+[node name="PartyList" type="VBoxContainer" parent="VBox/BattleField/PartyPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="BottomSection" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TargetPrompt" type="Label" parent="VBox/BottomSection"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+text = "Select a target..."
+horizontal_alignment = 1
+
+[node name="ActionMenu" parent="VBox/BottomSection" instance=ExtResource("4_action")]
+layout_mode = 2
+
+[node name="BattleLog" parent="VBox/BottomSection" instance=ExtResource("5_log")]
+layout_mode = 2
+
+[node name="PopupLayer" type="CanvasLayer" parent="."]
+layer = 10

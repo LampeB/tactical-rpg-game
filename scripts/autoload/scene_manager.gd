@@ -72,13 +72,15 @@ func _change_scene(scene_path: String, data: Dictionary):
 		_is_transitioning = false
 		return
 
-	# Wait one frame for the new scene to initialize
+	# Wait for the new scene to fully initialize
+	await get_tree().process_frame
 	await get_tree().process_frame
 
 	# Pass data to the new scene if it has a receive_data method
 	var new_scene := get_tree().current_scene
-	if new_scene and new_scene.has_method("receive_data"):
+	if new_scene and new_scene.has_method("receive_data") and not data.is_empty():
 		new_scene.receive_data(data)
+		DebugLogger.log_info("Passed data to %s" % new_scene.name, "SceneManager")
 
 	# Fade in
 	var tween_in := create_tween()
