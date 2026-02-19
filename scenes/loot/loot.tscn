@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/loot/loot.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c5chartabs01" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
+[ext_resource type="PackedScene" uid="uid://c5gridpanl001" path="res://scenes/inventory/ui/grid_panel.tscn" id="3_grid"]
+[ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="5_drag"]
+[ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="6_tooltip"]
+[ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="7_stash"]
 
 [node name="Loot" type="Control"]
 layout_mode = 3
@@ -14,7 +19,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.2, 0.25, 0.12, 1)
+color = Color(0.12, 0.15, 0.2, 1)
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -25,19 +30,80 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = -20.0
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="VBox"]
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
-text = "Loot"
-horizontal_alignment = 1
 
-[node name="Content" type="Label" parent="VBox"]
+[node name="Title" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Loot"
+
+[node name="GoldLabel" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+text = ""
+
+[node name="Content" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-text = "Loot screen will be built in Sprint 6"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/separation = 20
 
-[node name="ContinueButton" type="Button" parent="VBox"]
+[node name="LootPool" parent="VBox/Content" instance=ExtResource("7_stash")]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+
+[node name="GridSide" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 8
+
+[node name="CharacterTabs" parent="VBox/Content/GridSide" instance=ExtResource("2_tabs")]
+layout_mode = 2
+
+[node name="GridCentering" type="CenterContainer" parent="VBox/Content/GridSide"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridPanel" parent="VBox/Content/GridSide/GridCentering" instance=ExtResource("3_grid")]
+
+[node name="BottomBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="SendToStashButton" type="Button" parent="VBox/BottomBar"]
+layout_mode = 2
+text = "Send All to Stash"
+
+[node name="Spacer" type="Control" parent="VBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LootCountLabel" type="Label" parent="VBox/BottomBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = ""
+
+[node name="Spacer2" type="Control" parent="VBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ContinueButton" type="Button" parent="VBox/BottomBar"]
 layout_mode = 2
 text = "Continue"
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="DragPreview" parent="DragLayer" instance=ExtResource("5_drag")]
+
+[node name="TooltipLayer" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6_tooltip")]
