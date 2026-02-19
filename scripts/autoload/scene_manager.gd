@@ -7,6 +7,9 @@ var _scene_stack: Array[String] = []
 var _transition_overlay: ColorRect
 var _is_transitioning: bool = false
 
+# Pending navigation request (queued if called during a transition)
+var _pending_request: Dictionary = {}  ## {type, path, data}
+
 func _ready():
 	# Create a persistent overlay for fade transitions
 	_transition_overlay = ColorRect.new()
@@ -25,6 +28,8 @@ func _ready():
 ## Push a new scene onto the stack (keeps history for back navigation).
 func push_scene(scene_path: String, data: Dictionary = {}):
 	if _is_transitioning:
+		DebugLogger.log_warning("Transition in progress — queuing push: %s" % scene_path, "SceneManager")
+		_pending_request = {"type": "push", "path": scene_path, "data": data}
 		return
 	# Save current scene to stack
 	var current := get_tree().current_scene
@@ -35,12 +40,16 @@ func push_scene(scene_path: String, data: Dictionary = {}):
 ## Replace the current scene (no history — can't go back).
 func replace_scene(scene_path: String, data: Dictionary = {}):
 	if _is_transitioning:
+		DebugLogger.log_warning("Transition in progress — queuing replace: %s" % scene_path, "SceneManager")
+		_pending_request = {"type": "replace", "path": scene_path, "data": data}
 		return
 	_change_scene(scene_path, data)
 
 ## Go back to the previous scene in the stack.
 func pop_scene(data: Dictionary = {}):
 	if _is_transitioning:
+		DebugLogger.log_warning("Transition in progress — queuing pop", "SceneManager")
+		_pending_request = {"type": "pop", "data": data}
 		return
 	if _scene_stack.is_empty():
 		DebugLogger.log_warn("Scene stack is empty, cannot pop", "SceneManager")
@@ -88,3 +97,21 @@ func _change_scene(scene_path: String, data: Dictionary):
 	await tween_in.finished
 	_transition_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_is_transitioning = false
+
+	# Execute pending request if one was queued during the transition
+	_flush_pending()
+
+
+func _flush_pending():
+	if _pending_request.is_empty():
+		return
+	var req: Dictionary = _pending_request
+	_pending_request = {}
+	DebugLogger.log_info("Executing pending %s request" % req.type, "SceneManager")
+	match req.type:
+		"push":
+			push_scene(req.path, req.get("data", {}))
+		"replace":
+			replace_scene(req.path, req.get("data", {}))
+		"pop":
+			pop_scene(req.get("data", {}))

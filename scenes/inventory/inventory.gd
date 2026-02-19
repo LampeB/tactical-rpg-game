@@ -27,12 +27,11 @@ var _drag_rotation: int = 0
 
 
 func _ready() -> void:
-	# Build GridInventory for each squad member
+	# Use persistent grid inventories from Party
 	if GameManager.party:
+		_grid_inventories = GameManager.party.grid_inventories
 		for character_id: String in GameManager.party.squad:
-			var char_data: CharacterData = GameManager.party.roster.get(character_id)
-			if char_data and char_data.grid_template:
-				_grid_inventories[character_id] = GridInventory.new(char_data.grid_template)
+			if not _undo_stacks.has(character_id):
 				_undo_stacks[character_id] = InventoryUndo.new()
 
 		# Setup character tabs
