@@ -4,6 +4,7 @@ func _ready():
 	$UI/Controls/BattleButton.pressed.connect(_on_battle)
 	$UI/Controls/InventoryButton.pressed.connect(_on_inventory)
 	$UI/Controls/SquadButton.pressed.connect(_on_squad)
+	$UI/Controls/SkillsButton.pressed.connect(_on_skills)
 	$UI/Controls/MenuButton.pressed.connect(_on_menu)
 
 	# Update gold display
@@ -35,6 +36,9 @@ func _on_inventory():
 
 func _on_squad():
 	SceneManager.push_scene("res://scenes/squad/squad.tscn")
+
+func _on_skills():
+	SceneManager.push_scene("res://scenes/passive_tree/passive_tree.tscn")
 
 func _on_menu():
 	SceneManager.clear_stack()

@@ -84,7 +84,9 @@ func _start_battle() -> void:
 			var char_data: CharacterData = GameManager.party.roster.get(character_id)
 			if char_data:
 				var inv: GridInventory = _grid_inventories.get(character_id)
-				var entity: CombatEntity = CombatEntity.from_character(char_data, inv)
+				var tree = PassiveTreeDatabase.get_passive_tree(character_id)
+				var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
+				var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses)
 				player_entities.append(entity)
 				var skill_count: int = entity.get_available_skills().size()
 				DebugLogger.log_info("  Player: %s — HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")

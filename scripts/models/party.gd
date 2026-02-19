@@ -5,6 +5,7 @@ extends RefCounted
 signal squad_changed()
 signal roster_changed()
 signal stash_changed()
+signal passives_changed(character_id: String)
 
 ## All recruited characters (by id -> CharacterData).
 var roster: Dictionary = {}
@@ -17,6 +18,9 @@ var stash: Array = [] ## of ItemData
 
 ## Persistent grid inventories (character_id -> GridInventory).
 var grid_inventories: Dictionary = {}
+
+## Unlocked passive skill tree nodes (character_id -> Array[String] of node IDs).
+var unlocked_passives: Dictionary = {}
 
 func add_to_roster(character: CharacterData) -> bool:
 	if roster.size() >= Constants.MAX_ROSTER_SIZE:
@@ -67,3 +71,43 @@ func remove_from_stash(item: ItemData):
 
 func get_stash_size() -> int:
 	return stash.size()
+
+
+# === Passive Skill Tree ===
+
+func unlock_passive(character_id: String, node_id: String) -> void:
+	if not unlocked_passives.has(character_id):
+		unlocked_passives[character_id] = []
+	var nodes: Array = unlocked_passives[character_id]
+	if not nodes.has(node_id):
+		nodes.append(node_id)
+		passives_changed.emit(character_id)
+
+
+func is_passive_unlocked(character_id: String, node_id: String) -> bool:
+	if not unlocked_passives.has(character_id):
+		return false
+	return unlocked_passives[character_id].has(node_id)
+
+
+func get_unlocked_passives(character_id: String) -> Array:
+	if not unlocked_passives.has(character_id):
+		return []
+	return unlocked_passives[character_id]
+
+
+## Compute passive bonuses for a character. Requires a PassiveTreeData
+## (caller must look it up since Party can't reference autoloads).
+func get_passive_bonuses(character_id: String, tree: PassiveTreeData) -> Dictionary:
+	var stat_mods: Array = []
+	var effects: Array = []
+	if not tree:
+		return {"stat_modifiers": stat_mods, "special_effects": effects}
+	var unlocked: Array = get_unlocked_passives(character_id)
+	for i in range(tree.nodes.size()):
+		var node: PassiveNodeData = tree.nodes[i]
+		if node and unlocked.has(node.id):
+			stat_mods.append_array(node.stat_modifiers)
+			if not node.special_effect_id.is_empty():
+				effects.append(node.special_effect_id)
+	return {"stat_modifiers": stat_mods, "special_effects": effects}

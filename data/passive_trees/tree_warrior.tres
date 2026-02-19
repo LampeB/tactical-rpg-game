@@ -1,0 +1,163 @@
+[gd_resource type="Resource" script_class="PassiveTreeData" load_steps=24 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/passive_tree_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/passive_node_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3"]
+
+; --- Stat Modifiers ---
+[sub_resource type="Resource" id="mod_hp_10"]
+script = ExtResource("3")
+stat = 0
+modifier_type = 0
+value = 10.0
+
+[sub_resource type="Resource" id="mod_def_2"]
+script = ExtResource("3")
+stat = 5
+modifier_type = 0
+value = 2.0
+
+[sub_resource type="Resource" id="mod_hp_5pct"]
+script = ExtResource("3")
+stat = 0
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="mod_patk_3"]
+script = ExtResource("3")
+stat = 4
+modifier_type = 0
+value = 3.0
+
+[sub_resource type="Resource" id="mod_def_10pct"]
+script = ExtResource("3")
+stat = 5
+modifier_type = 1
+value = 10.0
+
+[sub_resource type="Resource" id="mod_patk_5pct"]
+script = ExtResource("3")
+stat = 4
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="mod_hp_20pct"]
+script = ExtResource("3")
+stat = 0
+modifier_type = 1
+value = 20.0
+
+; --- Nodes ---
+[sub_resource type="Resource" id="node_vigor"]
+script = ExtResource("2")
+id = "w_vigor"
+display_name = "Vigor"
+description = "Increases maximum health."
+stat_modifiers = [SubResource("mod_hp_10")]
+gold_cost = 50
+position = Vector2(300, 500)
+
+[sub_resource type="Resource" id="node_tough"]
+script = ExtResource("2")
+id = "w_tough"
+display_name = "Tough"
+description = "Hardens the body against blows."
+stat_modifiers = [SubResource("mod_def_2")]
+gold_cost = 50
+position = Vector2(500, 500)
+
+[sub_resource type="Resource" id="node_fortitude"]
+script = ExtResource("2")
+id = "w_fortitude"
+display_name = "Fortitude"
+description = "Toughens the warrior's resolve."
+stat_modifiers = [SubResource("mod_hp_5pct")]
+gold_cost = 75
+prerequisites = ["w_vigor"]
+position = Vector2(250, 400)
+
+[sub_resource type="Resource" id="node_might"]
+script = ExtResource("2")
+id = "w_might"
+display_name = "Might"
+description = "Raw physical power flows through you."
+stat_modifiers = [SubResource("mod_patk_3")]
+gold_cost = 75
+prerequisites = ["w_tough"]
+position = Vector2(550, 400)
+
+[sub_resource type="Resource" id="node_thorns"]
+script = ExtResource("2")
+id = "w_thorns"
+display_name = "Thorns"
+description = "Enemies take 5 damage when they hit you."
+special_effect_id = "thorns"
+gold_cost = 100
+prerequisites = ["w_fortitude"]
+position = Vector2(200, 300)
+
+[sub_resource type="Resource" id="node_lifesteal"]
+script = ExtResource("2")
+id = "w_lifesteal"
+display_name = "Lifesteal"
+description = "Heal 5% of physical damage dealt."
+special_effect_id = "lifesteal_5"
+gold_cost = 100
+prerequisites = ["w_might"]
+position = Vector2(600, 300)
+
+[sub_resource type="Resource" id="node_ironhide"]
+script = ExtResource("2")
+id = "w_ironhide"
+display_name = "Ironhide"
+description = "Greatly increases physical defense."
+stat_modifiers = [SubResource("mod_def_10pct")]
+gold_cost = 150
+prerequisites = ["w_thorns"]
+position = Vector2(200, 200)
+
+[sub_resource type="Resource" id="node_brute_force"]
+script = ExtResource("2")
+id = "w_brute_force"
+display_name = "Brute Force"
+description = "Unleash devastating physical power."
+stat_modifiers = [SubResource("mod_patk_5pct")]
+gold_cost = 150
+prerequisites = ["w_lifesteal"]
+position = Vector2(600, 200)
+
+[sub_resource type="Resource" id="node_shield_wall"]
+script = ExtResource("2")
+id = "w_shield_wall"
+display_name = "Shield Wall"
+description = "Start each battle with a protective shield."
+special_effect_id = "start_shield"
+gold_cost = 200
+prerequisites = ["w_ironhide"]
+position = Vector2(250, 100)
+
+[sub_resource type="Resource" id="node_retaliation"]
+script = ExtResource("2")
+id = "w_retaliation"
+display_name = "Retaliation"
+description = "15% chance to counter-attack when hit."
+special_effect_id = "counter_attack"
+gold_cost = 200
+prerequisites = ["w_brute_force"]
+position = Vector2(550, 100)
+
+[sub_resource type="Resource" id="node_bulwark"]
+script = ExtResource("2")
+id = "w_bulwark"
+display_name = "Bulwark"
+description = "The warrior becomes an unstoppable fortress."
+stat_modifiers = [SubResource("mod_hp_20pct")]
+gold_cost = 500
+prerequisites = ["w_shield_wall", "w_retaliation"]
+position = Vector2(400, 30)
+
+[resource]
+script = ExtResource("1")
+character_id = "warrior"
+display_name = "Warrior's Path"
+nodes = [SubResource("node_vigor"), SubResource("node_tough"), SubResource("node_fortitude"), SubResource("node_might"), SubResource("node_thorns"), SubResource("node_lifesteal"), SubResource("node_ironhide"), SubResource("node_brute_force"), SubResource("node_shield_wall"), SubResource("node_retaliation"), SubResource("node_bulwark")]

@@ -33,6 +33,9 @@ signal party_member_removed(character: RefCounted)
 signal squad_changed()
 signal active_character_changed(character: RefCounted)
 
+# === PASSIVES ===
+signal passive_unlocked(character_id: String, node_id: String)
+
 # === ECONOMY ===
 signal gold_changed(new_amount: int)
 signal item_purchased(item: Resource, price: int)
