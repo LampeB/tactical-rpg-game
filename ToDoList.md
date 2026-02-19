@@ -18,4 +18,6 @@
 
 [] fixed map, easily editable, different placable elements stored in a DB
 
+[x] manage squad composition (add/remove characters from active squad)
+
 [x] issue when going back to the squad screen
