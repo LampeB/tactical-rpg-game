@@ -10,6 +10,10 @@ func _ready():
 	EventBus.gold_changed.connect(_on_gold_changed)
 	_on_gold_changed(GameManager.gold)
 
+	# Auto-save when entering the world scene
+	if GameManager.is_game_started:
+		SaveManager.save_game()
+
 	DebugLogger.log_info("World scene ready", "World")
 
 func _unhandled_input(event: InputEvent):

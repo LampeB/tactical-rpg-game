@@ -22,22 +22,24 @@ func new_game():
 		party.add_to_roster(warrior)
 		DebugLogger.log_info("Added starter character: %s" % warrior.display_name, "GameManager")
 
-	# Give starter items to stash
-	var sword := load("res://data/items/weapons/sword_common.tres") as ItemData
-	var shield := load("res://data/items/armor/shield_common.tres") as ItemData
-	var potion := load("res://data/items/consumables/potion_common.tres") as ItemData
-	var fire_gem := load("res://data/items/modifiers/fire_gem_common.tres") as ItemData
-	if sword:
-		party.add_to_stash(sword)
-	if shield:
-		party.add_to_stash(shield)
-	if potion:
-		party.add_to_stash(potion)
-		party.add_to_stash(potion) # Give 2 potions
-	if fire_gem:
-		party.add_to_stash(fire_gem)
+	# Give starter items to stash (by ID from ItemDatabase)
+	var starter_items: Array = [
+		"sword_common",
+		"shield_common",
+		"potion_common",
+		"potion_common",
+		"fire_gem_common",
+	]
+	for item_id: String in starter_items:
+		var item: ItemData = ItemDatabase.get_item(item_id)
+		if item:
+			party.add_to_stash(item)
+		else:
+			DebugLogger.log_warning("Starter item not found: %s" % item_id, "GameManager")
 
 	EventBus.gold_changed.emit(gold)
+	SaveManager._playtime_accumulator = 0.0
+	SaveManager.start_playtime_tracking()
 	DebugLogger.log_info("New game started — Gold: %d, Roster: %d, Stash: %d" % [gold, party.roster.size(), party.get_stash_size()], "GameManager")
 
 func add_gold(amount: int):
