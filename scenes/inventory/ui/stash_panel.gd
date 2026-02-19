@@ -9,6 +9,8 @@ const StashSlotScene: PackedScene = preload("res://scenes/inventory/ui/stash_slo
 
 var _slots: Array = []
 var _drop_highlighted: bool = false
+var _label_prefix: String = "Stash"
+var _show_max: bool = true
 
 @onready var _count_label: Label = $VBox/StashLabel
 @onready var _item_list: VBoxContainer = $VBox/ScrollContainer/ItemList
@@ -52,6 +54,14 @@ func _on_slot_clicked(index: int, item: ItemData) -> void:
 	item_clicked.emit(item, index)
 
 
+func set_label_prefix(prefix: String, show_max: bool = true) -> void:
+	_label_prefix = prefix
+	_show_max = show_max
+
+
 func _update_count_label(count: int) -> void:
 	if _count_label:
-		_count_label.text = "Stash (%d/%d)" % [count, Constants.MAX_STASH_SLOTS]
+		if _show_max:
+			_count_label.text = "%s (%d/%d)" % [_label_prefix, count, Constants.MAX_STASH_SLOTS]
+		else:
+			_count_label.text = "%s (%d)" % [_label_prefix, count]

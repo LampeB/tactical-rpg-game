@@ -6,6 +6,8 @@ enum BattleState { INIT, PLAYER_ACTION, TARGET_SELECT, ENEMY_ACTION, ANIMATING, 
 const EntityStatusBarScene: PackedScene = preload("res://scenes/battle/ui/entity_status_bar.tscn")
 const DamagePopupScene: PackedScene = preload("res://scenes/battle/ui/damage_popup.tscn")
 
+const LootGeneratorScript = preload("res://scripts/systems/loot/loot_generator.gd")
+
 const ACTION_DELAY: float = 0.6  ## Seconds between actions for readability
 
 # --- Child references ---
@@ -210,9 +212,20 @@ func _on_combat_finished(victory: bool) -> void:
 		DebugLogger.log_info("State -> VICTORY! Gold earned: %d (bonus: %d)" % [_combat_manager.gold_earned, _encounter_data.bonus_gold], "Battle")
 		GameManager.add_gold(_combat_manager.gold_earned)
 		EventBus.combat_ended.emit(true)
-		await get_tree().create_timer(2.0).timeout
-		DebugLogger.log_info("Returning to previous scene after victory", "Battle")
-		SceneManager.pop_scene()
+		await get_tree().create_timer(1.5).timeout
+		# Generate loot and show reward screen
+		var loot: Array = LootGeneratorScript.generate_loot(_encounter_data, _combat_manager.enemy_entities)
+		if not loot.is_empty():
+			DebugLogger.log_info("Generated %d loot items, opening loot screen" % loot.size(), "Battle")
+			var loot_data := {
+				"loot": loot,
+				"gold": _combat_manager.gold_earned,
+				"source": "battle",
+			}
+			SceneManager.replace_scene("res://scenes/loot/loot.tscn", loot_data)
+		else:
+			DebugLogger.log_info("No loot generated, returning to previous scene", "Battle")
+			SceneManager.pop_scene()
 	else:
 		_state = BattleState.DEFEAT
 		_title.text = "Defeat..."

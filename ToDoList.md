@@ -21,3 +21,5 @@
 [x] manage squad composition (add/remove characters from active squad)
 
 [x] issue when going back to the squad screen
+
+[x] post-battle reward/loot screen with drag-and-drop into character inventories
