@@ -21,15 +21,9 @@ func _unhandled_input(event: InputEvent):
 func _on_battle():
 	var encounter: EncounterData = load("res://data/encounters/encounter_slimes.tres") as EncounterData
 	if encounter:
-		var grid_inventories: Dictionary = {}
-		if GameManager.party:
-			for character_id: String in GameManager.party.squad:
-				var char_data: CharacterData = GameManager.party.roster.get(character_id)
-				if char_data and char_data.grid_template:
-					grid_inventories[character_id] = GridInventory.new(char_data.grid_template)
 		SceneManager.push_scene("res://scenes/battle/battle.tscn", {
 			"encounter": encounter,
-			"grid_inventories": grid_inventories,
+			"grid_inventories": GameManager.party.grid_inventories if GameManager.party else {},
 		})
 
 func _on_inventory():

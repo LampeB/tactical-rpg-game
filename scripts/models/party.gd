@@ -15,12 +15,18 @@ var squad: Array[String] = []
 ## Shared item stash (items not equipped on any character).
 var stash: Array = [] ## of ItemData
 
+## Persistent grid inventories (character_id -> GridInventory).
+var grid_inventories: Dictionary = {}
+
 func add_to_roster(character: CharacterData) -> bool:
 	if roster.size() >= Constants.MAX_ROSTER_SIZE:
 		return false
 	if roster.has(character.id):
 		return false
 	roster[character.id] = character
+	# Create persistent grid inventory for this character
+	if character.grid_template and not grid_inventories.has(character.id):
+		grid_inventories[character.id] = GridInventory.new(character.grid_template)
 	roster_changed.emit()
 	# Auto-add to squad if there's room
 	if squad.size() < Constants.MAX_SQUAD_SIZE:
@@ -31,6 +37,7 @@ func add_to_roster(character: CharacterData) -> bool:
 func remove_from_roster(character_id: String):
 	roster.erase(character_id)
 	squad.erase(character_id)
+	grid_inventories.erase(character_id)
 	roster_changed.emit()
 	squad_changed.emit()
 
