@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://c5actmenu001"]
+
+[ext_resource type="Script" path="res://scenes/battle/ui/action_menu.gd" id="1_script"]
+
+[node name="ActionMenu" type="PanelContainer"]
+layout_mode = 2
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MainButtons" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AttackButton" type="Button" parent="VBox/MainButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attack"
+
+[node name="DefendButton" type="Button" parent="VBox/MainButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Defend"
+
+[node name="SkillsButton" type="Button" parent="VBox/MainButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skills"
+
+[node name="FleeButton" type="Button" parent="VBox/MainButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Flee"
+
+[node name="SkillList" type="VBoxContainer" parent="VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BackButton" type="Button" parent="VBox/SkillList"]
+layout_mode = 2
+text = "< Back"

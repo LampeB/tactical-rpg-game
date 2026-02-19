@@ -1,6 +1,7 @@
 extends Node2D
 
 func _ready():
+	$UI/Controls/BattleButton.pressed.connect(_on_battle)
 	$UI/Controls/InventoryButton.pressed.connect(_on_inventory)
 	$UI/Controls/SquadButton.pressed.connect(_on_squad)
 	$UI/Controls/MenuButton.pressed.connect(_on_menu)
@@ -16,6 +17,20 @@ func _unhandled_input(event: InputEvent):
 		_on_inventory()
 	elif event.is_action_pressed("escape"):
 		_on_menu()
+
+func _on_battle():
+	var encounter: EncounterData = load("res://data/encounters/encounter_slimes.tres") as EncounterData
+	if encounter:
+		var grid_inventories: Dictionary = {}
+		if GameManager.party:
+			for character_id: String in GameManager.party.squad:
+				var char_data: CharacterData = GameManager.party.roster.get(character_id)
+				if char_data and char_data.grid_template:
+					grid_inventories[character_id] = GridInventory.new(char_data.grid_template)
+		SceneManager.push_scene("res://scenes/battle/battle.tscn", {
+			"encounter": encounter,
+			"grid_inventories": grid_inventories,
+		})
 
 func _on_inventory():
 	SceneManager.push_scene("res://scenes/inventory/inventory.tscn")

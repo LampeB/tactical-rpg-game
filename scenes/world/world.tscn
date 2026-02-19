@@ -40,6 +40,10 @@ offset_top = -180.0
 grow_horizontal = 0
 grow_vertical = 0
 
+[node name="BattleButton" type="Button" parent="UI/Controls"]
+layout_mode = 2
+text = "Battle!"
+
 [node name="InventoryButton" type="Button" parent="UI/Controls"]
 layout_mode = 2
 text = "Inventory (I)"
