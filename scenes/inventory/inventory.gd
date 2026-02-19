@@ -58,8 +58,9 @@ func _ready() -> void:
 	_item_tooltip.visible = false
 	_drag_preview.visible = false
 
-	# Wire back button
+	# Wire top bar buttons
 	$VBox/TopBar/BackButton.pressed.connect(_on_back)
+	$VBox/TopBar/StatsButton.pressed.connect(_on_stats)
 	DebugLogger.log_info("Inventory scene ready", "Inventory")
 
 
@@ -363,3 +364,9 @@ func _on_back() -> void:
 		_cancel_drag()
 		return
 	SceneManager.pop_scene()
+
+
+func _on_stats() -> void:
+	if _drag_state == DragState.DRAGGING:
+		_cancel_drag()
+	SceneManager.push_scene("res://scenes/character_stats/character_stats.tscn")

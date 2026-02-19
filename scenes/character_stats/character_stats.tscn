@@ -1,0 +1,169 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/character_stats/character_stats.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
+
+[node name="CharacterStats" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.12, 0.18, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Character Stats"
+theme_override_font_sizes/font_size = 24
+
+[node name="BackButton" type="Button" parent="VBox/TopBar"]
+layout_mode = 2
+text = "< Back"
+
+[node name="CharacterTabs" parent="VBox" instance=ExtResource("2_tabs")]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="InfoPanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InfoVBox" type="VBoxContainer" parent="VBox/Content/InfoPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Portrait" type="TextureRect" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(128, 128)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CharName" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+
+[node name="CharDesc" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+
+[node name="SkillsHeader" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+text = "Skills"
+theme_override_font_sizes/font_size = 16
+
+[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HSeparator2" type="HSeparator" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+
+[node name="EffectsHeader" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+text = "Passive Effects"
+theme_override_font_sizes/font_size = 16
+
+[node name="EffectsList" type="VBoxContainer" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="StatsPanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="StatsVBox" type="VBoxContainer" parent="VBox/Content/StatsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="VBox/Content/StatsPanel/StatsVBox"]
+layout_mode = 2
+
+[node name="StatLabel" type="Label" parent="VBox/Content/StatsPanel/StatsVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+text = "Stat"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="BaseLabel" type="Label" parent="VBox/Content/StatsPanel/StatsVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+text = "Base"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+
+[node name="EquipLabel" type="Label" parent="VBox/Content/StatsPanel/StatsVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+text = "Equip"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
+
+[node name="PassiveLabel" type="Label" parent="VBox/Content/StatsPanel/StatsVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+text = "Passives"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.2, 0.8, 0.3, 1)
+
+[node name="TotalLabel" type="Label" parent="VBox/Content/StatsPanel/StatsVBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+text = "Total"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1.0, 0.9, 0.5, 1)
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/StatsPanel/StatsVBox"]
+layout_mode = 2
+
+[node name="StatRows" type="VBoxContainer" parent="VBox/Content/StatsPanel/StatsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
