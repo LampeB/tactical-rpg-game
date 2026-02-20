@@ -24,6 +24,7 @@ var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 var _current_character_id: String = ""
 var _inventory_item_indices: Dictionary = {}  ## int -> bool (tracks which loot indices came from inventory)
 var _items_placed_from_loot: Dictionary = {}  ## {character_id: {grid_pos: true}} tracks items placed from loot this session
+var _from_battle: bool = false  ## Tracks if loot came from battle (for proper return behavior)
 
 var _drag_state: DragState = DragState.IDLE
 var _dragged_item: ItemData = null
@@ -81,6 +82,7 @@ func receive_data(data: Dictionary) -> void:
 
 	# Title based on source
 	var source: String = data.get("source", "battle")
+	_from_battle = (source == "battle")  # Track if returning from battle
 	if source == "battle":
 		_title.text = "Victory!"
 	elif source == "chest":
@@ -146,6 +148,11 @@ func _on_character_selected(character_id: String) -> void:
 
 func _on_loot_item_clicked(item: ItemData, index: int) -> void:
 	if _drag_state == DragState.DRAGGING:
+		# Check for item upgrade opportunity
+		if ItemUpgradeSystem.can_upgrade(_dragged_item, item):
+			_perform_loot_upgrade(item, index)
+			return
+
 		_return_to_loot_pool()
 	else:
 		_start_drag_from_loot(item, index)
@@ -195,6 +202,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
 		var can_place: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
+		# Note: Upgradeable highlighting is handled in _update_drag_preview()
 	else:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
@@ -258,6 +266,12 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	if not inv:
 		return
 
+	# Check for item upgrade opportunity
+	var target_item: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+	if target_item and ItemUpgradeSystem.can_upgrade(_dragged_item, target_item.item_data):
+		_perform_item_upgrade(inv, target_item)
+		return
+
 	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
 		return
 
@@ -278,6 +292,73 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	_grid_panel.refresh()
 	_update_loot_count()
 	DebugLogger.log_info("Placed %s at (%d, %d)" % [placed.item_data.display_name, grid_pos.x, grid_pos.y], "Loot")
+
+
+func _perform_item_upgrade(inv: GridInventory, target_placed: GridInventory.PlacedItem) -> void:
+	# Create upgraded item
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_placed.item_data)
+
+	# Remove target item from inventory
+	var target_pos: Vector2i = target_placed.grid_position
+	var target_rot: int = target_placed.rotation
+	inv.remove_item(target_placed)
+
+	# Place upgraded item at same position
+	var new_placed: GridInventory.PlacedItem = inv.place_item(upgraded_item, target_pos, target_rot)
+
+	if new_placed:
+		# Emit signals
+		EventBus.inventory_changed.emit(_current_character_id)
+
+		# Visual feedback
+		_grid_panel.refresh()
+		_update_loot_count()
+
+		# Log upgrade
+		DebugLogger.log_info("UPGRADE! %s + %s → %s" % [
+			_dragged_item.display_name,
+			target_placed.item_data.display_name,
+			upgraded_item.display_name
+		], "Loot")
+
+		# TODO: Add visual/audio effect for upgrade
+
+	_end_drag()
+
+
+func _perform_loot_upgrade(target_item: ItemData, target_index: int) -> void:
+	# Create upgraded item
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
+
+	# Remove target item from loot pool
+	_loot_items.remove_at(target_index)
+
+	# Update tracking indices - remove this index and shift down all subsequent
+	_inventory_item_indices.erase(target_index)
+	var keys_to_update: Array = []
+	for idx in _inventory_item_indices.keys():
+		if idx > target_index:
+			keys_to_update.append(idx)
+	for idx in keys_to_update:
+		_inventory_item_indices[idx - 1] = true
+		_inventory_item_indices.erase(idx)
+
+	# Add upgraded item to loot pool
+	_loot_items.append(upgraded_item)
+
+	# Refresh loot pool display
+	_refresh_loot_pool()
+	_update_loot_count()
+
+	# Log upgrade
+	DebugLogger.log_info("LOOT UPGRADE! %s + %s → %s" % [
+		_dragged_item.display_name,
+		target_item.display_name,
+		upgraded_item.display_name
+	], "Loot")
+
+	# End drag
+	_end_drag()
 
 
 func _return_to_loot_pool() -> void:
@@ -342,6 +423,10 @@ func _rotate_dragged_item() -> void:
 func _update_drag_preview() -> void:
 	_loot_pool.highlight_drop_target(_loot_pool.is_mouse_over())
 
+	# Always highlight ALL upgradeable items (grid + loot) when dragging
+	_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_loot_pool.highlight_upgradeable_items(_dragged_item)
+
 
 func _end_drag() -> void:
 	_drag_state = DragState.IDLE
@@ -350,6 +435,7 @@ func _end_drag() -> void:
 	_drag_source_loot_index = -1
 	_drag_preview.hide_preview()
 	_loot_pool.highlight_drop_target(false)
+	_loot_pool.clear_upgradeable_highlights()
 	_grid_panel.clear_placement_preview()
 
 
@@ -450,4 +536,8 @@ func _on_continue() -> void:
 		DebugLogger.log_info("Auto-sent remaining loot to stash on continue", "Loot")
 
 	EventBus.loot_screen_closed.emit()
-	SceneManager.pop_scene()
+	# Pass from_battle flag so overworld can apply cooldown and save
+	if _from_battle:
+		SceneManager.pop_scene({"from_battle": true})
+	else:
+		SceneManager.pop_scene()

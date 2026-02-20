@@ -56,6 +56,7 @@ func _ready() -> void:
 		_stash_panel.item_hovered.connect(_on_stash_item_hovered)
 		_stash_panel.item_exited.connect(_on_item_hover_exited)
 		_stash_panel.item_use_requested.connect(_on_stash_item_use_requested)
+		_stash_panel.background_clicked.connect(_on_stash_background_clicked)
 
 	# Setup grid panel signals
 	_grid_panel.cell_clicked.connect(_on_grid_cell_clicked)
@@ -81,15 +82,8 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not visible:
-		return
-	# Handle stash drops during drag in _input (before GUI processing)
-	# so the stash PanelContainer's mouse_filter doesn't block the event.
-	if _drag_state == DragState.DRAGGING:
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			if _stash_panel.is_mouse_over():
-				_return_to_stash()
-				get_viewport().set_input_as_handled()
+	# No longer needed - stash panel handles its own background clicks via background_clicked signal
+	pass
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -260,6 +254,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
 		var can_place: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
+		# Note: Upgradeable highlighting is handled in _update_drag_preview()
 	else:
 		# Show tooltip and modifier highlights for hovered item
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
@@ -275,6 +270,23 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 
 func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 	if _drag_state == DragState.DRAGGING:
+		# Check for item upgrade opportunity
+		DebugLogger.log_info("Stash item clicked while dragging: dragged=%s (id=%s, rarity=%d), target=%s (id=%s, rarity=%d)" % [
+			_dragged_item.display_name if _dragged_item else "null",
+			_dragged_item.id if _dragged_item else "null",
+			_dragged_item.rarity if _dragged_item else -1,
+			item.display_name if item else "null",
+			item.id if item else "null",
+			item.rarity if item else -1
+		], "Inventory")
+
+		if ItemUpgradeSystem.can_upgrade(_dragged_item, item):
+			DebugLogger.log_info("Upgrade possible! Performing stash upgrade", "Inventory")
+			_perform_stash_upgrade(item, index)
+			return
+		else:
+			DebugLogger.log_info("Upgrade not possible - items don't match", "Inventory")
+
 		# Drop current item to stash
 		_return_to_stash()
 	else:
@@ -285,6 +297,12 @@ func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 	if _drag_state == DragState.IDLE:
 		_item_tooltip.show_for_item(item, null, null, global_pos)
+
+
+func _on_stash_background_clicked() -> void:
+	# Return dragged item to stash when clicking stash background (not on an item)
+	if _drag_state == DragState.DRAGGING:
+		_return_to_stash()
 
 
 func _on_item_hover_exited() -> void:
@@ -531,6 +549,12 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	if not inv:
 		return
 
+	# Check for item upgrade opportunity
+	var target_item: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+	if target_item and ItemUpgradeSystem.can_upgrade(_dragged_item, target_item.item_data):
+		_perform_item_upgrade(inv, target_item)
+		return
+
 	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
 		return
 
@@ -553,6 +577,64 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	_end_drag()
 	_grid_panel.refresh()
 	DebugLogger.log_info("Placed %s at (%d, %d)" % [placed.item_data.display_name, grid_pos.x, grid_pos.y], "Inventory")
+
+
+func _perform_item_upgrade(inv: GridInventory, target_placed: GridInventory.PlacedItem) -> void:
+	# Create upgraded item
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_placed.item_data)
+
+	# Remove target item from inventory
+	var target_pos: Vector2i = target_placed.grid_position
+	var target_rot: int = target_placed.rotation
+	inv.remove_item(target_placed)
+
+	# Place upgraded item at same position
+	var new_placed: GridInventory.PlacedItem = inv.place_item(upgraded_item, target_pos, target_rot)
+
+	if new_placed:
+		# Emit signals
+		EventBus.inventory_changed.emit(_current_character_id)
+
+		# Visual feedback
+		_grid_panel.refresh()
+
+		# Log upgrade
+		DebugLogger.log_info("UPGRADE! %s + %s → %s" % [
+			_dragged_item.display_name,
+			target_placed.item_data.display_name,
+			upgraded_item.display_name
+		], "Inventory")
+
+		# TODO: Add visual/audio effect for upgrade
+
+	_end_drag()
+
+
+func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
+	# Create upgraded item
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
+
+	# Remove target item from stash
+	GameManager.party.stash.remove_at(target_index)
+
+	# Add upgraded item to stash
+	GameManager.party.add_to_stash(upgraded_item)
+
+	# Refresh stash display
+	_stash_panel.refresh(GameManager.party.stash)
+
+	# Emit signal
+	EventBus.stash_changed.emit()
+
+	# Log upgrade
+	DebugLogger.log_info("STASH UPGRADE! %s + %s → %s" % [
+		_dragged_item.display_name,
+		target_item.display_name,
+		upgraded_item.display_name
+	], "Inventory")
+
+	# End drag
+	_end_drag()
 
 
 func _return_to_stash() -> void:
@@ -607,6 +689,10 @@ func _update_drag_preview() -> void:
 	# Update stash highlight
 	_stash_panel.highlight_drop_target(_stash_panel.is_mouse_over())
 
+	# Always highlight ALL upgradeable items (grid + stash) when dragging
+	_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
+
 
 func _end_drag() -> void:
 	_drag_state = DragState.IDLE
@@ -616,6 +702,7 @@ func _end_drag() -> void:
 	_drag_source_stash_index = -1
 	_drag_preview.hide_preview()
 	_stash_panel.highlight_drop_target(false)
+	_stash_panel.clear_upgradeable_highlights()
 	_grid_panel.clear_placement_preview()
 
 

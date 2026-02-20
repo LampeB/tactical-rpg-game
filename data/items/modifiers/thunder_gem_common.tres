@@ -22,8 +22,8 @@ value = 5.0
 [sub_resource type="Resource" id="rule_sword"]
 script = ExtResource("3")
 target_category = 0
-stat_bonuses = [SubResource("stat_phys_atk")]
-override_damage_type = true
+stat_bonuses = [SubResource("stat_spec_atk")]
+override_damage_type = false
 damage_type = 3
 
 [sub_resource type="Resource" id="rule_staff"]
@@ -34,16 +34,30 @@ override_damage_type = false
 damage_type = 3
 granted_skills = [ExtResource("6")]
 
+[sub_resource type="Resource" id="rule_dagger"]
+script = ExtResource("3")
+target_category = 4
+stat_bonuses = [SubResource("stat_spec_atk")]
+override_damage_type = false
+damage_type = 3
+
+[sub_resource type="Resource" id="rule_mace"]
+script = ExtResource("3")
+target_category = 1
+stat_bonuses = [SubResource("stat_spec_atk")]
+override_damage_type = false
+damage_type = 3
+
 [resource]
 script = ExtResource("1")
 id = "thunder_gem_common"
 display_name = "Thunder Gem"
-description = "A crackling lightning gem. Near swords: converts to thunder damage. Near staves: grants Thunder Bolt."
+description = "A crackling lightning gem. Adds thunder damage to adjacent melee weapons. Near staves: grants Thunder Bolt."
 icon = ExtResource("5")
 item_type = 2
 category = 0
 rarity = 0
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_sword"), SubResource("rule_staff")]
+conditional_modifier_rules = [SubResource("rule_sword"), SubResource("rule_staff"), SubResource("rule_dagger"), SubResource("rule_mace")]
 base_price = 30

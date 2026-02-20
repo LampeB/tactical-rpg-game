@@ -94,6 +94,22 @@ func clear_highlights() -> void:
 	refresh()
 
 
+func highlight_upgradeable_items(dragged_item: ItemData) -> void:
+	## Highlights items that can be upgraded with the dragged item
+	if not _grid_inventory or not dragged_item:
+		return
+
+	var placed_items: Array = _grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if ItemUpgradeSystem.can_upgrade(dragged_item, placed.item_data):
+			# Highlight all cells occupied by this upgradeable item
+			var occupied: Array[Vector2i] = placed.get_occupied_cells()
+			for cell in occupied:
+				if _cells.has(cell):
+					_cells[cell].set_state(_cells[cell].CellState.UPGRADEABLE)
+
+
 func world_to_grid(screen_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = screen_pos - _cells_layer.global_position
 	var gx: int = floori(local_pos.x / CELL_SIZE)

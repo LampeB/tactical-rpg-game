@@ -247,7 +247,7 @@ func _on_combat_finished(victory: bool) -> void:
 			SceneManager.replace_scene("res://scenes/loot/loot.tscn", loot_data)
 		else:
 			DebugLogger.log_info("No loot generated, returning to previous scene", "Battle")
-			SceneManager.pop_scene()
+			SceneManager.pop_scene({"from_battle": true})
 	else:
 		_state = BattleState.DEFEAT
 		_title.text = "Defeat..."
@@ -255,7 +255,7 @@ func _on_combat_finished(victory: bool) -> void:
 		EventBus.combat_ended.emit(false)
 		await get_tree().create_timer(DEFEAT_DELAY).timeout
 		DebugLogger.log_info("Returning to previous scene after defeat", "Battle")
-		SceneManager.pop_scene()
+		SceneManager.pop_scene({"from_battle": true})
 
 
 func _on_entity_died(entity: CombatEntity) -> void:
