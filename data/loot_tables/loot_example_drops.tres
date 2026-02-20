@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="3_potion"]
+[ext_resource type="Resource" path="res://data/items/weapons/sword_iron.tres" id="4_sword"]
+
+[sub_resource type="Resource" id="entry_potion_1"]
+script = ExtResource("2")
+item = ExtResource("3_potion")
+drop_chance = 0.9
+
+[sub_resource type="Resource" id="entry_potion_2"]
+script = ExtResource("2")
+item = ExtResource("3_potion")
+drop_chance = 0.7
+
+[sub_resource type="Resource" id="entry_potion_3"]
+script = ExtResource("2")
+item = ExtResource("3_potion")
+drop_chance = 0.5
+
+[sub_resource type="Resource" id="entry_sword"]
+script = ExtResource("2")
+item = ExtResource("4_sword")
+drop_chance = 0.1
+
+[resource]
+script = ExtResource("1")
+id = "loot_example_drops"
+entries = [SubResource("entry_potion_1"), SubResource("entry_potion_2"), SubResource("entry_potion_3"), SubResource("entry_sword")]
+roll_count = 1
