@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterZoneData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/encounter_zone_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/encounters/encounter_slimes.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+zone_id = "forest"
+base_encounter_chance = 0.12
+encounters = [ExtResource("2")]
+encounter_weights = [1.0]
+disabled_flag = "forest_cleared"

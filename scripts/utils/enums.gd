@@ -32,7 +32,10 @@ enum EquipmentCategory {
 	## Passive (unmodifiable)
 	HELMET,
 	CHESTPLATE,
+	GLOVES,
+	LEGS,
 	BOOTS,
+	NECKLACE,
 	RING,
 }
 

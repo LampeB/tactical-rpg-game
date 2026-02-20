@@ -199,7 +199,8 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bonuses: Dictionary) -> void:
 	_clear_children(_stat_rows)
 
-	var equip_stats: Dictionary = inv.get_computed_stats() if inv else {}
+	var equip_computed: Dictionary = inv.get_computed_stats() if inv else {}
+	var equip_stats: Dictionary = equip_computed.get("stats", {})
 	var passive_mods: Array = passive_bonuses.get("stat_modifiers", [])
 
 	# Build a CombatEntity to get effective stats
@@ -275,6 +276,49 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 		row.add_child(eff_label)
 
 		_stat_rows.add_child(row)
+
+	# Add Block Power row (max block percentage from equipped weapons/shields)
+	_add_block_power_row(inv)
+
+
+func _add_block_power_row(inv: GridInventory) -> void:
+	var max_block: float = 0.0
+
+	if inv:
+		for i in range(inv.get_all_placed_items().size()):
+			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+			if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+				if placed.item_data.block_percentage > max_block:
+					max_block = placed.item_data.block_percentage
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	# Stat name
+	var name_label: Label = _make_cell("Block Power", 1.2)
+	name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_PRIMARY)
+	row.add_child(name_label)
+
+	# Base (always 0%)
+	row.add_child(_make_cell("-", 0.8))
+
+	# Equipment (block percentage)
+	var block_text: String = "%.0f%%" % (max_block * 100.0) if max_block > 0 else "-"
+	var block_label: Label = _make_cell(block_text, 0.8)
+	if max_block > 0:
+		block_label.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
+	row.add_child(block_label)
+
+	# Passives (no passive block bonuses yet)
+	row.add_child(_make_cell("-", 0.8))
+
+	# Total (same as equipment for now)
+	var total_label: Label = _make_cell(block_text, 0.8)
+	if max_block > 0:
+		total_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_IMPORTANT)
+	row.add_child(total_label)
+
+	_stat_rows.add_child(row)
 
 
 func _compute_passive_bonus(stat: int, passive_mods: Array) -> Dictionary:

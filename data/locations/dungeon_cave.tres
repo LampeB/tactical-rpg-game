@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="LocationData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "dungeon_cave"
+display_name = "Mystery Cave"
+description = "A dark cave filled with monsters."
+scene_path = "res://scenes/world/world.tscn"
+entrance_position = Vector2(100, 100)
+unlock_flag = ""
+is_visible_when_locked = true
+allow_fast_travel_to = false
+must_visit_first = false
+location_type = 1

@@ -16,7 +16,34 @@ func _init(template: GridTemplate) -> void:
 
 func can_place(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> bool:
 	var cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
-	return _are_cells_valid(cells)
+	if not _are_cells_valid(cells):
+		return false
+
+	# Check equipment slot restrictions
+	if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
+		# Check if we have enough hand slots available
+		var available_slots: int = get_available_hand_slots()
+		var used_slots: int = get_used_hand_slots()
+		if used_slots + item_data.hand_slots_required > available_slots:
+			return false
+
+	if item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
+		# Special handling for rings (max 10) and necklaces (max 1)
+		if item_data.armor_slot == Enums.EquipmentCategory.RING:
+			var ring_count := _count_equipped_by_slot(Enums.EquipmentCategory.RING)
+			if ring_count >= 10:
+				return false
+		elif item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
+			var necklace_count := _count_equipped_by_slot(Enums.EquipmentCategory.NECKLACE)
+			if necklace_count >= 1:
+				return false
+		else:
+			# Other armor slots: only one allowed
+			var occupied_armor_slots: Dictionary = get_equipped_armor_slots()
+			if occupied_armor_slots.has(item_data.armor_slot):
+				return false
+
+	return true
 
 
 func place_item(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> PlacedItem:
@@ -51,6 +78,45 @@ func get_all_placed_items() -> Array:
 func clear() -> void:
 	placed_items.clear()
 	_cell_map.clear()
+
+
+# === Equipment Slot Tracking ===
+
+## Returns the total number of hand slots available (base 2 + bonuses from equipped items).
+func get_available_hand_slots() -> int:
+	var base_slots: int = 2
+	var bonus_slots: int = 0
+
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		bonus_slots += placed.item_data.bonus_hand_slots
+
+	return base_slots + bonus_slots
+
+
+## Returns the number of hand slots currently used by equipped weapons.
+func get_used_hand_slots() -> int:
+	var used: int = 0
+
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			used += placed.item_data.hand_slots_required
+
+	return used
+
+
+## Returns Dictionary mapping EquipmentCategory -> PlacedItem for all equipped armor pieces.
+func get_equipped_armor_slots() -> Dictionary:
+	var slots: Dictionary = {}
+
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
+			var armor_slot: Enums.EquipmentCategory = placed.item_data.armor_slot
+			slots[armor_slot] = placed
+
+	return slots
 
 
 # === Modifier System ===
@@ -193,6 +259,15 @@ func _are_cells_valid(cells: Array[Vector2i]) -> bool:
 		if _cell_map.has(cell):
 			return false
 	return true
+
+
+func _count_equipped_by_slot(slot_type: Enums.EquipmentCategory) -> int:
+	var count := 0
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.PASSIVE_GEAR and placed.item_data.armor_slot == slot_type:
+			count += 1
+	return count
 
 
 func _items_within_reach(modifier_placed: PlacedItem, target_cells: Array[Vector2i], reach: int) -> bool:
