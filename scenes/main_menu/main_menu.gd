@@ -5,6 +5,7 @@ func _ready():
 	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game_pressed)
 	$VBoxContainer/InventoryButton.pressed.connect(_on_inventory_pressed)
 	$VBoxContainer/SquadButton.pressed.connect(_on_squad_pressed)
+	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 	var title = $VBoxContainer/Title
@@ -28,19 +29,22 @@ func _on_play_pressed():
 		else:
 			GameManager.new_game()
 	SceneManager.clear_stack()
-	SceneManager.replace_scene("res://scenes/world/world.tscn")
+	SceneManager.replace_scene("res://scenes/world/overworld.tscn")
 
 func _on_new_game_pressed():
 	SaveManager.delete_save()
 	GameManager.new_game()
 	SceneManager.clear_stack()
-	SceneManager.replace_scene("res://scenes/world/world.tscn")
+	SceneManager.replace_scene("res://scenes/world/overworld.tscn")
 
 func _on_inventory_pressed():
 	SceneManager.push_scene("res://scenes/inventory/inventory.tscn")
 
 func _on_squad_pressed():
 	SceneManager.push_scene("res://scenes/squad/squad.tscn")
+
+func _on_settings_pressed():
+	SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")
 
 func _on_quit_pressed():
 	get_tree().quit()

@@ -13,6 +13,14 @@ extends Resource
 @export var category: Enums.EquipmentCategory = Enums.EquipmentCategory.SWORD
 @export var rarity: Enums.Rarity = Enums.Rarity.COMMON
 
+@export_group("Equipment Slots")
+## How many hand slots this weapon requires (1 for one-handed, 2 for two-handed, 0 for non-weapons)
+@export_range(0, 2) var hand_slots_required: int = 0
+## For armor: which armor slot this occupies (HELMET, CHESTPLATE, BOOTS, RING, or NONE)
+@export var armor_slot: Enums.EquipmentCategory = Enums.EquipmentCategory.HELMET
+## Number of additional hand slots this item grants when equipped (for mechanical arms, etc.)
+@export var bonus_hand_slots: int = 0
+
 @export_group("Shape")
 @export var shape: ItemShape
 
@@ -25,6 +33,8 @@ extends Resource
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
 ## Base damage for active tools.
 @export var base_power: int = 0
+## Percentage of damage blocked when defending with this item (0.0 to 1.0).
+@export_range(0.0, 1.0) var block_percentage: float = 0.0
 ## Skills granted by this item when equipped.
 @export var granted_skills: Array = [] ## of SkillData
 

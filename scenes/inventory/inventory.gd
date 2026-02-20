@@ -7,6 +7,7 @@ enum DragSource { NONE, GRID, STASH }
 
 # --- Child references ---
 @onready var _grid_panel: Control = $VBox/Content/GridSide/GridCentering/GridPanel
+@onready var _equipment_slots_panel: PanelContainer = $VBox/Content/GridSide/EquipmentSlotsPanel
 @onready var _stash_panel: PanelContainer = $VBox/Content/StashPanel
 @onready var _character_tabs: HBoxContainer = $VBox/Content/GridSide/CharacterTabs
 @onready var _skills_panel: PanelContainer = $VBox/Content/GridSide/SkillsSummaryPanel
@@ -132,15 +133,17 @@ func _on_character_selected(character_id: String) -> void:
 	var inv: GridInventory = _grid_inventories.get(character_id)
 	if inv:
 		_grid_panel.setup(inv)
+		_equipment_slots_panel.setup(inv)
 	_item_tooltip.hide_tooltip()
 	_populate_skills_summary.call_deferred()
 	DebugLogger.log_info("Switched to character: %s" % character_id, "Inventory")
 
 
 func _on_inventory_changed(character_id: String) -> void:
-	# Refresh skills summary when inventory changes for current character
+	# Refresh skills summary and equipment slots when inventory changes for current character
 	if character_id == _current_character_id:
 		_populate_skills_summary.call_deferred()
+		_equipment_slots_panel.refresh()
 
 
 func _populate_skills_summary() -> void:

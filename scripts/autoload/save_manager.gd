@@ -83,6 +83,7 @@ func delete_save():
 
 func _serialize() -> Dictionary:
 	var party: Party = GameManager.party
+	var overworld_pos: Vector2 = GameManager.get_flag("overworld_position", Vector2.ZERO)
 	return {
 		"version": SAVE_VERSION,
 		"save_timestamp": Time.get_datetime_string_from_system(),
@@ -95,6 +96,8 @@ func _serialize() -> Dictionary:
 		"grid_inventories": _serialize_grid_inventories(party.grid_inventories),
 		"unlocked_passives": _serialize_passives(party.unlocked_passives),
 		"character_vitals": party.character_vitals.duplicate(true),
+		"overworld_position": {"x": overworld_pos.x, "y": overworld_pos.y},
+		"player_step_count": GameManager.get_flag("player_step_count", 0),
 	}
 
 func _serialize_stash(stash: Array) -> Array:
@@ -201,6 +204,15 @@ func _deserialize(data: Dictionary):
 			"current_hp": int(vitals.get("current_hp", 0)),
 			"current_mp": int(vitals.get("current_mp", 0))
 		}
+
+	# Overworld position
+	var pos_data: Dictionary = data.get("overworld_position", {})
+	var overworld_pos := Vector2(pos_data.get("x", 0.0), pos_data.get("y", 0.0))
+	GameManager.set_flag("overworld_position", overworld_pos)
+
+	# Player step count
+	var step_count: int = data.get("player_step_count", 0)
+	GameManager.set_flag("player_step_count", step_count)
 
 	# Initialize vitals for any characters without saved data
 	for char_id: String in party.roster:

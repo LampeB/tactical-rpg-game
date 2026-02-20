@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterZoneData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/encounter_zone_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/encounters/encounter_slimes.tres" id="2"]
+[ext_resource type="Resource" path="res://data/encounters/encounter_goblins.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+zone_id = "grasslands"
+base_encounter_chance = 0.15
+encounters = [ExtResource("2"), ExtResource("3")]
+encounter_weights = [0.6, 0.4]
+disabled_flag = ""

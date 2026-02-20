@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/encounter_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/enemies/slime.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "encounter_bandits"
+display_name = "Bandit Ambush"
+enemies = [ExtResource("2"), ExtResource("2"), ExtResource("2")]
+can_flee = true
+bonus_gold = 15

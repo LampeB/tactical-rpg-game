@@ -27,3 +27,7 @@ signal loot_screen_closed()
 # === SAVE/LOAD ===
 signal game_saved()
 signal game_loaded()
+
+# === OVERWORLD ===
+signal location_prompt_visible(visible: bool, location_name: String)
+signal show_message(message: String)
