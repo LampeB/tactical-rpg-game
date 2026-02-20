@@ -80,11 +80,10 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 	upgraded.modifier_reach = base_item.modifier_reach
 	upgraded.granted_skills = base_item.granted_skills.duplicate()
 	upgraded.conditional_modifier_rules = base_item.conditional_modifier_rules.duplicate()
+	upgraded.use_skill = base_item.use_skill  # For consumables
 
-	# Upgrade numeric stats
-	var old_mult := get_rarity_stat_multiplier(base_item.rarity)
-	var new_mult := get_rarity_stat_multiplier(upgraded.rarity)
-	var stat_scale := new_mult / old_mult
+	# Upgrade numeric stats - each upgrade is 1.5x the base item
+	var stat_scale := 1.5
 
 	upgraded.base_power = roundi(base_item.base_power * stat_scale)
 	upgraded.block_percentage = minf(base_item.block_percentage * stat_scale, 0.9)  # Cap at 90%
@@ -99,6 +98,16 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 		new_mod.modifier_type = old_mod.modifier_type
 		new_mod.value = old_mod.value * stat_scale
 		upgraded.stat_modifiers.append(new_mod)
+
+	# Upgrade modifier bonuses (for gems)
+	upgraded.modifier_bonuses = []
+	for i in range(base_item.modifier_bonuses.size()):
+		var old_mod: StatModifier = base_item.modifier_bonuses[i]
+		var new_mod := StatModifier.new()
+		new_mod.stat = old_mod.stat
+		new_mod.modifier_type = old_mod.modifier_type
+		new_mod.value = old_mod.value * stat_scale
+		upgraded.modifier_bonuses.append(new_mod)
 
 	return upgraded
 

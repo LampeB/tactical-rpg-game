@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/world/overworld.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/world/overworld_player.gd" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/roaming_enemy.tscn" id="7"]
 [ext_resource type="Resource" path="res://data/encounters/encounter_slimes.tres" id="8"]
 [ext_resource type="Resource" path="res://data/encounters/encounter_goblins.tres" id="9"]
+[ext_resource type="Resource" path="res://data/locations/location_lake.tres" id="10"]
 
 [sub_resource type="RectangleShape2D" id="player_collision"]
 size = Vector2(32, 32)
@@ -194,6 +195,10 @@ location_data = ExtResource("5")
 [node name="CaveMarker" parent="LocationMarkers" instance=ExtResource("4")]
 position = Vector2(1225, 625)
 location_data = ExtResource("6")
+
+[node name="LakeMarker" parent="LocationMarkers" instance=ExtResource("4")]
+position = Vector2(825, 825)
+location_data = ExtResource("10")
 
 [node name="Enemies" type="Node2D" parent="."]
 

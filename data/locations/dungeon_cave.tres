@@ -5,12 +5,12 @@
 [resource]
 script = ExtResource("1")
 id = "dungeon_cave"
-display_name = "Mystery Cave"
-description = "A dark cave filled with monsters."
-scene_path = "res://scenes/world/world.tscn"
+display_name = "Dark Cave"
+description = "A mysterious cave that can revive defeated enemies for testing."
+scene_path = ""
 entrance_position = Vector2(100, 100)
 unlock_flag = ""
 is_visible_when_locked = true
 allow_fast_travel_to = false
 must_visit_first = false
-location_type = 1
+location_type = 6
