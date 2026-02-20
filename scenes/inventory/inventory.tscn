@@ -69,6 +69,29 @@ size_flags_vertical = 3
 
 [node name="GridPanel" parent="VBox/Content/GridSide/GridCentering" instance=ExtResource("3_grid")]
 
+[node name="SkillsSummaryPanel" type="PanelContainer" parent="VBox/Content/GridSide"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel"]
+layout_mode = 2
+
+[node name="SummaryTitle" type="Label" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+text = "Active Skills"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+
+[node name="SkillsScroll" type="ScrollContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 150)
+
+[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox/SkillsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="StashPanel" parent="VBox/Content" instance=ExtResource("4_stash")]
 
 [node name="DragLayer" type="CanvasLayer" parent="."]

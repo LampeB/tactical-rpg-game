@@ -14,6 +14,7 @@ const HOVER_RADIUS := 36.0
 var _tree_data: PassiveTreeData = null
 var _unlocked_ids: Array = []
 var _hovered_node_id: String = ""
+var _selected_node_id: String = ""
 var _available_ids: Array = []  ## Nodes whose prerequisites are met
 
 # Colors
@@ -21,6 +22,7 @@ var _color_locked := Color(0.35, 0.35, 0.35)
 var _color_available := Color(0.85, 0.7, 0.2)
 var _color_unlocked := Color(0.2, 0.8, 0.3)
 var _color_hovered := Color(1.0, 0.9, 0.5)
+var _color_selected := Color(0.9, 0.5, 1.0)  ## Purple/magenta for selection
 var _color_line_locked := Color(0.25, 0.25, 0.25)
 var _color_line_unlocked := Color(0.3, 0.65, 0.3)
 
@@ -35,6 +37,11 @@ func setup(tree_data: PassiveTreeData, unlocked: Array) -> void:
 func update_unlocked(unlocked: Array) -> void:
 	_unlocked_ids = unlocked.duplicate()
 	_update_available()
+	queue_redraw()
+
+
+func set_selected(node_id: String) -> void:
+	_selected_node_id = node_id
 	queue_redraw()
 
 
@@ -89,6 +96,7 @@ func _draw() -> void:
 		var is_unlocked: bool = _unlocked_ids.has(node.id)
 		var is_available: bool = _available_ids.has(node.id)
 		var is_hovered: bool = (_hovered_node_id == node.id)
+		var is_selected: bool = (_selected_node_id == node.id)
 
 		# Node fill color
 		var fill_color: Color
@@ -99,16 +107,19 @@ func _draw() -> void:
 		else:
 			fill_color = _color_locked
 
-		# Draw outer ring if hovered
-		if is_hovered:
+		# Draw outer ring if hovered (but not if selected)
+		if is_hovered and not is_selected:
 			draw_circle(pos, NODE_RADIUS + 4.0, _color_hovered)
 
 		# Draw filled circle
 		draw_circle(pos, NODE_RADIUS, fill_color)
 
-		# Draw border
-		var border_color: Color = fill_color.lightened(0.3)
-		_draw_circle_outline(pos, NODE_RADIUS, border_color, 2.0)
+		# Draw border (thicker and colored if selected)
+		if is_selected:
+			_draw_circle_outline(pos, NODE_RADIUS, _color_selected, 4.0)
+		else:
+			var border_color: Color = fill_color.lightened(0.3)
+			_draw_circle_outline(pos, NODE_RADIUS, border_color, 2.0)
 
 		# Draw icon if available, otherwise draw first letter
 		if node.icon:
@@ -151,6 +162,9 @@ func _gui_input(event: InputEvent) -> void:
 		var clicked_id: String = _get_node_at(event.position)
 		if not clicked_id.is_empty():
 			node_selected.emit(clicked_id)
+		else:
+			# Clicked on background - emit empty string to deselect
+			node_selected.emit("")
 
 
 func _get_node_at(pos: Vector2) -> String:
