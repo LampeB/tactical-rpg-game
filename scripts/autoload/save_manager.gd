@@ -26,7 +26,7 @@ func stop_playtime_tracking():
 
 func save_game() -> bool:
 	if not GameManager.is_game_started:
-		DebugLogger.log_warning("Cannot save — no game in progress", "SaveManager")
+		DebugLogger.log_warn("Cannot save — no game in progress", "SaveManager")
 		return false
 	var data := _serialize()
 	var json_string := JSON.stringify(data, "\t")
@@ -44,7 +44,7 @@ func save_game() -> bool:
 
 func load_game() -> bool:
 	if not FileAccess.file_exists(SAVE_PATH):
-		DebugLogger.log_warning("No save file found", "SaveManager")
+		DebugLogger.log_warn("No save file found", "SaveManager")
 		return false
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if not file:
@@ -145,7 +145,7 @@ func _deserialize(data: Dictionary):
 		if character:
 			party.add_to_roster(character)
 		else:
-			DebugLogger.log_warning("Character not found: %s" % str(char_id), "SaveManager")
+			DebugLogger.log_warn("Character not found: %s" % str(char_id), "SaveManager")
 
 	# Squad (override what add_to_roster auto-set)
 	var squad_ids: Array = data.get("squad", [])
@@ -161,26 +161,26 @@ func _deserialize(data: Dictionary):
 		if item:
 			party.stash.append(item)
 		else:
-			DebugLogger.log_warning("Stash item not found: %s" % str(item_id), "SaveManager")
+			DebugLogger.log_warn("Stash item not found: %s" % str(item_id), "SaveManager")
 
 	# Grid inventories: place items to rebuild _cell_map
 	var grid_data: Dictionary = data.get("grid_inventories", {})
 	for char_id: String in grid_data:
 		if not party.grid_inventories.has(char_id):
-			DebugLogger.log_warning("No grid inventory for character: %s" % char_id, "SaveManager")
+			DebugLogger.log_warn("No grid inventory for character: %s" % char_id, "SaveManager")
 			continue
 		var grid: GridInventory = party.grid_inventories[char_id]
 		var placements: Array = grid_data[char_id]
 		for entry in placements:
 			var item: ItemData = ItemDatabase.get_item(str(entry.item_id))
 			if not item:
-				DebugLogger.log_warning("Grid item not found: %s" % str(entry.item_id), "SaveManager")
+				DebugLogger.log_warn("Grid item not found: %s" % str(entry.item_id), "SaveManager")
 				continue
 			var pos := Vector2i(int(entry.x), int(entry.y))
 			var rot := int(entry.rotation)
 			var placed := grid.place_item(item, pos, rot)
 			if not placed:
-				DebugLogger.log_warning("Failed to place %s at (%d,%d) rot %d for %s" % [
+				DebugLogger.log_warn("Failed to place %s at (%d,%d) rot %d for %s" % [
 					str(entry.item_id), pos.x, pos.y, rot, char_id
 				], "SaveManager")
 

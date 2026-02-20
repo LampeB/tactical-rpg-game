@@ -33,7 +33,7 @@ func new_game():
 				party.get_max_mp(character.id, tree)
 			], "GameManager")
 		else:
-			DebugLogger.log_warning("Starter character not found: %s" % char_id, "GameManager")
+			DebugLogger.log_warn("Starter character not found: %s" % char_id, "GameManager")
 
 	# Give starter items to stash (by ID from ItemDatabase)
 	var starter_items: Array = [
@@ -51,7 +51,7 @@ func new_game():
 		if item:
 			party.add_to_stash(item)
 		else:
-			DebugLogger.log_warning("Starter item not found: %s" % item_id, "GameManager")
+			DebugLogger.log_warn("Starter item not found: %s" % item_id, "GameManager")
 
 	EventBus.gold_changed.emit(gold)
 	SaveManager._playtime_accumulator = 0.0

@@ -13,7 +13,7 @@ func _ready():
 func _load_all_characters():
 	var dir := DirAccess.open(CHARACTER_DIR)
 	if not dir:
-		DebugLogger.log_warning("Character directory not found: %s" % CHARACTER_DIR, "CharacterDatabase")
+		DebugLogger.log_warn("Character directory not found: %s" % CHARACTER_DIR, "CharacterDatabase")
 		return
 
 	dir.list_dir_begin()
@@ -27,19 +27,19 @@ func _load_all_characters():
 					character.id = file_name.get_basename()
 				_register_character(character)
 			else:
-				DebugLogger.log_warning("Failed to load character: %s" % full_path, "CharacterDatabase")
+				DebugLogger.log_warn("Failed to load character: %s" % full_path, "CharacterDatabase")
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
 func _register_character(character: CharacterData):
 	if _characters.has(character.id):
-		DebugLogger.log_warning("Duplicate character ID: %s" % character.id, "CharacterDatabase")
+		DebugLogger.log_warn("Duplicate character ID: %s" % character.id, "CharacterDatabase")
 	_characters[character.id] = character
 
 func get_character(id: String) -> CharacterData:
 	if _characters.has(id):
 		return _characters[id]
-	DebugLogger.log_warning("Character not found: %s" % id, "CharacterDatabase")
+	DebugLogger.log_warn("Character not found: %s" % id, "CharacterDatabase")
 	return null
 
 func get_all_characters() -> Array:

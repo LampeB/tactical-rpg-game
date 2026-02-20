@@ -109,7 +109,7 @@ func _on_add_to_squad(char_id: String):
 	if not party:
 		return
 	if party.squad.size() >= Constants.MAX_SQUAD_SIZE:
-		DebugLogger.log_warning("Squad is full, cannot add %s" % char_id, "Squad")
+		DebugLogger.log_warn("Squad is full, cannot add %s" % char_id, "Squad")
 		return
 	if char_id in party.squad:
 		return
@@ -124,7 +124,7 @@ func _on_remove_from_squad(char_id: String):
 	if not party:
 		return
 	if party.squad.size() <= 1:
-		DebugLogger.log_warning("Cannot remove last squad member", "Squad")
+		DebugLogger.log_warn("Cannot remove last squad member", "Squad")
 		return
 	party.squad.erase(char_id)
 	party.squad_changed.emit()
