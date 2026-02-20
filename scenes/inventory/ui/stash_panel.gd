@@ -154,3 +154,24 @@ func _on_all_filters() -> void:
 
 	# Re-apply filters
 	refresh(_cached_stash, _cached_returnable)
+
+
+func highlight_upgradeable_items(dragged_item: ItemData) -> void:
+	## Highlights stash items that can be upgraded with the dragged item
+	if not dragged_item:
+		clear_upgradeable_highlights()
+		return
+
+	for i in range(_slots.size()):
+		var slot: PanelContainer = _slots[i]
+		if slot.has_method("set_upgradeable_highlight"):
+			var can_upgrade: bool = ItemUpgradeSystem.can_upgrade(dragged_item, slot.item_data)
+			slot.set_upgradeable_highlight(can_upgrade)
+
+
+func clear_upgradeable_highlights() -> void:
+	## Clears all upgradeable highlights from stash slots
+	for i in range(_slots.size()):
+		var slot: PanelContainer = _slots[i]
+		if slot.has_method("set_upgradeable_highlight"):
+			slot.set_upgradeable_highlight(false)

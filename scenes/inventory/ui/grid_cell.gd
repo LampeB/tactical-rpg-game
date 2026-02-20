@@ -8,6 +8,7 @@ enum CellState {
 	VALID_DROP,
 	INVALID_DROP,
 	MODIFIER_HIGHLIGHT,
+	UPGRADEABLE,
 }
 
 const STATE_COLORS := {
@@ -17,6 +18,11 @@ const STATE_COLORS := {
 	CellState.VALID_DROP: Color(0.2, 0.8, 0.2, 0.4),
 	CellState.INVALID_DROP: Color(0.8, 0.2, 0.2, 0.4),
 	CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
+	CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),  # Green background
+}
+
+const BORDER_COLORS := {
+	CellState.UPGRADEABLE: Color(1.0, 0.9, 0.2, 1.0),  # Yellow border for upgradeable
 }
 
 var grid_position: Vector2i
@@ -35,6 +41,12 @@ func set_state(state: CellState) -> void:
 	cell_state = state
 	if _background:
 		_background.color = STATE_COLORS.get(state, STATE_COLORS[CellState.EMPTY])
+	if _border:
+		# Apply special border color for upgradeable state
+		if BORDER_COLORS.has(state):
+			_border.color = BORDER_COLORS[state]
+		else:
+			_border.color = Color(0.4, 0.4, 0.5, 1.0)  # Default border
 
 
 func set_rarity_tint(color: Color) -> void:

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bqxi2e4lx84n"]
+
+[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" uid="uid://cfj408tystjuq" path="res://data/shapes/shape_1x2.tres" id="3"]
+[ext_resource type="Texture2D" uid="uid://dhsbonrkf3lg3" path="res://assets/sprites/items/boots_common.png" id="4"]
+
+[sub_resource type="Resource" id="stat_speed"]
+script = ExtResource("2")
+stat = 2
+value = 3.0
+
+[resource]
+script = ExtResource("1")
+id = "boots_common"
+display_name = "Leather Boots"
+description = "Light leather boots. Enhances movement speed."
+icon = ExtResource("4")
+item_type = 1
+category = 11
+armor_slot = 11
+shape = ExtResource("3")
+stat_modifiers = [SubResource("stat_speed")]
+base_price = 35

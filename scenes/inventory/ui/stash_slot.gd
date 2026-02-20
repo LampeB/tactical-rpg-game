@@ -62,3 +62,33 @@ func _notification(what: int) -> void:
 
 func _on_use_button_pressed() -> void:
 	use_requested.emit(index)
+
+
+func set_upgradeable_highlight(enabled: bool) -> void:
+	## Highlights this slot as upgradeable with green background and yellow outline
+	if enabled:
+		# Green tint with yellow outline
+		self_modulate = Color(0.5, 1.0, 0.5)  # Brighter green
+		add_theme_stylebox_override("panel", _create_upgradeable_style())
+	else:
+		# Reset to default
+		if _is_returnable:
+			self_modulate = Color(1.0, 0.9, 0.7)
+		else:
+			self_modulate = Color.WHITE
+		remove_theme_stylebox_override("panel")
+
+
+func _create_upgradeable_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.2, 0.6, 0.2, 0.8)  # Dark green background
+	style.border_color = Color(1.0, 0.9, 0.2, 1.0)  # Yellow outline
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_width_top = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	return style

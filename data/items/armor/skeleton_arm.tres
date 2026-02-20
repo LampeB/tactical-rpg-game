@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_uncommon.png" id="4"]
+
+[resource]
+script = ExtResource("1")
+id = "skeleton_arm"
+display_name = "Skeletal Arm"
+description = "A mummified skeletal arm of mysterious origin. Grants an additional hand slot. Does not occupy a hand slot itself."
+icon = ExtResource("4")
+item_type = 1
+category = 9
+rarity = 1
+armor_slot = 9
+bonus_hand_slots = 1
+shape = ExtResource("3")
+base_price = 150

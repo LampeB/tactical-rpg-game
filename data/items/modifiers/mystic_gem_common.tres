@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
+
+[sub_resource type="Resource" id="stat_spec_atk_pct"]
+script = ExtResource("2")
+stat = 6
+modifier_type = 1
+value = 15.0
+
+[sub_resource type="Resource" id="rule_all_weapons"]
+script = ExtResource("3")
+target_category = -1
+stat_bonuses = [SubResource("stat_spec_atk_pct")]
+override_damage_type = false
+
+[resource]
+script = ExtResource("1")
+id = "mystic_gem_common"
+display_name = "Mystic Gem"
+description = "A violet gem humming with arcane energy. Adds +15% special attack to adjacent weapons."
+icon = ExtResource("5")
+item_type = 2
+category = 0
+rarity = 1
+shape = ExtResource("4")
+modifier_reach = 1
+conditional_modifier_rules = [SubResource("rule_all_weapons")]
+base_price = 50

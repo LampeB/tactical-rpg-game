@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bl8whyfuet64e"]
+
+[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3"]
+[ext_resource type="Texture2D" uid="uid://c6hcstkm51q0t" path="res://assets/sprites/items/helmet_common.png" id="4"]
+
+[sub_resource type="Resource" id="stat_phys_def"]
+script = ExtResource("2")
+stat = 5
+value = 3.0
+
+[resource]
+script = ExtResource("1")
+id = "helmet_common"
+display_name = "Iron Helmet"
+description = "A sturdy iron helmet. Protects the head from blows."
+icon = ExtResource("4")
+item_type = 1
+category = 7
+shape = ExtResource("3")
+stat_modifiers = [SubResource("stat_phys_def")]
+base_price = 40
