@@ -3,52 +3,96 @@
 [ext_resource type="Script" path="res://scenes/battle/ui/entity_status_bar.gd" id="1_script"]
 
 [node name="EntityStatusBar" type="PanelContainer"]
-custom_minimum_size = Vector2(180, 0)
+custom_minimum_size = Vector2(220, 0)
 script = ExtResource("1_script")
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="NameLabel" type="Label" parent="VBox"]
+[node name="HBox" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 12
+
+[node name="PortraitContainer" type="PanelContainer" parent="MarginContainer/HBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 64)
+
+[node name="Portrait" type="TextureRect" parent="MarginContainer/HBox/PortraitContainer"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="MarginContainer/HBox/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
 text = "Entity"
+text_overrun_behavior = 3
 
-[node name="HPBar" type="ProgressBar" parent="VBox"]
+[node name="HPContainer" type="HBoxContainer" parent="MarginContainer/HBox/VBox"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 18)
+theme_override_constants/separation = 4
+
+[node name="HPIcon" type="Label" parent="MarginContainer/HBox/VBox/HPContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.3, 0.3, 1)
+text = "HP"
+
+[node name="HPBar" type="ProgressBar" parent="MarginContainer/HBox/VBox/HPContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 16)
 max_value = 100.0
 value = 100.0
 show_percentage = false
 
-[node name="HPLabel" type="Label" parent="VBox/HPBar"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_font_sizes/font_size = 11
-text = "100 / 100"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="MPBar" type="ProgressBar" parent="VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 14)
-max_value = 30.0
-value = 30.0
-show_percentage = false
-
-[node name="MPLabel" type="Label" parent="VBox/MPBar"]
+[node name="HPLabel" type="Label" parent="MarginContainer/HBox/VBox/HPContainer/HPBar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_font_sizes/font_size = 10
-text = "30 / 30"
+text = "100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StatusIcons" type="HBoxContainer" parent="VBox"]
+[node name="MPContainer" type="HBoxContainer" parent="MarginContainer/HBox/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MPIcon" type="Label" parent="MarginContainer/HBox/VBox/MPContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.3, 0.5, 0.9, 1)
+text = "MP"
+
+[node name="MPBar" type="ProgressBar" parent="MarginContainer/HBox/VBox/MPContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 14)
+max_value = 30.0
+value = 30.0
+show_percentage = false
+
+[node name="MPLabel" type="Label" parent="MarginContainer/HBox/VBox/MPContainer/MPBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_font_sizes/font_size = 9
+text = "30"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StatusIcons" type="HBoxContainer" parent="MarginContainer/HBox/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
