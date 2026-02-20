@@ -29,6 +29,7 @@ enum EquipmentCategory {
 	STAFF,
 	DAGGER,
 	SHIELD,
+	AXE,
 	## Passive (unmodifiable)
 	HELMET,
 	CHESTPLATE,

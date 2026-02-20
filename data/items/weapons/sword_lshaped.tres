@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="4"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="5_slash"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="6_pstrike"]
+
+[sub_resource type="Resource" id="stat_phys_atk"]
+script = ExtResource("2")
+stat = 4
+modifier_type = 0
+value = 6.0
+
+[resource]
+script = ExtResource("1")
+id = "sword_lshaped"
+display_name = "L-Shaped Broadsword"
+description = "An unusual broad-bladed sword with an L-shaped profile. Takes up more space but hits harder."
+icon = ExtResource("4")
+item_type = 0
+category = 0
+rarity = 1
+hand_slots_required = 1
+shape = ExtResource("3")
+stat_modifiers = [SubResource("stat_phys_atk")]
+damage_type = 0
+base_power = 6
+block_percentage = 0.25
+granted_skills = [ExtResource("5_slash"), ExtResource("6_pstrike")]
+base_price = 75
