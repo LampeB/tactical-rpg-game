@@ -36,7 +36,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -200.0
-offset_top = -260.0
+offset_top = -160.0
 grow_horizontal = 0
 grow_vertical = 0
 
@@ -44,21 +44,13 @@ grow_vertical = 0
 layout_mode = 2
 text = "Battle!"
 
-[node name="InventoryButton" type="Button" parent="UI/Controls"]
+[node name="CharacterButton" type="Button" parent="UI/Controls"]
 layout_mode = 2
-text = "Inventory (I)"
+text = "Character (I)"
 
 [node name="SquadButton" type="Button" parent="UI/Controls"]
 layout_mode = 2
 text = "Squad"
-
-[node name="SkillsButton" type="Button" parent="UI/Controls"]
-layout_mode = 2
-text = "Skills"
-
-[node name="StatsButton" type="Button" parent="UI/Controls"]
-layout_mode = 2
-text = "Stats"
 
 [node name="MenuButton" type="Button" parent="UI/Controls"]
 layout_mode = 2

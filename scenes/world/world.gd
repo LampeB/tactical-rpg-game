@@ -2,10 +2,8 @@ extends Node2D
 
 func _ready():
 	$UI/Controls/BattleButton.pressed.connect(_on_battle)
-	$UI/Controls/InventoryButton.pressed.connect(_on_inventory)
+	$UI/Controls/CharacterButton.pressed.connect(_on_character)
 	$UI/Controls/SquadButton.pressed.connect(_on_squad)
-	$UI/Controls/SkillsButton.pressed.connect(_on_skills)
-	$UI/Controls/StatsButton.pressed.connect(_on_stats)
 	$UI/Controls/MenuButton.pressed.connect(_on_menu)
 
 	# Update gold display
@@ -20,7 +18,7 @@ func _ready():
 
 func _unhandled_input(event: InputEvent):
 	if event.is_action_pressed("open_inventory"):
-		_on_inventory()
+		_on_character()
 	elif event.is_action_pressed("escape"):
 		_on_menu()
 
@@ -32,17 +30,11 @@ func _on_battle():
 			"grid_inventories": GameManager.party.grid_inventories if GameManager.party else {},
 		})
 
-func _on_inventory():
-	SceneManager.push_scene("res://scenes/inventory/inventory.tscn")
+func _on_character():
+	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
 
 func _on_squad():
 	SceneManager.push_scene("res://scenes/squad/squad.tscn")
-
-func _on_skills():
-	SceneManager.push_scene("res://scenes/passive_tree/passive_tree.tscn")
-
-func _on_stats():
-	SceneManager.push_scene("res://scenes/character_stats/character_stats.tscn")
 
 func _on_menu():
 	SceneManager.clear_stack()

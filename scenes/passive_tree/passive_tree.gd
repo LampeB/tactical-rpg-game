@@ -52,6 +52,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+var _embedded: bool = false
+
+func setup_embedded(character_id: String) -> void:
+	_embedded = true
+	$VBox/TopBar.visible = false
+	$VBox/CharacterTabs.visible = false
+	_on_character_selected(character_id)
+
+
 # === Character Switching ===
 
 func _on_character_selected(character_id: String) -> void:
