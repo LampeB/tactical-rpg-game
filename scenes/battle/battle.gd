@@ -11,16 +11,16 @@ const LootGeneratorScript = preload("res://scripts/systems/loot/loot_generator.g
 const ACTION_DELAY: float = 0.6  ## Seconds between actions for readability
 
 # --- Child references ---
-@onready var _title: Label = $VBox/TopBar/Title
-@onready var _round_label: Label = $VBox/TopBar/RoundLabel
-@onready var _turn_order_bar: HBoxContainer = $VBox/TurnOrderBar
-@onready var _enemy_list: VBoxContainer = $VBox/BattleField/EnemyPanel/EnemyList
-@onready var _party_list: VBoxContainer = $VBox/BattleField/PartyPanel/PartyList
-@onready var _target_prompt: HBoxContainer = $VBox/BottomSection/TargetPrompt
-@onready var _target_prompt_label: Label = $VBox/BottomSection/TargetPrompt/Label
-@onready var _target_cancel_btn: Button = $VBox/BottomSection/TargetPrompt/CancelButton
-@onready var _action_menu: PanelContainer = $VBox/BottomSection/ActionMenu
-@onready var _battle_log: PanelContainer = $VBox/BottomSection/BattleLog
+@onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
+@onready var _round_label: Label = $MainLayout/TopBar/MarginContainer/HBox/RoundLabel
+@onready var _turn_order_bar: HBoxContainer = $MainLayout/TurnOrderSection/TurnOrderBar
+@onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/HBox/EnemyPanel/EnemyList
+@onready var _party_list: VBoxContainer = $MainLayout/BattleField/HBox/PartyPanel/PartyList
+@onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
+@onready var _target_prompt_label: Label = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/Label
+@onready var _target_cancel_btn: Button = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/CancelButton
+@onready var _action_menu: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/ActionMenu
+@onready var _battle_log: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BattleLog
 @onready var _popup_layer: CanvasLayer = $PopupLayer
 
 # --- State ---
@@ -154,6 +154,8 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 		_enemy_list.add_child(bar)
 		bar.setup(entity)
 		bar.gui_input.connect(_on_entity_bar_input.bind(entity))
+		bar.mouse_entered.connect(_on_entity_bar_mouse_entered.bind(entity))
+		bar.mouse_exited.connect(_on_entity_bar_mouse_exited.bind(entity))
 		_entity_bars[entity] = bar
 
 	for i in range(players.size()):
@@ -162,6 +164,8 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 		_party_list.add_child(bar)
 		bar.setup(entity)
 		bar.gui_input.connect(_on_entity_bar_input.bind(entity))
+		bar.mouse_entered.connect(_on_entity_bar_mouse_entered.bind(entity))
+		bar.mouse_exited.connect(_on_entity_bar_mouse_exited.bind(entity))
 		_entity_bars[entity] = bar
 
 
@@ -298,36 +302,42 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> 
 				# All skills go through target selection/confirmation for consistency
 				_enter_target_selection()
 
+		Enums.CombatAction.ITEM:
+			if skill:
+				_pending_action_type = action_type
+				_pending_skill = skill
+				_pending_target_type = target_type
+				# Items use their use_skill for targeting, same flow as skills
+				_enter_target_selection()
+
 
 func _enter_target_selection() -> void:
 	_state = BattleState.TARGET_SELECT
 	_action_menu.hide_menu()
 	_target_prompt.visible = true
 
-	# Different prompts for single-target vs AOE skills
+	# Simpler prompts - hover shows affected targets
+	var skill_name: String = _pending_skill.display_name if _pending_skill else "action"
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
-			_target_prompt_label.text = "Select an enemy target..."
+			_target_prompt_label.text = "%s — Select an enemy" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single enemy)", "Battle")
 		Enums.TargetType.SINGLE_ALLY:
-			_target_prompt_label.text = "Select an ally target..."
+			_target_prompt_label.text = "%s — Select an ally" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single ally)", "Battle")
 		Enums.TargetType.SELF:
-			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
-			_target_prompt_label.text = "Use %s on yourself? Click to confirm." % skill_name
+			_target_prompt_label.text = "%s — Click to use on yourself" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (self)", "Battle")
 		Enums.TargetType.ALL_ENEMIES:
-			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
 			var count: int = _combat_manager.get_alive_enemies().size()
-			_target_prompt_label.text = "Use %s on all enemies (%d)? Click to confirm." % [skill_name, count]
+			_target_prompt_label.text = "%s — Targets all enemies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all enemies)", "Battle")
 		Enums.TargetType.ALL_ALLIES:
-			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
 			var count: int = _combat_manager.get_alive_players().size()
-			_target_prompt_label.text = "Use %s on all allies (%d)? Click to confirm." % [skill_name, count]
+			_target_prompt_label.text = "%s — Targets all allies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all allies)", "Battle")
 		_:
-			_target_prompt_label.text = "Select a target..."
+			_target_prompt_label.text = "%s — Select a target" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (unknown)", "Battle")
 
 
@@ -337,53 +347,95 @@ func _on_entity_bar_input(event: InputEvent, entity: CombatEntity) -> void:
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 
-	# For AOE skills, clicking any relevant entity confirms the action
+	# Get targets based on hovered entity and skill type
+	var targets: Array = _get_targets_for_hover(entity)
+	if targets.is_empty():
+		DebugLogger.log_info("Click on invalid target: %s" % entity.entity_name, "Battle")
+		return
+
+	DebugLogger.log_info("Target confirmed: %s (affecting %d targets)" % [entity.entity_name, targets.size()], "Battle")
+	_execute_player_action(targets)
+
+
+func _on_entity_bar_mouse_entered(entity: CombatEntity) -> void:
+	if _state != BattleState.TARGET_SELECT:
+		return
+	_update_target_highlights(entity)
+
+
+func _on_entity_bar_mouse_exited(_entity: CombatEntity) -> void:
+	if _state != BattleState.TARGET_SELECT:
+		return
+	_clear_target_highlights()
+
+
+func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
+	"""Returns array of entities that would be affected if clicking on hovered_entity."""
+	if hovered_entity.is_dead:
+		return []
+
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
-			if entity.is_dead:
-				DebugLogger.log_info("Target click on dead entity %s, ignoring" % entity.entity_name, "Battle")
-				return
-			if not entity.is_player:
-				DebugLogger.log_info("Target selected: %s" % entity.entity_name, "Battle")
-				_execute_player_action([entity])
-			else:
-				DebugLogger.log_info("Invalid target: %s (is ally, need enemy)" % entity.entity_name, "Battle")
+			if not hovered_entity.is_player:
+				return [hovered_entity]
+			return []
 
 		Enums.TargetType.SINGLE_ALLY:
-			if entity.is_dead:
-				DebugLogger.log_info("Target click on dead entity %s, ignoring" % entity.entity_name, "Battle")
-				return
-			if entity.is_player:
-				DebugLogger.log_info("Target selected: %s" % entity.entity_name, "Battle")
-				_execute_player_action([entity])
-			else:
-				DebugLogger.log_info("Invalid target: %s (is enemy, need ally)" % entity.entity_name, "Battle")
+			if hovered_entity.is_player:
+				return [hovered_entity]
+			return []
 
 		Enums.TargetType.SELF:
-			# Clicking on self or anyone confirms
-			DebugLogger.log_info("Self-target confirmed", "Battle")
-			_execute_player_action(_get_auto_targets())
+			# Self targets always hit the current entity, regardless of hover
+			return [_combat_manager.current_entity]
 
 		Enums.TargetType.ALL_ENEMIES:
-			# Clicking on any enemy confirms
-			if not entity.is_player:
-				DebugLogger.log_info("AOE confirmed (clicked enemy)", "Battle")
-				_execute_player_action(_get_auto_targets())
-			else:
-				DebugLogger.log_info("Click ally to confirm all-enemy skill, ignoring" % entity.entity_name, "Battle")
+			# Must hover an enemy to confirm
+			if not hovered_entity.is_player:
+				return _combat_manager.get_alive_enemies()
+			return []
 
 		Enums.TargetType.ALL_ALLIES:
-			# Clicking on any ally confirms
-			if entity.is_player:
-				DebugLogger.log_info("AOE confirmed (clicked ally)", "Battle")
-				_execute_player_action(_get_auto_targets())
-			else:
-				DebugLogger.log_info("Click enemy to confirm all-ally skill, ignoring" % entity.entity_name, "Battle")
+			# Must hover an ally to confirm
+			if hovered_entity.is_player:
+				return _combat_manager.get_alive_players()
+			return []
 
 		_:
-			# Default: any click confirms
-			DebugLogger.log_info("Target confirmed (unknown type)", "Battle")
-			_execute_player_action(_get_auto_targets())
+			return []
+
+
+func _update_target_highlights(hovered_entity: CombatEntity) -> void:
+	"""Highlight targets that would be affected by clicking on hovered_entity."""
+	_clear_target_highlights()
+
+	var targets: Array = _get_targets_for_hover(hovered_entity)
+	if targets.is_empty():
+		# Invalid target - show red
+		var bar: PanelContainer = _entity_bars.get(hovered_entity)
+		if bar:
+			bar.set_highlight(bar.HighlightType.INVALID)
+		return
+
+	# Highlight all affected targets
+	for i in range(targets.size()):
+		var target: CombatEntity = targets[i]
+		var bar: PanelContainer = _entity_bars.get(target)
+		if bar:
+			# Primary highlight for the hovered one, secondary for others
+			if target == hovered_entity:
+				bar.set_highlight(bar.HighlightType.PRIMARY)
+			else:
+				bar.set_highlight(bar.HighlightType.SECONDARY)
+
+
+func _clear_target_highlights() -> void:
+	"""Remove all target highlighting."""
+	var keys: Array = _entity_bars.keys()
+	for i in range(keys.size()):
+		var entity: CombatEntity = keys[i]
+		var bar: PanelContainer = _entity_bars[entity]
+		bar.set_highlight(bar.HighlightType.NONE)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -395,6 +447,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _cancel_target_selection() -> void:
+	_clear_target_highlights()
 	_state = BattleState.PLAYER_ACTION
 	_target_prompt.visible = false
 	DebugLogger.log_info("State -> PLAYER_ACTION (target cancelled)", "Battle")
@@ -414,6 +467,7 @@ func _get_auto_targets() -> Array:
 
 
 func _execute_player_action(targets: Array) -> void:
+	_clear_target_highlights()
 	_target_prompt.visible = false
 	_action_menu.hide_menu()
 	_state = BattleState.ANIMATING
@@ -436,6 +490,29 @@ func _execute_player_action(targets: Array) -> void:
 					var target_result: Dictionary = target_results[i]
 					var target: CombatEntity = target_result.target
 					_spawn_damage_popup(target, target_result)
+		Enums.CombatAction.ITEM:
+			if _pending_skill:
+				# Execute the item's skill
+				result = _combat_manager.execute_skill(source, _pending_skill, targets)
+				var target_results: Array = result.get("target_results", [])
+				for i in range(target_results.size()):
+					var target_result: Dictionary = target_results[i]
+					var target: CombatEntity = target_result.target
+					_spawn_damage_popup(target, target_result)
+
+				# Remove item from character's grid inventory
+				var pending_item: ItemData = _action_menu._pending_item
+				if pending_item and source.grid_inventory and source.character_data:
+					var char_id: String = source.character_data.id
+					var placed_items: Array = source.grid_inventory.get_all_placed_items()
+					for j in range(placed_items.size()):
+						var placed: GridInventory.PlacedItem = placed_items[j]
+						if placed.item_data == pending_item:
+							source.grid_inventory.remove_item(placed)
+							EventBus.item_removed.emit(char_id, pending_item, placed.grid_position)
+							EventBus.inventory_changed.emit(char_id)
+							DebugLogger.log_info("Consumed item: %s from grid inventory" % pending_item.display_name, "Battle")
+							break
 
 	_advance_after_action()
 
