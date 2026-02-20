@@ -37,14 +37,35 @@ func new_game() -> void:
 
 	# Give starter items to stash (by ID from ItemDatabase)
 	var starter_items: Array = [
+		# Weapons - various shapes for testing
+		"sword_common",       # 1x2 shape
+		"sword_lshaped",      # L-shape
+		"dagger_common",      # 1x1 shape
+		"dagger_lshaped",     # L-shape
+		"mace_common",        # 2x2 shape
+		"staff_common",       # 1x3 shape (2-handed)
+		"staff_long",         # 1x4 shape (2-handed)
+		"shield_common",      # 1x2 shape (1 hand)
+		"bow_common",         # Bow zigzag shape (2-handed)
+		"axe_common",         # Axe T-shape (2-handed)
+
+		# Additional weapons for testing hand slots
 		"sword_common",
-		"shield_common",
-		"staff_common",
 		"dagger_common",
-		"potion_common",
-		"potion_common",
-		"potion_common",
+
+		# Elemental gems - 1x1 shape, test modifiers
 		"fire_gem_common",
+		"fire_gem_common",
+		"ice_gem_common",
+		"ice_gem_common",
+		"thunder_gem_common",
+		"thunder_gem_common",
+
+		# Consumables
+		"potion_common",
+		"potion_common",
+		"potion_common",
+		"potion_common",
 	]
 	for item_id: String in starter_items:
 		var item: ItemData = ItemDatabase.get_item(item_id)
