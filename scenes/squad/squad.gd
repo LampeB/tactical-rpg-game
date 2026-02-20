@@ -60,9 +60,9 @@ func _create_card(char_data: CharacterData, in_squad: bool) -> PanelContainer:
 
 	var name_label := Label.new()
 	name_label.text = char_data.display_name
-	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TITLE)
 	if in_squad:
-		name_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_EMPHASIS)
 	vbox.add_child(name_label)
 
 	var stats_label := Label.new()
@@ -71,14 +71,14 @@ func _create_card(char_data: CharacterData, in_squad: bool) -> PanelContainer:
 		char_data.physical_attack, char_data.physical_defense,
 		char_data.speed
 	]
-	stats_label.add_theme_font_size_override("font_size", 13)
-	stats_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	stats_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+	stats_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 	vbox.add_child(stats_label)
 
 	var desc_label := Label.new()
 	desc_label.text = char_data.description
-	desc_label.add_theme_font_size_override("font_size", 11)
-	desc_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+	desc_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+	desc_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_FADED)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc_label)
 

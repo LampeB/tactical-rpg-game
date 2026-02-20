@@ -39,16 +39,12 @@ static func generate_loot(encounter: EncounterData, enemies: Array) -> Array:
 		items.append_array(_roll_table(encounter.override_loot_table))
 	else:
 		for i in range(enemies.size()):
-			var entity = enemies[i]
+			var entity: CombatEntity = enemies[i]
 			if entity.enemy_data and entity.enemy_data.loot_table:
 				items.append_array(_roll_table(entity.enemy_data.loot_table))
 
 	return items
 
-
-## Generate loot from a standalone table (for chests, events, etc.).
-static func generate_from_table(table: LootTable) -> Array:
-	return _roll_table(table)
 
 
 static func _roll_table(table: LootTable) -> Array:

@@ -101,11 +101,6 @@ func world_to_grid(screen_pos: Vector2) -> Vector2i:
 	return Vector2i(gx, gy)
 
 
-func is_pos_over_grid(screen_pos: Vector2) -> bool:
-	var grid_pos: Vector2i = world_to_grid(screen_pos)
-	return _cells.has(grid_pos)
-
-
 func get_grid_inventory() -> GridInventory:
 	return _grid_inventory
 

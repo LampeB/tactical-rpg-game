@@ -4,6 +4,7 @@ extends Control
 ## Remaining items are sent to the party stash on continue.
 
 enum DragState { IDLE, DRAGGING }
+enum DragSource { NONE, GRID, LOOT }
 
 # --- Child references ---
 @onready var _title: Label = $VBox/TopBar/Title
@@ -24,10 +25,8 @@ var _current_character_id: String = ""
 
 var _drag_state: DragState = DragState.IDLE
 var _dragged_item: ItemData = null
-var _drag_source: String = ""  # "loot" or "grid"
-var _drag_source_placed: GridInventory.PlacedItem = null
+var _drag_source: DragSource = DragSource.NONE
 var _drag_source_pos: Vector2i = Vector2i.ZERO
-var _drag_source_rotation: int = 0
 var _drag_source_loot_index: int = -1
 var _drag_rotation: int = 0
 
@@ -198,7 +197,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 
 func _start_drag_from_loot(item: ItemData, index: int) -> void:
 	_dragged_item = item
-	_drag_source = "loot"
+	_drag_source = DragSource.LOOT
 	_drag_source_loot_index = index
 	_drag_rotation = 0
 	_drag_state = DragState.DRAGGING
@@ -218,10 +217,8 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 		return
 
 	_dragged_item = placed.item_data
-	_drag_source = "grid"
-	_drag_source_placed = placed
+	_drag_source = DragSource.GRID
 	_drag_source_pos = placed.grid_position
-	_drag_source_rotation = placed.rotation
 	_drag_rotation = placed.rotation
 	_drag_state = DragState.DRAGGING
 
@@ -259,7 +256,7 @@ func _return_to_loot_pool() -> void:
 		return
 
 	# If it came from grid, also emit removal signals
-	if _drag_source == "grid":
+	if _drag_source == DragSource.GRID:
 		EventBus.item_removed.emit(_current_character_id, _dragged_item, _drag_source_pos)
 		EventBus.inventory_changed.emit(_current_character_id)
 
@@ -278,12 +275,12 @@ func _cancel_drag() -> void:
 		return
 
 	# Restore item to original location
-	if _drag_source == "grid":
+	if _drag_source == DragSource.GRID:
 		var inv: GridInventory = _grid_inventories.get(_current_character_id)
 		if inv:
-			inv.place_item(_dragged_item, _drag_source_pos, _drag_source_rotation)
+			inv.place_item(_dragged_item, _drag_source_pos, _drag_rotation)
 			_grid_panel.refresh()
-	elif _drag_source == "loot":
+	elif _drag_source == DragSource.LOOT:
 		_loot_items.insert(mini(_drag_source_loot_index, _loot_items.size()), _dragged_item)
 		_refresh_loot_pool()
 
@@ -305,8 +302,7 @@ func _update_drag_preview() -> void:
 func _end_drag() -> void:
 	_drag_state = DragState.IDLE
 	_dragged_item = null
-	_drag_source = ""
-	_drag_source_placed = null
+	_drag_source = DragSource.NONE
 	_drag_source_loot_index = -1
 	_drag_preview.hide_preview()
 	_loot_pool.highlight_drop_target(false)

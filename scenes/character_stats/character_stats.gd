@@ -88,7 +88,7 @@ func _on_character_selected(character_id: String) -> void:
 		return
 
 	var inv: GridInventory = GameManager.party.grid_inventories.get(character_id)
-	var tree = get_node("/root/PassiveTreeDatabase").get_passive_tree(character_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(character_id)
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
 
 	_update_info_panel(char_data, inv, passive_bonuses)
@@ -132,8 +132,8 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 		has_any_skills = true
 		var source_label: Label = Label.new()
 		source_label.text = "Innate:"
-		source_label.add_theme_font_size_override("font_size", 14)
-		source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		source_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
+		source_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 		_skills_list.add_child(source_label)
 
 		for i in range(char_data.innate_skills.size()):
@@ -141,7 +141,7 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 			if skill is SkillData:
 				var label: Label = Label.new()
 				label.text = "  • %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-				label.add_theme_font_size_override("font_size", 14)
+				label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
 				_skills_list.add_child(label)
 
 	# Skills from equipment
@@ -152,8 +152,8 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 				has_any_skills = true
 				var source_label: Label = Label.new()
 				source_label.text = "%s:" % placed.item_data.display_name
-				source_label.add_theme_font_size_override("font_size", 14)
-				source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+				source_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
+				source_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 				_skills_list.add_child(source_label)
 
 				for j in range(placed.item_data.granted_skills.size()):
@@ -161,7 +161,7 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 					if skill is SkillData:
 						var label: Label = Label.new()
 						label.text = "  • %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-						label.add_theme_font_size_override("font_size", 14)
+						label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
 						_skills_list.add_child(label)
 
 	_skills_header.visible = has_any_skills
@@ -171,7 +171,7 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 	var has_any_effects: bool = false
 
 	if not _current_character_id.is_empty():
-		var passive_tree = get_node("/root/PassiveTreeDatabase").get_passive_tree(_current_character_id)
+		var passive_tree = PassiveTreeDatabase.get_passive_tree(_current_character_id)
 		if passive_tree:
 			var unlocked: Array = GameManager.party.get_unlocked_passives(_current_character_id)
 			for i in range(unlocked.size()):
@@ -181,33 +181,17 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 					has_any_effects = true
 					var source_label: Label = Label.new()
 					source_label.text = "%s:" % node.display_name
-					source_label.add_theme_font_size_override("font_size", 14)
-					source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+					source_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
+					source_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 					_effects_list.add_child(source_label)
 
 					var effect_label: Label = Label.new()
-					effect_label.text = "  • %s" % _get_effect_description(node.special_effect_id)
-					effect_label.add_theme_font_size_override("font_size", 14)
-					effect_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+					effect_label.text = "  • %s" % PassiveEffects.get_description(node.special_effect_id)
+					effect_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_BODY)
+					effect_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_EMPHASIS)
 					_effects_list.add_child(effect_label)
 
 	_effects_header.visible = has_any_effects
-
-
-func _get_all_skills(char_data: CharacterData, inv: GridInventory) -> Array:
-	var skills: Array = []
-	for i in range(char_data.innate_skills.size()):
-		var skill = char_data.innate_skills[i]
-		if skill is SkillData:
-			skills.append(skill)
-	if inv:
-		for i in range(inv.get_all_placed_items().size()):
-			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
-			for j in range(placed.item_data.granted_skills.size()):
-				var skill = placed.item_data.granted_skills[j]
-				if skill is SkillData and skill not in skills:
-					skills.append(skill)
-	return skills
 
 
 # === Stat Table ===
@@ -254,7 +238,7 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 
 		# Stat name
 		var name_label: Label = _make_cell(stat_name, 1.2)
-		name_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_PRIMARY)
 		row.add_child(name_label)
 
 		# Base
@@ -277,7 +261,7 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 		var pass_text: String = _format_bonus(pass_val, is_pct_stat)
 		var pass_label: Label = _make_cell(pass_text, 0.8)
 		if pass_val > 0:
-			pass_label.add_theme_color_override("font_color", Color(0.2, 0.8, 0.3))
+			pass_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SUCCESS)
 		row.add_child(pass_label)
 
 		# Effective total
@@ -287,7 +271,7 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 		else:
 			eff_text = "%.0f" % effective
 		var eff_label: Label = _make_cell(eff_text, 0.8)
-		eff_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
+		eff_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_IMPORTANT)
 		row.add_child(eff_label)
 
 		_stat_rows.add_child(row)
@@ -320,34 +304,10 @@ func _make_cell(text: String, stretch: float) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_stretch_ratio = stretch
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_NORMAL)
 	return label
 
 
 func _clear_children(container: Node) -> void:
 	for child in container.get_children():
 		child.queue_free()
-
-
-func _get_effect_description(effect_id: String) -> String:
-	match effect_id:
-		PassiveEffects.COUNTER_ATTACK:
-			return "15% chance to counter-attack"
-		PassiveEffects.LIFESTEAL_5:
-			return "Heal 5% of damage dealt"
-		PassiveEffects.LIFESTEAL_10:
-			return "Heal 10% of damage dealt"
-		PassiveEffects.START_SHIELD:
-			return "Gain 15 HP shield at battle start"
-		PassiveEffects.THORNS:
-			return "Reflect 5 damage when hit"
-		PassiveEffects.MANA_REGEN:
-			return "Restore 3 MP each turn"
-		PassiveEffects.EVASION:
-			return "10% chance to dodge attacks"
-		PassiveEffects.FIRST_STRIKE:
-			return "+50 Speed in round 1"
-		PassiveEffects.DOUBLE_GOLD:
-			return "Double gold earned from battles"
-		_:
-			return effect_id

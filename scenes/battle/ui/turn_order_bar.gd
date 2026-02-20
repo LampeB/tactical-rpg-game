@@ -18,7 +18,7 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 		var entity: CombatEntity = turn_order[i]
 		var label: Label = Label.new()
 		label.text = entity.entity_name
-		label.add_theme_font_size_override("font_size", 13)
+		label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 
 		if entity.is_dead:
 			label.add_theme_color_override("font_color", DEAD_COLOR)
@@ -36,6 +36,6 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 		if entity != turn_order.back():
 			var arrow: Label = Label.new()
 			arrow.text = ">"
-			arrow.add_theme_font_size_override("font_size", 13)
+			arrow.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 			arrow.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 			add_child(arrow)

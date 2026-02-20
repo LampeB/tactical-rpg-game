@@ -7,10 +7,10 @@ var gold: int = 0
 var story_flags: Dictionary = {}
 var is_game_started: bool = false
 
-func _ready():
+func _ready() -> void:
 	DebugLogger.log_info("GameManager ready", "GameManager")
 
-func new_game():
+func new_game() -> void:
 	party = Party.new()
 	gold = Constants.STARTING_GOLD
 	story_flags.clear()
@@ -58,7 +58,7 @@ func new_game():
 	SaveManager.start_playtime_tracking()
 	DebugLogger.log_info("New game started — Gold: %d, Roster: %d, Stash: %d" % [gold, party.roster.size(), party.get_stash_size()], "GameManager")
 
-func add_gold(amount: int):
+func add_gold(amount: int) -> void:
 	gold += amount
 	EventBus.gold_changed.emit(gold)
 
@@ -69,7 +69,7 @@ func spend_gold(amount: int) -> bool:
 	EventBus.gold_changed.emit(gold)
 	return true
 
-func set_flag(flag: String, value: Variant = true):
+func set_flag(flag: String, value: Variant = true) -> void:
 	story_flags[flag] = value
 
 func get_flag(flag: String, default: Variant = false) -> Variant:

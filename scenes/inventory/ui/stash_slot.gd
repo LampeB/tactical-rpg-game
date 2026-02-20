@@ -20,11 +20,6 @@ func setup(item: ItemData, idx: int) -> void:
 	$HBox/NameLabel.add_theme_color_override("font_color", rarity_color)
 	$HBox/TypeLabel.text = _get_type_text(item.item_type)
 
-	# Remove existing use button if any
-	if _use_button:
-		_use_button.queue_free()
-		_use_button = null
-
 	# Add "Use" button for consumables with use_skill
 	if item.item_type == Enums.ItemType.CONSUMABLE and item.use_skill:
 		_use_button = Button.new()

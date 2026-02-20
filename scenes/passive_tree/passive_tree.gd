@@ -144,7 +144,7 @@ func _show_node_info(node_id: String) -> void:
 			desc_parts.append("+%.0f%% %s" % [mod.value, stat_name])
 
 	if not node.special_effect_id.is_empty():
-		desc_parts.append(_get_effect_description(node.special_effect_id))
+		desc_parts.append(PassiveEffects.get_description(node.special_effect_id))
 
 	if not node.description.is_empty():
 		desc_parts.append(node.description)
@@ -155,7 +155,7 @@ func _show_node_info(node_id: String) -> void:
 	var is_unlocked: bool = GameManager.party.is_passive_unlocked(_current_character_id, node_id)
 	if is_unlocked:
 		_node_cost_label.text = "UNLOCKED"
-		_node_cost_label.add_theme_color_override("font_color", Color(0.2, 0.8, 0.3))
+		_node_cost_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SUCCESS)
 	else:
 		_node_cost_label.text = "Cost: %d Gold" % node.gold_cost
 		_node_cost_label.remove_theme_color_override("font_color")
@@ -213,7 +213,7 @@ func _populate_summary() -> void:
 		var label: Label = Label.new()
 		label.text = "No passives unlocked yet"
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.modulate = Color(0.7, 0.7, 0.7)
+		label.modulate = Constants.COLOR_TEXT_SECONDARY
 		_summary_list.add_child(label)
 		return
 
@@ -231,8 +231,8 @@ func _populate_summary() -> void:
 		# Node name (bold/larger)
 		var name_label: Label = Label.new()
 		name_label.text = node.display_name
-		name_label.add_theme_font_size_override("font_size", 16)
-		name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 1.0))
+		name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_HEADER)
+		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_HEADER)
 		row.add_child(name_label)
 
 		# Effects description (same format as node info)
@@ -246,12 +246,12 @@ func _populate_summary() -> void:
 				desc_parts.append("+%.0f%% %s" % [mod.value, stat_name])
 
 		if not node.special_effect_id.is_empty():
-			desc_parts.append(_get_effect_description(node.special_effect_id))
+			desc_parts.append(PassiveEffects.get_description(node.special_effect_id))
 
 		var desc_label: Label = Label.new()
 		desc_label.text = " • " + "\n • ".join(desc_parts) if not desc_parts.is_empty() else " • No bonuses"
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-		desc_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+		desc_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_PRIMARY)
 		row.add_child(desc_label)
 
 		# Separator
@@ -336,27 +336,3 @@ func _on_gold_changed(new_gold: int) -> void:
 
 func _update_gold_display() -> void:
 	_gold_label.text = "Gold: %d" % GameManager.gold
-
-
-func _get_effect_description(effect_id: String) -> String:
-	match effect_id:
-		PassiveEffects.COUNTER_ATTACK:
-			return "15% chance to counter-attack"
-		PassiveEffects.LIFESTEAL_5:
-			return "Heal 5% of damage dealt"
-		PassiveEffects.LIFESTEAL_10:
-			return "Heal 10% of damage dealt"
-		PassiveEffects.START_SHIELD:
-			return "Gain 15 HP shield at battle start"
-		PassiveEffects.THORNS:
-			return "Reflect 5 damage when hit"
-		PassiveEffects.MANA_REGEN:
-			return "Restore 3 MP each turn"
-		PassiveEffects.EVASION:
-			return "10% chance to dodge attacks"
-		PassiveEffects.FIRST_STRIKE:
-			return "+50 Speed in round 1"
-		PassiveEffects.DOUBLE_GOLD:
-			return "Double gold earned from battles"
-		_:
-			return effect_id
