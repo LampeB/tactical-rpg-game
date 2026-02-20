@@ -5,6 +5,7 @@ signal item_clicked(item: ItemData, index: int)
 signal item_hovered(item: ItemData, global_pos: Vector2)
 signal item_exited()
 signal item_use_requested(item: ItemData, index: int)
+signal background_clicked()
 
 const StashSlotScene: PackedScene = preload("res://scenes/inventory/ui/stash_slot.tscn")
 
@@ -17,7 +18,7 @@ var _show_max: bool = true
 @onready var _item_list: VBoxContainer = $VBox/ScrollContainer/ItemList
 
 
-func refresh(stash: Array) -> void:
+func refresh(stash: Array, returnable_indices: Dictionary = {}) -> void:
 	if not is_inside_tree():
 		await ready
 	# Clear existing slots
@@ -25,12 +26,13 @@ func refresh(stash: Array) -> void:
 		child.queue_free()
 	_slots.clear()
 
-	# Build new slots
+	# Build new slots with returnable status
 	for i in range(stash.size()):
 		var item: ItemData = stash[i]
+		var is_returnable: bool = returnable_indices.has(i)
 		var slot: PanelContainer = StashSlotScene.instantiate()
 		_item_list.add_child(slot)
-		slot.setup(item, i)
+		slot.setup(item, i, is_returnable)
 		slot.clicked.connect(_on_slot_clicked.bind(item))
 		slot.hovered.connect(func(it: ItemData, pos: Vector2) -> void: item_hovered.emit(it, pos))
 		slot.exited.connect(func() -> void: item_exited.emit())
@@ -60,6 +62,12 @@ func _on_slot_clicked(index: int, item: ItemData) -> void:
 func _on_slot_use_requested(index: int, item: ItemData) -> void:
 	# Slot emits (index, item) but we re-emit as (item, index) for consistency with other signals
 	item_use_requested.emit(item, index)
+
+
+func _gui_input(event: InputEvent) -> void:
+	# Detect clicks on background (not handled by slots)
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		background_clicked.emit()
 
 
 func set_label_prefix(prefix: String, show_max: bool = true) -> void:
