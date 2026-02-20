@@ -9,6 +9,7 @@ var is_player: bool = false
 var character_data: CharacterData  ## Set for player entities
 var enemy_data: EnemyData          ## Set for enemy entities
 var grid_inventory: GridInventory  ## Equipment bonuses (player only)
+var tool_modifier_states: Dictionary = {}  ## PlacedItem -> ToolModifierState (cached)
 
 # Passive skill tree bonuses (player only)
 var passive_stat_modifiers: Array = []  ## of StatModifier
@@ -47,7 +48,10 @@ static func from_character(
 	entity.passive_stat_modifiers = passive_bonuses.get("stat_modifiers", [])
 	entity.passive_special_effects = passive_bonuses.get("special_effects", [])
 
-	var equip_stats: Dictionary = inv.get_computed_stats() if inv else {}
+	# Get equipment stats and tool modifier states
+	var computed: Dictionary = inv.get_computed_stats() if inv else {"stats": {}, "tool_states": {}}
+	var equip_stats: Dictionary = computed.get("stats", {})
+	entity.tool_modifier_states = computed.get("tool_states", {})
 
 	# Compute max HP/MP: base + equipment + passive flat + passive percent
 	var hp_flat: float = float(char_data.max_hp) + equip_stats.get(Enums.Stat.MAX_HP, 0.0)
@@ -99,7 +103,8 @@ func get_effective_stat(stat: Enums.Stat) -> float:
 
 	# Equipment bonuses (player only)
 	if is_player and grid_inventory:
-		var equip_stats: Dictionary = grid_inventory.get_computed_stats()
+		var computed: Dictionary = grid_inventory.get_computed_stats()
+		var equip_stats: Dictionary = computed.get("stats", {})
 		base += equip_stats.get(stat, 0.0)
 
 	# Passive skill tree bonuses (player only) — flat first, then percent
@@ -152,11 +157,38 @@ func get_available_skills() -> Array:
 				for skill in placed.item_data.granted_skills:
 					if skill is SkillData and skill not in skills:
 						skills.append(skill)
+		# Conditional skills from tool modifier states
+		var tool_states_keys: Array = tool_modifier_states.keys()
+		for i in range(tool_states_keys.size()):
+			var tool_state: ToolModifierState = tool_modifier_states[tool_states_keys[i]]
+			for j in range(tool_state.conditional_skills.size()):
+				var skill: SkillData = tool_state.conditional_skills[j]
+				if skill is SkillData and skill not in skills:
+					skills.append(skill)
 	elif not is_player and enemy_data:
 		for skill in enemy_data.skills:
 			if skill is SkillData:
 				skills.append(skill)
 	return skills
+
+
+func get_primary_weapon_damage_type() -> Enums.DamageType:
+	## Returns primary weapon's damage type with conditional overrides applied.
+	if not is_player or not grid_inventory:
+		return Enums.DamageType.PHYSICAL
+
+	# Find first ACTIVE_TOOL in placement order
+	for i in range(grid_inventory.get_all_placed_items().size()):
+		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			# Check for damage type override from conditional modifiers
+			var state: ToolModifierState = tool_modifier_states.get(placed, null)
+			if state and state.damage_type_override != null:
+				return state.damage_type_override
+			# Fall back to item's base damage type
+			return placed.item_data.damage_type
+
+	return Enums.DamageType.PHYSICAL
 
 
 func can_use_skill(skill: SkillData) -> bool:

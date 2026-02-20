@@ -33,6 +33,8 @@ extends Resource
 @export var modifier_reach: int = 1
 ## For gems: stat bonuses applied to adjacent active tools.
 @export var modifier_bonuses: Array = [] ## of StatModifier
+## For gems: context-sensitive effects based on neighboring item categories.
+@export var conditional_modifier_rules: Array = [] ## of ConditionalModifierRule
 
 @export_group("Consumable")
 ## For consumables: the skill triggered on use.

@@ -42,17 +42,39 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 	_modifier_section.visible = false
 	_clear_container(_modifier_list)
 
-	if item.item_type == Enums.ItemType.MODIFIER and not item.modifier_bonuses.is_empty():
-		_modifier_section.visible = true
-		for mod in item.modifier_bonuses:
-			if mod is StatModifier:
-				var label: Label = Label.new()
-				label.text = mod.get_description()
-				label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
-				label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
-				_modifier_list.add_child(label)
+	if item.item_type == Enums.ItemType.MODIFIER:
+		# Show unconditional modifier bonuses
+		if not item.modifier_bonuses.is_empty():
+			_modifier_section.visible = true
+			for mod in item.modifier_bonuses:
+				if mod is StatModifier:
+					_add_modifier_label(mod.get_description(), Color(1.0, 0.9, 0.3))
+
+		# Show conditional rules grouped by target category
+		if not item.conditional_modifier_rules.is_empty():
+			_modifier_section.visible = true
+			for i in range(item.conditional_modifier_rules.size()):
+				var rule: ConditionalModifierRule = item.conditional_modifier_rules[i]
+				var category_name: String = _get_category_name(rule.target_category)
+				_add_header_label("When near %s:" % category_name, Color(0.8, 0.8, 1.0))
+
+				# Stat bonuses
+				for j in range(rule.stat_bonuses.size()):
+					var mod: StatModifier = rule.stat_bonuses[j]
+					_add_modifier_label("  " + mod.get_description(), Color(1.0, 0.9, 0.3))
+
+				# Damage type override
+				if rule.override_damage_type:
+					var dtype_name: String = _get_damage_type_name(rule.damage_type)
+					_add_modifier_label("  Damage Type: %s" % dtype_name, Color(1.0, 0.5, 0.3))
+
+				# Granted skills
+				for j in range(rule.granted_skills.size()):
+					var skill: SkillData = rule.granted_skills[j]
+					_add_modifier_label("  Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
 
 	elif item.item_type == Enums.ItemType.ACTIVE_TOOL and placed and grid_inv:
+		# Show active unconditional modifier bonuses
 		var modifiers: Array = grid_inv.get_modifiers_affecting(placed)
 		if not modifiers.is_empty():
 			_modifier_section.visible = true
@@ -60,11 +82,31 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 				var gem_placed: GridInventory.PlacedItem = modifiers[i]
 				for gem_mod in gem_placed.item_data.modifier_bonuses:
 					if gem_mod is StatModifier:
-						var label: Label = Label.new()
-						label.text = "%s (from %s)" % [gem_mod.get_description(), gem_placed.item_data.display_name]
-						label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
-						label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
-						_modifier_list.add_child(label)
+						_add_modifier_label("%s (from %s)" % [gem_mod.get_description(), gem_placed.item_data.display_name], Color(1.0, 0.9, 0.3))
+
+		# Show active conditional effects
+		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed)
+		if state and not state.active_modifiers.is_empty():
+			_modifier_section.visible = true
+
+			# Damage type override
+			if state.damage_type_override != null:
+				var dtype_name: String = _get_damage_type_name(state.damage_type_override)
+				_add_modifier_label("Damage Type: %s (modified)" % dtype_name, Color(1.0, 0.5, 0.3))
+
+			# Aggregate stats from conditional modifiers
+			var stat_keys: Array = state.aggregate_stats.keys()
+			for i in range(stat_keys.size()):
+				var stat: Enums.Stat = stat_keys[i]
+				var value: float = state.aggregate_stats[stat]
+				var stat_name: String = _get_stat_name(stat)
+				var sign: String = "+" if value >= 0 else ""
+				_add_modifier_label("%s%s %s (conditional)" % [sign, value, stat_name], Color(1.0, 0.9, 0.3))
+
+			# Conditional skills
+			for i in range(state.conditional_skills.size()):
+				var skill: SkillData = state.conditional_skills[i]
+				_add_modifier_label("Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
 
 	# Description
 	_description_label.text = item.description
@@ -105,3 +147,63 @@ func _get_type_text(item_type: Enums.ItemType) -> String:
 func _clear_container(container: VBoxContainer) -> void:
 	for child in container.get_children():
 		child.queue_free()
+
+
+func _add_header_label(text: String, color: Color) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+	label.add_theme_color_override("font_color", color)
+	_modifier_list.add_child(label)
+
+
+func _add_modifier_label(text: String, color: Color) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+	label.add_theme_color_override("font_color", color)
+	_modifier_list.add_child(label)
+
+
+func _get_category_name(category: Enums.EquipmentCategory) -> String:
+	match category:
+		Enums.EquipmentCategory.SWORD: return "Sword"
+		Enums.EquipmentCategory.MACE: return "Mace"
+		Enums.EquipmentCategory.BOW: return "Bow"
+		Enums.EquipmentCategory.STAFF: return "Staff"
+		Enums.EquipmentCategory.DAGGER: return "Dagger"
+		Enums.EquipmentCategory.SHIELD: return "Shield"
+		Enums.EquipmentCategory.HELMET: return "Helmet"
+		Enums.EquipmentCategory.CHESTPLATE: return "Chestplate"
+		Enums.EquipmentCategory.BOOTS: return "Boots"
+		Enums.EquipmentCategory.RING: return "Ring"
+	return "Unknown"
+
+
+func _get_damage_type_name(damage_type: Enums.DamageType) -> String:
+	match damage_type:
+		Enums.DamageType.PHYSICAL: return "Physical"
+		Enums.DamageType.FIRE: return "Fire"
+		Enums.DamageType.ICE: return "Ice"
+		Enums.DamageType.THUNDER: return "Thunder"
+		Enums.DamageType.POISON: return "Poison"
+		Enums.DamageType.WATER: return "Water"
+		Enums.DamageType.EARTH: return "Earth"
+		Enums.DamageType.WIND: return "Wind"
+		Enums.DamageType.SPIRIT: return "Spirit"
+	return "Unknown"
+
+
+func _get_stat_name(stat: Enums.Stat) -> String:
+	match stat:
+		Enums.Stat.MAX_HP: return "Max HP"
+		Enums.Stat.MAX_MP: return "Max MP"
+		Enums.Stat.PHYSICAL_ATTACK: return "Phys Atk"
+		Enums.Stat.PHYSICAL_DEFENSE: return "Phys Def"
+		Enums.Stat.SPECIAL_ATTACK: return "Spec Atk"
+		Enums.Stat.SPECIAL_DEFENSE: return "Spec Def"
+		Enums.Stat.SPEED: return "Speed"
+		Enums.Stat.LUCK: return "Luck"
+		Enums.Stat.CRITICAL_RATE: return "Crit Rate"
+		Enums.Stat.CRITICAL_DAMAGE: return "Crit Dmg"
+	return "Unknown"
