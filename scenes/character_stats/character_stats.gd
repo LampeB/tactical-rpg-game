@@ -68,6 +68,15 @@ func _on_back() -> void:
 	SceneManager.pop_scene()
 
 
+var _embedded: bool = false
+
+func setup_embedded(character_id: String) -> void:
+	_embedded = true
+	$VBox/TopBar.visible = false
+	$VBox/CharacterTabs.visible = false
+	_on_character_selected(character_id)
+
+
 func _on_character_selected(character_id: String) -> void:
 	_current_character_id = character_id
 	var char_data: CharacterData = GameManager.party.roster.get(character_id)

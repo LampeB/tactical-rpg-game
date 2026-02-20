@@ -64,6 +64,18 @@ func _ready() -> void:
 	DebugLogger.log_info("Inventory scene ready", "Inventory")
 
 
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	# Handle stash drops during drag in _input (before GUI processing)
+	# so the stash PanelContainer's mouse_filter doesn't block the event.
+	if _drag_state == DragState.DRAGGING:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if _stash_panel.is_mouse_over():
+				_return_to_stash()
+				get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if _drag_state == DragState.DRAGGING:
 		if event is InputEventKey and event.pressed and event.keycode == KEY_R:
@@ -79,12 +91,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			_cancel_drag()
 			get_viewport().set_input_as_handled()
 			return
-		# Left-click to place (when not over grid — the grid handles its own clicks)
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			if _stash_panel.is_mouse_over():
-				_return_to_stash()
-				get_viewport().set_input_as_handled()
-				return
 		return
 
 	# Ctrl+Z for undo
@@ -370,3 +376,12 @@ func _on_stats() -> void:
 	if _drag_state == DragState.DRAGGING:
 		_cancel_drag()
 	SceneManager.push_scene("res://scenes/character_stats/character_stats.tscn")
+
+
+var _embedded: bool = false
+
+func setup_embedded(character_id: String) -> void:
+	_embedded = true
+	$VBox/TopBar.visible = false
+	$VBox/Content/GridSide/CharacterTabs.visible = false
+	_on_character_selected(character_id)
