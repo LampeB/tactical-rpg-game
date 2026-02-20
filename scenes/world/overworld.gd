@@ -7,6 +7,13 @@ extends Node2D
 @onready var _fast_travel_menu: PanelContainer = $UI/FastTravelMenu
 @onready var _hud_gold_label: Label = $UI/HUD/GoldLabel
 @onready var _hud_location_label: Label = $UI/HUD/LocationLabel
+@onready var _message_label: Label = $UI/HUD/MessageLabel if has_node("UI/HUD/MessageLabel") else null
+
+const BATTLE_COOLDOWN_TIME: float = 3.0  ## Seconds of immunity after battle
+const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
+
+var _message_timer: float = 0.0
+var _current_message: String = ""
 
 
 func _ready() -> void:
@@ -24,8 +31,24 @@ func _ready() -> void:
 
 	EventBus.gold_changed.connect(_update_hud_gold)
 	EventBus.location_prompt_visible.connect(_on_location_prompt)
+	EventBus.show_message.connect(_show_message)
 	_update_hud_gold(GameManager.gold)
 	_hud_location_label.text = ""
+
+	# Setup message label if it doesn't exist
+	if not _message_label:
+		_message_label = Label.new()
+		_message_label.name = "MessageLabel"
+		_message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_message_label.set_anchors_preset(Control.PRESET_CENTER)
+		_message_label.position = Vector2(0, -200)  # Above center
+		_message_label.add_theme_font_size_override("font_size", 24)
+		_message_label.add_theme_color_override("font_color", Color.YELLOW)
+		_message_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		_message_label.add_theme_constant_override("outline_size", 4)
+		_message_label.visible = false
+		$UI/HUD.add_child(_message_label)
 
 	# Auto-save on entry
 	SaveManager.save_game()
@@ -37,21 +60,35 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_camera.position_smoothing_enabled = true
 
+	# Enable enemy detection after scene is fully loaded and player is positioned
+	_enable_enemy_detection()
+
 
 func _physics_process(delta: float) -> void:
 	# Camera follows player
 	_camera.global_position = _player.global_position
 
 
+func _process(delta: float) -> void:
+	# Handle message display timer
+	if _message_timer > 0:
+		_message_timer -= delta
+		if _message_timer <= 0:
+			_hide_message()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("escape"):
-		# Open main menu
+		# Save position before opening menu
+		_save_current_position()
 		SceneManager.push_scene("res://scenes/main_menu/main_menu.tscn")
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("fast_travel"):
 		_open_fast_travel_menu()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("open_inventory"):
+		# Save position before opening inventory
+		_save_current_position()
 		SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
 		get_viewport().set_input_as_handled()
 
@@ -59,10 +96,16 @@ func _unhandled_input(event: InputEvent) -> void:
 func receive_data(data: Dictionary) -> void:
 	## Called by SceneManager after returning from another scene.
 	if data.get("from_battle", false):
+		# Push player away from any nearby enemies to prevent immediate re-engagement
+		_push_player_from_enemies()
 		# Re-enable player input after battle
 		_player.enable_input(true)
-		# Auto-save after battle
+		# Auto-save after battle (with new position)
 		SaveManager.save_game()
+		# Re-enable enemy detection after player is safely positioned
+		_enable_enemy_detection()
+		# Apply battle cooldown to all enemies
+		_apply_battle_cooldown()
 
 
 func _update_hud_gold(gold: int) -> void:
@@ -74,6 +117,33 @@ func _on_location_prompt(visible: bool, location_name: String) -> void:
 		_hud_location_label.text = "[E] Enter: %s" % location_name
 	else:
 		_hud_location_label.text = ""
+
+
+func _show_message(message: String) -> void:
+	## Displays a temporary message to the player.
+	if not _message_label:
+		DebugLogger.log_warning("No message label to display: %s" % message, "Overworld")
+		return
+
+	_current_message = message
+	_message_label.text = message
+	_message_label.visible = true
+	_message_timer = MESSAGE_DISPLAY_TIME
+	DebugLogger.log_info("Showing message: %s" % message, "Overworld")
+
+
+func _hide_message() -> void:
+	## Hides the current message.
+	if _message_label:
+		_message_label.visible = false
+	_current_message = ""
+
+
+func _save_current_position() -> void:
+	## Saves the player's current position so it can be restored when returning.
+	if _player:
+		GameManager.set_flag("overworld_position", _player.global_position)
+		DebugLogger.log_info("Saved current position: %s" % _player.global_position, "Overworld")
 
 
 func _open_fast_travel_menu() -> void:
@@ -109,3 +179,66 @@ func _on_fast_travel_selected(location: LocationData) -> void:
 			GameManager.set_flag("overworld_position", _player.global_position)
 			SaveManager.save_game()
 			break
+
+
+func _enable_enemy_detection() -> void:
+	## Enables battle detection on all enemies after player is safely positioned.
+	var enemies: Array[Node] = get_tree().get_nodes_in_group("roaming_enemies")
+	for i in range(enemies.size()):
+		var enemy: Node = enemies[i]
+		if enemy and enemy.has_method("enable_detection"):
+			enemy.enable_detection()
+	DebugLogger.log_info("Enabled detection for %d enemies" % enemies.size(), "Overworld")
+
+
+func _push_player_from_enemies() -> void:
+	## Moves player away from any nearby enemies to prevent immediate re-engagement after battle.
+	const SAFE_DISTANCE: float = 80.0  # Minimum distance from enemies
+	const PUSH_DISTANCE: float = 100.0  # How far to push player
+
+	var enemies: Array[Node] = get_tree().get_nodes_in_group("roaming_enemies")
+	var player_pos: Vector2 = _player.global_position
+	var closest_enemy: Node = null
+	var closest_distance: float = INF
+
+	# Find closest enemy
+	for i in range(enemies.size()):
+		var enemy: Node = enemies[i]
+		if enemy and is_instance_valid(enemy) and enemy is Node2D:
+			var distance: float = player_pos.distance_to(enemy.global_position)
+			if distance < closest_distance:
+				closest_distance = distance
+				closest_enemy = enemy
+
+	# If player is too close to an enemy, push them away
+	if closest_enemy and closest_distance < SAFE_DISTANCE:
+		var push_direction: Vector2 = (player_pos - closest_enemy.global_position).normalized()
+		if push_direction.length() < 0.1:  # Handle case where positions are identical
+			push_direction = Vector2(1, 0)  # Default push to the right
+
+		var new_position: Vector2 = closest_enemy.global_position + (push_direction * PUSH_DISTANCE)
+		_player.global_position = new_position
+
+		# Update saved position
+		GameManager.set_flag("overworld_position", _player.global_position)
+
+		DebugLogger.log_info("Pushed player away from enemy (distance was %.1f)" % closest_distance, "Overworld")
+
+
+func _apply_battle_cooldown() -> void:
+	## Disables battle triggers on all enemies for a short period.
+	var enemies: Array[Node] = get_tree().get_nodes_in_group("roaming_enemies")
+	for i in range(enemies.size()):
+		var enemy: Node = enemies[i]
+		if enemy.has_method("disable_battles_temporarily"):
+			enemy.disable_battles_temporarily()
+
+	# Re-enable after cooldown
+	await get_tree().create_timer(BATTLE_COOLDOWN_TIME).timeout
+
+	for i in range(enemies.size()):
+		var enemy: Node = enemies[i]
+		if enemy and is_instance_valid(enemy) and enemy.has("_can_trigger_battle"):
+			enemy._can_trigger_battle = true
+
+	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")

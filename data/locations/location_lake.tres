@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LocationData" format=3 uid="uid://cr64yvgw8jhh5"]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "lake_healing"
+display_name = "Healing Lake"
+description = "A magical lake that restores HP and MP"
+unlock_flag = ""
+is_visible_when_locked = true
+allow_fast_travel_to = false
+must_visit_first = false
+location_type = 5

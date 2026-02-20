@@ -21,5 +21,5 @@ extends Resource
 @export var must_visit_first: bool = true  ## Require visiting before fast travel enabled?
 
 @export_group("Type")
-enum LocationType { TOWN, DUNGEON, LANDMARK, SHOP, INN }
+enum LocationType { TOWN, DUNGEON, LANDMARK, SHOP, INN, LAKE, CAVE }
 @export var location_type: LocationType = LocationType.TOWN
