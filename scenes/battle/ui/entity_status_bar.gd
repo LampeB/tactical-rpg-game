@@ -39,22 +39,22 @@ func refresh() -> void:
 	# Color HP bar based on percentage
 	var hp_pct: float = float(_entity.current_hp) / float(_entity.max_hp) if _entity.max_hp > 0 else 0.0
 	if hp_pct > 0.5:
-		_hp_bar.modulate = Color(0.4, 1.0, 0.4)
+		_hp_bar.modulate = Constants.COLOR_HP_HIGH
 	elif hp_pct > 0.25:
-		_hp_bar.modulate = Color(1.0, 0.8, 0.2)
+		_hp_bar.modulate = Constants.COLOR_HP_MID
 	else:
-		_hp_bar.modulate = Color(1.0, 0.3, 0.3)
+		_hp_bar.modulate = Constants.COLOR_HP_LOW
 
 	# MP bar
 	if _entity.is_player:
 		_mp_bar.max_value = _entity.max_mp
 		_mp_bar.value = _entity.current_mp
 		_mp_label.text = "%d/%d" % [_entity.current_mp, _entity.max_mp]
-		_mp_bar.modulate = Color(0.4, 0.6, 1.0)
+		_mp_bar.modulate = Constants.COLOR_MP
 
 	# Dead state
 	if _entity.is_dead:
-		modulate = Color(0.5, 0.5, 0.5, 0.6)
+		modulate = Constants.COLOR_DEAD
 	else:
 		modulate = Color.WHITE
 
@@ -84,21 +84,13 @@ func set_highlight(type: HighlightType) -> void:
 	_highlight_type = type
 	match type:
 		HighlightType.PRIMARY:
-			self_modulate = Color(1.3, 1.3, 0.9)  ## Bright yellow
+			self_modulate = Constants.COLOR_HIGHLIGHT_ACTIVE
 		HighlightType.SECONDARY:
-			self_modulate = Color(1.15, 1.15, 1.0)  ## Subtle highlight
+			self_modulate = Constants.COLOR_HIGHLIGHT_HOVER
 		HighlightType.INVALID:
-			self_modulate = Color(1.2, 0.8, 0.8)  ## Red tint
+			self_modulate = Constants.COLOR_HIGHLIGHT_TARGET
 		_:
 			self_modulate = Color.WHITE
-
-
-func get_highlight_type() -> HighlightType:
-	return _highlight_type
-
-
-func get_entity() -> CombatEntity:
-	return _entity
 
 
 func get_global_center() -> Vector2:
@@ -114,6 +106,6 @@ func _update_status_icons() -> void:
 		var data: StatusEffectData = effect.data
 		var label: Label = Label.new()
 		label.text = data.display_name.left(3)
-		label.add_theme_font_size_override("font_size", 10)
+		label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
 		label.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
 		_status_icons.add_child(label)

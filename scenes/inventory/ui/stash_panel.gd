@@ -53,10 +53,12 @@ func is_mouse_over() -> bool:
 
 
 func _on_slot_clicked(index: int, item: ItemData) -> void:
+	# Slot emits (index, item) but we re-emit as (item, index) for consistency with other signals
 	item_clicked.emit(item, index)
 
 
 func _on_slot_use_requested(index: int, item: ItemData) -> void:
+	# Slot emits (index, item) but we re-emit as (item, index) for consistency with other signals
 	item_use_requested.emit(item, index)
 
 

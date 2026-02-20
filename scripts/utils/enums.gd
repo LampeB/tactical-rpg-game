@@ -89,6 +89,12 @@ enum TargetType {
 	ALL,
 }
 
+enum PopupType {
+	DAMAGE,
+	HEAL,
+	CRIT,
+}
+
 enum CombatState {
 	INIT,
 	TURN_START,

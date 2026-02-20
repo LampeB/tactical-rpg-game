@@ -9,10 +9,8 @@ signal turn_ready(entity: CombatEntity)
 signal action_resolved(results: Dictionary)
 signal combat_finished(victory: bool)
 signal status_ticked(entity: CombatEntity, damage: int, status_name: String)
-signal status_expired(entity: CombatEntity, status_name: String)
 signal entity_died(entity: CombatEntity)
 signal log_message(text: String, color: Color)
-signal passive_effect_triggered(source: CombatEntity, effect_id: String, value: int)
 
 var encounter: EncounterData
 var all_entities: Array = []  ## of CombatEntity
@@ -50,10 +48,9 @@ func start_combat(
 	for i in range(player_entities.size()):
 		var e: CombatEntity = player_entities[i]
 		if e.has_passive_effect(PassiveEffects.START_SHIELD):
-			e.shield_hp = 15
+			e.shield_hp = PassiveEffects.START_SHIELD_AMOUNT
 			log_message.emit("%s gains a shield (15 HP)!" % e.entity_name, Color(0.4, 0.8, 1.0))
-			passive_effect_triggered.emit(e, PassiveEffects.START_SHIELD, 15)
-
+	
 	_build_turn_order()
 	log_message.emit("Battle started: %s" % encounter.display_name, Color.WHITE)
 
@@ -72,9 +69,9 @@ func _build_turn_order() -> void:
 		var speed_b: float = b.get_effective_stat(Enums.Stat.SPEED)
 		if is_round_one:
 			if a.has_passive_effect(PassiveEffects.FIRST_STRIKE):
-				speed_a += 50.0
+				speed_a += PassiveEffects.FIRST_STRIKE_SPEED
 			if b.has_passive_effect(PassiveEffects.FIRST_STRIKE):
-				speed_b += 50.0
+				speed_b += PassiveEffects.FIRST_STRIKE_SPEED
 		return speed_a > speed_b
 	)
 	var order_names: String = ", ".join(turn_order.map(func(e: CombatEntity) -> String: return "%s(%.0f)" % [e.entity_name, e.get_effective_stat(Enums.Stat.SPEED)]))
@@ -142,9 +139,8 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 	# Evasion check — target dodges the attack entirely
 	if target.has_passive_effect(PassiveEffects.EVASION):
-		if randf() < 0.10:
+		if randf() < PassiveEffects.EVASION_CHANCE:
 			log_message.emit("%s dodges %s's attack!" % [target.entity_name, source.entity_name], Color(0.4, 0.9, 1.0))
-			passive_effect_triggered.emit(target, PassiveEffects.EVASION, 0)
 			var dodge_result: Dictionary = {
 				"source": source, "target": target,
 				"action_type": Enums.CombatAction.ATTACK,
@@ -179,14 +175,12 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 			var healed: int = source.heal(heal_amount)
 			if healed > 0:
 				log_message.emit("%s drains %d HP!" % [source.entity_name, healed], Color(0.6, 1.0, 0.6))
-				passive_effect_triggered.emit(source, PassiveEffects.LIFESTEAL_5, healed)
-
+	
 	# Thorns — reflect flat damage back to attacker
 	if actual > 0 and target.has_passive_effect(PassiveEffects.THORNS) and not target.is_dead and not source.is_dead:
-		var thorn_dmg: int = source.take_damage(5)
+		var thorn_dmg: int = source.take_damage(PassiveEffects.THORNS_DAMAGE)
 		if thorn_dmg > 0:
 			log_message.emit("%s takes %d thorn damage!" % [source.entity_name, thorn_dmg], Color(0.8, 0.5, 0.2))
-			passive_effect_triggered.emit(target, PassiveEffects.THORNS, thorn_dmg)
 			if source.is_dead:
 				log_message.emit("%s has been defeated by thorns!" % source.entity_name, Color(1.0, 0.5, 0.5))
 				entity_died.emit(source)
@@ -197,11 +191,10 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 	# Counter-attack — 15% chance to strike back
 	if actual > 0 and target.has_passive_effect(PassiveEffects.COUNTER_ATTACK) and not target.is_dead and not source.is_dead:
-		if randf() < 0.15:
+		if randf() < PassiveEffects.COUNTER_CHANCE:
 			var counter_result: Dictionary = DamageCalculator.calculate_basic_attack(target, source)
 			var counter_dmg: int = source.take_damage(counter_result.amount)
 			log_message.emit("%s counter-attacks for %d damage!" % [target.entity_name, counter_dmg], Color(1.0, 0.7, 0.3))
-			passive_effect_triggered.emit(target, PassiveEffects.COUNTER_ATTACK, counter_dmg)
 			if source.is_dead:
 				log_message.emit("%s has been defeated by counter-attack!" % source.entity_name, Color(1.0, 0.5, 0.5))
 				entity_died.emit(source)
@@ -325,11 +318,10 @@ func get_turn_order() -> Array:
 func _tick_statuses(entity: CombatEntity) -> void:
 	# Mana regen passive — restore MP at turn start
 	if entity.has_passive_effect(PassiveEffects.MANA_REGEN):
-		var restored: int = entity.restore_mp(3)
+		var restored: int = entity.restore_mp(PassiveEffects.MANA_REGEN_AMOUNT)
 		if restored > 0:
 			log_message.emit("%s regenerates %d MP." % [entity.entity_name, restored], Color(0.4, 0.6, 1.0))
-			passive_effect_triggered.emit(entity, PassiveEffects.MANA_REGEN, restored)
-
+	
 	var expired: Array = []
 	for i in range(entity.status_effects.size() - 1, -1, -1):
 		var effect: Dictionary = entity.status_effects[i]
@@ -342,7 +334,7 @@ func _tick_statuses(entity: CombatEntity) -> void:
 			status_ticked.emit(entity, actual, data.display_name)
 			log_message.emit(
 				"%s takes %d damage from %s" % [entity.entity_name, actual, data.display_name],
-				Color(0.8, 0.4, 0.8),
+				Color(1.0, 0.6, 0.2),
 			)
 
 		# Decrement duration
@@ -357,10 +349,9 @@ func _tick_statuses(entity: CombatEntity) -> void:
 		var idx: int = expired[e_i]
 		var data: StatusEffectData = entity.status_effects[idx].data
 		entity.status_effects.remove_at(idx)
-		status_expired.emit(entity, data.display_name)
 		log_message.emit(
 			"%s's %s has worn off." % [entity.entity_name, data.display_name],
-			Color(0.7, 0.7, 0.7),
+			Color(1.0, 0.6, 0.2),
 		)
 
 
@@ -387,7 +378,6 @@ func _check_combat_end() -> void:
 			if not pe.is_dead and pe.has_passive_effect(PassiveEffects.DOUBLE_GOLD):
 				gold_earned *= 2
 				log_message.emit("%s's fortune doubles the gold!" % pe.entity_name, Color(1.0, 0.84, 0.0))
-				passive_effect_triggered.emit(pe, PassiveEffects.DOUBLE_GOLD, gold_earned)
 				break  # Only apply once
 
 		log_message.emit("Victory! Earned %d gold." % gold_earned, Color(1.0, 0.84, 0.0))

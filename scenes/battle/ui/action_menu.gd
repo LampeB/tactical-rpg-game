@@ -1,18 +1,17 @@
 extends PanelContainer
 ## Action selection menu for player turns: Attack, Defend, Skills, Flee.
-## Actions that don't require target selection show a Confirm/Cancel step.
+## Defend/Flee show a Confirm/Cancel step; Attack/Skills/Items go directly to targeting.
 
-signal action_chosen(action_type: int, skill: SkillData, target_type: int)
+signal action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData)
 
 var _current_entity: CombatEntity
 var _skill_buttons: Array = []
 var _item_buttons: Array = []
 
-# Pending action awaiting confirmation
-var _pending_action: int = -1
-var _pending_skill: SkillData = null
-var _pending_item: ItemData = null
-var _pending_target_type: int = -1
+# Confirm flow state (only used by Defend/Flee actions)
+var _confirm_action: int = -1
+var _confirm_skill: SkillData = null
+var _confirm_target_type: int = -1
 
 @onready var _main_buttons: HBoxContainer = $VBox/MainButtons
 @onready var _attack_btn: Button = $VBox/MainButtons/AttackButton
@@ -53,14 +52,8 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 	_confirm_bar.visible = false
 	_flee_btn.disabled = not can_flee
 
-	# Check if entity has any usable skills
+	# Disable skills button if no skills available
 	var skills: Array = entity.get_available_skills()
-	var _has_usable: bool = false
-	for i in range(skills.size()):
-		var skill: SkillData = skills[i]
-		if entity.can_use_skill(skill):
-			_has_usable = true
-			break
 	_skills_btn.disabled = skills.is_empty()
 
 	# Check if entity has any usable combat items
@@ -82,6 +75,7 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 func hide_menu() -> void:
 	visible = false
 	_skill_list.visible = false
+	_item_list.visible = false
 	_confirm_bar.visible = false
 
 
@@ -89,7 +83,7 @@ func hide_menu() -> void:
 
 func _on_attack() -> void:
 	# Attack always needs target selection, so emit directly (no confirm needed)
-	action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY)
+	action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 
 
 func _on_defend() -> void:
@@ -124,7 +118,7 @@ func _on_items_close() -> void:
 
 func _on_skill_selected(skill: SkillData) -> void:
 	# All skills go directly to target selection - hover shows affected targets
-	action_chosen.emit(Enums.CombatAction.SKILL, skill, skill.target_type)
+	action_chosen.emit(Enums.CombatAction.SKILL, skill, skill.target_type, null)
 
 
 func _on_item_selected(item: ItemData, placed: GridInventory.PlacedItem) -> void:
@@ -132,19 +126,16 @@ func _on_item_selected(item: ItemData, placed: GridInventory.PlacedItem) -> void
 	if not skill:
 		return
 
-	# Store the item for later removal after successful use
-	_pending_item = item
-
-	# All items go directly to target selection - hover shows affected targets
-	action_chosen.emit(Enums.CombatAction.ITEM, skill, skill.target_type)
+	# Pass item to battle.gd for removal after successful use
+	action_chosen.emit(Enums.CombatAction.ITEM, skill, skill.target_type, item)
 
 
 # === Confirm/Cancel ===
 
 func _show_confirm(text: String, action: int, skill: SkillData, target_type: int) -> void:
-	_pending_action = action
-	_pending_skill = skill
-	_pending_target_type = target_type
+	_confirm_action = action
+	_confirm_skill = skill
+	_confirm_target_type = target_type
 	_confirm_label.text = text
 	_main_buttons.visible = false
 	_skill_list.visible = false
@@ -152,25 +143,25 @@ func _show_confirm(text: String, action: int, skill: SkillData, target_type: int
 
 
 func _on_confirm() -> void:
-	var action := _pending_action
-	var skill := _pending_skill
-	var target_type := _pending_target_type
-	_clear_pending()
+	var action := _confirm_action
+	var skill := _confirm_skill
+	var target_type := _confirm_target_type
+	_clear_confirm()
 	_confirm_bar.visible = false
-	action_chosen.emit(action, skill, target_type)
+	action_chosen.emit(action, skill, target_type, null)
 
 
 func _on_cancel() -> void:
-	_clear_pending()
+	_clear_confirm()
 	_confirm_bar.visible = false
 	_main_buttons.visible = true
 	_skill_list.visible = false
 
 
-func _clear_pending() -> void:
-	_pending_action = -1
-	_pending_skill = null
-	_pending_target_type = -1
+func _clear_confirm() -> void:
+	_confirm_action = -1
+	_confirm_skill = null
+	_confirm_target_type = -1
 
 
 # === Skill List ===

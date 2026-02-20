@@ -9,6 +9,9 @@ const DamagePopupScene: PackedScene = preload("res://scenes/battle/ui/damage_pop
 const LootGeneratorScript = preload("res://scripts/systems/loot/loot_generator.gd")
 
 const ACTION_DELAY: float = 0.6  ## Seconds between actions for readability
+const BATTLE_START_DELAY: float = 0.5  ## Delay before first turn
+const VICTORY_DELAY: float = 1.5  ## Pause before victory screen
+const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 
 # --- Child references ---
 @onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
@@ -36,6 +39,14 @@ var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 var _pending_action_type: int = -1
 var _pending_skill: SkillData = null
 var _pending_target_type: int = -1
+var _pending_item: ItemData = null
+
+
+func _clear_pending_action() -> void:
+	_pending_action_type = -1
+	_pending_skill = null
+	_pending_target_type = -1
+	_pending_item = null
 
 
 func _ready() -> void:
@@ -129,8 +140,8 @@ func _start_battle() -> void:
 	_refresh_all_ui()
 
 	# Begin first turn
-	DebugLogger.log_info("Waiting 0.5s before first turn...", "Battle")
-	await get_tree().create_timer(0.5).timeout
+	DebugLogger.log_info("Waiting %.1fs before first turn..." % BATTLE_START_DELAY, "Battle")
+	await get_tree().create_timer(BATTLE_START_DELAY).timeout
 	DebugLogger.log_info("Advancing to first turn", "Battle")
 	_combat_manager.advance_turn()
 
@@ -141,6 +152,16 @@ func _letter(index: int) -> String:
 
 # === UI Building ===
 
+func _add_entity_bar(entity: CombatEntity, container: VBoxContainer) -> void:
+	var bar: PanelContainer = EntityStatusBarScene.instantiate()
+	container.add_child(bar)
+	bar.setup(entity)
+	bar.gui_input.connect(_on_entity_bar_input.bind(entity))
+	bar.mouse_entered.connect(_on_entity_bar_mouse_entered.bind(entity))
+	bar.mouse_exited.connect(_on_entity_bar_mouse_exited.bind(entity))
+	_entity_bars[entity] = bar
+
+
 func _build_entity_bars(players: Array, enemies: Array) -> void:
 	for child in _enemy_list.get_children():
 		child.queue_free()
@@ -149,24 +170,10 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 	_entity_bars.clear()
 
 	for i in range(enemies.size()):
-		var entity: CombatEntity = enemies[i]
-		var bar: PanelContainer = EntityStatusBarScene.instantiate()
-		_enemy_list.add_child(bar)
-		bar.setup(entity)
-		bar.gui_input.connect(_on_entity_bar_input.bind(entity))
-		bar.mouse_entered.connect(_on_entity_bar_mouse_entered.bind(entity))
-		bar.mouse_exited.connect(_on_entity_bar_mouse_exited.bind(entity))
-		_entity_bars[entity] = bar
+		_add_entity_bar(enemies[i], _enemy_list)
 
 	for i in range(players.size()):
-		var entity: CombatEntity = players[i]
-		var bar: PanelContainer = EntityStatusBarScene.instantiate()
-		_party_list.add_child(bar)
-		bar.setup(entity)
-		bar.gui_input.connect(_on_entity_bar_input.bind(entity))
-		bar.mouse_entered.connect(_on_entity_bar_mouse_entered.bind(entity))
-		bar.mouse_exited.connect(_on_entity_bar_mouse_exited.bind(entity))
-		_entity_bars[entity] = bar
+		_add_entity_bar(players[i], _party_list)
 
 
 func _refresh_all_ui() -> void:
@@ -227,7 +234,7 @@ func _on_combat_finished(victory: bool) -> void:
 		DebugLogger.log_info("State -> VICTORY! Gold earned: %d (bonus: %d)" % [_combat_manager.gold_earned, _encounter_data.bonus_gold], "Battle")
 		GameManager.add_gold(_combat_manager.gold_earned)
 		EventBus.combat_ended.emit(true)
-		await get_tree().create_timer(1.5).timeout
+		await get_tree().create_timer(VICTORY_DELAY).timeout
 		# Generate loot and show reward screen
 		var loot: Array = LootGeneratorScript.generate_loot(_encounter_data, _combat_manager.enemy_entities)
 		if not loot.is_empty():
@@ -246,7 +253,7 @@ func _on_combat_finished(victory: bool) -> void:
 		_title.text = "Defeat..."
 		DebugLogger.log_info("State -> DEFEAT", "Battle")
 		EventBus.combat_ended.emit(false)
-		await get_tree().create_timer(2.0).timeout
+		await get_tree().create_timer(DEFEAT_DELAY).timeout
 		DebugLogger.log_info("Returning to previous scene after defeat", "Battle")
 		SceneManager.pop_scene()
 
@@ -263,13 +270,13 @@ func _on_log_message(text: String, color: Color) -> void:
 
 func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -> void:
 	DebugLogger.log_info("Status tick on %s: %d damage from %s (HP now: %d/%d)" % [entity.entity_name, damage, status_name, entity.current_hp, entity.max_hp], "Battle")
-	_spawn_popup_at_entity(entity, damage, "damage")
+	_spawn_popup_at_entity(entity, damage, Enums.PopupType.DAMAGE)
 	_refresh_all_ui()
 
 
 # === Player Input ===
 
-func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> void:
+func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
 	if _state != BattleState.PLAYER_ACTION:
 		DebugLogger.log_warn("Action chosen but state is %s, ignoring" % BattleState.keys()[_state], "Battle")
 		return
@@ -292,6 +299,7 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> 
 			_pending_action_type = action_type
 			_pending_skill = null
 			_pending_target_type = target_type
+			_pending_item = null
 			_enter_target_selection()
 
 		Enums.CombatAction.SKILL:
@@ -299,6 +307,7 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> 
 				_pending_action_type = action_type
 				_pending_skill = skill
 				_pending_target_type = target_type
+				_pending_item = null
 				# All skills go through target selection/confirmation for consistency
 				_enter_target_selection()
 
@@ -307,6 +316,7 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> 
 				_pending_action_type = action_type
 				_pending_skill = skill
 				_pending_target_type = target_type
+				_pending_item = item
 				# Items use their use_skill for targeting, same flow as skills
 				_enter_target_selection()
 
@@ -448,22 +458,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _cancel_target_selection() -> void:
 	_clear_target_highlights()
+	_clear_pending_action()
 	_state = BattleState.PLAYER_ACTION
 	_target_prompt.visible = false
 	DebugLogger.log_info("State -> PLAYER_ACTION (target cancelled)", "Battle")
 	_action_menu.show_for_entity(_combat_manager.current_entity, _encounter_data.can_flee)
-
-
-func _get_auto_targets() -> Array:
-	match _pending_target_type:
-		Enums.TargetType.SELF:
-			return [_combat_manager.current_entity]
-		Enums.TargetType.ALL_ENEMIES:
-			return _combat_manager.get_alive_enemies()
-		Enums.TargetType.ALL_ALLIES:
-			return _combat_manager.get_alive_players()
-		_:
-			return _combat_manager.get_alive_enemies()
 
 
 func _execute_player_action(targets: Array) -> void:
@@ -485,35 +484,27 @@ func _execute_player_action(targets: Array) -> void:
 		Enums.CombatAction.SKILL:
 			if _pending_skill:
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
-				var target_results: Array = result.get("target_results", [])
-				for i in range(target_results.size()):
-					var target_result: Dictionary = target_results[i]
-					var target: CombatEntity = target_result.target
-					_spawn_damage_popup(target, target_result)
+				_spawn_popups_for_results(result)
 		Enums.CombatAction.ITEM:
 			if _pending_skill:
 				# Execute the item's skill
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
-				var target_results: Array = result.get("target_results", [])
-				for i in range(target_results.size()):
-					var target_result: Dictionary = target_results[i]
-					var target: CombatEntity = target_result.target
-					_spawn_damage_popup(target, target_result)
+				_spawn_popups_for_results(result)
 
 				# Remove item from character's grid inventory
-				var pending_item: ItemData = _action_menu._pending_item
-				if pending_item and source.grid_inventory and source.character_data:
+				if _pending_item and source.grid_inventory and source.character_data:
 					var char_id: String = source.character_data.id
 					var placed_items: Array = source.grid_inventory.get_all_placed_items()
 					for j in range(placed_items.size()):
 						var placed: GridInventory.PlacedItem = placed_items[j]
-						if placed.item_data == pending_item:
+						if placed.item_data == _pending_item:
 							source.grid_inventory.remove_item(placed)
-							EventBus.item_removed.emit(char_id, pending_item, placed.grid_position)
+							EventBus.item_removed.emit(char_id, _pending_item, placed.grid_position)
 							EventBus.inventory_changed.emit(char_id)
-							DebugLogger.log_info("Consumed item: %s from grid inventory" % pending_item.display_name, "Battle")
+							DebugLogger.log_info("Consumed item: %s from grid inventory" % _pending_item.display_name, "Battle")
 							break
 
+	_clear_pending_action()
 	_advance_after_action()
 
 
@@ -541,11 +532,7 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 		Enums.CombatAction.SKILL:
 			if skill:
 				var result: Dictionary = _combat_manager.execute_skill(entity, skill, targets)
-				var target_results: Array = result.get("target_results", [])
-				for i in range(target_results.size()):
-					var target_result: Dictionary = target_results[i]
-					var target: CombatEntity = target_result.target
-					_spawn_damage_popup(target, target_result)
+				_spawn_popups_for_results(result)
 		Enums.CombatAction.DEFEND:
 			_combat_manager.execute_defend(entity)
 
@@ -569,19 +556,27 @@ func _advance_after_action() -> void:
 
 # === Damage Popups ===
 
+func _spawn_popups_for_results(result: Dictionary) -> void:
+	var target_results: Array = result.get("target_results", [])
+	for i in range(target_results.size()):
+		var target_result: Dictionary = target_results[i]
+		var target: CombatEntity = target_result.target
+		_spawn_damage_popup(target, target_result)
+
+
 func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 	if not _entity_bars.has(target):
 		return
 
 	var amount: int = result.get("damage", result.get("actual_damage", result.get("heal", 0)))
-	var popup_type: String = "damage"
+	var popup_type: Enums.PopupType = Enums.PopupType.DAMAGE
 
 	if result.has("heal"):
-		popup_type = "heal"
+		popup_type = Enums.PopupType.HEAL
 	elif result.get("is_crit", false):
-		popup_type = "crit"
+		popup_type = Enums.PopupType.CRIT
 
-	DebugLogger.log_info("Popup: %s on %s (%d)" % [popup_type, target.entity_name, amount], "Battle")
+	DebugLogger.log_info("Popup: %s on %s (%d)" % [Enums.PopupType.keys()[popup_type], target.entity_name, amount], "Battle")
 	_spawn_popup_at_entity(target, amount, popup_type)
 
 
@@ -606,7 +601,7 @@ func _save_player_vitals() -> void:
 			], "Battle")
 
 
-func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: String) -> void:
+func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums.PopupType) -> void:
 	if not _entity_bars.has(entity):
 		return
 

@@ -4,24 +4,20 @@ extends Label
 var _velocity: Vector2 = Vector2(0, -60)
 
 
-func setup(amount: int, popup_type: String = "damage") -> void:
+func setup(amount: int, popup_type: Enums.PopupType = Enums.PopupType.DAMAGE) -> void:
 	match popup_type:
-		"damage":
+		Enums.PopupType.DAMAGE:
 			text = str(amount)
-			add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
-			add_theme_font_size_override("font_size", 20)
-		"crit":
+			add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
+			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP)
+		Enums.PopupType.CRIT:
 			text = "%d!" % amount
-			add_theme_color_override("font_color", Color(1.0, 0.84, 0.0))
-			add_theme_font_size_override("font_size", 26)
-		"heal":
+			add_theme_color_override("font_color", Constants.COLOR_CRIT)
+			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP_CRIT)
+		Enums.PopupType.HEAL:
 			text = "+%d" % amount
-			add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
-			add_theme_font_size_override("font_size", 20)
-		"miss":
-			text = "MISS"
-			add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-			add_theme_font_size_override("font_size", 18)
+			add_theme_color_override("font_color", Constants.COLOR_HEAL)
+			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP)
 
 	# Add slight random horizontal offset
 	_velocity.x = randf_range(-20, 20)

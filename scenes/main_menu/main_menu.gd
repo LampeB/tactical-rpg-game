@@ -8,7 +8,7 @@ func _ready():
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 	var title = $VBoxContainer/Title
-	title.add_theme_font_size_override("font_size", 48)
+	title.add_theme_font_size_override("font_size", Constants.FONT_SIZE_MENU_TITLE)
 
 	_update_button_states()
 

@@ -33,7 +33,7 @@ func get_cells() -> Array[Vector2i]:
 
 
 func set_valid(is_valid: bool) -> void:
-	var tint: Color = Color(0.2, 1.0, 0.2, 0.6) if is_valid else Color(1.0, 0.2, 0.2, 0.6)
+	var tint: Color = Constants.COLOR_DRAG_VALID if is_valid else Constants.COLOR_DRAG_INVALID
 	for rect in _shape_rects:
 		if is_instance_valid(rect):
 			rect.color = tint
@@ -85,7 +85,7 @@ func _rebuild_shape() -> void:
 		var rect: ColorRect = ColorRect.new()
 		rect.position = Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
 		rect.size = Vector2(CELL_SIZE, CELL_SIZE)
-		rect.color = Color(0.2, 1.0, 0.2, 0.6)
+		rect.color = Constants.COLOR_DRAG_VALID
 		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_shape_container.add_child(rect)
 		_shape_rects.append(rect)

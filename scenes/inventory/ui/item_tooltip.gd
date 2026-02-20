@@ -29,13 +29,13 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 		if mod is StatModifier:
 			var label: Label = Label.new()
 			label.text = mod.get_description()
-			label.add_theme_font_size_override("font_size", 13)
+			label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 			_stats_container.add_child(label)
 
 	if item.base_power > 0:
 		var power_label: Label = Label.new()
 		power_label.text = "Power: %d" % item.base_power
-		power_label.add_theme_font_size_override("font_size", 13)
+		power_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 		_stats_container.add_child(power_label)
 
 	# Modifier bonuses (for gems, show what they grant; for tools, show active gem bonuses)
@@ -48,7 +48,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 			if mod is StatModifier:
 				var label: Label = Label.new()
 				label.text = mod.get_description()
-				label.add_theme_font_size_override("font_size", 13)
+				label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 				label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
 				_modifier_list.add_child(label)
 
@@ -62,7 +62,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					if gem_mod is StatModifier:
 						var label: Label = Label.new()
 						label.text = "%s (from %s)" % [gem_mod.get_description(), gem_placed.item_data.display_name]
-						label.add_theme_font_size_override("font_size", 13)
+						label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
 						label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
 						_modifier_list.add_child(label)
 

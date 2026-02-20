@@ -3,6 +3,7 @@ extends Control
 ## Manages drag-and-drop between grid and stash, character switching, tooltips.
 
 enum DragState { IDLE, DRAGGING }
+enum DragSource { NONE, GRID, STASH }
 
 # --- Child references ---
 @onready var _grid_panel: Control = $VBox/Content/GridSide/GridCentering/GridPanel
@@ -20,7 +21,7 @@ var _current_character_id: String = ""
 
 var _drag_state: DragState = DragState.IDLE
 var _dragged_item: ItemData = null
-var _drag_source: String = ""  # "grid" or "stash"
+var _drag_source: DragSource = DragSource.NONE
 var _drag_source_placed: GridInventory.PlacedItem = null
 var _drag_source_pos: Vector2i = Vector2i.ZERO
 var _drag_source_rotation: int = 0
@@ -28,8 +29,9 @@ var _drag_source_stash_index: int = -1
 var _drag_rotation: int = 0
 
 # --- Consumable usage ---
+enum ConsumableSource { NONE = -1, STASH, GRID }
 var _pending_consumable: ItemData = null
-var _pending_consumable_source: String = ""  # "stash" or "grid"
+var _pending_consumable_source: ConsumableSource = ConsumableSource.NONE
 var _pending_consumable_index: int = -1  # For stash
 var _pending_consumable_placed: GridInventory.PlacedItem = null  # For grid
 var _target_selection_popup: PopupPanel = null
@@ -157,8 +159,9 @@ func _populate_skills_summary() -> void:
 
 	# Get all active tools
 	var tools: Array = []
-	for i in range(inv.get_all_placed_items().size()):
-		var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+	var placed_items: Array = inv.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 			tools.append(placed)
 
@@ -166,7 +169,7 @@ func _populate_skills_summary() -> void:
 		var label: Label = Label.new()
 		label.text = "No active tools equipped"
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.modulate = Color(0.7, 0.7, 0.7)
+		label.modulate = Constants.COLOR_TEXT_SECONDARY
 		_skills_list.add_child(label)
 		return
 
@@ -179,8 +182,8 @@ func _populate_skills_summary() -> void:
 		# Tool name
 		var name_label: Label = Label.new()
 		name_label.text = tool.item_data.display_name
-		name_label.add_theme_font_size_override("font_size", 16)
-		name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 1.0))
+		name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_HEADER)
+		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_HEADER)
 		row.add_child(name_label)
 
 		# Granted skills
@@ -193,7 +196,7 @@ func _populate_skills_summary() -> void:
 					skill_names.append(skill.display_name)
 			skills_label.text = " • Skills: " + ", ".join(skill_names)
 			skills_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			skills_label.add_theme_color_override("font_color", Color(0.8, 1.0, 0.8))
+			skills_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SKILL)
 			row.add_child(skills_label)
 
 		# Affecting modifiers
@@ -206,7 +209,7 @@ func _populate_skills_summary() -> void:
 				mod_names.append(mod_placed.item_data.display_name)
 			mods_label.text = " • Modifiers: " + ", ".join(mod_names)
 			mods_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			mods_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.5))
+			mods_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_MODIFIER)
 			row.add_child(mods_label)
 
 		# Separator
@@ -289,7 +292,6 @@ func _on_item_hover_exited() -> void:
 
 # === Consumable Usage ===
 # Out-of-combat consumable usage from stash or grid inventory.
-# TODO: Add in-combat item usage as combat action (future enhancement).
 
 func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
 	DebugLogger.log_info("_on_stash_item_use_requested called: item=%s, index=%d, has_use_skill=%s" % [item.display_name if item else "null", index, "yes" if (item and item.use_skill) else "no"], "Inventory")
@@ -299,7 +301,7 @@ func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
 		return
 
 	_pending_consumable = item
-	_pending_consumable_source = "stash"
+	_pending_consumable_source = ConsumableSource.STASH
 	_pending_consumable_index = index
 	_pending_consumable_placed = null
 	DebugLogger.log_info("Showing target selection popup", "Inventory")
@@ -314,7 +316,7 @@ func _on_grid_item_use_requested(placed: GridInventory.PlacedItem) -> void:
 		return
 
 	_pending_consumable = placed.item_data
-	_pending_consumable_source = "grid"
+	_pending_consumable_source = ConsumableSource.GRID
 	_pending_consumable_index = -1
 	_pending_consumable_placed = placed
 	DebugLogger.log_info("Showing target selection popup", "Inventory")
@@ -340,7 +342,7 @@ func _show_target_selection_popup() -> void:
 	var title: Label = Label.new()
 	title.text = "Select Target"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TITLE)
 	vbox.add_child(title)
 
 	var separator: HSeparator = HSeparator.new()
@@ -390,7 +392,7 @@ func _on_target_selected(character_id: String) -> void:
 
 	# Save locally before hiding (hide triggers popup_hide signal which clears _pending_consumable)
 	var item: ItemData = _pending_consumable
-	var source: String = _pending_consumable_source
+	var source: ConsumableSource = _pending_consumable_source
 	var index: int = _pending_consumable_index
 	var placed: GridInventory.PlacedItem = _pending_consumable_placed
 
@@ -400,11 +402,11 @@ func _on_target_selected(character_id: String) -> void:
 		DebugLogger.log_warn("Cannot execute: item is null", "Inventory")
 		return
 
-	if source == "stash" and index < 0:
+	if source == ConsumableSource.STASH and index < 0:
 		DebugLogger.log_warn("Cannot execute: stash item but index=%d" % index, "Inventory")
 		return
 
-	if source == "grid" and not placed:
+	if source == ConsumableSource.GRID and not placed:
 		DebugLogger.log_warn("Cannot execute: grid item but placed is null", "Inventory")
 		return
 
@@ -412,7 +414,7 @@ func _on_target_selected(character_id: String) -> void:
 	_execute_consumable(item, character_id, source, index, placed)
 
 
-func _execute_consumable(item: ItemData, target_id: String, source: String, stash_index: int = -1, placed: GridInventory.PlacedItem = null) -> void:
+func _execute_consumable(item: ItemData, target_id: String, source: ConsumableSource, stash_index: int = -1, placed: GridInventory.PlacedItem = null) -> void:
 	DebugLogger.log_info("_execute_consumable called: item=%s, target=%s, source=%s" % [item.display_name if item else "null", target_id, source], "Inventory")
 
 	if not item.use_skill:
@@ -448,7 +450,7 @@ func _execute_consumable(item: ItemData, target_id: String, source: String, stas
 	DebugLogger.log_info("Target HP after: %d/%d (healed %d)" % [current_hp_after, target_max_hp, current_hp_after - current_hp_before], "Inventory")
 
 	# Remove item based on source
-	if source == "stash":
+	if source == ConsumableSource.STASH:
 		if stash_index < GameManager.party.stash.size():
 			DebugLogger.log_info("Removing item at index %d from stash (stash size: %d)" % [stash_index, GameManager.party.stash.size()], "Inventory")
 			GameManager.party.stash.remove_at(stash_index)
@@ -456,7 +458,7 @@ func _execute_consumable(item: ItemData, target_id: String, source: String, stas
 			EventBus.stash_changed.emit()
 		else:
 			DebugLogger.log_warn("Stash index out of bounds: %d (stash size: %d)" % [stash_index, GameManager.party.stash.size()], "Inventory")
-	elif source == "grid":
+	elif source == ConsumableSource.GRID:
 		if placed:
 			var inv: GridInventory = _grid_inventories.get(_current_character_id)
 			if inv:
@@ -474,7 +476,7 @@ func _execute_consumable(item: ItemData, target_id: String, source: String, stas
 
 func _on_target_popup_hidden() -> void:
 	_pending_consumable = null
-	_pending_consumable_source = ""
+	_pending_consumable_source = ConsumableSource.NONE
 	_pending_consumable_index = -1
 	_pending_consumable_placed = null
 
@@ -487,7 +489,7 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 		return
 
 	_dragged_item = placed.item_data
-	_drag_source = "grid"
+	_drag_source = DragSource.GRID
 	_drag_source_placed = placed
 	_drag_source_pos = placed.grid_position
 	_drag_source_rotation = placed.rotation
@@ -506,7 +508,7 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 
 func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	_dragged_item = item
-	_drag_source = "stash"
+	_drag_source = DragSource.STASH
 	_drag_source_stash_index = index
 	_drag_rotation = 0
 	_drag_state = DragState.DRAGGING
@@ -536,7 +538,7 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	# Record undo
 	var undo: InventoryUndo = _undo_stacks.get(_current_character_id)
 	if undo:
-		if _drag_source == "grid":
+		if _drag_source == DragSource.GRID:
 			undo.push_move(_dragged_item, _drag_source_pos, grid_pos, _drag_source_rotation, _drag_rotation)
 		else:
 			undo.push_place(_dragged_item, grid_pos, _drag_rotation)
@@ -558,7 +560,7 @@ func _return_to_stash() -> void:
 	_stash_panel.refresh(GameManager.party.stash)
 
 	# Record undo if it came from grid
-	if _drag_source == "grid":
+	if _drag_source == DragSource.GRID:
 		var undo: InventoryUndo = _undo_stacks.get(_current_character_id)
 		if undo:
 			undo.push_remove(_dragged_item, _drag_source_pos, _drag_source_rotation)
@@ -577,12 +579,12 @@ func _cancel_drag() -> void:
 		return
 
 	# Restore item to original location
-	if _drag_source == "grid":
+	if _drag_source == DragSource.GRID:
 		var inv: GridInventory = _grid_inventories.get(_current_character_id)
 		if inv:
 			inv.place_item(_dragged_item, _drag_source_pos, _drag_source_rotation)
 			_grid_panel.refresh()
-	elif _drag_source == "stash":
+	elif _drag_source == DragSource.STASH:
 		GameManager.party.stash.insert(mini(_drag_source_stash_index, GameManager.party.stash.size()), _dragged_item)
 		_stash_panel.refresh(GameManager.party.stash)
 
@@ -606,7 +608,7 @@ func _update_drag_preview() -> void:
 func _end_drag() -> void:
 	_drag_state = DragState.IDLE
 	_dragged_item = null
-	_drag_source = ""
+	_drag_source = DragSource.NONE
 	_drag_source_placed = null
 	_drag_source_stash_index = -1
 	_drag_preview.hide_preview()
@@ -651,8 +653,9 @@ func _perform_undo() -> void:
 
 
 func _find_placed_item(inv: GridInventory, item_data: ItemData, pos: Vector2i) -> GridInventory.PlacedItem:
-	for i in range(inv.get_all_placed_items().size()):
-		var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+	var placed_items: Array = inv.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data == item_data and placed.grid_position == pos:
 			return placed
 	return null
@@ -673,10 +676,7 @@ func _on_stats() -> void:
 	SceneManager.push_scene("res://scenes/character_stats/character_stats.tscn")
 
 
-var _embedded: bool = false
-
 func setup_embedded(character_id: String) -> void:
-	_embedded = true
 	$VBox/TopBar.visible = false
 	$VBox/Content/GridSide/CharacterTabs.visible = false
 	_on_character_selected(character_id)
