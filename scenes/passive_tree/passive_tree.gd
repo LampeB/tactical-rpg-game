@@ -187,7 +187,7 @@ func _populate_summary() -> void:
 
 	# Safety check - ensure UI nodes are ready
 	if not _summary_list or not is_inside_tree():
-		DebugLogger.log_warning("Summary list not ready, deferring", "PassiveTree")
+		DebugLogger.log_warn("Summary list not ready, deferring", "PassiveTree")
 		_populate_summary.call_deferred()
 		return
 
@@ -202,7 +202,7 @@ func _populate_summary() -> void:
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
 		_summary_list.add_child(label)
-		DebugLogger.log_warning("No tree or character ID", "PassiveTree")
+		DebugLogger.log_warn("No tree or character ID", "PassiveTree")
 		return
 
 	# Get unlocked passives for current character

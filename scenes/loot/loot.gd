@@ -89,6 +89,11 @@ func receive_data(data: Dictionary) -> void:
 	else:
 		_gold_label.text = ""
 
+	# Refresh UI with received loot (receive_data called after _ready)
+	_refresh_loot_pool()
+	_update_loot_count()
+	DebugLogger.log_info("Received %d loot items" % _loot_items.size(), "Loot")
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _drag_state == DragState.DRAGGING:

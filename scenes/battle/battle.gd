@@ -96,9 +96,9 @@ func _start_battle() -> void:
 				var skill_count: int = entity.get_available_skills().size()
 				DebugLogger.log_info("  Player: %s — HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")
 			else:
-				DebugLogger.log_warning("Character ID '%s' not found in roster" % character_id, "Battle")
+				DebugLogger.log_warn("Character ID '%s' not found in roster" % character_id, "Battle")
 	else:
-		DebugLogger.log_warning("No party data available!", "Battle")
+		DebugLogger.log_warn("No party data available!", "Battle")
 
 	# Build enemy entities from encounter
 	var enemy_entities: Array = []
@@ -267,7 +267,7 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 
 func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> void:
 	if _state != BattleState.PLAYER_ACTION:
-		DebugLogger.log_warning("Action chosen but state is %s, ignoring" % BattleState.keys()[_state], "Battle")
+		DebugLogger.log_warn("Action chosen but state is %s, ignoring" % BattleState.keys()[_state], "Battle")
 		return
 
 	var action_name: String = Enums.CombatAction.keys()[action_type] if action_type < Enums.CombatAction.size() else str(action_type)
@@ -295,11 +295,8 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int) -> 
 				_pending_action_type = action_type
 				_pending_skill = skill
 				_pending_target_type = target_type
-				if target_type == Enums.TargetType.SELF or target_type == Enums.TargetType.ALL_ENEMIES or target_type == Enums.TargetType.ALL_ALLIES:
-					DebugLogger.log_info("Auto-targeting for skill %s (target_type: %d)" % [skill.display_name, target_type], "Battle")
-					_execute_player_action(_get_auto_targets())
-				else:
-					_enter_target_selection()
+				# All skills go through target selection/confirmation for consistency
+				_enter_target_selection()
 
 
 func _enter_target_selection() -> void:
@@ -307,12 +304,31 @@ func _enter_target_selection() -> void:
 	_action_menu.hide_menu()
 	_target_prompt.visible = true
 
-	if _pending_target_type == Enums.TargetType.SINGLE_ENEMY:
-		_target_prompt_label.text = "Select an enemy target..."
-		DebugLogger.log_info("State -> TARGET_SELECT (enemy)", "Battle")
-	else:
-		_target_prompt_label.text = "Select an ally target..."
-		DebugLogger.log_info("State -> TARGET_SELECT (ally)", "Battle")
+	# Different prompts for single-target vs AOE skills
+	match _pending_target_type:
+		Enums.TargetType.SINGLE_ENEMY:
+			_target_prompt_label.text = "Select an enemy target..."
+			DebugLogger.log_info("State -> TARGET_SELECT (single enemy)", "Battle")
+		Enums.TargetType.SINGLE_ALLY:
+			_target_prompt_label.text = "Select an ally target..."
+			DebugLogger.log_info("State -> TARGET_SELECT (single ally)", "Battle")
+		Enums.TargetType.SELF:
+			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
+			_target_prompt_label.text = "Use %s on yourself? Click to confirm." % skill_name
+			DebugLogger.log_info("State -> TARGET_SELECT (self)", "Battle")
+		Enums.TargetType.ALL_ENEMIES:
+			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
+			var count: int = _combat_manager.get_alive_enemies().size()
+			_target_prompt_label.text = "Use %s on all enemies (%d)? Click to confirm." % [skill_name, count]
+			DebugLogger.log_info("State -> TARGET_SELECT (all enemies)", "Battle")
+		Enums.TargetType.ALL_ALLIES:
+			var skill_name: String = _pending_skill.display_name if _pending_skill else "skill"
+			var count: int = _combat_manager.get_alive_players().size()
+			_target_prompt_label.text = "Use %s on all allies (%d)? Click to confirm." % [skill_name, count]
+			DebugLogger.log_info("State -> TARGET_SELECT (all allies)", "Battle")
+		_:
+			_target_prompt_label.text = "Select a target..."
+			DebugLogger.log_info("State -> TARGET_SELECT (unknown)", "Battle")
 
 
 func _on_entity_bar_input(event: InputEvent, entity: CombatEntity) -> void:
@@ -320,24 +336,54 @@ func _on_entity_bar_input(event: InputEvent, entity: CombatEntity) -> void:
 		return
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
-	if entity.is_dead:
-		DebugLogger.log_info("Target click on dead entity %s, ignoring" % entity.entity_name, "Battle")
-		return
 
-	var valid: bool = false
+	# For AOE skills, clicking any relevant entity confirms the action
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
-			valid = not entity.is_player
-		Enums.TargetType.SINGLE_ALLY:
-			valid = entity.is_player
-		_:
-			valid = true
+			if entity.is_dead:
+				DebugLogger.log_info("Target click on dead entity %s, ignoring" % entity.entity_name, "Battle")
+				return
+			if not entity.is_player:
+				DebugLogger.log_info("Target selected: %s" % entity.entity_name, "Battle")
+				_execute_player_action([entity])
+			else:
+				DebugLogger.log_info("Invalid target: %s (is ally, need enemy)" % entity.entity_name, "Battle")
 
-	if valid:
-		DebugLogger.log_info("Target selected: %s" % entity.entity_name, "Battle")
-		_execute_player_action([entity])
-	else:
-		DebugLogger.log_info("Invalid target: %s (is_player=%s, need=%d)" % [entity.entity_name, str(entity.is_player), _pending_target_type], "Battle")
+		Enums.TargetType.SINGLE_ALLY:
+			if entity.is_dead:
+				DebugLogger.log_info("Target click on dead entity %s, ignoring" % entity.entity_name, "Battle")
+				return
+			if entity.is_player:
+				DebugLogger.log_info("Target selected: %s" % entity.entity_name, "Battle")
+				_execute_player_action([entity])
+			else:
+				DebugLogger.log_info("Invalid target: %s (is enemy, need ally)" % entity.entity_name, "Battle")
+
+		Enums.TargetType.SELF:
+			# Clicking on self or anyone confirms
+			DebugLogger.log_info("Self-target confirmed", "Battle")
+			_execute_player_action(_get_auto_targets())
+
+		Enums.TargetType.ALL_ENEMIES:
+			# Clicking on any enemy confirms
+			if not entity.is_player:
+				DebugLogger.log_info("AOE confirmed (clicked enemy)", "Battle")
+				_execute_player_action(_get_auto_targets())
+			else:
+				DebugLogger.log_info("Click ally to confirm all-enemy skill, ignoring" % entity.entity_name, "Battle")
+
+		Enums.TargetType.ALL_ALLIES:
+			# Clicking on any ally confirms
+			if entity.is_player:
+				DebugLogger.log_info("AOE confirmed (clicked ally)", "Battle")
+				_execute_player_action(_get_auto_targets())
+			else:
+				DebugLogger.log_info("Click enemy to confirm all-ally skill, ignoring" % entity.entity_name, "Battle")
+
+		_:
+			# Default: any click confirms
+			DebugLogger.log_info("Target confirmed (unknown type)", "Battle")
+			_execute_player_action(_get_auto_targets())
 
 
 func _unhandled_input(event: InputEvent) -> void:

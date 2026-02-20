@@ -4,6 +4,7 @@ extends PanelContainer
 signal item_clicked(item: ItemData, index: int)
 signal item_hovered(item: ItemData, global_pos: Vector2)
 signal item_exited()
+signal item_use_requested(item: ItemData, index: int)
 
 const StashSlotScene: PackedScene = preload("res://scenes/inventory/ui/stash_slot.tscn")
 
@@ -33,6 +34,7 @@ func refresh(stash: Array) -> void:
 		slot.clicked.connect(_on_slot_clicked.bind(item))
 		slot.hovered.connect(func(it: ItemData, pos: Vector2) -> void: item_hovered.emit(it, pos))
 		slot.exited.connect(func() -> void: item_exited.emit())
+		slot.use_requested.connect(_on_slot_use_requested.bind(item))
 		_slots.append(slot)
 
 	_update_count_label(stash.size())
@@ -52,6 +54,10 @@ func is_mouse_over() -> bool:
 
 func _on_slot_clicked(index: int, item: ItemData) -> void:
 	item_clicked.emit(item, index)
+
+
+func _on_slot_use_requested(index: int, item: ItemData) -> void:
+	item_use_requested.emit(item, index)
 
 
 func set_label_prefix(prefix: String, show_max: bool = true) -> void:

@@ -14,7 +14,7 @@ func _ready():
 func _load_all_trees():
 	var dir := DirAccess.open(TREE_DIR)
 	if not dir:
-		DebugLogger.log_warning("Passive tree directory not found: %s" % TREE_DIR, "PassiveTreeDB")
+		DebugLogger.log_warn("Passive tree directory not found: %s" % TREE_DIR, "PassiveTreeDB")
 		return
 
 	dir.list_dir_begin()
@@ -26,9 +26,9 @@ func _load_all_trees():
 			if tree and not tree.character_id.is_empty():
 				_trees[tree.character_id] = tree
 			elif tree:
-				DebugLogger.log_warning("Passive tree missing character_id: %s" % full_path, "PassiveTreeDB")
+				DebugLogger.log_warn("Passive tree missing character_id: %s" % full_path, "PassiveTreeDB")
 			else:
-				DebugLogger.log_warning("Failed to load passive tree: %s" % full_path, "PassiveTreeDB")
+				DebugLogger.log_warn("Failed to load passive tree: %s" % full_path, "PassiveTreeDB")
 		file_name = dir.get_next()
 	dir.list_dir_end()
 

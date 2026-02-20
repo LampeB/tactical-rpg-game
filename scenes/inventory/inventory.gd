@@ -27,6 +27,13 @@ var _drag_source_rotation: int = 0
 var _drag_source_stash_index: int = -1
 var _drag_rotation: int = 0
 
+# --- Consumable usage ---
+var _pending_consumable: ItemData = null
+var _pending_consumable_source: String = ""  # "stash" or "grid"
+var _pending_consumable_index: int = -1  # For stash
+var _pending_consumable_placed: GridInventory.PlacedItem = null  # For grid
+var _target_selection_popup: PopupPanel = null
+
 
 func _ready() -> void:
 	# Use persistent grid inventories from Party
@@ -45,6 +52,7 @@ func _ready() -> void:
 		_stash_panel.item_clicked.connect(_on_stash_item_clicked)
 		_stash_panel.item_hovered.connect(_on_stash_item_hovered)
 		_stash_panel.item_exited.connect(_on_item_hover_exited)
+		_stash_panel.item_use_requested.connect(_on_stash_item_use_requested)
 
 	# Setup grid panel signals
 	_grid_panel.cell_clicked.connect(_on_grid_cell_clicked)
@@ -212,11 +220,18 @@ func _populate_skills_summary() -> void:
 # === Grid Interaction ===
 
 func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
-	if button != MOUSE_BUTTON_LEFT:
-		return
-
 	var inv: GridInventory = _grid_inventories.get(_current_character_id)
 	if not inv:
+		return
+
+	# Right-click to use consumables
+	if button == MOUSE_BUTTON_RIGHT:
+		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+		if placed and placed.item_data.item_type == Enums.ItemType.CONSUMABLE and placed.item_data.use_skill:
+			_on_grid_item_use_requested(placed)
+		return
+
+	if button != MOUSE_BUTTON_LEFT:
 		return
 
 	if _drag_state == DragState.DRAGGING:
@@ -270,6 +285,198 @@ func _on_item_hover_exited() -> void:
 	if _drag_state == DragState.IDLE:
 		_item_tooltip.hide_tooltip()
 		_grid_panel.clear_highlights()
+
+
+# === Consumable Usage ===
+# Out-of-combat consumable usage from stash or grid inventory.
+# TODO: Add in-combat item usage as combat action (future enhancement).
+
+func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
+	DebugLogger.log_info("_on_stash_item_use_requested called: item=%s, index=%d, has_use_skill=%s" % [item.display_name if item else "null", index, "yes" if (item and item.use_skill) else "no"], "Inventory")
+
+	if not item.use_skill:
+		DebugLogger.log_warn("Aborting: item has no use_skill", "Inventory")
+		return
+
+	_pending_consumable = item
+	_pending_consumable_source = "stash"
+	_pending_consumable_index = index
+	_pending_consumable_placed = null
+	DebugLogger.log_info("Showing target selection popup", "Inventory")
+	_show_target_selection_popup()
+
+
+func _on_grid_item_use_requested(placed: GridInventory.PlacedItem) -> void:
+	DebugLogger.log_info("_on_grid_item_use_requested called: item=%s, has_use_skill=%s" % [placed.item_data.display_name if placed else "null", "yes" if (placed and placed.item_data.use_skill) else "no"], "Inventory")
+
+	if not placed.item_data.use_skill:
+		DebugLogger.log_warn("Aborting: item has no use_skill", "Inventory")
+		return
+
+	_pending_consumable = placed.item_data
+	_pending_consumable_source = "grid"
+	_pending_consumable_index = -1
+	_pending_consumable_placed = placed
+	DebugLogger.log_info("Showing target selection popup", "Inventory")
+	_show_target_selection_popup()
+
+
+func _show_target_selection_popup() -> void:
+	# Create popup if it doesn't exist
+	if not _target_selection_popup:
+		_target_selection_popup = PopupPanel.new()
+		add_child(_target_selection_popup)
+		_target_selection_popup.popup_hide.connect(_on_target_popup_hidden)
+
+	# Clear existing content
+	for child in _target_selection_popup.get_children():
+		child.queue_free()
+
+	# Create content
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	_target_selection_popup.add_child(vbox)
+
+	var title: Label = Label.new()
+	title.text = "Select Target"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 18)
+	vbox.add_child(title)
+
+	var separator: HSeparator = HSeparator.new()
+	vbox.add_child(separator)
+
+	# Add character buttons
+	if not GameManager.party:
+		return
+
+	var roster_ids: Array = GameManager.party.roster.keys()
+	for i in range(roster_ids.size()):
+		var char_id: String = roster_ids[i]
+		var char_data: CharacterData = GameManager.party.roster[char_id]
+		if not char_data:
+			continue
+
+		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+		var current_hp: int = GameManager.party.get_current_hp(char_id)
+		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
+		var current_mp: int = GameManager.party.get_current_mp(char_id)
+		var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
+
+		var btn: Button = Button.new()
+		btn.custom_minimum_size = Vector2(250, 40)
+		btn.text = "%s (HP: %d/%d, MP: %d/%d)" % [char_data.display_name, current_hp, max_hp, current_mp, max_mp]
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+		# Disable button if character is dead
+		if current_hp <= 0:
+			btn.disabled = true
+			btn.text += " [DEAD]"
+
+		btn.pressed.connect(_on_target_selected.bind(char_id))
+		vbox.add_child(btn)
+
+	var cancel_btn: Button = Button.new()
+	cancel_btn.text = "Cancel"
+	cancel_btn.pressed.connect(_target_selection_popup.hide)
+	vbox.add_child(cancel_btn)
+
+	# Show popup centered
+	_target_selection_popup.popup_centered()
+
+
+func _on_target_selected(character_id: String) -> void:
+	DebugLogger.log_info("_on_target_selected called: character_id=%s" % character_id, "Inventory")
+
+	# Save locally before hiding (hide triggers popup_hide signal which clears _pending_consumable)
+	var item: ItemData = _pending_consumable
+	var source: String = _pending_consumable_source
+	var index: int = _pending_consumable_index
+	var placed: GridInventory.PlacedItem = _pending_consumable_placed
+
+	_target_selection_popup.hide()
+
+	if not item:
+		DebugLogger.log_warn("Cannot execute: item is null", "Inventory")
+		return
+
+	if source == "stash" and index < 0:
+		DebugLogger.log_warn("Cannot execute: stash item but index=%d" % index, "Inventory")
+		return
+
+	if source == "grid" and not placed:
+		DebugLogger.log_warn("Cannot execute: grid item but placed is null", "Inventory")
+		return
+
+	DebugLogger.log_info("Calling _execute_consumable (source=%s)" % source, "Inventory")
+	_execute_consumable(item, character_id, source, index, placed)
+
+
+func _execute_consumable(item: ItemData, target_id: String, source: String, stash_index: int = -1, placed: GridInventory.PlacedItem = null) -> void:
+	DebugLogger.log_info("_execute_consumable called: item=%s, target=%s, source=%s" % [item.display_name if item else "null", target_id, source], "Inventory")
+
+	if not item.use_skill:
+		DebugLogger.log_warn("Item has no use_skill: %s" % item.display_name, "Inventory")
+		return
+
+	if not GameManager.party:
+		DebugLogger.log_warn("GameManager.party is null", "Inventory")
+		return
+
+	var skill: SkillData = item.use_skill
+	DebugLogger.log_info("Using skill: %s (heal_amount=%d, heal_percent=%.1f%%)" % [skill.display_name, skill.heal_amount, skill.heal_percent], "Inventory")
+
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(target_id)
+	var current_hp_before: int = GameManager.party.get_current_hp(target_id)
+	var target_max_hp: int = GameManager.party.get_max_hp(target_id, tree)
+
+	DebugLogger.log_info("Target HP before: %d/%d" % [current_hp_before, target_max_hp], "Inventory")
+
+	# Calculate healing
+	var heal: int = DamageCalculator.calculate_healing(
+		skill.heal_amount,
+		skill.heal_percent,
+		target_max_hp
+	)
+
+	DebugLogger.log_info("Calculated heal amount: %d" % heal, "Inventory")
+
+	# Apply healing (heal_character handles MP too, but we pass 0 for MP)
+	GameManager.party.heal_character(target_id, heal, 0, tree)
+
+	var current_hp_after: int = GameManager.party.get_current_hp(target_id)
+	DebugLogger.log_info("Target HP after: %d/%d (healed %d)" % [current_hp_after, target_max_hp, current_hp_after - current_hp_before], "Inventory")
+
+	# Remove item based on source
+	if source == "stash":
+		if stash_index < GameManager.party.stash.size():
+			DebugLogger.log_info("Removing item at index %d from stash (stash size: %d)" % [stash_index, GameManager.party.stash.size()], "Inventory")
+			GameManager.party.stash.remove_at(stash_index)
+			_stash_panel.refresh(GameManager.party.stash)
+			EventBus.stash_changed.emit()
+		else:
+			DebugLogger.log_warn("Stash index out of bounds: %d (stash size: %d)" % [stash_index, GameManager.party.stash.size()], "Inventory")
+	elif source == "grid":
+		if placed:
+			var inv: GridInventory = _grid_inventories.get(_current_character_id)
+			if inv:
+				DebugLogger.log_info("Removing item from grid at (%d, %d)" % [placed.grid_position.x, placed.grid_position.y], "Inventory")
+				inv.remove_item(placed)
+				_grid_panel.refresh()
+				EventBus.inventory_changed.emit(_current_character_id)
+			else:
+				DebugLogger.log_warn("Grid inventory not found for character: %s" % _current_character_id, "Inventory")
+		else:
+			DebugLogger.log_warn("Grid placed item is null", "Inventory")
+
+	DebugLogger.log_info("Used %s on %s, healed %d HP" % [item.display_name, target_id, heal], "Inventory")
+
+
+func _on_target_popup_hidden() -> void:
+	_pending_consumable = null
+	_pending_consumable_source = ""
+	_pending_consumable_index = -1
+	_pending_consumable_placed = null
 
 
 # === Drag and Drop ===
