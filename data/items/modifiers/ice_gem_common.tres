@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_common.png" id="5"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6"]
 
 [sub_resource type="Resource" id="stat_phys_atk"]
 script = ExtResource("2")
@@ -24,21 +24,21 @@ script = ExtResource("3")
 target_category = 0
 stat_bonuses = [SubResource("stat_phys_atk")]
 override_damage_type = true
-damage_type = 1
+damage_type = 2
 
 [sub_resource type="Resource" id="rule_staff"]
 script = ExtResource("3")
 target_category = 3
 stat_bonuses = [SubResource("stat_spec_atk")]
 override_damage_type = false
-damage_type = 1
+damage_type = 2
 granted_skills = [ExtResource("6")]
 
 [resource]
 script = ExtResource("1")
-id = "fire_gem_common"
-display_name = "Fire Gem"
-description = "A glowing ember gem. Near swords: converts to fire damage. Near staves: grants Fire Bolt."
+id = "ice_gem_common"
+display_name = "Ice Gem"
+description = "A crystalline frost gem. Near swords: converts to ice damage. Near staves: grants Ice Shard."
 icon = ExtResource("5")
 item_type = 2
 category = 0

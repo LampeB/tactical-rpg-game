@@ -86,6 +86,53 @@ func get_tools_affected_by(modifier_placed: PlacedItem) -> Array:
 	return result
 
 
+## Returns aggregated conditional modifier effects for a specific ACTIVE_TOOL.
+func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
+	var state := ToolModifierState.new()
+	state.tool_placed_item = tool_placed
+
+	var modifiers: Array = get_modifiers_affecting(tool_placed)
+	for i in range(modifiers.size()):
+		var modifier_placed: PlacedItem = modifiers[i]
+		var gem: ItemData = modifier_placed.item_data
+
+		# Check conditional rules
+		for j in range(gem.conditional_modifier_rules.size()):
+			var rule: ConditionalModifierRule = gem.conditional_modifier_rules[j]
+			if rule.target_category == tool_placed.item_data.category:
+				# Match! Apply this rule's effects
+				state.active_modifiers.append({"gem": modifier_placed, "rule": rule})
+
+				# Aggregate stat bonuses (stacking)
+				for k in range(rule.stat_bonuses.size()):
+					var stat_mod: StatModifier = rule.stat_bonuses[k]
+					var stat: Enums.Stat = stat_mod.stat
+					var existing: float = state.aggregate_stats.get(stat, 0.0)
+					state.aggregate_stats[stat] = existing + stat_mod.value
+
+				# Damage type override (first wins)
+				if rule.override_damage_type and state.damage_type_override == null:
+					state.damage_type_override = rule.damage_type
+
+				# Conditional skills (no duplicates)
+				for k in range(rule.granted_skills.size()):
+					var skill: SkillData = rule.granted_skills[k]
+					if skill not in state.conditional_skills:
+						state.conditional_skills.append(skill)
+
+	return state
+
+
+## Returns Dictionary: PlacedItem -> ToolModifierState for all ACTIVE_TOOLs.
+func get_all_tool_modifier_states() -> Dictionary:
+	var states := {}
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			states[placed] = get_tool_modifier_state(placed)
+	return states
+
+
 ## Computes aggregate stat bonuses from all placed items + modifier interactions.
 func get_computed_stats() -> Dictionary:
 	var flat_bonuses: Dictionary = {}  ## Enums.Stat -> float
@@ -109,7 +156,7 @@ func get_computed_stats() -> Dictionary:
 						_accumulate_modifier(gem_mod, flat_bonuses, pct_bonuses)
 
 	# Combine: final = flat * (1 + pct)
-	var result: Dictionary = {}
+	var stats: Dictionary = {}
 	var all_stats: Array = []
 	all_stats.append_array(flat_bonuses.keys())
 	for k in pct_bonuses.keys():
@@ -118,8 +165,15 @@ func get_computed_stats() -> Dictionary:
 	for stat in all_stats:
 		var flat_val: float = flat_bonuses.get(stat, 0.0)
 		var pct_val: float = pct_bonuses.get(stat, 0.0)
-		result[stat] = flat_val * (1.0 + pct_val / 100.0)
-	return result
+		stats[stat] = flat_val * (1.0 + pct_val / 100.0)
+
+	# Add per-tool modifier states
+	var tool_states: Dictionary = get_all_tool_modifier_states()
+
+	return {
+		"stats": stats,
+		"tool_states": tool_states
+	}
 
 
 # === Internal Helpers ===

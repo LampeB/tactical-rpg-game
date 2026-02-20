@@ -52,10 +52,15 @@ static func calculate_damage(
 
 
 static func calculate_basic_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
-	## Basic attack uses physical stats with no extra power.
+	## Basic attack uses primary weapon's damage type (with conditional overrides for players).
 	var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
-	if not source.is_player and source.enemy_data:
+
+	if source.is_player:
+		# Use primary weapon's damage type (with conditional overrides)
+		damage_type = source.get_primary_weapon_damage_type()
+	elif source.enemy_data:
 		damage_type = source.enemy_data.damage_type
+
 	return calculate_damage(source, target, 0, damage_type, 1.0)
 
 
