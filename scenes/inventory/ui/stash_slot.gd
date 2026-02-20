@@ -9,16 +9,25 @@ signal use_requested(index: int)
 var item_data: ItemData
 var index: int
 var _use_button: Button = null
+var _is_returnable: bool = false
 
 
-func setup(item: ItemData, idx: int) -> void:
+func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 	item_data = item
 	index = idx
+	_is_returnable = is_returnable
+
 	$HBox/Icon.texture = item.icon
 	$HBox/NameLabel.text = item.display_name
 	var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
 	$HBox/NameLabel.add_theme_color_override("font_color", rarity_color)
 	$HBox/TypeLabel.text = _get_type_text(item.item_type)
+
+	# Tint returnable items amber
+	if _is_returnable:
+		self_modulate = Color(1.0, 0.9, 0.7)
+	else:
+		self_modulate = Color.WHITE
 
 	# Add "Use" button for consumables with use_skill
 	if item.item_type == Enums.ItemType.CONSUMABLE and item.use_skill:
