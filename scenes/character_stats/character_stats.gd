@@ -104,33 +104,75 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 	_char_name.text = char_data.display_name
 	_char_desc.text = char_data.description if not char_data.description.is_empty() else ""
 
-	# Skills
+	# Skills (grouped by source)
 	_clear_children(_skills_list)
-	var skills: Array = _get_all_skills(char_data, inv)
-	if skills.is_empty():
-		_skills_header.visible = false
-	else:
-		_skills_header.visible = true
-		for i in range(skills.size()):
-			var skill: SkillData = skills[i]
-			var label: Label = Label.new()
-			label.text = "• %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-			label.add_theme_font_size_override("font_size", 14)
-			_skills_list.add_child(label)
+	var has_any_skills: bool = false
 
-	# Passive effects
+	# Innate skills
+	if not char_data.innate_skills.is_empty():
+		has_any_skills = true
+		var source_label: Label = Label.new()
+		source_label.text = "Innate:"
+		source_label.add_theme_font_size_override("font_size", 14)
+		source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		_skills_list.add_child(source_label)
+
+		for i in range(char_data.innate_skills.size()):
+			var skill = char_data.innate_skills[i]
+			if skill is SkillData:
+				var label: Label = Label.new()
+				label.text = "  • %s (MP: %d)" % [skill.display_name, skill.mp_cost]
+				label.add_theme_font_size_override("font_size", 14)
+				_skills_list.add_child(label)
+
+	# Skills from equipment
+	if inv:
+		for i in range(inv.get_all_placed_items().size()):
+			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+			if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and not placed.item_data.granted_skills.is_empty():
+				has_any_skills = true
+				var source_label: Label = Label.new()
+				source_label.text = "%s:" % placed.item_data.display_name
+				source_label.add_theme_font_size_override("font_size", 14)
+				source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+				_skills_list.add_child(source_label)
+
+				for j in range(placed.item_data.granted_skills.size()):
+					var skill = placed.item_data.granted_skills[j]
+					if skill is SkillData:
+						var label: Label = Label.new()
+						label.text = "  • %s (MP: %d)" % [skill.display_name, skill.mp_cost]
+						label.add_theme_font_size_override("font_size", 14)
+						_skills_list.add_child(label)
+
+	_skills_header.visible = has_any_skills
+
+	# Passive effects (grouped by passive tree node)
 	_clear_children(_effects_list)
-	var effects: Array = passive_bonuses.get("special_effects", [])
-	if effects.is_empty():
-		_effects_header.visible = false
-	else:
-		_effects_header.visible = true
-		for i in range(effects.size()):
-			var label: Label = Label.new()
-			label.text = "• %s" % _get_effect_description(effects[i])
-			label.add_theme_font_size_override("font_size", 14)
-			label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
-			_effects_list.add_child(label)
+	var has_any_effects: bool = false
+
+	if not _current_character_id.is_empty():
+		var passive_tree = get_node("/root/PassiveTreeDatabase").get_passive_tree(_current_character_id)
+		if passive_tree:
+			var unlocked: Array = GameManager.party.get_unlocked_passives(_current_character_id)
+			for i in range(unlocked.size()):
+				var node_id: String = unlocked[i]
+				var node: PassiveNodeData = passive_tree.get_node_by_id(node_id)
+				if node and not node.special_effect_id.is_empty():
+					has_any_effects = true
+					var source_label: Label = Label.new()
+					source_label.text = "%s:" % node.display_name
+					source_label.add_theme_font_size_override("font_size", 14)
+					source_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+					_effects_list.add_child(source_label)
+
+					var effect_label: Label = Label.new()
+					effect_label.text = "  • %s" % _get_effect_description(node.special_effect_id)
+					effect_label.add_theme_font_size_override("font_size", 14)
+					effect_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+					_effects_list.add_child(effect_label)
+
+	_effects_header.visible = has_any_effects
 
 
 func _get_all_skills(char_data: CharacterData, inv: GridInventory) -> Array:

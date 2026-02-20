@@ -69,29 +69,54 @@ layout_mode = 2
 [node name="InfoPanel" type="PanelContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
+size_flags_vertical = 3
 
-[node name="VBox" type="VBoxContainer" parent="VBox/Content/InfoPanel"]
+[node name="MainVBox" type="VBoxContainer" parent="VBox/Content/InfoPanel"]
 layout_mode = 2
 
-[node name="NodeName" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+[node name="SummaryVBox" type="VBoxContainer" parent="VBox/Content/InfoPanel/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SummaryTitle" type="Label" parent="VBox/Content/InfoPanel/MainVBox/SummaryVBox"]
+layout_mode = 2
+text = "Unlocked Passives"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/InfoPanel/MainVBox/SummaryVBox"]
+layout_mode = 2
+
+[node name="SummaryScroll" type="ScrollContainer" parent="VBox/Content/InfoPanel/MainVBox/SummaryVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SummaryList" type="VBoxContainer" parent="VBox/Content/InfoPanel/MainVBox/SummaryVBox/SummaryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NodeInfoVBox" type="VBoxContainer" parent="VBox/Content/InfoPanel/MainVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="NodeName" type="Label" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
 layout_mode = 2
 text = "Node Name"
 
-[node name="Description" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+[node name="Description" type="Label" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
 layout_mode = 2
 text = "Description"
 autowrap_mode = 2
 
-[node name="CostLabel" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+[node name="CostLabel" type="Label" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
 layout_mode = 2
 text = "Cost: 100 Gold"
 
-[node name="PrereqsLabel" type="Label" parent="VBox/Content/InfoPanel/VBox"]
+[node name="PrereqsLabel" type="Label" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
 layout_mode = 2
 text = ""
 autowrap_mode = 2
 
-[node name="UnlockButton" type="Button" parent="VBox/Content/InfoPanel/VBox"]
+[node name="UnlockButton" type="Button" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
 layout_mode = 2
 text = "Unlock"

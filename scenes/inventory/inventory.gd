@@ -8,6 +8,8 @@ enum DragState { IDLE, DRAGGING }
 @onready var _grid_panel: Control = $VBox/Content/GridSide/GridCentering/GridPanel
 @onready var _stash_panel: PanelContainer = $VBox/Content/StashPanel
 @onready var _character_tabs: HBoxContainer = $VBox/Content/GridSide/CharacterTabs
+@onready var _skills_panel: PanelContainer = $VBox/Content/GridSide/SkillsSummaryPanel
+@onready var _skills_list: VBoxContainer = $VBox/Content/GridSide/SkillsSummaryPanel/VBox/SkillsScroll/SkillsList
 @onready var _item_tooltip: PanelContainer = $TooltipLayer/ItemTooltip
 @onready var _drag_preview: Control = $DragLayer/DragPreview
 
@@ -48,6 +50,9 @@ func _ready() -> void:
 	_grid_panel.cell_clicked.connect(_on_grid_cell_clicked)
 	_grid_panel.cell_hovered.connect(_on_grid_cell_hovered)
 	_grid_panel.cell_exited.connect(_on_item_hover_exited)
+
+	# Listen for inventory changes to refresh skills summary
+	EventBus.inventory_changed.connect(_on_inventory_changed)
 
 	# Select first squad member
 	if GameManager.party and not GameManager.party.squad.is_empty():
@@ -118,7 +123,90 @@ func _on_character_selected(character_id: String) -> void:
 	if inv:
 		_grid_panel.setup(inv)
 	_item_tooltip.hide_tooltip()
+	_populate_skills_summary.call_deferred()
 	DebugLogger.log_info("Switched to character: %s" % character_id, "Inventory")
+
+
+func _on_inventory_changed(character_id: String) -> void:
+	# Refresh skills summary when inventory changes for current character
+	if character_id == _current_character_id:
+		_populate_skills_summary.call_deferred()
+
+
+func _populate_skills_summary() -> void:
+	# Clear existing summary items
+	for child in _skills_list.get_children():
+		_skills_list.remove_child(child)
+		child.queue_free()
+
+	var inv: GridInventory = _grid_inventories.get(_current_character_id)
+	if not inv:
+		var label: Label = Label.new()
+		label.text = "No inventory"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_skills_list.add_child(label)
+		return
+
+	# Get all active tools
+	var tools: Array = []
+	for i in range(inv.get_all_placed_items().size()):
+		var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			tools.append(placed)
+
+	if tools.is_empty():
+		var label: Label = Label.new()
+		label.text = "No active tools equipped"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.modulate = Color(0.7, 0.7, 0.7)
+		_skills_list.add_child(label)
+		return
+
+	# Build summary for each tool
+	for i in range(tools.size()):
+		var tool: GridInventory.PlacedItem = tools[i]
+		var row: VBoxContainer = VBoxContainer.new()
+		row.add_theme_constant_override("separation", 4)
+
+		# Tool name
+		var name_label: Label = Label.new()
+		name_label.text = tool.item_data.display_name
+		name_label.add_theme_font_size_override("font_size", 16)
+		name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 1.0))
+		row.add_child(name_label)
+
+		# Granted skills
+		if not tool.item_data.granted_skills.is_empty():
+			var skills_label: Label = Label.new()
+			var skill_names: Array = []
+			for j in range(tool.item_data.granted_skills.size()):
+				var skill: SkillData = tool.item_data.granted_skills[j]
+				if skill:
+					skill_names.append(skill.display_name)
+			skills_label.text = " • Skills: " + ", ".join(skill_names)
+			skills_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+			skills_label.add_theme_color_override("font_color", Color(0.8, 1.0, 0.8))
+			row.add_child(skills_label)
+
+		# Affecting modifiers
+		var modifiers: Array = inv.get_modifiers_affecting(tool)
+		if not modifiers.is_empty():
+			var mods_label: Label = Label.new()
+			var mod_names: Array = []
+			for j in range(modifiers.size()):
+				var mod_placed: GridInventory.PlacedItem = modifiers[j]
+				mod_names.append(mod_placed.item_data.display_name)
+			mods_label.text = " • Modifiers: " + ", ".join(mod_names)
+			mods_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+			mods_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.5))
+			row.add_child(mods_label)
+
+		# Separator
+		var separator: HSeparator = HSeparator.new()
+		separator.add_theme_constant_override("separation", 8)
+		row.add_child(separator)
+
+		_skills_list.add_child(row)
 
 
 # === Grid Interaction ===
