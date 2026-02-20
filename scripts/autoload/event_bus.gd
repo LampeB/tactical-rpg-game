@@ -32,6 +32,7 @@ signal party_member_added(character: RefCounted)
 signal party_member_removed(character: RefCounted)
 signal squad_changed()
 signal active_character_changed(character: RefCounted)
+signal vitals_changed(character_id: String)
 
 # === PASSIVES ===
 signal passive_unlocked(character_id: String, node_id: String)

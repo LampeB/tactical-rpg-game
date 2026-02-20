@@ -12,6 +12,10 @@ extends Control
 @onready var _skills_list: VBoxContainer = $VBox/Content/InfoPanel/InfoVBox/SkillsList
 @onready var _effects_header: Label = $VBox/Content/InfoPanel/InfoVBox/EffectsHeader
 @onready var _effects_list: VBoxContainer = $VBox/Content/InfoPanel/InfoVBox/EffectsList
+@onready var _hp_label: Label = $VBox/Content/InfoPanel/InfoVBox/HPLabel
+@onready var _hp_bar: ProgressBar = $VBox/Content/InfoPanel/InfoVBox/HPBar
+@onready var _mp_label: Label = $VBox/Content/InfoPanel/InfoVBox/MPLabel
+@onready var _mp_bar: ProgressBar = $VBox/Content/InfoPanel/InfoVBox/MPBar
 @onready var _stat_rows: VBoxContainer = $VBox/Content/StatsPanel/StatsVBox/StatRows
 
 var _current_character_id: String = ""
@@ -103,6 +107,21 @@ func _update_info_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 
 	_char_name.text = char_data.display_name
 	_char_desc.text = char_data.description if not char_data.description.is_empty() else ""
+
+	# HP/MP vitals
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(_current_character_id)
+	var current_hp: int = GameManager.party.get_current_hp(_current_character_id)
+	var max_hp: int = GameManager.party.get_max_hp(_current_character_id, tree)
+	var current_mp: int = GameManager.party.get_current_mp(_current_character_id)
+	var max_mp: int = GameManager.party.get_max_mp(_current_character_id, tree)
+
+	_hp_label.text = "HP: %d / %d" % [current_hp, max_hp]
+	_hp_bar.max_value = max_hp
+	_hp_bar.value = current_hp
+
+	_mp_label.text = "MP: %d / %d" % [current_mp, max_mp]
+	_mp_bar.max_value = max_mp
+	_mp_bar.value = current_mp
 
 	# Skills (grouped by source)
 	_clear_children(_skills_list)

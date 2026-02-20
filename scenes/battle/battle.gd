@@ -86,7 +86,12 @@ func _start_battle() -> void:
 				var inv: GridInventory = _grid_inventories.get(character_id)
 				var tree = PassiveTreeDatabase.get_passive_tree(character_id)
 				var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
-				var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses)
+
+				# Load current HP/MP from persistent vitals
+				var starting_hp: int = GameManager.party.get_current_hp(character_id)
+				var starting_mp: int = GameManager.party.get_current_mp(character_id)
+
+				var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses, starting_hp, starting_mp)
 				player_entities.append(entity)
 				var skill_count: int = entity.get_available_skills().size()
 				DebugLogger.log_info("  Player: %s — HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")
@@ -208,6 +213,10 @@ func _on_action_resolved(_results: Dictionary) -> void:
 func _on_combat_finished(victory: bool) -> void:
 	_action_menu.hide_menu()
 	_target_prompt.visible = false
+
+	# Save player HP/MP back to persistent vitals
+	_save_player_vitals()
+
 	if victory:
 		_state = BattleState.VICTORY
 		_title.text = "Victory!"
@@ -451,6 +460,27 @@ func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 
 	DebugLogger.log_info("Popup: %s on %s (%d)" % [popup_type, target.entity_name, amount], "Battle")
 	_spawn_popup_at_entity(target, amount, popup_type)
+
+
+func _save_player_vitals() -> void:
+	## Save current HP/MP from player entities back to persistent Party vitals
+	if not _combat_manager or not GameManager.party:
+		return
+
+	for i in range(_combat_manager.player_entities.size()):
+		var entity: CombatEntity = _combat_manager.player_entities[i]
+		if entity.character_data:
+			var char_id: String = entity.character_data.id
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+			GameManager.party.set_current_hp(char_id, entity.current_hp, tree)
+			GameManager.party.set_current_mp(char_id, entity.current_mp, tree)
+			DebugLogger.log_info("Saved vitals for %s: HP %d/%d, MP %d/%d" % [
+				entity.entity_name,
+				entity.current_hp,
+				entity.max_hp,
+				entity.current_mp,
+				entity.max_mp
+			], "Battle")
 
 
 func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: String) -> void:

@@ -3,7 +3,7 @@ extends Node
 ## Single save slot at user://save.json.
 
 const SAVE_PATH := "user://save.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 
 var _playtime_accumulator: float = 0.0
 var _is_tracking_playtime: bool = false
@@ -94,6 +94,7 @@ func _serialize() -> Dictionary:
 		"stash": _serialize_stash(party.stash),
 		"grid_inventories": _serialize_grid_inventories(party.grid_inventories),
 		"unlocked_passives": _serialize_passives(party.unlocked_passives),
+		"character_vitals": party.character_vitals.duplicate(true),
 	}
 
 func _serialize_stash(stash: Array) -> Array:
@@ -191,6 +192,22 @@ func _deserialize(data: Dictionary):
 		for nid in node_ids:
 			typed_ids.append(str(nid))
 		party.unlocked_passives[char_id] = typed_ids
+
+	# Character vitals (HP/MP)
+	var vitals_data: Dictionary = data.get("character_vitals", {})
+	for char_id: String in vitals_data:
+		var vitals: Dictionary = vitals_data[char_id]
+		party.character_vitals[char_id] = {
+			"current_hp": int(vitals.get("current_hp", 0)),
+			"current_mp": int(vitals.get("current_mp", 0))
+		}
+
+	# Initialize vitals for any characters without saved data
+	for char_id: String in party.roster:
+		if not party.character_vitals.has(char_id):
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+			party.initialize_vitals(char_id, tree)
+			DebugLogger.log_info("Initialized vitals for character without saved data: %s" % char_id, "SaveManager")
 
 	# Update UI
 	EventBus.gold_changed.emit(GameManager.gold)

@@ -30,7 +30,13 @@ var status_effects: Array = []
 var cooldowns: Dictionary = {}
 
 
-static func from_character(char_data: CharacterData, inv: GridInventory, passive_bonuses: Dictionary = {}) -> CombatEntity:
+static func from_character(
+	char_data: CharacterData,
+	inv: GridInventory,
+	passive_bonuses: Dictionary = {},
+	starting_hp: int = -1,  ## -1 means use max_hp
+	starting_mp: int = -1   ## -1 means use max_mp
+) -> CombatEntity:
 	var entity: CombatEntity = CombatEntity.new()
 	entity.entity_name = char_data.display_name
 	entity.is_player = true
@@ -64,8 +70,11 @@ static func from_character(char_data: CharacterData, inv: GridInventory, passive
 
 	entity.max_hp = int(hp_flat * (1.0 + hp_pct / 100.0))
 	entity.max_mp = int(mp_flat * (1.0 + mp_pct / 100.0))
-	entity.current_hp = entity.max_hp
-	entity.current_mp = entity.max_mp
+
+	# Set current HP/MP: use provided values if >= 0, else default to max
+	entity.current_hp = starting_hp if starting_hp >= 0 else entity.max_hp
+	entity.current_mp = starting_mp if starting_mp >= 0 else entity.max_mp
+
 	return entity
 
 
