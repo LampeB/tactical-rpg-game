@@ -79,6 +79,32 @@ autowrap_mode = 2
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
+[node name="VitalsSpacer" type="Control" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 8)
+
+[node name="HPLabel" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+text = "HP: 0 / 0"
+theme_override_font_sizes/font_size = 14
+
+[node name="HPBar" type="ProgressBar" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 16)
+max_value = 100.0
+show_percentage = false
+
+[node name="MPLabel" type="Label" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+text = "MP: 0 / 0"
+theme_override_font_sizes/font_size = 14
+
+[node name="MPBar" type="ProgressBar" parent="VBox/Content/InfoPanel/InfoVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 16)
+max_value = 100.0
+show_percentage = false
+
 [node name="HSeparator" type="HSeparator" parent="VBox/Content/InfoPanel/InfoVBox"]
 layout_mode = 2
 

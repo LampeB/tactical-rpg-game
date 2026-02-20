@@ -22,7 +22,16 @@ func new_game():
 		var character: CharacterData = CharacterDatabase.get_character(char_id)
 		if character:
 			party.add_to_roster(character)
-			DebugLogger.log_info("Added starter character: %s" % character.display_name, "GameManager")
+			# Initialize vitals (HP/MP) to full
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(character.id)
+			party.initialize_vitals(character.id, tree)
+			DebugLogger.log_info("Added starter character: %s (HP: %d/%d, MP: %d/%d)" % [
+				character.display_name,
+				party.get_current_hp(character.id),
+				party.get_max_hp(character.id, tree),
+				party.get_current_mp(character.id),
+				party.get_max_mp(character.id, tree)
+			], "GameManager")
 		else:
 			DebugLogger.log_warning("Starter character not found: %s" % char_id, "GameManager")
 
