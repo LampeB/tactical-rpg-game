@@ -33,6 +33,9 @@ var active_gem_status_effects: Array = []  ## of StatusEffect
 # Skill cooldowns: skill_id -> turns remaining
 var cooldowns: Dictionary = {}
 
+# Turn timing (ATB-style): lower = acts sooner. Decreases by (100 / speed) per tick
+var time_until_turn: float = 0.0
+
 
 static func from_character(
 	char_data: CharacterData,

@@ -2,7 +2,28 @@
 
 [ext_resource type="Script" path="res://scenes/battle/ui/turn_order_bar.gd" id="1_script"]
 
-[node name="TurnOrderBar" type="HBoxContainer"]
+[node name="TurnOrderBar" type="PanelContainer"]
 layout_mode = 2
-theme_override_constants/separation = 8
 script = ExtResource("1_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="MarginContainer/VBox"]
+layout_mode = 2
+text = "Turn Order (Next 10 Actions)"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+horizontal_alignment = 1
+
+[node name="TurnList" type="HBoxContainer" parent="MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
