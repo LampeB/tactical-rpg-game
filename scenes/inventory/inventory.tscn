@@ -76,7 +76,7 @@ layout_mode = 2
 layout_mode = 2
 text = "Active Skills"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 17
 
 [node name="HSeparator" type="HSeparator" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox"]
 layout_mode = 2

@@ -48,7 +48,7 @@ text = "Battle"
 
 [node name="RoundLabel" type="Label" parent="MainLayout/TopBar/MarginContainer/HBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 text = "Round 1"
 
@@ -80,7 +80,7 @@ theme_override_constants/separation = 12
 
 [node name="EnemyLabel" type="Label" parent="MainLayout/BattleField/HBox/EnemyPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
 text = "⚔ Enemies"
 horizontal_alignment = 1
@@ -99,7 +99,7 @@ theme_override_constants/separation = 12
 
 [node name="PartyLabel" type="Label" parent="MainLayout/BattleField/HBox/PartyPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.5, 0.8, 1, 1)
 text = "🛡 Party"
 horizontal_alignment = 1
@@ -132,7 +132,7 @@ alignment = 1
 
 [node name="Label" type="Label" parent="MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 text = "Select a target..."
 

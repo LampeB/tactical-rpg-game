@@ -1184,7 +1184,7 @@ offset_left = -20.0
 offset_top = -40.0
 offset_right = 20.0
 offset_bottom = -20.0
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 text = "YOU"
 horizontal_alignment = 1
 
@@ -1225,7 +1225,7 @@ offset_left = 16.0
 offset_top = 16.0
 offset_right = 200.0
 offset_bottom = 48.0
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "Gold: 0"
 
 [node name="LocationLabel" type="Label" parent="UI/HUD" unique_id=1054574342]
@@ -1242,7 +1242,7 @@ offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(1, 1, 0.7, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 
 [node name="InfoLabel" type="Label" parent="UI/HUD" unique_id=288100504]
@@ -1256,7 +1256,7 @@ offset_right = 300.0
 offset_bottom = 48.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 20
 text = "Arrow keys or WASD to move | T for fast travel | ESC for menu | I for inventory"
 horizontal_alignment = 1
 

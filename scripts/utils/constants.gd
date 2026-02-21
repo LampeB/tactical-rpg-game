@@ -100,13 +100,13 @@ const COLOR_HIGHLIGHT_HOVER := Color(1.15, 1.15, 1.0) ## Hovered (subtle)
 const COLOR_HIGHLIGHT_TARGET := Color(1.2, 0.8, 0.8)  ## Targeted (red tint)
 
 # === FONT SIZES ===
-const FONT_SIZE_TINY := 10          ## Status icons, very small text
-const FONT_SIZE_SMALL := 11         ## Descriptions, footnotes
-const FONT_SIZE_DETAIL := 13        ## Detail text, tooltips
-const FONT_SIZE_BODY := 14          ## Standard body text
-const FONT_SIZE_NORMAL := 15        ## Normal UI text
-const FONT_SIZE_HEADER := 16        ## Section headers, item names
-const FONT_SIZE_TITLE := 18         ## Screen titles
-const FONT_SIZE_POPUP := 20         ## Damage popups
-const FONT_SIZE_POPUP_CRIT := 26    ## Critical damage popups
-const FONT_SIZE_MENU_TITLE := 48    ## Main menu title
+const FONT_SIZE_TINY := 12          ## Status icons, very small text
+const FONT_SIZE_SMALL := 14         ## Descriptions, footnotes
+const FONT_SIZE_DETAIL := 16        ## Detail text, tooltips
+const FONT_SIZE_BODY := 17          ## Standard body text
+const FONT_SIZE_NORMAL := 18        ## Normal UI text
+const FONT_SIZE_HEADER := 20        ## Section headers, item names
+const FONT_SIZE_TITLE := 24         ## Screen titles
+const FONT_SIZE_POPUP := 26         ## Damage popups
+const FONT_SIZE_POPUP_CRIT := 32    ## Critical damage popups
+const FONT_SIZE_MENU_TITLE := 56    ## Main menu title

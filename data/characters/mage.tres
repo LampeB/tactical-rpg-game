@@ -7,6 +7,7 @@
 script = ExtResource("1")
 id = "mage"
 display_name = "Lyra"
+character_class = "Mage"
 description = "A gifted mage who channels elemental forces. Compact 5x5 grid but devastating special attacks."
 max_hp = 80
 max_mp = 50

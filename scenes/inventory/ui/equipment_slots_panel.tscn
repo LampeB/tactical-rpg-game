@@ -51,7 +51,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 text = "Equipment"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
 [node name="HSeparator" type="HSeparator" parent="VBox"]
@@ -75,7 +75,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 text = "WEAPONS (Arms)"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
 [node name="HandSlots" type="HBoxContainer" parent="VBox/Columns/LeftColumn/WeaponsSection"]
@@ -94,7 +94,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 text = "ARMOR"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
 [node name="HelmetBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection"]
@@ -106,7 +106,7 @@ alignment = 1
 layout_mode = 2
 text = "Helmet"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="HelmetCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox"]
@@ -131,7 +131,7 @@ alignment = 1
 layout_mode = 2
 text = "Chest"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="ChestCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox"]
@@ -151,7 +151,7 @@ alignment = 1
 layout_mode = 2
 text = "Gloves"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="GlovesCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox"]
@@ -171,7 +171,7 @@ alignment = 1
 layout_mode = 2
 text = "Legs"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="LegsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox"]
@@ -191,7 +191,7 @@ alignment = 1
 layout_mode = 2
 text = "Boots"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="BootsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox"]
@@ -215,7 +215,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 text = "JEWELRY"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
 [node name="NecklaceBox" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
@@ -227,7 +227,7 @@ alignment = 1
 layout_mode = 2
 text = "Necklace"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
 [node name="NecklaceCenter" type="CenterContainer" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox"]
@@ -245,14 +245,14 @@ layout_mode = 2
 layout_mode = 2
 text = "Rings"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="LeftRingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection"]
 layout_mode = 2
 text = "Left"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="LeftRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
@@ -264,7 +264,7 @@ alignment = 1
 layout_mode = 2
 text = "Right"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="RightRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
