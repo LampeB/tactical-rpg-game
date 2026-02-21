@@ -56,44 +56,66 @@ func start_combat(
 
 
 func _build_turn_order() -> void:
+	# Initialize time_until_turn for all entities
+	# Faster characters have lower time increments, so they act more frequently
+	var is_round_one: bool = (round_number == 0)
+	for i in range(all_entities.size()):
+		var entity: CombatEntity = all_entities[i]
+		if not entity.is_dead:
+			# First turn setup
+			if entity.time_until_turn == 0.0:
+				var speed: float = entity.get_effective_stat(Enums.Stat.SPEED)
+				# First strike passive grants immediate first turn
+				if is_round_one and entity.has_passive_effect(PassiveEffects.FIRST_STRIKE):
+					entity.time_until_turn = 0.0
+				else:
+					# Random initial offset (0-50% of normal turn time) for variety
+					entity.time_until_turn = randf_range(0.0, 50.0 / speed)
+
+	# Build initial turn order (just for logging)
 	turn_order.clear()
 	for i in range(all_entities.size()):
 		var entity: CombatEntity = all_entities[i]
 		if not entity.is_dead:
 			turn_order.append(entity)
-	# Sort by speed descending (faster goes first)
-	# First strike grants +50 speed in round 1
-	var is_round_one: bool = (round_number == 0)
 	turn_order.sort_custom(func(a: CombatEntity, b: CombatEntity) -> bool:
-		var speed_a: float = a.get_effective_stat(Enums.Stat.SPEED)
-		var speed_b: float = b.get_effective_stat(Enums.Stat.SPEED)
-		if is_round_one:
-			if a.has_passive_effect(PassiveEffects.FIRST_STRIKE):
-				speed_a += PassiveEffects.FIRST_STRIKE_SPEED
-			if b.has_passive_effect(PassiveEffects.FIRST_STRIKE):
-				speed_b += PassiveEffects.FIRST_STRIKE_SPEED
-		return speed_a > speed_b
+		return a.time_until_turn < b.time_until_turn
 	)
-	var order_names: String = ", ".join(turn_order.map(func(e: CombatEntity) -> String: return "%s(%.0f)" % [e.entity_name, e.get_effective_stat(Enums.Stat.SPEED)]))
-	log_message.emit("[TURN ORDER] Round %d: %s" % [round_number + 1, order_names], Color(0.6, 0.6, 0.6))
+	var order_names: String = ", ".join(turn_order.map(func(e: CombatEntity) -> String: return "%s(%.0f,t=%.1f)" % [e.entity_name, e.get_effective_stat(Enums.Stat.SPEED), e.time_until_turn]))
+	log_message.emit("[TURN ORDER] Initial: %s" % order_names, Color(0.6, 0.6, 0.6))
 
 
 func advance_turn() -> void:
 	if not is_combat_active:
 		return
 
+	# Find entity with lowest time_until_turn (who goes next)
+	var next_entity: CombatEntity = null
+	var min_time: float = INF
+	for i in range(all_entities.size()):
+		var entity: CombatEntity = all_entities[i]
+		if not entity.is_dead and entity.time_until_turn < min_time:
+			min_time = entity.time_until_turn
+			next_entity = entity
+
+	if not next_entity:
+		log_message.emit("[TURN] No more entities can act!", Color(0.6, 0.6, 0.6))
+		return
+
+	current_entity = next_entity
+
+	# Increment turn counter every ~10 actions for round tracking
 	current_turn_index += 1
-
-	# New round
-	if current_turn_index >= turn_order.size():
+	if current_turn_index % 10 == 0:
 		round_number += 1
-		_build_turn_order()
-		current_turn_index = 0
-		if turn_order.is_empty():
-			return
 
-	current_entity = turn_order[current_turn_index]
-	log_message.emit("[TURN] %s's turn (index %d/%d, HP:%d/%d)" % [current_entity.entity_name, current_turn_index, turn_order.size() - 1, current_entity.current_hp, current_entity.max_hp], Color(0.6, 0.6, 0.6))
+	log_message.emit("[TURN] %s's turn (time=%.1f, HP:%d/%d)" % [current_entity.entity_name, current_entity.time_until_turn, current_entity.current_hp, current_entity.max_hp], Color(0.6, 0.6, 0.6))
+
+	# Reset this entity's timer: add time based on speed (100 / speed)
+	# Faster characters have smaller increments, so they act more often
+	var speed: float = current_entity.get_effective_stat(Enums.Stat.SPEED)
+	var time_increment: float = 100.0 / max(speed, 1.0)  # Prevent divide by zero
+	current_entity.time_until_turn += time_increment
 
 	# Skip dead entities
 	if current_entity.is_dead:
@@ -336,7 +358,50 @@ func get_alive_enemies() -> Array:
 
 
 func get_turn_order() -> Array:
-	return turn_order
+	# Simulate the next 10 turns to show upcoming turn order
+	return _simulate_future_turns(10)
+
+
+func _simulate_future_turns(count: int) -> Array:
+	# Create a copy of entity times to simulate forward without affecting actual state
+	var entity_times: Dictionary = {}  # CombatEntity -> float (time_until_turn)
+	var active_entities: Array = []
+
+	for i in range(all_entities.size()):
+		var entity: CombatEntity = all_entities[i]
+		if not entity.is_dead:
+			entity_times[entity] = entity.time_until_turn
+			active_entities.append(entity)
+
+	if active_entities.is_empty():
+		return []
+
+	var future_order: Array = []
+
+	# Simulate forward `count` turns
+	for turn_idx in range(count):
+		# Find entity with minimum time
+		var next_entity: CombatEntity = null
+		var min_time: float = INF
+
+		for j in range(active_entities.size()):
+			var entity: CombatEntity = active_entities[j]
+			var time: float = entity_times[entity]
+			if time < min_time:
+				min_time = time
+				next_entity = entity
+
+		if not next_entity:
+			break
+
+		future_order.append(next_entity)
+
+		# Increment this entity's time for next turn
+		var speed: float = next_entity.get_effective_stat(Enums.Stat.SPEED)
+		var time_increment: float = 100.0 / max(speed, 1.0)
+		entity_times[next_entity] = entity_times[next_entity] + time_increment
+
+	return future_order
 
 
 # === Internal ===

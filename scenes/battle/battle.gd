@@ -16,7 +16,7 @@ const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 # --- Child references ---
 @onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
 @onready var _round_label: Label = $MainLayout/TopBar/MarginContainer/HBox/RoundLabel
-@onready var _turn_order_bar: HBoxContainer = $MainLayout/TurnOrderSection/TurnOrderBar
+@onready var _turn_order_bar: PanelContainer = $MainLayout/TurnOrderSection/TurnOrderBar
 @onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/HBox/EnemyPanel/EnemyList
 @onready var _party_list: VBoxContainer = $MainLayout/BattleField/HBox/PartyPanel/PartyList
 @onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
