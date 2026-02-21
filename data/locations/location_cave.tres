@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LocationData" format=3 uid="uid://dkjo8ldm3rw3w"]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "cave_respawn"
+display_name = "Dark Cave"
+description = "A mysterious cave that can revive defeated enemies"
+unlock_flag = ""
+is_visible_when_locked = true
+allow_fast_travel_to = false
+must_visit_first = false
+location_type = 6

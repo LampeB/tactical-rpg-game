@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://brf5tykmjjook"]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://b4wpp75ve7r5e" path="res://assets/sprites/items/mace_common.png" id="4"]
 
 [sub_resource type="Resource" id="stat_phys_atk"]
 script = ExtResource("2")
 stat = 4
-modifier_type = 0
 value = 7.0
 
 [resource]
@@ -17,13 +16,10 @@ id = "mace_common"
 display_name = "Iron Mace"
 description = "A heavy iron mace. Slow but powerful."
 icon = ExtResource("4")
-item_type = 0
 category = 1
-rarity = 0
 hand_slots_required = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_phys_atk")]
-damage_type = 0
 base_power = 7
 block_percentage = 0.2
 base_price = 60

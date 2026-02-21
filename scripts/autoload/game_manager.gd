@@ -53,13 +53,30 @@ func new_game() -> void:
 		"sword_common",
 		"dagger_common",
 
-		# Elemental gems - 1x1 shape, test modifiers
-		"fire_gem_common",
+		# Armor - test equipment slots
+		"helmet_common",      # 1x1 shape (helmet slot)
+		"chestplate_common",  # 2x2 shape (chestplate slot)
+		"gloves_common",      # 1x2 shape (gloves slot)
+		"legs_common",        # 1x3 shape (legs slot)
+		"boots_common",       # 1x2 shape (boots slot)
+		"skeleton_arm",       # 1x3 shape (gloves slot, +1 hand slot!)
+
+		# Elemental gems - add elemental damage
 		"fire_gem_common",
 		"ice_gem_common",
-		"ice_gem_common",
 		"thunder_gem_common",
-		"thunder_gem_common",
+
+		# Modifier gems - stat bonuses and effects
+		"precision_gem_common",   # +5% crit rate, +10% crit dmg
+		"devastation_gem_common", # +25% crit dmg (specialized)
+		"power_gem_common",       # +15% physical attack
+		"mystic_gem_common",      # +15% special attack
+		"poison_gem_common",      # Poison damage [Future: DoT]
+		"swift_gem_common",       # +5 speed [Future: Double attack]
+		"vampiric_gem_common",    # Damage boost [Future: Life steal]
+		"megummy_gem",            # +8 spec atk, AOE [Melee: -10 HP penalty!]
+		"ripple_gem_common",      # Chain to 1 enemy (20% dmg) [Combo: MeGummy]
+		"ripple_gem_uncommon",    # Chain to 1 enemy (40% dmg) [Combo: MeGummy]
 
 		# Consumables
 		"potion_common",

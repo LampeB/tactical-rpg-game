@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://390rcxysezbks"]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/objects/placeholders/grass_tuft.png" id="1"]
+
+[node name="GrassTuft" type="Node2D"]
+y_sort_origin = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")

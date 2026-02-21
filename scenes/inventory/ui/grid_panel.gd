@@ -56,6 +56,12 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 		return
 	var shape_cells: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
 	var can_place: bool = _grid_inventory.can_place(item_data, grid_pos, rotation)
+
+	# Show modifier reach area if this is a modifier item
+	if item_data.item_type == Enums.ItemType.MODIFIER and item_data.modifier_reach > 0:
+		_show_modifier_reach_preview(shape_cells, grid_pos, item_data.modifier_reach)
+
+	# Show the item's own placement cells
 	for cell_offset in shape_cells:
 		var target: Vector2i = grid_pos + cell_offset
 		if _cells.has(target):
@@ -221,3 +227,35 @@ func _on_mouse_exited() -> void:
 	if _last_hovered_cell != Vector2i(-1, -1):
 		_last_hovered_cell = Vector2i(-1, -1)
 		cell_exited.emit()
+
+
+func _show_modifier_reach_preview(shape_cells: Array[Vector2i], grid_pos: Vector2i, reach: int) -> void:
+	## Highlights cells that would be affected by a modifier gem's reach.
+	## Shows which items can be modified if placed at this position.
+	var affected_cells: Array[Vector2i] = []
+
+	# For each cell the modifier will occupy
+	for cell_offset in shape_cells:
+		var modifier_cell: Vector2i = grid_pos + cell_offset
+
+		# Check all cells within reach distance (Manhattan distance)
+		for dy in range(-reach, reach + 1):
+			for dx in range(-reach, reach + 1):
+				var manhattan_distance: int = absi(dx) + absi(dy)
+				if manhattan_distance > 0 and manhattan_distance <= reach:
+					var target_cell: Vector2i = modifier_cell + Vector2i(dx, dy)
+					if not affected_cells.has(target_cell):
+						affected_cells.append(target_cell)
+
+	# Highlight the affected cells
+	for cell in affected_cells:
+		if _cells.has(cell):
+			# Don't override the item placement preview
+			var is_occupied_by_item: bool = false
+			for cell_offset in shape_cells:
+				if grid_pos + cell_offset == cell:
+					is_occupied_by_item = true
+					break
+
+			if not is_occupied_by_item:
+				_cells[cell].set_state(_cells[cell].CellState.MODIFIER_REACH)

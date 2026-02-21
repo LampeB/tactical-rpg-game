@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LocationData" format=3 uid="uid://cxw2mj42myp58"]
+
+[ext_resource type="Script" path="res://scripts/resources/location_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "town_starter"
+display_name = "Starter Town"
+description = "A peaceful town with various NPCs"
+unlock_flag = ""
+is_visible_when_locked = true
+allow_fast_travel_to = true
+must_visit_first = false
+location_type = 0

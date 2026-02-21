@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://y3zkqcns1ob5b"]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/objects/placeholders/flower_yellow.png" id="1"]
+
+[node name="FlowerYellow" type="Node2D"]
+y_sort_origin = 4
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")
