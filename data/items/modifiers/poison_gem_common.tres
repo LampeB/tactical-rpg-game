@@ -5,30 +5,46 @@
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/poisonGem_common.png" id="5"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="6"]
 
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
-modifier_type = 0
 value = 3.0
 
-[sub_resource type="Resource" id="rule_all_weapons"]
+[sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
-target_category = -1
+target_weapon_type = 0
 stat_bonuses = [SubResource("stat_spec_atk")]
-override_damage_type = false
-damage_type = 0
+added_magical_damage = 4
+status_effect = ExtResource("6")
+status_effect_chance = 0.25
+
+[sub_resource type="Resource" id="rule_magic"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("stat_spec_atk")]
+added_magical_damage = 6
+status_effect = ExtResource("6")
+status_effect_chance = 0.30
+
+[sub_resource type="Resource" id="rule_ranged"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = [SubResource("stat_spec_atk")]
+added_magical_damage = 4
+status_effect = ExtResource("6")
+status_effect_chance = 0.25
 
 [resource]
 script = ExtResource("1")
 id = "poison_gem_common"
 display_name = "Poison Gem"
-description = "A sickly green gem that oozes venom. Adds poison damage to adjacent weapons. [Future: Applies poison DoT effect]"
+description = "A sickly green gem that oozes venom. Adds poison damage and poisoned status to weapons."
 icon = ExtResource("5")
 item_type = 2
-category = 0
 rarity = 0
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_all_weapons")]
+conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
 base_price = 35

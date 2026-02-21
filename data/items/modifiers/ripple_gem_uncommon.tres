@@ -9,14 +9,22 @@
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
-modifier_type = 0
 value = 5.0
 
-[sub_resource type="Resource" id="rule_all_weapons"]
+[sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
-target_category = -1
+target_weapon_type = 0
 stat_bonuses = [SubResource("stat_spec_atk")]
-override_damage_type = false
+
+[sub_resource type="Resource" id="rule_ranged"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = [SubResource("stat_spec_atk")]
+
+[sub_resource type="Resource" id="rule_magic"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("stat_spec_atk")]
 
 [resource]
 script = ExtResource("1")
@@ -25,9 +33,8 @@ display_name = "Greater Ripple Gem"
 description = "A more powerful rippling gem with stronger energy waves. [Future: Chains attack to 1 enemy for 40% damage. COMBO: If used with MeGummy, creates massive explosion (100% AoE) then ripple explosion (50% AoE)!]"
 icon = ExtResource("5")
 item_type = 2
-category = 0
 rarity = 1
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_all_weapons")]
+conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
 base_price = 90

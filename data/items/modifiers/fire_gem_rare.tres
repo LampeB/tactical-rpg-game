@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://csbywedwkyrk5"]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://csbywedwkyrk7"]
 
 [ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
@@ -11,42 +11,42 @@
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
-value = 3.0
+value = 7.0
 
 [sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
 target_weapon_type = 0
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+added_magical_damage = 11
 status_effect = ExtResource("7")
-status_effect_chance = 0.15
+status_effect_chance = 0.25
 
 [sub_resource type="Resource" id="rule_magic"]
 script = ExtResource("3")
 target_weapon_type = 2
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 8
+added_magical_damage = 16
 granted_skills = [ExtResource("6")]
 status_effect = ExtResource("7")
-status_effect_chance = 0.20
+status_effect_chance = 0.30
 
 [sub_resource type="Resource" id="rule_ranged"]
 script = ExtResource("3")
 target_weapon_type = 1
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+added_magical_damage = 11
 status_effect = ExtResource("7")
-status_effect_chance = 0.15
+status_effect_chance = 0.25
 
 [resource]
 script = ExtResource("1")
-id = "fire_gem_common"
-display_name = "Fire Gem"
-description = "A glowing ember gem. Adds fire damage and burn chance to weapons. Grants Fire Bolt to magic weapons."
+id = "fire_gem_rare"
+display_name = "Superior Fire Gem"
+description = "A blazing inferno gem. Adds powerful fire damage and high burn chance. Grants Fire Bolt to magic weapons."
 icon = ExtResource("5")
 item_type = 2
-rarity = 0
+rarity = 2
 shape = ExtResource("4")
 modifier_reach = 1
 conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
-base_price = 30
+base_price = 120

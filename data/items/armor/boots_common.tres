@@ -10,6 +10,11 @@ script = ExtResource("2")
 stat = 2
 value = 3.0
 
+[sub_resource type="Resource" id="stat_mag_def"]
+script = ExtResource("2")
+stat = 7
+value = 2.0
+
 [resource]
 script = ExtResource("1")
 id = "boots_common"
@@ -20,5 +25,5 @@ item_type = 1
 category = 11
 armor_slot = 11
 shape = ExtResource("3")
-stat_modifiers = [SubResource("stat_speed")]
+stat_modifiers = [SubResource("stat_speed"), SubResource("stat_mag_def")]
 base_price = 35

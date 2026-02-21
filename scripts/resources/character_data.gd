@@ -36,7 +36,7 @@ func get_base_stat(stat: Enums.Stat) -> int:
 		Enums.Stat.PHYSICAL_ATTACK: return physical_attack
 		Enums.Stat.PHYSICAL_DEFENSE: return physical_defense
 		Enums.Stat.SPECIAL_ATTACK: return special_attack
-		Enums.Stat.SPECIAL_DEFENSE: return special_defense
+		Enums.Stat.MAGICAL_DEFENSE: return special_defense
 		Enums.Stat.CRITICAL_RATE: return 0
 		Enums.Stat.CRITICAL_DAMAGE: return 0
 	return 0

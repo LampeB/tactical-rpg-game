@@ -106,6 +106,11 @@ func advance_turn() -> void:
 		log_message.emit("[STATUS] Ticking %d status(es) on %s" % [current_entity.status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
 	_tick_statuses(current_entity)
 
+	# Tick gem-based status effects (Burn, Poisoned, Chilled, Shocked)
+	if not current_entity.active_gem_status_effects.is_empty():
+		log_message.emit("[GEM STATUS] Ticking %d gem effect(s) on %s" % [current_entity.active_gem_status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
+		current_entity.process_gem_status_effects()
+
 	# Check if entity died from status tick
 	if current_entity.is_dead:
 		log_message.emit("[TURN] %s died from status effects" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
@@ -163,6 +168,23 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 		Color(1.0, 0.3, 0.3) if result.is_crit else Color.WHITE,
 	)
 
+	# Gem-based status effects — apply status from equipped gems
+	if actual > 0 and source.is_player and not target.is_dead:
+		var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
+		if modifier_state and modifier_state.status_effect_type != null:
+			# Get the status effect template from the weapon's gem modifiers
+			var status_chance: float = modifier_state.status_effect_chance
+			var effect_name: String = Enums.StatusEffectType.keys()[modifier_state.status_effect_type]
+
+			# Try to apply the status effect
+			if randf() < status_chance:
+				# Create a status effect instance matching the gem's effect type
+				var status_template: StatusEffect = _get_status_effect_template(modifier_state.status_effect_type)
+				if status_template:
+					var applied: bool = target.apply_gem_status_effect(status_template, 1.0)
+					if applied:
+						log_message.emit("%s is afflicted with %s!" % [target.entity_name, effect_name], Color(1.0, 0.6, 0.2))
+
 	# Lifesteal — heal attacker for % of damage dealt
 	if actual > 0 and not source.is_dead:
 		var lifesteal_pct: float = 0.0
@@ -218,7 +240,11 @@ func execute_defend(source: CombatEntity) -> Dictionary:
 
 func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Dictionary:
 	var target_names: String = ", ".join(targets.map(func(t: CombatEntity) -> String: return t.entity_name))
-	log_message.emit("[ACTION] %s → Skill: %s (power:%d, type:%s, MP cost:%d) → %s" % [source.entity_name, skill.display_name, skill.power, Enums.DamageType.keys()[skill.damage_type] if skill.power > 0 else "N/A", skill.mp_cost, target_names], Color(0.6, 0.6, 0.6))
+	# Get damage type name safely (handle old skill data with invalid indices)
+	var dtype_name: String = "N/A"
+	if skill.power > 0 and skill.damage_type >= 0 and skill.damage_type < Enums.DamageType.size():
+		dtype_name = Enums.DamageType.keys()[skill.damage_type]
+	log_message.emit("[ACTION] %s → Skill: %s (power:%d, type:%s, MP cost:%d) → %s" % [source.entity_name, skill.display_name, skill.power, dtype_name, skill.mp_cost, target_names], Color(0.6, 0.6, 0.6))
 	source.spend_mp(skill.mp_cost)
 
 	if skill.cooldown_turns > 0:
@@ -388,3 +414,19 @@ func _check_combat_end() -> void:
 		is_combat_active = false
 		log_message.emit("Defeat...", Color(1.0, 0.2, 0.2))
 		combat_finished.emit(false)
+
+
+func _get_status_effect_template(effect_type: int) -> StatusEffect:
+	## Returns the status effect template for the given type.
+	## Loads from data/status_effects/ directory.
+	match effect_type:
+		Enums.StatusEffectType.BURN:
+			return load("res://data/status_effects/burn.tres")
+		Enums.StatusEffectType.POISONED:
+			return load("res://data/status_effects/poisoned.tres")
+		Enums.StatusEffectType.CHILLED:
+			return load("res://data/status_effects/chilled.tres")
+		Enums.StatusEffectType.SHOCKED:
+			return load("res://data/status_effects/shocked.tres")
+		_:
+			return null
