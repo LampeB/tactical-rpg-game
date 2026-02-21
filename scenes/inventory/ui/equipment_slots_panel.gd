@@ -1,14 +1,15 @@
 extends PanelContainer
 ## Displays equipment slot indicators (hands, armor, jewelry).
 
-@onready var _hands_container: HBoxContainer = $VBox/HandsRow/HandSlots
-@onready var _helmet_indicator: Control = $VBox/ArmorRow/HelmetSlot
-@onready var _chest_indicator: Control = $VBox/ArmorRow/ChestSlot
-@onready var _gloves_indicator: Control = $VBox/ArmorRow/GlovesSlot
-@onready var _legs_indicator: Control = $VBox/ArmorRow/LegsSlot
-@onready var _boots_indicator: Control = $VBox/ArmorRow/BootsSlot
-@onready var _necklace_indicator: Control = $VBox/JewelryRow/NecklaceSlot
-@onready var _rings_container: HBoxContainer = $VBox/JewelryRow/RingSlots
+@onready var _hands_container: HBoxContainer = $VBox/Columns/LeftColumn/WeaponsSection/HandSlots
+@onready var _helmet_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/HelmetBox/HelmetCenter/HelmetSlot
+@onready var _chest_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox/ChestCenter/ChestSlot
+@onready var _gloves_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox/GlovesCenter/GlovesSlot
+@onready var _legs_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/LegsBox/LegsCenter/LegsSlot
+@onready var _boots_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/BootsBox/BootsCenter/BootsSlot
+@onready var _necklace_indicator: Control = $VBox/Columns/RightColumn/JewelrySection/NecklaceBox/NecklaceCenter/NecklaceSlot
+@onready var _left_rings_container: VBoxContainer = $VBox/Columns/RightColumn/JewelrySection/LeftRingSlots
+@onready var _right_rings_container: VBoxContainer = $VBox/Columns/RightColumn/JewelrySection/RightRingSlots
 
 var _current_inventory: GridInventory = null
 
@@ -35,12 +36,24 @@ func _update_hand_slots() -> void:
 	for child in _hands_container.get_children():
 		child.queue_free()
 
-	# Create dots for all available slots
+	# Create circular dots for all available slots
 	for i in range(available):
-		var dot := ColorRect.new()
-		dot.custom_minimum_size = Vector2(16, 16)
-		dot.color = Color(0.8, 0.8, 0.8) if i < used else Color(0.3, 0.3, 0.3)
-		_hands_container.add_child(dot)
+		var dot_container := Control.new()
+		dot_container.custom_minimum_size = Vector2(24, 24)
+
+		var dot := Panel.new()
+		dot.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		# Make it circular using a StyleBoxFlat
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.8, 0.8, 0.8) if i < used else Color(0.3, 0.3, 0.3)
+		style.corner_radius_top_left = 12
+		style.corner_radius_top_right = 12
+		style.corner_radius_bottom_left = 12
+		style.corner_radius_bottom_right = 12
+		dot.add_theme_stylebox_override("panel", style)
+
+		dot_container.add_child(dot)
+		_hands_container.add_child(dot_container)
 
 
 func _update_armor_slots() -> void:
@@ -67,17 +80,52 @@ func _update_jewelry_slots() -> void:
 			ring_count += 1
 
 	# Clear existing ring slots
-	for child in _rings_container.get_children():
+	for child in _left_rings_container.get_children():
+		child.queue_free()
+	for child in _right_rings_container.get_children():
 		child.queue_free()
 
-	# Create 10 ring slot indicators
-	for i in range(10):
-		var ring_slot := ColorRect.new()
-		ring_slot.custom_minimum_size = Vector2(12, 12)
-		ring_slot.color = Color(0.8, 0.6, 0.2) if i < ring_count else Color(0.3, 0.3, 0.3)
-		_rings_container.add_child(ring_slot)
+	# Create 5 ring slots per hand (left and right)
+	for hand in range(2):
+		var container = _left_rings_container if hand == 0 else _right_rings_container
+		var start_idx = hand * 5
+
+		for i in range(5):
+			var ring_container := CenterContainer.new()
+			ring_container.custom_minimum_size = Vector2(0, 16)
+
+			var ring_slot := Panel.new()
+			ring_slot.custom_minimum_size = Vector2(14, 14)
+			# Make it circular
+			var style := StyleBoxFlat.new()
+			# Color filled rings based on total count (first N rings are filled)
+			var global_idx = start_idx + i
+			style.bg_color = Color(0.8, 0.6, 0.2) if global_idx < ring_count else Color(0.3, 0.3, 0.3)
+			style.corner_radius_top_left = 7
+			style.corner_radius_top_right = 7
+			style.corner_radius_bottom_left = 7
+			style.corner_radius_bottom_right = 7
+			ring_slot.add_theme_stylebox_override("panel", style)
+
+			ring_container.add_child(ring_slot)
+			container.add_child(ring_container)
 
 
 func _set_slot_filled(slot: Control, filled: bool) -> void:
-	if slot is ColorRect:
+	if slot is Panel:
+		# Update the panel's background color
+		var style: StyleBoxFlat = slot.get_theme_stylebox("panel")
+		if style:
+			# Create new style to avoid modifying shared resource
+			var new_style := StyleBoxFlat.new()
+			new_style.bg_color = Color(0.2, 0.8, 0.3) if filled else Color(0.3, 0.3, 0.3)
+
+			# Necklace is circular (radius 19), armor slots are square (radius 6)
+			var radius = 19 if slot == _necklace_indicator else 6
+			new_style.corner_radius_top_left = radius
+			new_style.corner_radius_top_right = radius
+			new_style.corner_radius_bottom_left = radius
+			new_style.corner_radius_bottom_right = radius
+			slot.add_theme_stylebox_override("panel", new_style)
+	elif slot is ColorRect:
 		slot.color = Color(0.2, 0.8, 0.3) if filled else Color(0.3, 0.3, 0.3)

@@ -53,48 +53,56 @@ text = "Back"
 [node name="Content" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 
-[node name="GridSide" type="VBoxContainer" parent="VBox/Content"]
+[node name="LeftSidebar" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.75
+theme_override_constants/separation = 12
+
+[node name="EquipmentSlotsPanel" parent="VBox/Content/LeftSidebar" instance=ExtResource("3_slots")]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="SkillsSummaryPanel" type="PanelContainer" parent="VBox/Content/LeftSidebar"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel"]
+layout_mode = 2
+
+[node name="SummaryTitle" type="Label" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+text = "Active Skills"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+
+[node name="SkillsScroll" type="ScrollContainer" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox/SkillsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MiddleColumn" type="VBoxContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 theme_override_constants/separation = 8
 
-[node name="CharacterTabs" parent="VBox/Content/GridSide" instance=ExtResource("2_tabs")]
+[node name="CharacterTabs" parent="VBox/Content/MiddleColumn" instance=ExtResource("2_tabs")]
 layout_mode = 2
 
-[node name="EquipmentSlotsPanel" parent="VBox/Content/GridSide" instance=ExtResource("3_slots")]
-layout_mode = 2
-
-[node name="GridCentering" type="CenterContainer" parent="VBox/Content/GridSide"]
+[node name="GridCentering" type="CenterContainer" parent="VBox/Content/MiddleColumn"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GridPanel" parent="VBox/Content/GridSide/GridCentering" instance=ExtResource("3_grid")]
-
-[node name="SkillsSummaryPanel" type="PanelContainer" parent="VBox/Content/GridSide"]
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="VBox" type="VBoxContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel"]
-layout_mode = 2
-
-[node name="SummaryTitle" type="Label" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
-layout_mode = 2
-text = "Active Skills"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
-layout_mode = 2
-
-[node name="SkillsScroll" type="ScrollContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 150)
-
-[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/GridSide/SkillsSummaryPanel/VBox/SkillsScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="GridPanel" parent="VBox/Content/MiddleColumn/GridCentering" instance=ExtResource("3_grid")]
 
 [node name="StashPanel" parent="VBox/Content" instance=ExtResource("4_stash")]
 
