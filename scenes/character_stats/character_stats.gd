@@ -29,7 +29,7 @@ const DISPLAY_STATS: Array = [
 	Enums.Stat.PHYSICAL_ATTACK,
 	Enums.Stat.PHYSICAL_DEFENSE,
 	Enums.Stat.SPECIAL_ATTACK,
-	Enums.Stat.SPECIAL_DEFENSE,
+	Enums.Stat.MAGICAL_DEFENSE,
 	Enums.Stat.CRITICAL_RATE,
 	Enums.Stat.CRITICAL_DAMAGE,
 ]
@@ -42,7 +42,7 @@ const STAT_NAMES: Dictionary = {
 	Enums.Stat.PHYSICAL_ATTACK: "Phys Atk",
 	Enums.Stat.PHYSICAL_DEFENSE: "Phys Def",
 	Enums.Stat.SPECIAL_ATTACK: "Spec Atk",
-	Enums.Stat.SPECIAL_DEFENSE: "Spec Def",
+	Enums.Stat.MAGICAL_DEFENSE: "Magical Def",
 	Enums.Stat.CRITICAL_RATE: "Crit Rate",
 	Enums.Stat.CRITICAL_DAMAGE: "Crit Dmg",
 }

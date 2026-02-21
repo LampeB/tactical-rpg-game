@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StatusEffect" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/status_effect.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+
+[sub_resource type="Resource" id="speed_reduction"]
+script = ExtResource("2")
+stat = 2
+modifier_type = 1
+value = -30.0
+
+[resource]
+script = ExtResource("1")
+effect_type = 2
+duration_turns = 2
+tick_damage = 0
+stat_modifier = SubResource("speed_reduction")
+skip_turn_chance = 0.0

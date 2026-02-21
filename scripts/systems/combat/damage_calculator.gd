@@ -20,7 +20,7 @@ static func calculate_damage(
 		def = target.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE)
 	else:
 		atk = source.get_effective_stat(Enums.Stat.SPECIAL_ATTACK)
-		def = target.get_effective_stat(Enums.Stat.SPECIAL_DEFENSE)
+		def = target.get_effective_stat(Enums.Stat.MAGICAL_DEFENSE)
 
 	# Base damage formula
 	var raw: float = (atk * scaling + float(power)) - def * 0.5
@@ -51,17 +51,70 @@ static func calculate_damage(
 	return {"amount": amount, "is_crit": is_crit}
 
 
+static func calculate_damage_hybrid(
+	source: CombatEntity,
+	target: CombatEntity,
+	physical_power: int,
+	magical_power: int,
+	scaling: float = 1.0,
+) -> Dictionary:
+	## Hybrid damage calculation for attacks with both physical and magical components.
+	## Returns {"amount": int, "is_crit": bool}
+
+	# Calculate physical component
+	var phys_atk: float = source.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK)
+	var phys_def: float = target.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE)
+	var phys_dmg: float = (phys_atk * scaling + float(physical_power)) - phys_def * 0.5
+	phys_dmg = maxf(phys_dmg, 0.0)
+
+	# Calculate magical component
+	var mag_atk: float = source.get_effective_stat(Enums.Stat.SPECIAL_ATTACK)
+	var mag_def: float = target.get_effective_stat(Enums.Stat.MAGICAL_DEFENSE)
+	var mag_dmg: float = (mag_atk * scaling + float(magical_power)) - mag_def * 0.5
+	mag_dmg = maxf(mag_dmg, 0.0)
+
+	# Sum components
+	var total: float = phys_dmg + mag_dmg
+	total = maxf(total, 1.0)  # Minimum 1 damage
+
+	# Critical hit applies to total damage
+	var luck: float = source.get_effective_stat(Enums.Stat.LUCK)
+	var crit_rate: float = Constants.BASE_CRITICAL_RATE + luck * Constants.LUCK_CRIT_SCALING
+	var bonus_crit: float = source.get_effective_stat(Enums.Stat.CRITICAL_RATE) / 100.0
+	crit_rate += bonus_crit
+	crit_rate = clampf(crit_rate, 0.0, Constants.MAX_CRITICAL_RATE)
+
+	var is_crit: bool = randf() < crit_rate
+	if is_crit:
+		var crit_mult: float = Constants.BASE_CRITICAL_DAMAGE
+		var bonus_crit_dmg: float = source.get_effective_stat(Enums.Stat.CRITICAL_DAMAGE) / 100.0
+		crit_mult += bonus_crit_dmg
+		total *= crit_mult
+
+	# Defend multiplier
+	if target.is_defending:
+		total *= Constants.DEFEND_DAMAGE_REDUCTION
+
+	# Status effect damage multiplier on target
+	total *= target.get_damage_taken_multiplier()
+
+	var amount: int = maxi(int(total), 1)
+	return {"amount": amount, "is_crit": is_crit}
+
+
 static func calculate_basic_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
-	## Basic attack uses primary weapon's damage type (with conditional overrides for players).
-	var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
-
+	## Basic attack uses hybrid damage calculation for players with weapons.
 	if source.is_player:
-		# Use primary weapon's damage type (with conditional overrides)
-		damage_type = source.get_primary_weapon_damage_type()
+		# Use hybrid damage with weapon power + gem bonuses
+		var phys_power: int = source.get_primary_weapon_physical_power()
+		var mag_power: int = source.get_primary_weapon_magical_power()
+		return calculate_damage_hybrid(source, target, phys_power, mag_power, 1.0)
 	elif source.enemy_data:
-		damage_type = source.enemy_data.damage_type
+		# Enemies use single damage type
+		var damage_type: Enums.DamageType = source.enemy_data.damage_type
+		return calculate_damage(source, target, 0, damage_type, 1.0)
 
-	return calculate_damage(source, target, 0, damage_type, 1.0)
+	return calculate_damage(source, target, 0, Enums.DamageType.PHYSICAL, 1.0)
 
 
 static func calculate_skill_damage(

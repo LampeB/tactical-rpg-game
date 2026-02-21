@@ -157,6 +157,8 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 	var state := ToolModifierState.new()
 	state.tool_placed_item = tool_placed
 
+	var weapon_type: Enums.WeaponType = tool_placed.item_data.get_weapon_type()
+
 	var modifiers: Array = get_modifiers_affecting(tool_placed)
 	for i in range(modifiers.size()):
 		var modifier_placed: PlacedItem = modifiers[i]
@@ -165,7 +167,8 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 		# Check conditional rules
 		for j in range(gem.conditional_modifier_rules.size()):
 			var rule: ConditionalModifierRule = gem.conditional_modifier_rules[j]
-			if rule.target_category == tool_placed.item_data.category:
+			# NEW: Match by weapon type instead of exact category
+			if rule.target_weapon_type == weapon_type:
 				# Match! Apply this rule's effects
 				state.active_modifiers.append({"gem": modifier_placed, "rule": rule})
 
@@ -176,9 +179,13 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 					var existing: float = state.aggregate_stats.get(stat, 0.0)
 					state.aggregate_stats[stat] = existing + stat_mod.value
 
-				# Damage type override (first wins)
-				if rule.override_damage_type and state.damage_type_override == null:
-					state.damage_type_override = rule.damage_type
+				# NEW: Add magical damage (stacking)
+				state.added_magical_damage += rule.added_magical_damage
+
+				# NEW: Status effect (first wins)
+				if rule.status_effect and state.status_effect_type == null:
+					state.status_effect_type = rule.status_effect.effect_type
+					state.status_effect_chance = rule.status_effect_chance
 
 				# Conditional skills (no duplicates)
 				for k in range(rule.granted_skills.size()):
