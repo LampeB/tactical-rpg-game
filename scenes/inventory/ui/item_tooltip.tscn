@@ -22,15 +22,15 @@ theme_override_constants/separation = 4
 
 [node name="NameLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 20
 
 [node name="RarityLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 
 [node name="TypeLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 
 [node name="HSeparator" type="HSeparator" parent="Margin/VBox"]
 layout_mode = 2
@@ -46,7 +46,7 @@ layout_mode = 2
 [node name="ModifierHeader" type="Label" parent="Margin/VBox/ModifierSection"]
 layout_mode = 2
 text = "Modifier Bonuses:"
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 
 [node name="ModifierList" type="VBoxContainer" parent="Margin/VBox/ModifierSection"]
@@ -55,6 +55,6 @@ theme_override_constants/separation = 2
 
 [node name="DescriptionLabel" type="Label" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 autowrap_mode = 2

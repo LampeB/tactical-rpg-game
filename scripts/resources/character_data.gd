@@ -5,6 +5,7 @@ extends Resource
 @export_group("Identity")
 @export var id: String = ""
 @export var display_name: String = ""
+@export var character_class: String = ""  ## Class name (e.g., "Rogue", "Warrior", "Mage")
 @export_multiline var description: String = ""
 @export var portrait: Texture2D
 @export var sprite: Texture2D

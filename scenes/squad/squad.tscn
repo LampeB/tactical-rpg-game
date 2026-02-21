@@ -38,7 +38,7 @@ text = "Squad Management"
 
 [node name="SquadCount" type="Label" parent="VBox/TopBar"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 20
 text = "Squad: 0/4"
 
 [node name="BackButton" type="Button" parent="VBox/TopBar"]
@@ -57,13 +57,13 @@ theme_override_constants/separation = 8
 
 [node name="SquadLabel" type="Label" parent="VBox/Panels/SquadPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
 text = "Active Squad"
 
 [node name="SquadHint" type="Label" parent="VBox/Panels/SquadPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "Click a member to move them to the bench"
 
@@ -79,13 +79,13 @@ theme_override_constants/separation = 8
 
 [node name="BenchLabel" type="Label" parent="VBox/Panels/BenchPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.8, 0.8, 0.4, 1)
 text = "Bench"
 
 [node name="BenchHint" type="Label" parent="VBox/Panels/BenchPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "Click a character to add them to the squad"
 

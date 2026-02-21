@@ -7,6 +7,7 @@
 script = ExtResource("1")
 id = "rogue"
 display_name = "Vex"
+character_class = "Rogue"
 description = "A nimble rogue who strikes fast and often. Wide 7x4 grid favors lightweight gear."
 max_hp = 90
 max_mp = 30

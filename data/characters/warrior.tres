@@ -7,6 +7,7 @@
 script = ExtResource("1")
 id = "warrior"
 display_name = "Kael"
+character_class = "Warrior"
 description = "A seasoned warrior with balanced stats and a sturdy 6x6 inventory grid."
 max_hp = 120
 max_mp = 20
