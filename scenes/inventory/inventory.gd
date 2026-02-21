@@ -6,12 +6,12 @@ enum DragState { IDLE, DRAGGING }
 enum DragSource { NONE, GRID, STASH }
 
 # --- Child references ---
-@onready var _grid_panel: Control = $VBox/Content/GridSide/GridCentering/GridPanel
-@onready var _equipment_slots_panel: PanelContainer = $VBox/Content/GridSide/EquipmentSlotsPanel
+@onready var _grid_panel: Control = $VBox/Content/MiddleColumn/GridCentering/GridPanel
+@onready var _equipment_slots_panel: PanelContainer = $VBox/Content/LeftSidebar/EquipmentSlotsPanel
 @onready var _stash_panel: PanelContainer = $VBox/Content/StashPanel
-@onready var _character_tabs: HBoxContainer = $VBox/Content/GridSide/CharacterTabs
-@onready var _skills_panel: PanelContainer = $VBox/Content/GridSide/SkillsSummaryPanel
-@onready var _skills_list: VBoxContainer = $VBox/Content/GridSide/SkillsSummaryPanel/VBox/SkillsScroll/SkillsList
+@onready var _character_tabs: HBoxContainer = $VBox/Content/MiddleColumn/CharacterTabs
+@onready var _skills_panel: PanelContainer = $VBox/Content/LeftSidebar/SkillsSummaryPanel
+@onready var _skills_list: VBoxContainer = $VBox/Content/LeftSidebar/SkillsSummaryPanel/VBox/SkillsScroll/SkillsList
 @onready var _item_tooltip: PanelContainer = $TooltipLayer/ItemTooltip
 @onready var _drag_preview: Control = $DragLayer/DragPreview
 
@@ -154,67 +154,164 @@ func _populate_skills_summary() -> void:
 		_skills_list.add_child(label)
 		return
 
-	# Get all active tools
-	var tools: Array = []
+	# Collect all skills with their sources
+	var skills_map: Dictionary = {}  # skill_id -> {skill: SkillData, sources: [{weapon, gems}]}
+
 	var placed_items: Array = inv.get_all_placed_items()
 	for i in range(placed_items.size()):
 		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-			tools.append(placed)
+			var weapon: ItemData = placed.item_data
+			var modifiers: Array = inv.get_modifiers_affecting(placed)
 
-	if tools.is_empty():
+			# Get all skills from this weapon
+			var all_skills: Array = []
+
+			# Innate weapon skills
+			for j in range(weapon.granted_skills.size()):
+				all_skills.append(weapon.granted_skills[j])
+
+			# Conditional skills from gems
+			var computed: Dictionary = inv.get_computed_stats()
+			var tool_states: Dictionary = computed.get("tool_states", {})
+			var state = tool_states.get(placed, null)
+			if state:
+				for j in range(state.conditional_skills.size()):
+					all_skills.append(state.conditional_skills[j])
+
+			# Add each skill to the map
+			for j in range(all_skills.size()):
+				var skill: SkillData = all_skills[j]
+				if skill:
+					if not skills_map.has(skill.id):
+						skills_map[skill.id] = {"skill": skill, "sources": []}
+
+					# Add source (weapon + gems)
+					var source_gems: Array = []
+					for k in range(modifiers.size()):
+						source_gems.append(modifiers[k].item_data.display_name)
+
+					skills_map[skill.id]["sources"].append({
+						"weapon": weapon.display_name,
+						"gems": source_gems
+					})
+
+	if skills_map.is_empty():
 		var label: Label = Label.new()
-		label.text = "No active tools equipped"
+		label.text = "No skills available"
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.modulate = Constants.COLOR_TEXT_SECONDARY
+		label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 		_skills_list.add_child(label)
 		return
 
-	# Build summary for each tool
-	for i in range(tools.size()):
-		var tool: GridInventory.PlacedItem = tools[i]
-		var row: VBoxContainer = VBoxContainer.new()
-		row.add_theme_constant_override("separation", 4)
+	# Create collapsible skill entries
+	var keys: Array = skills_map.keys()
+	for i in range(keys.size()):
+		var skill_id: String = keys[i]
+		var entry: Dictionary = skills_map[skill_id]
+		var skill: SkillData = entry["skill"]
+		var sources: Array = entry["sources"]
 
-		# Tool name
-		var name_label: Label = Label.new()
-		name_label.text = tool.item_data.display_name
-		name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_HEADER)
-		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_HEADER)
-		row.add_child(name_label)
+		_create_skill_entry(skill, sources)
 
-		# Granted skills
-		if not tool.item_data.granted_skills.is_empty():
-			var skills_label: Label = Label.new()
-			var skill_names: Array = []
-			for j in range(tool.item_data.granted_skills.size()):
-				var skill: SkillData = tool.item_data.granted_skills[j]
-				if skill:
-					skill_names.append(skill.display_name)
-			skills_label.text = " • Skills: " + ", ".join(skill_names)
-			skills_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			skills_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SKILL)
-			row.add_child(skills_label)
+		# Add separator between skills
+		if i < keys.size() - 1:
+			var separator: HSeparator = HSeparator.new()
+			separator.add_theme_constant_override("separation", 6)
+			_skills_list.add_child(separator)
 
-		# Affecting modifiers
-		var modifiers: Array = inv.get_modifiers_affecting(tool)
-		if not modifiers.is_empty():
-			var mods_label: Label = Label.new()
-			var mod_names: Array = []
-			for j in range(modifiers.size()):
-				var mod_placed: GridInventory.PlacedItem = modifiers[j]
-				mod_names.append(mod_placed.item_data.display_name)
-			mods_label.text = " • Modifiers: " + ", ".join(mod_names)
-			mods_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			mods_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_MODIFIER)
-			row.add_child(mods_label)
 
-		# Separator
-		var separator: HSeparator = HSeparator.new()
-		separator.add_theme_constant_override("separation", 8)
-		row.add_child(separator)
+func _create_skill_entry(skill: SkillData, sources: Array) -> void:
+	var container: VBoxContainer = VBoxContainer.new()
+	container.add_theme_constant_override("separation", 3)
 
-		_skills_list.add_child(row)
+	# Header row with skill name and MP cost
+	var header: HBoxContainer = HBoxContainer.new()
+
+	# Clickable button for expand/collapse
+	var expand_btn: Button = Button.new()
+	expand_btn.toggle_mode = true
+	expand_btn.flat = true
+	expand_btn.text = "▸"
+	expand_btn.custom_minimum_size = Vector2(20, 0)
+	expand_btn.add_theme_font_size_override("font_size", Constants.FONT_SIZE_NORMAL)
+	expand_btn.add_theme_color_override("font_color", Constants.COLOR_TEXT_SKILL)
+	header.add_child(expand_btn)
+
+	# Skill name
+	var name_label: Label = Label.new()
+	name_label.text = skill.display_name.to_upper()
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_NORMAL)
+	name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SKILL)
+	header.add_child(name_label)
+
+	# MP cost (right aligned)
+	var mp_label: Label = Label.new()
+	mp_label.text = "MP: %d" % skill.mp_cost
+	mp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	mp_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+	mp_label.add_theme_color_override("font_color", Color(0.6, 0.8, 1.0))
+	header.add_child(mp_label)
+
+	container.add_child(header)
+
+	# Source weapons (always visible)
+	var source_weapons: Array = []
+	for i in range(sources.size()):
+		var source: Dictionary = sources[i]
+		var weapon_name: String = source["weapon"]
+		if not source_weapons.has(weapon_name):
+			source_weapons.append(weapon_name)
+
+	var sources_label: Label = Label.new()
+	sources_label.text = "     " + " / ".join(source_weapons)
+	sources_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+	sources_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	container.add_child(sources_label)
+
+	# Details panel (initially hidden, shown on expand)
+	var details: VBoxContainer = VBoxContainer.new()
+	details.add_theme_constant_override("separation", 2)
+	details.visible = false
+
+	# Power/Type if applicable
+	if skill.power > 0:
+		var power_label: Label = Label.new()
+		var damage_type_name: String = Enums.DamageType.keys()[skill.damage_type] if skill.damage_type < Enums.DamageType.size() else "?"
+		power_label.text = "     Power: %d (%s)" % [skill.power, damage_type_name]
+		power_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+		power_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.4))
+		details.add_child(power_label)
+
+	# Description
+	if not skill.description.is_empty():
+		var desc_label: Label = Label.new()
+		desc_label.text = "     " + skill.description
+		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+		desc_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+		desc_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
+		details.add_child(desc_label)
+
+	# Gem modifiers (if any)
+	for i in range(sources.size()):
+		var source: Dictionary = sources[i]
+		if not source["gems"].is_empty():
+			var gems_label: Label = Label.new()
+			gems_label.text = "     + " + ", ".join(source["gems"])
+			gems_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+			gems_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_MODIFIER)
+			details.add_child(gems_label)
+
+	container.add_child(details)
+
+	# Toggle button handler
+	expand_btn.toggled.connect(func(pressed: bool) -> void:
+		details.visible = pressed
+		expand_btn.text = "▾" if pressed else "▸"
+	)
+
+	_skills_list.add_child(container)
 
 
 # === Grid Interaction ===
@@ -768,5 +865,5 @@ func _on_stats() -> void:
 
 func setup_embedded(character_id: String) -> void:
 	$VBox/TopBar.visible = false
-	$VBox/Content/GridSide/CharacterTabs.visible = false
+	$VBox/Content/MiddleColumn/CharacterTabs.visible = false
 	_on_character_selected(character_id)

@@ -132,7 +132,39 @@ func _update_count_label(visible_count: int, total_count: int = -1) -> void:
 
 
 func _on_filter_toggled(button_pressed: bool, item_type: Enums.ItemType) -> void:
-	_filter_active[item_type] = button_pressed
+	if not button_pressed:
+		# Don't allow turning off the last active filter - just reactivate it
+		var active_count = 0
+		for type in _filter_active:
+			if _filter_active[type]:
+				active_count += 1
+		if active_count <= 1:
+			# Force this button back on (without triggering signal)
+			match item_type:
+				Enums.ItemType.ACTIVE_TOOL: _tools_btn.set_pressed_no_signal(true)
+				Enums.ItemType.PASSIVE_GEAR: _gear_btn.set_pressed_no_signal(true)
+				Enums.ItemType.MODIFIER: _mods_btn.set_pressed_no_signal(true)
+				Enums.ItemType.CONSUMABLE: _cons_btn.set_pressed_no_signal(true)
+				Enums.ItemType.MATERIAL: _mat_btn.set_pressed_no_signal(true)
+			return
+
+	# Turn off all filters except the clicked one
+	_filter_active[Enums.ItemType.ACTIVE_TOOL] = false
+	_filter_active[Enums.ItemType.PASSIVE_GEAR] = false
+	_filter_active[Enums.ItemType.MODIFIER] = false
+	_filter_active[Enums.ItemType.CONSUMABLE] = false
+	_filter_active[Enums.ItemType.MATERIAL] = false
+
+	# Turn on only the selected filter
+	_filter_active[item_type] = true
+
+	# Update all button states to match (without triggering signals)
+	_tools_btn.set_pressed_no_signal(item_type == Enums.ItemType.ACTIVE_TOOL)
+	_gear_btn.set_pressed_no_signal(item_type == Enums.ItemType.PASSIVE_GEAR)
+	_mods_btn.set_pressed_no_signal(item_type == Enums.ItemType.MODIFIER)
+	_cons_btn.set_pressed_no_signal(item_type == Enums.ItemType.CONSUMABLE)
+	_mat_btn.set_pressed_no_signal(item_type == Enums.ItemType.MATERIAL)
+
 	# Re-apply filters with cached data
 	refresh(_cached_stash, _cached_returnable)
 
@@ -145,12 +177,12 @@ func _on_all_filters() -> void:
 	_filter_active[Enums.ItemType.CONSUMABLE] = true
 	_filter_active[Enums.ItemType.MATERIAL] = true
 
-	# Update button states
-	_tools_btn.button_pressed = true
-	_gear_btn.button_pressed = true
-	_mods_btn.button_pressed = true
-	_cons_btn.button_pressed = true
-	_mat_btn.button_pressed = true
+	# Update button states (without triggering signals)
+	_tools_btn.set_pressed_no_signal(true)
+	_gear_btn.set_pressed_no_signal(true)
+	_mods_btn.set_pressed_no_signal(true)
+	_cons_btn.set_pressed_no_signal(true)
+	_mat_btn.set_pressed_no_signal(true)
 
 	# Re-apply filters
 	refresh(_cached_stash, _cached_returnable)
