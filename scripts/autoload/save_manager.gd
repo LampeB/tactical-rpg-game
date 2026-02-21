@@ -103,7 +103,10 @@ func _serialize() -> Dictionary:
 func _serialize_stash(stash: Array) -> Array:
 	var result: Array = []
 	for item in stash:
-		result.append(item.id)
+		result.append({
+			"item_id": item.id,
+			"rarity": item.rarity,  # Save rarity to restore upgrades
+		})
 	return result
 
 func _serialize_grid_inventories(grids: Dictionary) -> Dictionary:
@@ -117,6 +120,7 @@ func _serialize_grid_inventories(grids: Dictionary) -> Dictionary:
 				"x": placed.grid_position.x,
 				"y": placed.grid_position.y,
 				"rotation": placed.rotation,
+				"rarity": placed.item_data.rarity,  # Save rarity to restore upgrades
 			})
 		result[character_id] = placements
 	return result
@@ -158,13 +162,34 @@ func _deserialize(data: Dictionary):
 	party.squad = typed_squad
 
 	# Stash
-	var stash_ids: Array = data.get("stash", [])
-	for item_id in stash_ids:
-		var item: ItemData = ItemDatabase.get_item(str(item_id))
-		if item:
-			party.stash.append(item)
+	var stash_data: Array = data.get("stash", [])
+	for entry in stash_data:
+		var item_id: String
+		var saved_rarity: int
+
+		# Support old save format (just ID string) and new format (object with rarity)
+		if entry is String:
+			item_id = str(entry)
+			saved_rarity = -1  # Unknown, use database default
 		else:
-			DebugLogger.log_warn("Stash item not found: %s" % str(item_id), "SaveManager")
+			item_id = str(entry.get("item_id", ""))
+			saved_rarity = int(entry.get("rarity", -1))
+
+		var item: ItemData = ItemDatabase.get_item(item_id)
+		if not item:
+			DebugLogger.log_warn("Stash item not found: %s" % item_id, "SaveManager")
+			continue
+
+		# Restore upgraded rarity if item was upgraded
+		if saved_rarity >= 0:
+			while item.rarity < saved_rarity:
+				item = ItemUpgradeSystem.create_upgraded_item(item)
+				if item.rarity == saved_rarity:
+					break
+				if item.rarity == Enums.Rarity.UNIQUE:
+					break  # Max rarity reached
+
+		party.stash.append(item)
 
 	# Grid inventories: place items to rebuild _cell_map
 	var grid_data: Dictionary = data.get("grid_inventories", {})
@@ -179,6 +204,16 @@ func _deserialize(data: Dictionary):
 			if not item:
 				DebugLogger.log_warn("Grid item not found: %s" % str(entry.item_id), "SaveManager")
 				continue
+
+			# Restore upgraded rarity if item was upgraded
+			var saved_rarity: int = int(entry.get("rarity", item.rarity))
+			while item.rarity < saved_rarity:
+				item = ItemUpgradeSystem.create_upgraded_item(item)
+				if item.rarity == saved_rarity:
+					break
+				if item.rarity == Enums.Rarity.UNIQUE:
+					break  # Max rarity reached
+
 			var pos := Vector2i(int(entry.x), int(entry.y))
 			var rot := int(entry.rotation)
 			var placed := grid.place_item(item, pos, rot)

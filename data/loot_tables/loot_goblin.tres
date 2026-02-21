@@ -1,39 +1,30 @@
-[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://cvohkv6foflae"]
 
-[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Script" uid="uid://nc2hnjrvpwlu" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" uid="uid://m8o0rj7cecdp" path="res://scripts/resources/loot_entry.gd" id="2"]
 [ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="3"]
-[ext_resource type="Resource" path="res://data/items/weapons/dagger_common.tres" id="4"]
-[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_common.tres" id="5"]
-[ext_resource type="Resource" path="res://data/items/weapons/mace_common.tres" id="6"]
+[ext_resource type="Resource" uid="uid://caxatcgdsf5v7" path="res://data/items/weapons/dagger_common.tres" id="4"]
+[ext_resource type="Resource" uid="uid://csbywedwkyrk5" path="res://data/items/modifiers/fire_gem_common.tres" id="5"]
+[ext_resource type="Resource" uid="uid://brf5tykmjjook" path="res://data/items/weapons/mace_common.tres" id="6"]
 
 [sub_resource type="Resource" id="entry_potion"]
 script = ExtResource("2")
 item = ExtResource("3")
 weight = 5.0
-min_count = 1
-max_count = 2
 
 [sub_resource type="Resource" id="entry_dagger"]
 script = ExtResource("2")
 item = ExtResource("4")
 weight = 2.0
-min_count = 1
-max_count = 1
 
 [sub_resource type="Resource" id="entry_gem"]
 script = ExtResource("2")
 item = ExtResource("5")
 weight = 1.5
-min_count = 1
-max_count = 1
 
 [sub_resource type="Resource" id="entry_mace"]
 script = ExtResource("2")
 item = ExtResource("6")
-weight = 1.0
-min_count = 1
-max_count = 1
 
 [resource]
 script = ExtResource("1")

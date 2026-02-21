@@ -50,23 +50,28 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 				if mod is StatModifier:
 					_add_modifier_label(mod.get_description(), Color(1.0, 0.9, 0.3))
 
-		# Show conditional rules grouped by target category
+		# Show conditional rules grouped by target weapon type
 		if not item.conditional_modifier_rules.is_empty():
 			_modifier_section.visible = true
 			for i in range(item.conditional_modifier_rules.size()):
 				var rule: ConditionalModifierRule = item.conditional_modifier_rules[i]
-				var category_name: String = _get_category_name(rule.target_category)
-				_add_header_label("When near %s:" % category_name, Color(0.8, 0.8, 1.0))
+				var weapon_type_name: String = _get_weapon_type_name(rule.target_weapon_type)
+				_add_header_label("When near %s:" % weapon_type_name, Color(0.8, 0.8, 1.0))
 
 				# Stat bonuses
 				for j in range(rule.stat_bonuses.size()):
 					var mod: StatModifier = rule.stat_bonuses[j]
 					_add_modifier_label("  " + mod.get_description(), Color(1.0, 0.9, 0.3))
 
-				# Damage type override
-				if rule.override_damage_type:
-					var dtype_name: String = _get_damage_type_name(rule.damage_type)
-					_add_modifier_label("  Damage Type: %s" % dtype_name, Color(1.0, 0.5, 0.3))
+				# Added magical damage
+				if rule.added_magical_damage > 0:
+					_add_modifier_label("  +%d Magical Damage" % rule.added_magical_damage, Color(0.7, 0.5, 1.0))
+
+				# Status effect
+				if rule.status_effect:
+					var effect_name: String = _get_status_effect_name(rule.status_effect.effect_type)
+					var chance_pct: int = int(rule.status_effect_chance * 100)
+					_add_modifier_label("  %s (%d%% chance)" % [effect_name, chance_pct], Color(1.0, 0.7, 0.3))
 
 				# Granted skills
 				for j in range(rule.granted_skills.size()):
@@ -89,10 +94,15 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 		if state and not state.active_modifiers.is_empty():
 			_modifier_section.visible = true
 
-			# Damage type override
-			if state.damage_type_override != null:
-				var dtype_name: String = _get_damage_type_name(state.damage_type_override)
-				_add_modifier_label("Damage Type: %s (modified)" % dtype_name, Color(1.0, 0.5, 0.3))
+			# Added magical damage
+			if state.added_magical_damage > 0:
+				_add_modifier_label("+%d Magical Damage" % state.added_magical_damage, Color(0.7, 0.5, 1.0))
+
+			# Status effect
+			if state.status_effect_type != null:
+				var effect_name: String = _get_status_effect_name(state.status_effect_type)
+				var chance_pct: int = int(state.status_effect_chance * 100)
+				_add_modifier_label("%s (%d%% chance)" % [effect_name, chance_pct], Color(1.0, 0.7, 0.3))
 
 			# Aggregate stats from conditional modifiers
 			var stat_keys: Array = state.aggregate_stats.keys()
@@ -183,14 +193,7 @@ func _get_category_name(category: Enums.EquipmentCategory) -> String:
 func _get_damage_type_name(damage_type: Enums.DamageType) -> String:
 	match damage_type:
 		Enums.DamageType.PHYSICAL: return "Physical"
-		Enums.DamageType.FIRE: return "Fire"
-		Enums.DamageType.ICE: return "Ice"
-		Enums.DamageType.THUNDER: return "Thunder"
-		Enums.DamageType.POISON: return "Poison"
-		Enums.DamageType.WATER: return "Water"
-		Enums.DamageType.EARTH: return "Earth"
-		Enums.DamageType.WIND: return "Wind"
-		Enums.DamageType.SPIRIT: return "Spirit"
+		Enums.DamageType.MAGICAL: return "Magical"
 	return "Unknown"
 
 
@@ -201,9 +204,26 @@ func _get_stat_name(stat: Enums.Stat) -> String:
 		Enums.Stat.PHYSICAL_ATTACK: return "Phys Atk"
 		Enums.Stat.PHYSICAL_DEFENSE: return "Phys Def"
 		Enums.Stat.SPECIAL_ATTACK: return "Spec Atk"
-		Enums.Stat.SPECIAL_DEFENSE: return "Spec Def"
+		Enums.Stat.MAGICAL_DEFENSE: return "Magical Def"
 		Enums.Stat.SPEED: return "Speed"
 		Enums.Stat.LUCK: return "Luck"
 		Enums.Stat.CRITICAL_RATE: return "Crit Rate"
 		Enums.Stat.CRITICAL_DAMAGE: return "Crit Dmg"
+	return "Unknown"
+
+
+func _get_status_effect_name(effect_type: Enums.StatusEffectType) -> String:
+	match effect_type:
+		Enums.StatusEffectType.BURN: return "Burn"
+		Enums.StatusEffectType.POISONED: return "Poisoned"
+		Enums.StatusEffectType.CHILLED: return "Chilled"
+		Enums.StatusEffectType.SHOCKED: return "Shocked"
+	return "Unknown"
+
+
+func _get_weapon_type_name(weapon_type: Enums.WeaponType) -> String:
+	match weapon_type:
+		Enums.WeaponType.MELEE: return "Melee Weapons"
+		Enums.WeaponType.RANGED: return "Ranged Weapons"
+		Enums.WeaponType.MAGIC: return "Magic Weapons"
 	return "Unknown"

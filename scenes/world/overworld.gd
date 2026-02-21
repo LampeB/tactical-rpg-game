@@ -238,7 +238,7 @@ func _apply_battle_cooldown() -> void:
 
 	for i in range(enemies.size()):
 		var enemy: Node = enemies[i]
-		if enemy and is_instance_valid(enemy) and enemy.has("_can_trigger_battle"):
+		if enemy and is_instance_valid(enemy) and "_can_trigger_battle" in enemy:
 			enemy._can_trigger_battle = true
 
 	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")

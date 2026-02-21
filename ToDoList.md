@@ -10,13 +10,19 @@
 
 [ ] make it possible to use sprites for every UI element
 
-[ ] add a passive skills summary on the skill tab to quickly see all the passives a character as unlocked
+[x] add a passive skills summary on the skill tab to quickly see all the passives a character as unlocked
 
-[ ] add an active skills summary on the inventory tab to see every skill a character has with his current inventory organisation
+[x] add an active skills summary on the inventory tab to see every skill a character has with his current inventory organisation
 
-[ ] add a passive and active skills summary on the stat tab to have a quick overview of everything a character has
+[x] add a passive and active skills summary on the stat tab to have a quick overview of everything a character has
 
 [ ] add mechanic to block part of the map if certains conditions aren't met
+
+[ ] persist HP and Mana after a fight to keep spent spent mana and lost HP between fights.
+
+[ ] add a way to use certains skills and objects outside of a fight (healing for example)
+
+[ ] add a button to fully heal and regen mana for all characters, as a debug tool
 
 [x] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
 

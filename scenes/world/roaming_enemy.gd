@@ -2,7 +2,8 @@ extends CharacterBody2D
 ## Visible enemy on the overworld that triggers battle when touched.
 
 @export var encounter_data: EncounterData
-@export var enemy_color: Color = Color(1, 0.3, 0.3)  # Red for enemies
+@export var enemy_sprite: Texture2D  # Override default sprite per enemy instance
+@export var enemy_color: Color = Color(1, 0.3, 0.3)  # Red for enemies (legacy ColorRect)
 @export var move_speed: float = 50.0
 @export var patrol_distance: float = 100.0
 
@@ -13,7 +14,7 @@ var _direction_change_interval: float = 2.0
 var _can_trigger_battle: bool = false  # Start disabled, enabled by overworld after safe positioning
 var _detection_enabled: bool = false
 
-@onready var _visual: ColorRect = $ColorRect
+@onready var _visual: CanvasItem = $Sprite2D if has_node("Sprite2D") else $ColorRect if has_node("ColorRect") else null
 @onready var _label: Label = $Label
 @onready var _collision_area: Area2D = $DetectionArea
 
@@ -31,7 +32,15 @@ func _ready() -> void:
 
 	# Add to roaming_enemies group for cooldown management
 	add_to_group("roaming_enemies")
-	_visual.color = enemy_color
+
+	# Setup visual (Sprite2D or ColorRect)
+	if _visual is Sprite2D:
+		if enemy_sprite:
+			_visual.texture = enemy_sprite
+		# Sprite2D uses modulate for tinting
+		_visual.modulate = Color.WHITE
+	elif _visual is ColorRect:
+		_visual.color = enemy_color
 
 	if encounter_data:
 		_label.text = encounter_data.display_name.substr(0, 1)  # First letter

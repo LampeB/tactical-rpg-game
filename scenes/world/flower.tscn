@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://b8ady5ms22ue0"]
+
+[ext_resource type="Texture2D" uid="uid://bdlamfsgfitq" path="res://assets/sprites/tilesets/woods_tileset.png" id="1"]
+
+[node name="Flower" type="Node2D"]
+y_sort_origin = 8
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(120, 40, 12, 12)

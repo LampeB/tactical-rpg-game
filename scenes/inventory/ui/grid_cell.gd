@@ -8,6 +8,7 @@ enum CellState {
 	VALID_DROP,
 	INVALID_DROP,
 	MODIFIER_HIGHLIGHT,
+	MODIFIER_REACH,
 	UPGRADEABLE,
 }
 
@@ -18,6 +19,7 @@ const STATE_COLORS := {
 	CellState.VALID_DROP: Color(0.2, 0.8, 0.2, 0.4),
 	CellState.INVALID_DROP: Color(0.8, 0.2, 0.2, 0.4),
 	CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
+	CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),  # Blue tint for modifier reach
 	CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),  # Green background
 }
 

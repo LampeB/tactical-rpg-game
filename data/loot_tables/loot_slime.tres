@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="LootTable" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://cf68e6f5d65gf"]
 
-[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Script" uid="uid://nc2hnjrvpwlu" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" uid="uid://m8o0rj7cecdp" path="res://scripts/resources/loot_entry.gd" id="2"]
 [ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="3"]
 
 [sub_resource type="Resource" id="entry_potion_1"]
@@ -20,4 +20,3 @@ weight = 3.0
 script = ExtResource("1")
 id = "loot_slime"
 entries = [SubResource("entry_potion_1"), SubResource("entry_potion_2")]
-roll_count = 1

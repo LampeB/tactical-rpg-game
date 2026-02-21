@@ -3,7 +3,17 @@
     "allow": [
       "Bash(git pull:*)",
       "Bash(git add:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(godot:*)",
+      "Bash(python3:*)",
+      "Bash(__NEW_LINE_adb232542f4900e6__ echo \"=== ORGANIZED SPRITES ===\")",
+      "Bash(python scripts/tools/generate_placeholder_sprites.py:*)",
+      "Bash(pip install:*)",
+      "Bash(python scripts/tools/generate_object_scenes.py:*)",
+      "Bash(python scripts/tools/create_starter_map.py:*)",
+      "Bash(ls:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)"
     ]
   }
 }

@@ -1,0 +1,524 @@
+[gd_scene format=3 uid="uid://dm5uymbpvbusv"]
+
+[ext_resource type="PackedScene" uid="uid://b8ncvuslxxv0r" path="res://scenes/world/objects/tree_small.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://cmuwryjy0xac6" path="res://scenes/world/objects/tree_medium.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://ckn3yehsixumh" path="res://scenes/world/objects/tree_large.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://dmiwvb7lskbbc" path="res://scenes/world/objects/rock_small.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://brnxqdp8m40qy" path="res://scenes/world/objects/rock_medium.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://dggbxhe11lh1u" path="res://scenes/world/objects/rock_large.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/world/roaming_enemy.tscn" id="7"]
+[ext_resource type="Script" path="res://scenes/world/overworld.gd" id="8"]
+[ext_resource type="Script" path="res://scenes/world/overworld_player.gd" id="9"]
+[ext_resource type="Script" path="res://scenes/world/town_location.gd" id="10"]
+[ext_resource type="Script" path="res://scenes/world/cave_location.gd" id="11"]
+[ext_resource type="Script" path="res://scenes/world/lake_location.gd" id="12"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(20, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_location"]
+size = Vector2(60, 60)
+
+[node name="Overworld" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("8")
+
+[node name="GroundLayer" type="TileMapLayer" parent="."]
+z_index = 0
+y_sort_enabled = false
+
+[node name="TerrainOverlay" type="TileMapLayer" parent="."]
+z_index = 2
+y_sort_enabled = false
+
+[node name="Objects" type="Node2D" parent="."]
+z_index = 1
+y_sort_enabled = true
+
+[node name="BorderTree1" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 100)
+[node name="BorderTree2" parent="Objects" instance=ExtResource("1")]
+position = Vector2(130, 100)
+[node name="BorderTree3" parent="Objects" instance=ExtResource("2")]
+position = Vector2(160, 100)
+[node name="BorderTree4" parent="Objects" instance=ExtResource("1")]
+position = Vector2(190, 100)
+[node name="BorderTree5" parent="Objects" instance=ExtResource("1")]
+position = Vector2(220, 100)
+[node name="BorderTree6" parent="Objects" instance=ExtResource("2")]
+position = Vector2(250, 100)
+[node name="BorderTree7" parent="Objects" instance=ExtResource("1")]
+position = Vector2(280, 100)
+[node name="BorderTree8" parent="Objects" instance=ExtResource("1")]
+position = Vector2(310, 100)
+[node name="BorderTree9" parent="Objects" instance=ExtResource("2")]
+position = Vector2(340, 100)
+[node name="BorderTree10" parent="Objects" instance=ExtResource("1")]
+position = Vector2(370, 100)
+[node name="BorderTree11" parent="Objects" instance=ExtResource("1")]
+position = Vector2(400, 100)
+[node name="BorderTree12" parent="Objects" instance=ExtResource("2")]
+position = Vector2(430, 100)
+[node name="BorderTree13" parent="Objects" instance=ExtResource("1")]
+position = Vector2(460, 100)
+[node name="BorderTree14" parent="Objects" instance=ExtResource("1")]
+position = Vector2(490, 100)
+[node name="BorderTree15" parent="Objects" instance=ExtResource("2")]
+position = Vector2(520, 100)
+[node name="BorderTree16" parent="Objects" instance=ExtResource("1")]
+position = Vector2(550, 100)
+[node name="BorderTree17" parent="Objects" instance=ExtResource("1")]
+position = Vector2(580, 100)
+[node name="BorderTree18" parent="Objects" instance=ExtResource("2")]
+position = Vector2(610, 100)
+[node name="BorderTree19" parent="Objects" instance=ExtResource("1")]
+position = Vector2(640, 100)
+[node name="BorderTree20" parent="Objects" instance=ExtResource("1")]
+position = Vector2(670, 100)
+[node name="BorderTree21" parent="Objects" instance=ExtResource("2")]
+position = Vector2(700, 100)
+[node name="BorderTree22" parent="Objects" instance=ExtResource("1")]
+position = Vector2(730, 100)
+[node name="BorderTree23" parent="Objects" instance=ExtResource("1")]
+position = Vector2(760, 100)
+[node name="BorderTree24" parent="Objects" instance=ExtResource("2")]
+position = Vector2(790, 100)
+[node name="BorderTree25" parent="Objects" instance=ExtResource("1")]
+position = Vector2(820, 100)
+[node name="BorderTree26" parent="Objects" instance=ExtResource("1")]
+position = Vector2(850, 100)
+[node name="BorderTree27" parent="Objects" instance=ExtResource("2")]
+position = Vector2(880, 100)
+[node name="BorderTree28" parent="Objects" instance=ExtResource("1")]
+position = Vector2(910, 100)
+[node name="BorderTree29" parent="Objects" instance=ExtResource("1")]
+position = Vector2(940, 100)
+[node name="BorderTree30" parent="Objects" instance=ExtResource("2")]
+position = Vector2(970, 100)
+[node name="BorderTree31" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1000, 100)
+[node name="BorderTree32" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1030, 100)
+[node name="BorderTree33" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1060, 100)
+[node name="BorderTree34" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1090, 100)
+[node name="BorderTree35" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1120, 100)
+[node name="BorderTree36" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1150, 100)
+[node name="BorderTree37" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1180, 100)
+[node name="BorderTree38" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1210, 100)
+[node name="BorderTree39" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1240, 100)
+[node name="BorderTree40" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1270, 100)
+[node name="BorderTree41" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1300, 100)
+[node name="BorderTree42" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1330, 100)
+[node name="BorderTree43" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1360, 100)
+[node name="BorderTree44" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1390, 100)
+[node name="BorderTree45" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1420, 100)
+[node name="BorderTree46" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1450, 100)
+[node name="BorderTree47" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1480, 100)
+[node name="BorderTree48" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1510, 100)
+[node name="BorderTree49" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1540, 100)
+[node name="BorderTree50" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1570, 100)
+[node name="BorderTree51" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1600, 100)
+[node name="BorderTree52" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1630, 100)
+[node name="BorderTree53" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1660, 100)
+[node name="BorderTree54" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1690, 100)
+[node name="BorderTree55" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1720, 100)
+[node name="BorderTree56" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1750, 100)
+[node name="BorderTree57" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1780, 100)
+[node name="BorderTree58" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1810, 100)
+[node name="BorderTree59" parent="Objects" instance=ExtResource("2")]
+position = Vector2(100, 980)
+[node name="BorderTree60" parent="Objects" instance=ExtResource("3")]
+position = Vector2(130, 980)
+[node name="BorderTree61" parent="Objects" instance=ExtResource("2")]
+position = Vector2(160, 980)
+[node name="BorderTree62" parent="Objects" instance=ExtResource("2")]
+position = Vector2(190, 980)
+[node name="BorderTree63" parent="Objects" instance=ExtResource("2")]
+position = Vector2(220, 980)
+[node name="BorderTree64" parent="Objects" instance=ExtResource("3")]
+position = Vector2(250, 980)
+[node name="BorderTree65" parent="Objects" instance=ExtResource("2")]
+position = Vector2(280, 980)
+[node name="BorderTree66" parent="Objects" instance=ExtResource("2")]
+position = Vector2(310, 980)
+[node name="BorderTree67" parent="Objects" instance=ExtResource("2")]
+position = Vector2(340, 980)
+[node name="BorderTree68" parent="Objects" instance=ExtResource("3")]
+position = Vector2(370, 980)
+[node name="BorderTree69" parent="Objects" instance=ExtResource("2")]
+position = Vector2(400, 980)
+[node name="BorderTree70" parent="Objects" instance=ExtResource("2")]
+position = Vector2(430, 980)
+[node name="BorderTree71" parent="Objects" instance=ExtResource("2")]
+position = Vector2(460, 980)
+[node name="BorderTree72" parent="Objects" instance=ExtResource("3")]
+position = Vector2(490, 980)
+[node name="BorderTree73" parent="Objects" instance=ExtResource("2")]
+position = Vector2(520, 980)
+[node name="BorderTree74" parent="Objects" instance=ExtResource("2")]
+position = Vector2(550, 980)
+[node name="BorderTree75" parent="Objects" instance=ExtResource("2")]
+position = Vector2(580, 980)
+[node name="BorderTree76" parent="Objects" instance=ExtResource("3")]
+position = Vector2(610, 980)
+[node name="BorderTree77" parent="Objects" instance=ExtResource("2")]
+position = Vector2(640, 980)
+[node name="BorderTree78" parent="Objects" instance=ExtResource("2")]
+position = Vector2(670, 980)
+[node name="BorderTree79" parent="Objects" instance=ExtResource("2")]
+position = Vector2(700, 980)
+[node name="BorderTree80" parent="Objects" instance=ExtResource("3")]
+position = Vector2(730, 980)
+[node name="BorderTree81" parent="Objects" instance=ExtResource("2")]
+position = Vector2(760, 980)
+[node name="BorderTree82" parent="Objects" instance=ExtResource("2")]
+position = Vector2(790, 980)
+[node name="BorderTree83" parent="Objects" instance=ExtResource("2")]
+position = Vector2(820, 980)
+[node name="BorderTree84" parent="Objects" instance=ExtResource("3")]
+position = Vector2(850, 980)
+[node name="BorderTree85" parent="Objects" instance=ExtResource("2")]
+position = Vector2(880, 980)
+[node name="BorderTree86" parent="Objects" instance=ExtResource("2")]
+position = Vector2(910, 980)
+[node name="BorderTree87" parent="Objects" instance=ExtResource("2")]
+position = Vector2(940, 980)
+[node name="BorderTree88" parent="Objects" instance=ExtResource("3")]
+position = Vector2(970, 980)
+[node name="BorderTree89" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1000, 980)
+[node name="BorderTree90" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1030, 980)
+[node name="BorderTree91" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1060, 980)
+[node name="BorderTree92" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1090, 980)
+[node name="BorderTree93" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1120, 980)
+[node name="BorderTree94" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1150, 980)
+[node name="BorderTree95" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1180, 980)
+[node name="BorderTree96" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1210, 980)
+[node name="BorderTree97" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1240, 980)
+[node name="BorderTree98" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1270, 980)
+[node name="BorderTree99" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1300, 980)
+[node name="BorderTree100" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1330, 980)
+[node name="BorderTree101" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1360, 980)
+[node name="BorderTree102" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1390, 980)
+[node name="BorderTree103" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1420, 980)
+[node name="BorderTree104" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1450, 980)
+[node name="BorderTree105" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1480, 980)
+[node name="BorderTree106" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1510, 980)
+[node name="BorderTree107" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1540, 980)
+[node name="BorderTree108" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1570, 980)
+[node name="BorderTree109" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1600, 980)
+[node name="BorderTree110" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1630, 980)
+[node name="BorderTree111" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1660, 980)
+[node name="BorderTree112" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1690, 980)
+[node name="BorderTree113" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1720, 980)
+[node name="BorderTree114" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1750, 980)
+[node name="BorderTree115" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1780, 980)
+[node name="BorderTree116" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1810, 980)
+[node name="BorderObj117" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 130)
+[node name="BorderObj118" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 160)
+[node name="BorderObj119" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 190)
+[node name="BorderObj120" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 220)
+[node name="BorderObj121" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 250)
+[node name="BorderObj122" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 280)
+[node name="BorderObj123" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 310)
+[node name="BorderObj124" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 340)
+[node name="BorderObj125" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 370)
+[node name="BorderObj126" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 400)
+[node name="BorderObj127" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 430)
+[node name="BorderObj128" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 460)
+[node name="BorderObj129" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 490)
+[node name="BorderObj130" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 520)
+[node name="BorderObj131" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 550)
+[node name="BorderObj132" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 580)
+[node name="BorderObj133" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 610)
+[node name="BorderObj134" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 640)
+[node name="BorderObj135" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 670)
+[node name="BorderObj136" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 700)
+[node name="BorderObj137" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 730)
+[node name="BorderObj138" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 760)
+[node name="BorderObj139" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 790)
+[node name="BorderObj140" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 820)
+[node name="BorderObj141" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 850)
+[node name="BorderObj142" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 880)
+[node name="BorderObj143" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 910)
+[node name="BorderObj144" parent="Objects" instance=ExtResource("5")]
+position = Vector2(100, 940)
+[node name="BorderObj145" parent="Objects" instance=ExtResource("1")]
+position = Vector2(100, 970)
+[node name="BorderObj146" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 130)
+[node name="BorderObj147" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 160)
+[node name="BorderObj148" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 190)
+[node name="BorderObj149" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 220)
+[node name="BorderObj150" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 250)
+[node name="BorderObj151" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 280)
+[node name="BorderObj152" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 310)
+[node name="BorderObj153" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 340)
+[node name="BorderObj154" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 370)
+[node name="BorderObj155" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 400)
+[node name="BorderObj156" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 430)
+[node name="BorderObj157" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 460)
+[node name="BorderObj158" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 490)
+[node name="BorderObj159" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 520)
+[node name="BorderObj160" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 550)
+[node name="BorderObj161" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 580)
+[node name="BorderObj162" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 610)
+[node name="BorderObj163" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 640)
+[node name="BorderObj164" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 670)
+[node name="BorderObj165" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 700)
+[node name="BorderObj166" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 730)
+[node name="BorderObj167" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 760)
+[node name="BorderObj168" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 790)
+[node name="BorderObj169" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 820)
+[node name="BorderObj170" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 850)
+[node name="BorderObj171" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 880)
+[node name="BorderObj172" parent="Objects" instance=ExtResource("6")]
+position = Vector2(1820, 910)
+[node name="BorderObj173" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 940)
+[node name="BorderObj174" parent="Objects" instance=ExtResource("2")]
+position = Vector2(1820, 970)
+[node name="DecorObj175" parent="Objects" instance=ExtResource("3")]
+position = Vector2(660, 340)
+[node name="DecorObj176" parent="Objects" instance=ExtResource("3")]
+position = Vector2(1260, 340)
+[node name="DecorObj177" parent="Objects" instance=ExtResource("6")]
+position = Vector2(710, 690)
+[node name="DecorObj178" parent="Objects" instance=ExtResource("5")]
+position = Vector2(1160, 720)
+[node name="DecorObj179" parent="Objects" instance=ExtResource("1")]
+position = Vector2(860, 240)
+[node name="DecorObj180" parent="Objects" instance=ExtResource("1")]
+position = Vector2(1080, 260)
+[node name="Enemy181" parent="Objects" instance=ExtResource("7")]
+position = Vector2(760, 440)
+[node name="Enemy182" parent="Objects" instance=ExtResource("7")]
+position = Vector2(1210, 490)
+[node name="Enemy183" parent="Objects" instance=ExtResource("7")]
+position = Vector2(810, 640)
+[node name="Enemy184" parent="Objects" instance=ExtResource("7")]
+position = Vector2(1140, 660)
+[node name="Enemy185" parent="Objects" instance=ExtResource("7")]
+position = Vector2(960, 340)
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(960, 540)
+collision_layer = 2
+script = ExtResource("9")
+
+[node name="ColorRect" type="ColorRect" parent="Player"]
+offset_left = -15.0
+offset_top = -30.0
+offset_right = 15.0
+offset_bottom = 0.0
+color = Color(0, 0.7, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="InteractionArea" type="Area2D" parent="Player"]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/InteractionArea"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="LocationMarkers" type="Node2D" parent="."]
+
+[node name="Town" type="Area2D" parent="LocationMarkers"]
+position = Vector2(560, 540)
+script = ExtResource("10")
+
+[node name="ColorRect" type="ColorRect" parent="LocationMarkers/Town"]
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 30.0
+offset_bottom = 30.0
+color = Color(0.8, 0.5, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LocationMarkers/Town"]
+shape = SubResource("RectangleShape2D_location")
+
+[node name="Cave" type="Area2D" parent="LocationMarkers"]
+position = Vector2(1360, 540)
+script = ExtResource("11")
+
+[node name="ColorRect" type="ColorRect" parent="LocationMarkers/Cave"]
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 30.0
+offset_bottom = 30.0
+color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LocationMarkers/Cave"]
+shape = SubResource("RectangleShape2D_location")
+
+[node name="Lake" type="Area2D" parent="LocationMarkers"]
+position = Vector2(960, 840)
+script = ExtResource("12")
+
+[node name="ColorRect" type="ColorRect" parent="LocationMarkers/Lake"]
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.3, 0.6, 1.0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LocationMarkers/Lake"]
+shape = SubResource("RectangleShape2D_location")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+position_smoothing_enabled = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GoldLabel" type="Label" parent="UI/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+text = "Gold: 0"
+
+[node name="LocationLabel" type="Label" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -60.0
+offset_right = 200.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
+
+[node name="FastTravelMenu" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
