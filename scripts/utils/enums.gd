@@ -40,6 +40,12 @@ enum EquipmentCategory {
 	RING,
 }
 
+enum WeaponType {
+	MELEE,   ## Sword, Mace, Dagger, Axe, Shield
+	RANGED,  ## Bow
+	MAGIC,   ## Staff
+}
+
 # === STATS ===
 
 enum Stat {
@@ -50,7 +56,7 @@ enum Stat {
 	PHYSICAL_ATTACK,
 	PHYSICAL_DEFENSE,
 	SPECIAL_ATTACK,
-	SPECIAL_DEFENSE,
+	MAGICAL_DEFENSE,
 	CRITICAL_RATE,
 	CRITICAL_DAMAGE,
 }
@@ -64,14 +70,7 @@ enum ModifierType {
 
 enum DamageType {
 	PHYSICAL,
-	FIRE,
-	ICE,
-	THUNDER,
-	POISON,
-	WATER,
-	EARTH,
-	WIND,
-	SPIRIT,
+	MAGICAL,
 }
 
 # === COMBAT ===
@@ -110,6 +109,13 @@ enum CombatState {
 }
 
 # === STATUS EFFECTS ===
+
+enum StatusEffectType {
+	BURN,      ## Fire damage over time
+	POISONED,  ## Poison damage over time
+	CHILLED,   ## Ice: reduce speed
+	SHOCKED,   ## Thunder: chance to skip turn
+}
 
 enum StatusCategory {
 	DAMAGE_OVER_TIME,

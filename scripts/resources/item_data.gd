@@ -31,8 +31,10 @@ extends Resource
 @export_group("Combat")
 ## Element for damage-dealing active tools.
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
-## Base damage for active tools.
+## Base physical damage for active tools.
 @export var base_power: int = 0
+## Base magical damage for active tools (gems can add more).
+@export var magical_power: int = 0
 ## Percentage of damage blocked when defending with this item (0.0 to 1.0).
 @export_range(0.0, 1.0) var block_percentage: float = 0.0
 ## Skills granted by this item when equipped.
@@ -55,3 +57,18 @@ extends Resource
 
 func get_sell_price() -> int:
 	return int(base_price * 0.5)
+
+func get_weapon_type() -> Enums.WeaponType:
+	match category:
+		Enums.EquipmentCategory.SWORD, \
+		Enums.EquipmentCategory.MACE, \
+		Enums.EquipmentCategory.DAGGER, \
+		Enums.EquipmentCategory.AXE, \
+		Enums.EquipmentCategory.SHIELD:
+			return Enums.WeaponType.MELEE
+		Enums.EquipmentCategory.BOW:
+			return Enums.WeaponType.RANGED
+		Enums.EquipmentCategory.STAFF:
+			return Enums.WeaponType.MAGIC
+		_:
+			return Enums.WeaponType.MELEE  # Default fallback

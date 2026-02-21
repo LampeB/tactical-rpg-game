@@ -1,10 +1,11 @@
 class_name ConditionalModifierRule
 extends Resource
-## Context-sensitive modifier effect applied when placed near specific tool categories.
-## Example: Fire Gem + Sword → FIRE damage type, Fire Gem + Staff → Fire Bolt skill
+## Context-sensitive modifier effect applied when placed near specific weapon types.
+## Example: Fire Gem + Melee → adds magical damage + burn, Fire Gem + Magic → Fire Bolt skill
 
-@export var target_category: Enums.EquipmentCategory = Enums.EquipmentCategory.SWORD
+@export var target_weapon_type: Enums.WeaponType = Enums.WeaponType.MELEE
 @export var stat_bonuses: Array = []  ## of StatModifier
-@export var override_damage_type: bool = false
-@export var damage_type: Enums.DamageType = Enums.DamageType.FIRE
+@export var added_magical_damage: int = 0  ## How much magical damage this gem adds
+@export var status_effect: StatusEffect = null  ## Which status effect this applies
+@export var status_effect_chance: float = 0.15  ## Chance to apply status effect (0.0 to 1.0)
 @export var granted_skills: Array = []  ## of SkillData

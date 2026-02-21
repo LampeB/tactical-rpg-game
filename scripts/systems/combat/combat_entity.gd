@@ -27,6 +27,9 @@ var is_dead: bool = false
 # Status effects: Array of {data: StatusEffectData, remaining_turns: int, stacks: int}
 var status_effects: Array = []
 
+# Gem-based status effects: Array of StatusEffect (Burn, Poisoned, Chilled, Shocked)
+var active_gem_status_effects: Array = []  ## of StatusEffect
+
 # Skill cooldowns: skill_id -> turns remaining
 var cooldowns: Dictionary = {}
 
@@ -137,6 +140,15 @@ func get_effective_stat(stat: Enums.Stat) -> float:
 			if data.speed_multiplier != 1.0:
 				base *= data.speed_multiplier
 
+	# Gem-based status effect modifiers (Chilled reduces speed)
+	for i in range(active_gem_status_effects.size()):
+		var gem_effect: StatusEffect = active_gem_status_effects[i]
+		if gem_effect.stat_modifier and gem_effect.stat_modifier.stat == stat:
+			if gem_effect.stat_modifier.modifier_type == Enums.ModifierType.FLAT:
+				base += gem_effect.stat_modifier.value
+			elif gem_effect.stat_modifier.modifier_type == Enums.ModifierType.PERCENT:
+				base *= (1.0 + gem_effect.stat_modifier.value / 100.0)
+
 	return maxf(base, 0.0)
 
 
@@ -173,7 +185,8 @@ func get_available_skills() -> Array:
 
 
 func get_primary_weapon_damage_type() -> Enums.DamageType:
-	## Returns primary weapon's damage type with conditional overrides applied.
+	## Returns primary weapon's base damage type (PHYSICAL or MAGICAL).
+	## Note: This is for legacy compatibility. Weapons now support hybrid damage.
 	if not is_player or not grid_inventory:
 		return Enums.DamageType.PHYSICAL
 
@@ -181,14 +194,38 @@ func get_primary_weapon_damage_type() -> Enums.DamageType:
 	for i in range(grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-			# Check for damage type override from conditional modifiers
-			var state: ToolModifierState = tool_modifier_states.get(placed, null)
-			if state and state.damage_type_override != null:
-				return state.damage_type_override
-			# Fall back to item's base damage type
 			return placed.item_data.damage_type
 
 	return Enums.DamageType.PHYSICAL
+
+
+func get_primary_weapon_physical_power() -> int:
+	## Returns primary weapon's base physical damage.
+	if not is_player or not grid_inventory:
+		return 0
+
+	for i in range(grid_inventory.get_all_placed_items().size()):
+		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			return placed.item_data.base_power
+
+	return 0
+
+
+func get_primary_weapon_magical_power() -> int:
+	## Returns primary weapon's total magical damage (base + gem bonuses).
+	if not is_player or not grid_inventory:
+		return 0
+
+	for i in range(grid_inventory.get_all_placed_items().size()):
+		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			var base_magical: int = placed.item_data.magical_power
+			var state: ToolModifierState = tool_modifier_states.get(placed, null)
+			var added_magical: int = state.added_magical_damage if state else 0
+			return base_magical + added_magical
+
+	return 0
 
 
 func can_use_skill(skill: SkillData) -> bool:
@@ -285,3 +322,77 @@ func tick_cooldowns() -> void:
 			to_remove.append(skill_id)
 	for i in range(to_remove.size()):
 		cooldowns.erase(to_remove[i])
+
+
+## Gem-based status effect system (Burn, Poisoned, Chilled, Shocked)
+
+func apply_gem_status_effect(effect_template: StatusEffect, chance: float) -> bool:
+	## Attempts to apply a gem-based status effect with the given chance.
+	## Returns true if the effect was successfully applied.
+	if randf() >= chance:
+		return false
+
+	# Check if already has this effect type - refresh duration if so
+	for i in range(active_gem_status_effects.size()):
+		var existing: StatusEffect = active_gem_status_effects[i]
+		if existing.effect_type == effect_template.effect_type:
+			# Refresh duration to maximum
+			existing.duration_turns = effect_template.duration_turns
+			return true
+
+	# Apply new effect
+	var new_effect: StatusEffect = effect_template.create_instance()
+	active_gem_status_effects.append(new_effect)
+	return true
+
+
+func process_gem_status_effects() -> void:
+	## Processes all active gem-based status effects, dealing damage and decrementing duration.
+	## Should be called at the start of each turn.
+	var expired_indices: Array = []
+
+	for i in range(active_gem_status_effects.size()):
+		var effect: StatusEffect = active_gem_status_effects[i]
+
+		# Apply effect based on type
+		match effect.effect_type:
+			Enums.StatusEffectType.BURN, Enums.StatusEffectType.POISONED:
+				# Deal tick damage
+				if effect.tick_damage > 0:
+					take_damage(effect.tick_damage)
+
+			Enums.StatusEffectType.CHILLED:
+				# Speed reduction is handled in get_effective_stat()
+				pass
+
+			Enums.StatusEffectType.SHOCKED:
+				# Skip turn chance is checked in battle logic
+				pass
+
+		# Decrement duration
+		effect.duration_turns -= 1
+		if effect.duration_turns <= 0:
+			expired_indices.append(i)
+
+	# Remove expired effects (reverse order to maintain indices)
+	for i in range(expired_indices.size() - 1, -1, -1):
+		var idx: int = expired_indices[i]
+		active_gem_status_effects.remove_at(idx)
+
+
+func has_gem_status_effect(effect_type: Enums.StatusEffectType) -> bool:
+	## Returns true if the entity has the specified gem status effect active.
+	for i in range(active_gem_status_effects.size()):
+		var effect: StatusEffect = active_gem_status_effects[i]
+		if effect.effect_type == effect_type:
+			return true
+	return false
+
+
+func get_gem_status_effect(effect_type: Enums.StatusEffectType) -> StatusEffect:
+	## Returns the gem status effect of the specified type, or null if not found.
+	for i in range(active_gem_status_effects.size()):
+		var effect: StatusEffect = active_gem_status_effects[i]
+		if effect.effect_type == effect_type:
+			return effect
+	return null
