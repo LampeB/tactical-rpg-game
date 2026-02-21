@@ -9,20 +9,27 @@
 [sub_resource type="Resource" id="stat_crit_rate"]
 script = ExtResource("2")
 stat = 8
-modifier_type = 0
 value = 5.0
 
 [sub_resource type="Resource" id="stat_crit_dmg"]
 script = ExtResource("2")
 stat = 9
-modifier_type = 0
 value = 10.0
 
-[sub_resource type="Resource" id="rule_all_weapons"]
+[sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
-target_category = -1
+target_weapon_type = 0
 stat_bonuses = [SubResource("stat_crit_rate"), SubResource("stat_crit_dmg")]
-override_damage_type = false
+
+[sub_resource type="Resource" id="rule_ranged"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = [SubResource("stat_crit_rate"), SubResource("stat_crit_dmg")]
+
+[sub_resource type="Resource" id="rule_magic"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("stat_crit_rate"), SubResource("stat_crit_dmg")]
 
 [resource]
 script = ExtResource("1")
@@ -31,9 +38,8 @@ display_name = "Precision Gem"
 description = "A crystalline gem that sharpens focus. Adds +5% crit rate and +10% crit damage to adjacent weapons."
 icon = ExtResource("5")
 item_type = 2
-category = 0
 rarity = 0
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_all_weapons")]
+conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
 base_price = 40

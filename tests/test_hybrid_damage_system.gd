@@ -36,6 +36,20 @@ func run_all_tests() -> void:
 	test_combat_entity_weapon_power_methods()
 	test_gem_magical_damage_stacking()
 
+	# Phase 6: Weapon Type Classification (Comprehensive)
+	test_all_weapon_categories_classified()
+
+	# Phase 7: Status Effect Mechanics
+	test_status_effect_has_required_fields()
+	test_status_effect_create_instance()
+
+	# Phase 8: Data Migration Validation
+	test_armor_has_dual_defense()
+	test_elemental_gems_have_status_effects()
+	test_gems_use_weapon_types()
+	test_no_old_override_fields()
+	test_fire_gem_variants_scaling()
+
 ## ============================================================================
 ## PHASE 1: Enums & Core Type System
 ## ============================================================================
@@ -332,6 +346,243 @@ func test_gem_magical_damage_stacking() -> void:
 
 	if state.added_magical_damage != 8:
 		add_failure(test_name, "Expected stacked damage 8, got %d" % state.added_magical_damage)
+		return
+
+	add_success(test_name)
+
+## ============================================================================
+## PHASE 6: Weapon Type Classification (Comprehensive)
+## ============================================================================
+
+func test_all_weapon_categories_classified() -> void:
+	var test_name := "All weapon categories correctly classified"
+
+	var weapon_mappings := [
+		{"cat": Enums.EquipmentCategory.SWORD, "type": Enums.WeaponType.MELEE},
+		{"cat": Enums.EquipmentCategory.MACE, "type": Enums.WeaponType.MELEE},
+		{"cat": Enums.EquipmentCategory.DAGGER, "type": Enums.WeaponType.MELEE},
+		{"cat": Enums.EquipmentCategory.AXE, "type": Enums.WeaponType.MELEE},
+		{"cat": Enums.EquipmentCategory.SHIELD, "type": Enums.WeaponType.MELEE},
+		{"cat": Enums.EquipmentCategory.BOW, "type": Enums.WeaponType.RANGED},
+		{"cat": Enums.EquipmentCategory.STAFF, "type": Enums.WeaponType.MAGIC},
+	]
+
+	for mapping in weapon_mappings:
+		var item := ItemData.new()
+		item.category = mapping.cat
+		var detected_type := item.get_weapon_type()
+		if detected_type != mapping.type:
+			var cat_name: String = Enums.EquipmentCategory.keys()[mapping.cat]
+			var expected_name: String = Enums.WeaponType.keys()[mapping.type]
+			var actual_name: String = Enums.WeaponType.keys()[detected_type]
+			add_failure(test_name, "%s should be %s but got %s" % [cat_name, expected_name, actual_name])
+			return
+
+	add_success(test_name)
+
+## ============================================================================
+## PHASE 7: Status Effect Mechanics
+## ============================================================================
+
+func test_status_effect_has_required_fields() -> void:
+	var test_name := "StatusEffect has all required fields"
+
+	var effect := StatusEffect.new()
+
+	if not ("effect_type" in effect):
+		add_failure(test_name, "Missing effect_type field")
+		return
+
+	if not ("duration_turns" in effect):
+		add_failure(test_name, "Missing duration_turns field")
+		return
+
+	if not ("tick_damage" in effect):
+		add_failure(test_name, "Missing tick_damage field")
+		return
+
+	add_success(test_name)
+
+func test_status_effect_create_instance() -> void:
+	var test_name := "StatusEffect can create instances"
+
+	var burn_template: StatusEffect = load("res://data/status_effects/burn.tres")
+	if not burn_template:
+		add_failure(test_name, "Failed to load burn template")
+		return
+
+	var instance: StatusEffect = burn_template.create_instance()
+	if not instance:
+		add_failure(test_name, "Failed to create instance")
+		return
+
+	if instance.effect_type != Enums.StatusEffectType.BURN:
+		add_failure(test_name, "Instance has wrong effect type")
+		return
+
+	if instance.duration_turns != burn_template.duration_turns:
+		add_failure(test_name, "Instance duration doesn't match template")
+		return
+
+	add_success(test_name)
+
+## ============================================================================
+## PHASE 8: Data Migration Validation
+## ============================================================================
+
+func test_armor_has_dual_defense() -> void:
+	var test_name := "Armor items have both physical and magical defense"
+
+	var armor_files := [
+		"res://data/items/armor/helmet_common.tres",
+		"res://data/items/armor/chestplate_common.tres",
+		"res://data/items/armor/legs_common.tres",
+	]
+
+	for file_path in armor_files:
+		if not ResourceLoader.exists(file_path):
+			add_failure(test_name, "File not found: %s" % file_path)
+			return
+
+		var armor: ItemData = load(file_path)
+		if not armor:
+			add_failure(test_name, "Failed to load: %s" % file_path)
+			return
+
+		var has_phys_def := false
+		var has_mag_def := false
+
+		for i in range(armor.stat_modifiers.size()):
+			var mod: StatModifier = armor.stat_modifiers[i]
+			if mod.stat == Enums.Stat.PHYSICAL_DEFENSE:
+				has_phys_def = true
+			elif mod.stat == Enums.Stat.MAGICAL_DEFENSE:
+				has_mag_def = true
+
+		if not has_phys_def:
+			add_failure(test_name, "%s missing PHYSICAL_DEFENSE" % file_path)
+			return
+
+		if not has_mag_def:
+			add_failure(test_name, "%s missing MAGICAL_DEFENSE" % file_path)
+			return
+
+	add_success(test_name)
+
+func test_elemental_gems_have_status_effects() -> void:
+	var test_name := "Elemental gems reference status effect files"
+
+	var gem_files := [
+		"res://data/items/modifiers/fire_gem_common.tres",
+		"res://data/items/modifiers/ice_gem_common.tres",
+		"res://data/items/modifiers/thunder_gem_common.tres",
+		"res://data/items/modifiers/poison_gem_common.tres",
+	]
+
+	for file_path in gem_files:
+		if not ResourceLoader.exists(file_path):
+			add_failure(test_name, "File not found: %s" % file_path)
+			return
+
+		var gem: ItemData = load(file_path)
+		if not gem:
+			add_failure(test_name, "Failed to load: %s" % file_path)
+			return
+
+		if gem.conditional_modifier_rules.is_empty():
+			add_failure(test_name, "%s has no rules" % file_path)
+			return
+
+		var has_status_effect := false
+		for i in range(gem.conditional_modifier_rules.size()):
+			var rule: ConditionalModifierRule = gem.conditional_modifier_rules[i]
+			if rule.status_effect != null:
+				has_status_effect = true
+				break
+
+		if not has_status_effect:
+			add_failure(test_name, "%s has no status_effect" % file_path)
+			return
+
+	add_success(test_name)
+
+func test_gems_use_weapon_types() -> void:
+	var test_name := "Gems use target_weapon_type instead of target_category"
+
+	var gem: ItemData = load("res://data/items/modifiers/fire_gem_common.tres")
+	if not gem:
+		add_failure(test_name, "Failed to load fire gem")
+		return
+
+	if gem.conditional_modifier_rules.is_empty():
+		add_failure(test_name, "Fire gem has no rules")
+		return
+
+	var rule: ConditionalModifierRule = gem.conditional_modifier_rules[0]
+
+	if "target_weapon_type" not in rule:
+		add_failure(test_name, "Rule missing target_weapon_type field")
+		return
+
+	add_success(test_name)
+
+func test_no_old_override_fields() -> void:
+	var test_name := "Gems don't have old damage_type_override field"
+
+	var gem: ItemData = load("res://data/items/modifiers/fire_gem_common.tres")
+	if not gem:
+		add_failure(test_name, "Failed to load fire gem")
+		return
+
+	if gem.conditional_modifier_rules.is_empty():
+		add_failure(test_name, "Fire gem has no rules")
+		return
+
+	var rule: ConditionalModifierRule = gem.conditional_modifier_rules[0]
+
+	if "override_damage_type" in rule:
+		add_failure(test_name, "Rule still has override_damage_type field")
+		return
+
+	if "damage_type" in rule:
+		add_failure(test_name, "Rule still has damage_type field")
+		return
+
+	if "target_category" in rule:
+		add_failure(test_name, "Rule still has target_category field")
+		return
+
+	add_success(test_name)
+
+func test_fire_gem_variants_scaling() -> void:
+	var test_name := "Fire gem variants have increasing magical damage"
+
+	var common: ItemData = load("res://data/items/modifiers/fire_gem_common.tres")
+	var uncommon: ItemData = load("res://data/items/modifiers/fire_gem_uncommon.tres")
+	var rare: ItemData = load("res://data/items/modifiers/fire_gem_rare.tres")
+
+	if not common or not uncommon or not rare:
+		add_failure(test_name, "Failed to load fire gem variants")
+		return
+
+	if common.conditional_modifier_rules.is_empty():
+		add_failure(test_name, "Common gem has no rules")
+		return
+
+	if uncommon.conditional_modifier_rules.is_empty():
+		add_failure(test_name, "Uncommon gem has no rules")
+		return
+
+	if rare.conditional_modifier_rules.is_empty():
+		add_failure(test_name, "Rare gem has no rules")
+		return
+
+	var common_dmg: int = common.conditional_modifier_rules[0].added_magical_damage
+	var uncommon_dmg: int = uncommon.conditional_modifier_rules[0].added_magical_damage
+	var rare_dmg: int = rare.conditional_modifier_rules[0].added_magical_damage
+
+	if not (common_dmg < uncommon_dmg and uncommon_dmg < rare_dmg):
+		add_failure(test_name, "Damage not scaling: %d, %d, %d" % [common_dmg, uncommon_dmg, rare_dmg])
 		return
 
 	add_success(test_name)

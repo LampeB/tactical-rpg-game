@@ -1,23 +1,23 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://csbywedwkyrk6"]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
+[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" uid="uid://df51f0yyvy3sr" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6"]
-[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7"]
+[ext_resource type="Texture2D" uid="uid://nida0wya7uyt" path="res://assets/sprites/items/fireGem_common.png" id="5"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="6"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7"]
 
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
-value = 3.0
+value = 5.0
 
 [sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
 target_weapon_type = 0
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+added_magical_damage = 8
 status_effect = ExtResource("7")
 status_effect_chance = 0.20
 
@@ -25,7 +25,7 @@ status_effect_chance = 0.20
 script = ExtResource("3")
 target_weapon_type = 2
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 8
+added_magical_damage = 12
 granted_skills = [ExtResource("6")]
 status_effect = ExtResource("7")
 status_effect_chance = 0.25
@@ -34,19 +34,19 @@ status_effect_chance = 0.25
 script = ExtResource("3")
 target_weapon_type = 1
 stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+added_magical_damage = 8
 status_effect = ExtResource("7")
 status_effect_chance = 0.20
 
 [resource]
 script = ExtResource("1")
-id = "ice_gem_common"
-display_name = "Ice Gem"
-description = "A crystalline frost gem. Adds ice damage and chill chance to weapons. Grants Ice Shard to magic weapons."
+id = "fire_gem_uncommon"
+display_name = "Fine Fire Gem"
+description = "A brightly burning ember gem. Adds enhanced fire damage and burn chance. Grants Fire Bolt to magic weapons."
 icon = ExtResource("5")
 item_type = 2
-rarity = 0
+rarity = 1
 shape = ExtResource("4")
 modifier_reach = 1
 conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
-base_price = 30
+base_price = 60

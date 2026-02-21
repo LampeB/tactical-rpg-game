@@ -12,11 +12,20 @@ stat = 4
 modifier_type = 1
 value = 15.0
 
-[sub_resource type="Resource" id="rule_all_weapons"]
+[sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
-target_category = -1
+target_weapon_type = 0
 stat_bonuses = [SubResource("stat_phys_atk_pct")]
-override_damage_type = false
+
+[sub_resource type="Resource" id="rule_ranged"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = [SubResource("stat_phys_atk_pct")]
+
+[sub_resource type="Resource" id="rule_magic"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("stat_phys_atk_pct")]
 
 [resource]
 script = ExtResource("1")
@@ -25,9 +34,8 @@ display_name = "Power Gem"
 description = "A glowing red gem pulsing with strength. Adds +15% physical attack to adjacent weapons."
 icon = ExtResource("5")
 item_type = 2
-category = 0
 rarity = 1
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_all_weapons")]
+conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
 base_price = 50

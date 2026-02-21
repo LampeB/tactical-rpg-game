@@ -9,63 +9,27 @@
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
-modifier_type = 0
 value = 8.0
 
 [sub_resource type="Resource" id="stat_hp_penalty"]
 script = ExtResource("2")
 stat = 0
-modifier_type = 0
 value = -10.0
 
-[sub_resource type="Resource" id="rule_sword"]
+[sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
-target_category = 0
+target_weapon_type = 0
 stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
-override_damage_type = false
-damage_type = 1
 
-[sub_resource type="Resource" id="rule_mace"]
+[sub_resource type="Resource" id="rule_ranged"]
 script = ExtResource("3")
-target_category = 1
-stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
-override_damage_type = false
-damage_type = 1
-
-[sub_resource type="Resource" id="rule_dagger"]
-script = ExtResource("3")
-target_category = 4
-stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
-override_damage_type = false
-damage_type = 1
-
-[sub_resource type="Resource" id="rule_shield"]
-script = ExtResource("3")
-target_category = 5
-stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
-override_damage_type = false
-damage_type = 1
-
-[sub_resource type="Resource" id="rule_axe"]
-script = ExtResource("3")
-target_category = 6
-stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
-override_damage_type = false
-damage_type = 1
-
-[sub_resource type="Resource" id="rule_bow"]
-script = ExtResource("3")
-target_category = 2
+target_weapon_type = 1
 stat_bonuses = [SubResource("stat_spec_atk")]
-override_damage_type = false
-damage_type = 1
 
-[sub_resource type="Resource" id="rule_staff"]
+[sub_resource type="Resource" id="rule_magic"]
 script = ExtResource("3")
-target_category = 3
+target_weapon_type = 2
 stat_bonuses = [SubResource("stat_spec_atk")]
-override_damage_type = false
-damage_type = 1
 
 [resource]
 script = ExtResource("1")
@@ -74,9 +38,8 @@ display_name = "MeGummy"
 description = "An unstable explosive gem. Adds explosive damage to adjacent weapons. WARNING: Melee weapons (-10 HP penalty) cause self-damage. Ranged weapons are safe! [Future: AOE attacks, blast radius damage]"
 icon = ExtResource("5")
 item_type = 2
-category = 0
 rarity = 2
 shape = ExtResource("4")
 modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_sword"), SubResource("rule_mace"), SubResource("rule_dagger"), SubResource("rule_shield"), SubResource("rule_axe"), SubResource("rule_bow"), SubResource("rule_staff")]
+conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
 base_price = 80

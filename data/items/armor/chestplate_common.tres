@@ -10,6 +10,11 @@ script = ExtResource("2")
 stat = 5
 value = 8.0
 
+[sub_resource type="Resource" id="stat_mag_def"]
+script = ExtResource("2")
+stat = 7
+value = 5.0
+
 [sub_resource type="Resource" id="stat_hp"]
 script = ExtResource("2")
 value = 20.0
@@ -24,5 +29,5 @@ item_type = 1
 category = 8
 armor_slot = 8
 shape = ExtResource("3")
-stat_modifiers = [SubResource("stat_phys_def"), SubResource("stat_hp")]
+stat_modifiers = [SubResource("stat_phys_def"), SubResource("stat_mag_def"), SubResource("stat_hp")]
 base_price = 100
