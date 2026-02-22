@@ -224,6 +224,8 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	tex_rect.texture = placed.item_data.icon
 	tex_rect.position = Vector2.ZERO
 	tex_rect.size = Vector2(bbox_w, bbox_h)
+	tex_rect.pivot_offset = Vector2(bbox_w, bbox_h) / 2.0
+	tex_rect.rotation = placed.rotation * PI / 2.0
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	container.add_child(tex_rect)

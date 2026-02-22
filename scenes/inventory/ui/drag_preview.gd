@@ -22,11 +22,8 @@ func setup(item: ItemData, rotation: int = 0) -> void:
 func rotate_cw() -> void:
 	if not item_data:
 		return
-	# Allow 4 rotations if item has a custom reach pattern (even for 1x1 gems)
-	var max_rotations: int = item_data.shape.rotation_states
-	if max_rotations < 4 and not item_data.modifier_reach_pattern.is_empty():
-		max_rotations = 4
-	current_rotation = (current_rotation + 1) % max_rotations
+	# Always allow 4 rotations so the sprite can face any direction
+	current_rotation = (current_rotation + 1) % 4
 	_rebuild_shape()
 
 
@@ -83,6 +80,8 @@ func _rebuild_shape() -> void:
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.position = Vector2(min_pos.x * CELL_SIZE, min_pos.y * CELL_SIZE)
 	_icon.size = bbox_size
+	_icon.pivot_offset = bbox_size / 2.0
+	_icon.rotation = current_rotation * PI / 2.0
 
 	# Draw shape cell outlines
 	for cell in cells:
