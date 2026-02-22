@@ -12,6 +12,6 @@ Thumbs.db
 # Vendor asset packs (not used in game)
 temp_sprites/
 
-# Old files ignored by Godot
-src/
-sprites/
+# Old root-level directories (not used)
+/src/
+/sprites/
