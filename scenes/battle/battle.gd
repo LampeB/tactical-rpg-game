@@ -183,26 +183,34 @@ func _letter(index: int) -> String:
 func _sync_viewport_size() -> void:
 	## Match SubViewport size to the container so sprites are correctly positioned.
 	var container_size: Vector2 = _battle_viewport.size
+	DebugLogger.log_info("Syncing viewport: container=%s" % str(container_size), "BattleView")
 	if container_size.x > 0 and container_size.y > 0:
 		_sub_viewport.size = Vector2i(int(container_size.x), int(container_size.y))
+		DebugLogger.log_info("  SubViewport size set to %s" % str(_sub_viewport.size), "BattleView")
+	else:
+		DebugLogger.log_warn("  Container size is zero! SubViewport not resized", "BattleView")
 	# Center camera on the viewport
 	_battle_camera.position = Vector2(container_size.x / 2.0, container_size.y / 2.0)
+	DebugLogger.log_info("  Camera positioned at %s" % str(_battle_camera.position), "BattleView")
 
 
 # === Camera Stubs (for future use) ===
 
 func _shake_camera(_intensity: float = 5.0, _duration: float = 0.3) -> void:
 	## Stub: will shake camera for impact effects.
+	DebugLogger.log_info("Camera shake (stub): intensity=%.1f duration=%.1f" % [_intensity, _duration], "BattleView")
 	pass
 
 
 func _pan_camera_to(_target: Vector2, _duration: float = 0.5) -> void:
 	## Stub: will smoothly pan camera to a position.
+	DebugLogger.log_info("Camera pan (stub): target=%s duration=%.1f" % [str(_target), _duration], "BattleView")
 	pass
 
 
 func _reset_camera(_duration: float = 0.3) -> void:
 	## Stub: will return camera to default center position.
+	DebugLogger.log_info("Camera reset (stub): duration=%.1f" % _duration, "BattleView")
 	pass
 
 
@@ -241,6 +249,9 @@ func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) 
 	var offsets: Array[Vector2] = PLAYER_OFFSETS if is_player else ENEMY_OFFSETS
 	var offset: Vector2 = offsets[slot_index % offsets.size()]
 	sprite.position = viewport_center + offset
+
+	var side: String = "player" if is_player else "enemy"
+	DebugLogger.log_info("Sprite placed: %s [%s slot %d] at %s (center=%s + offset=%s)" % [entity.entity_name, side, slot_index, str(sprite.position), str(viewport_center), str(offset)], "BattleView")
 
 	sprite.setup(entity)
 
@@ -359,8 +370,12 @@ func _on_entity_died(entity: CombatEntity) -> void:
 	# Play death animation and wait for it
 	var sprite: Node2D = _entity_sprites.get(entity)
 	if sprite:
+		DebugLogger.log_info("Anim: %s -> play_death (pos=%s)" % [entity.entity_name, str(sprite.position)], "BattleAnim")
 		sprite.play_death_animation()
 		await sprite.animation_finished
+		DebugLogger.log_info("Anim: %s -> death finished" % entity.entity_name, "BattleAnim")
+	else:
+		DebugLogger.log_warn("Anim: no sprite found for dying entity %s" % entity.entity_name, "BattleAnim")
 
 	_refresh_all_ui()
 
@@ -381,8 +396,10 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 	# Play hurt animation for status tick
 	var sprite: Node2D = _entity_sprites.get(entity)
 	if sprite:
+		DebugLogger.log_info("Anim: %s -> play_hurt (status tick: %s, dmg=%d)" % [entity.entity_name, status_name, damage], "BattleAnim")
 		sprite.play_hurt_animation()
 		await sprite.animation_finished
+		DebugLogger.log_info("Anim: %s -> hurt finished (status tick)" % entity.entity_name, "BattleAnim")
 
 	_refresh_all_ui()
 
@@ -602,8 +619,12 @@ func _execute_player_action(targets: Array) -> void:
 	# Step 1: Play attacker animation and wait
 	var attacker_sprite: Node2D = _entity_sprites.get(source)
 	if attacker_sprite:
+		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [source.entity_name, str(attacker_sprite.position)], "BattleAnim")
 		attacker_sprite.play_attack_animation()
 		await attacker_sprite.animation_finished
+		DebugLogger.log_info("Anim: %s -> attack finished" % source.entity_name, "BattleAnim")
+	else:
+		DebugLogger.log_warn("Anim: no sprite found for attacker %s" % source.entity_name, "BattleAnim")
 
 	# Step 2: Execute combat logic
 	var result: Dictionary
@@ -651,16 +672,24 @@ func _play_target_reactions(targets: Array, result: Dictionary) -> void:
 	if targets.is_empty():
 		return
 	var target: CombatEntity = targets[0]
-	if result.get("damage", result.get("actual_damage", 0)) > 0:
+	var dmg: int = result.get("damage", result.get("actual_damage", 0))
+	if dmg > 0:
 		var sprite: Node2D = _entity_sprites.get(target)
 		if sprite and not target.is_dead:
+			DebugLogger.log_info("Anim: %s -> play_hurt (dmg=%d, pos=%s)" % [target.entity_name, dmg, str(sprite.position)], "BattleAnim")
 			sprite.play_hurt_animation()
 			await sprite.animation_finished
+			DebugLogger.log_info("Anim: %s -> hurt finished" % target.entity_name, "BattleAnim")
+		elif not sprite:
+			DebugLogger.log_warn("Anim: no sprite found for hurt target %s" % target.entity_name, "BattleAnim")
+	else:
+		DebugLogger.log_info("Anim: %s took 0 damage, skipping hurt anim" % target.entity_name, "BattleAnim")
 
 
 func _play_target_reactions_from_results(result: Dictionary) -> void:
 	## Play hurt/heal animations from multi-target skill results.
 	var target_results: Array = result.get("target_results", [])
+	DebugLogger.log_info("Anim: processing %d target reactions from skill results" % target_results.size(), "BattleAnim")
 	for i in range(target_results.size()):
 		var target_result: Dictionary = target_results[i]
 		var target: CombatEntity = target_result.target
@@ -668,8 +697,10 @@ func _play_target_reactions_from_results(result: Dictionary) -> void:
 		if dmg > 0:
 			var sprite: Node2D = _entity_sprites.get(target)
 			if sprite and not target.is_dead:
+				DebugLogger.log_info("Anim: %s -> play_hurt [%d/%d] (dmg=%d)" % [target.entity_name, i + 1, target_results.size(), dmg], "BattleAnim")
 				sprite.play_hurt_animation()
 				await sprite.animation_finished
+				DebugLogger.log_info("Anim: %s -> hurt finished [%d/%d]" % [target.entity_name, i + 1, target_results.size()], "BattleAnim")
 
 
 # === Enemy Turn ===
@@ -691,8 +722,12 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	# Step 1: Play enemy attack animation
 	var enemy_sprite: Node2D = _entity_sprites.get(entity)
 	if enemy_sprite:
+		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
 		enemy_sprite.play_attack_animation()
 		await enemy_sprite.animation_finished
+		DebugLogger.log_info("Anim: %s -> attack finished" % entity.entity_name, "BattleAnim")
+	else:
+		DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
 
 	# Step 2: Execute combat logic
 	match action_type:
