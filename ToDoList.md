@@ -38,4 +38,24 @@
 
 [x] post-battle reward/loot screen with drag-and-drop into character inventories
 
-[ ] add custom modifier reach patterns for gems (cross-shaped, diamond-shaped, L-shaped, etc.) instead of just simple radius
+[x] add custom modifier reach patterns for gems (cross-shaped, diamond-shaped, L-shaped, etc.) instead of just simple radius
+
+[ ] item crafting system — combine multiple items to create new ones (e.g., Ripple Gem + Buckler = Frisbee weapon). Recipes stored in a database, crafting UI accessible from inventory or shop.
+
+[ ] in-game item editor — a debug/dev tool accessible from the main menu (like the skill tree editor) to create and edit ItemData resources visually: set stats, type, rarity, shape, icon, modifier rules, reach patterns, skills, etc.
+
+[ ] background music for each scene (main menu, overworld, battle, inventory/menus)
+
+[ ] sound effects for UI interactions (button clicks, menu navigation, drag & drop items)
+
+[ ] sound effects for combat (attacks, skills, hits, misses, critical hits, status effects)
+
+[ ] sound effects for events (gold earned, item picked up, passive unlocked, level up)
+
+[ ] victory and defeat jingles for battle end
+
+[ ] ambient/environmental sounds on the overworld map
+
+[ ] audio settings (master volume, music volume, SFX volume) in settings menu
+
+[ ] smooth music transitions when switching scenes (crossfade)

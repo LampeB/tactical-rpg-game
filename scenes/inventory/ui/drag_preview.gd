@@ -22,7 +22,11 @@ func setup(item: ItemData, rotation: int = 0) -> void:
 func rotate_cw() -> void:
 	if not item_data:
 		return
-	current_rotation = (current_rotation + 1) % item_data.shape.rotation_states
+	# Allow 4 rotations if item has a custom reach pattern (even for 1x1 gems)
+	var max_rotations: int = item_data.shape.rotation_states
+	if max_rotations < 4 and not item_data.modifier_reach_pattern.is_empty():
+		max_rotations = 4
+	current_rotation = (current_rotation + 1) % max_rotations
 	_rebuild_shape()
 
 

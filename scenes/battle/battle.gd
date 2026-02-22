@@ -134,7 +134,7 @@ func _start_battle() -> void:
 				var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses, starting_hp, starting_mp)
 				player_entities.append(entity)
 				var skill_count: int = entity.get_available_skills().size()
-				DebugLogger.log_info("  Player: %s - HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")
+				DebugLogger.log_info("  Player: %s - HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s AoE:%s ToolStates:%d" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null), str(entity.has_force_aoe()), entity.tool_modifier_states.size()], "Battle")
 			else:
 				DebugLogger.log_warn("Character ID '%s' not found in roster" % character_id, "Battle")
 	else:
@@ -628,6 +628,11 @@ func _execute_player_action(targets: Array) -> void:
 			if not targets.is_empty():
 				result = _combat_manager.execute_attack(source, targets[0])
 				_spawn_damage_popup(targets[0], result)
+				# Spawn popups for AoE splash targets
+				var splash_results: Array = result.get("splash_results", [])
+				for s_r in splash_results:
+					var splash_popup_result: Dictionary = {"actual_damage": s_r.damage, "is_crit": s_r.is_crit}
+					_spawn_damage_popup(s_r.target, splash_popup_result)
 				# Step 3: Play target reaction
 				await _play_target_reactions(targets, result)
 

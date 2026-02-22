@@ -37,8 +37,10 @@ extends Resource
 @export var granted_skills: Array = [] ## of SkillData
 
 @export_group("Modifier")
-## For gems: how many cells away the modifier reaches.
+## For gems: how many cells away the modifier reaches (Manhattan distance fallback).
 @export var modifier_reach: int = 1
+## For gems: custom reach pattern as cell offsets. If non-empty, overrides modifier_reach.
+@export var modifier_reach_pattern: Array[Vector2i] = []
 ## For gems: stat bonuses applied to adjacent active tools.
 @export var modifier_bonuses: Array = [] ## of StatModifier
 ## For gems: context-sensitive effects based on neighboring item categories.
@@ -53,6 +55,26 @@ extends Resource
 
 func get_sell_price() -> int:
 	return int(base_price * 0.5)
+
+func get_reach_cells(rotations: int = 0) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	if not modifier_reach_pattern.is_empty():
+		cells = modifier_reach_pattern.duplicate()
+	else:
+		# Fallback: generate diamond from modifier_reach
+		for dy in range(-modifier_reach, modifier_reach + 1):
+			for dx in range(-modifier_reach, modifier_reach + 1):
+				var dist: int = absi(dx) + absi(dy)
+				if dist > 0 and dist <= modifier_reach:
+					cells.append(Vector2i(dx, dy))
+	# Rotate offsets (90° clockwise: (x,y) → (-y,x))
+	for _r in range(rotations % 4):
+		var rotated: Array[Vector2i] = []
+		for cell in cells:
+			rotated.append(Vector2i(-cell.y, cell.x))
+		cells = rotated
+	return cells
+
 
 func get_weapon_type() -> Enums.WeaponType:
 	match category:

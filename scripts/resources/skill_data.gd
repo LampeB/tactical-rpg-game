@@ -21,6 +21,10 @@ extends Resource
 @export var physical_scaling: float = 0.0
 ## How much this skill scales with magical damage (weapon power + stat).
 @export var magical_scaling: float = 0.0
+## If true, consumes ALL remaining MP. Damage = mp_spent * mp_damage_ratio.
+@export var use_all_mp: bool = false
+## Damage multiplier per MP spent (only used when use_all_mp is true).
+@export var mp_damage_ratio: float = 0.0
 
 @export_group("Effects")
 ## Status effects applied on hit.
@@ -32,4 +36,4 @@ extends Resource
 
 
 func has_damage() -> bool:
-	return physical_scaling > 0.0 or magical_scaling > 0.0
+	return physical_scaling > 0.0 or magical_scaling > 0.0 or (use_all_mp and mp_damage_ratio > 0.0)

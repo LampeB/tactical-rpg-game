@@ -188,6 +188,27 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 		Color(1.0, 0.3, 0.3) if result.is_crit else Color.WHITE,
 	)
 
+	# MeGummy AoE — splash damage to all other enemies
+	var splash_results: Array = []
+	if source.is_player and source.has_force_aoe():
+		log_message.emit("[AOE] %s has force_aoe — splashing to all enemies!" % source.entity_name, Color(1.0, 0.6, 0.2))
+		var splash_targets: Array = get_alive_enemies()
+		for s_i in range(splash_targets.size()):
+			var splash_target: CombatEntity = splash_targets[s_i]
+			if splash_target == target or splash_target.is_dead:
+				continue
+			var splash_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, splash_target)
+			var splash_actual: int = splash_target.take_damage(splash_dmg.amount)
+			log_message.emit(
+				"  Explosive splash hits %s for %d damage!" % [splash_target.entity_name, splash_actual],
+				Color(1.0, 0.6, 0.2),
+			)
+			splash_results.append({"target": splash_target, "damage": splash_actual, "is_crit": splash_dmg.is_crit})
+			if splash_target.is_dead:
+				log_message.emit("%s has been defeated!" % splash_target.entity_name, Color(1.0, 0.5, 0.5))
+				entity_died.emit(splash_target)
+	result["splash_results"] = splash_results
+
 	# Gem-based status effects — apply status from equipped gems
 	if actual > 0 and source.is_player and not target.is_dead:
 		var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
@@ -204,6 +225,18 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 					var applied: bool = target.apply_gem_status_effect(status_template, 1.0)
 					if applied:
 						log_message.emit("%s is afflicted with %s!" % [target.entity_name, effect_name], Color(1.0, 0.6, 0.2))
+
+	# Gem HP cost per attack (e.g. MeGummy)
+	if source.is_player and not source.is_dead:
+		var modifier_state_cost: ToolModifierState = source.get_primary_tool_modifier_state()
+		if modifier_state_cost and modifier_state_cost.hp_cost_per_attack > 0:
+			var hp_lost: int = source.take_damage(modifier_state_cost.hp_cost_per_attack)
+			if hp_lost > 0:
+				log_message.emit("%s suffers %d HP from unstable gem!" % [source.entity_name, hp_lost], Color(0.9, 0.3, 0.6))
+				result["self_damage"] = hp_lost
+				if source.is_dead:
+					log_message.emit("%s has been defeated by their own gem!" % source.entity_name, Color(1.0, 0.5, 0.5))
+					entity_died.emit(source)
 
 	# Lifesteal — heal attacker for % of damage dealt
 	if actual > 0 and not source.is_dead:
@@ -269,7 +302,14 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 	# Increment source's turn timer (acts AFTER the action completes)
 	_increment_turn_time(source)
 
-	source.spend_mp(skill.mp_cost)
+	# Handle use_all_mp skills: capture MP before spending
+	var mp_spent: int = 0
+	if skill.use_all_mp:
+		mp_spent = source.current_mp
+		source.spend_mp(mp_spent)
+		log_message.emit("%s channels ALL %d MP!" % [source.entity_name, mp_spent], Color(1.0, 0.4, 0.0))
+	else:
+		source.spend_mp(skill.mp_cost)
 
 	if skill.cooldown_turns > 0:
 		source.cooldowns[skill.id] = skill.cooldown_turns
@@ -287,7 +327,13 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 			var target: CombatEntity = targets[t_i]
 			if target.is_dead:
 				continue
-			var dmg: Dictionary = DamageCalculator.calculate_skill_damage(source, target, skill)
+			var dmg: Dictionary
+			if skill.use_all_mp and skill.mp_damage_ratio > 0.0:
+				# Special: damage = MP spent * ratio, bypasses normal formula
+				var raw_dmg: int = maxi(int(float(mp_spent) * skill.mp_damage_ratio), 1)
+				dmg = {"amount": raw_dmg, "is_crit": false}
+			else:
+				dmg = DamageCalculator.calculate_skill_damage(source, target, skill)
 			var actual: int = target.take_damage(dmg.amount)
 			var crit_text: String = " (CRITICAL!)" if dmg.is_crit else ""
 			log_message.emit(

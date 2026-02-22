@@ -131,7 +131,8 @@ func get_modifiers_affecting(target: PlacedItem) -> Array:
 		var placed: PlacedItem = placed_items[i]
 		if placed.item_data.item_type != Enums.ItemType.MODIFIER:
 			continue
-		if _items_within_reach(placed, target_cells, placed.item_data.modifier_reach):
+		var in_reach: bool = _items_within_reach(placed, target_cells, placed.item_data.modifier_reach)
+		if in_reach:
 			result.append(placed)
 	return result
 
@@ -167,7 +168,7 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 		# Check conditional rules
 		for j in range(gem.conditional_modifier_rules.size()):
 			var rule: ConditionalModifierRule = gem.conditional_modifier_rules[j]
-			# NEW: Match by weapon type instead of exact category
+			# Match by weapon type
 			if rule.target_weapon_type == weapon_type:
 				# Match! Apply this rule's effects
 				state.active_modifiers.append({"gem": modifier_placed, "rule": rule})
@@ -189,6 +190,14 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 					var skill: SkillData = rule.granted_skills[k]
 					if skill not in state.conditional_skills:
 						state.conditional_skills.append(skill)
+
+				# AoE flag (any rule with force_aoe enables it)
+				if rule.force_aoe:
+					state.force_aoe = true
+
+				# HP cost per attack (stacking)
+				if rule.hp_cost_per_attack > 0:
+					state.hp_cost_per_attack += rule.hp_cost_per_attack
 
 	return state
 
@@ -282,13 +291,13 @@ func _count_equipped_by_slot(slot_type: Enums.EquipmentCategory) -> int:
 	return count
 
 
-func _items_within_reach(modifier_placed: PlacedItem, target_cells: Array[Vector2i], reach: int) -> bool:
+func _items_within_reach(modifier_placed: PlacedItem, target_cells: Array[Vector2i], _reach: int) -> bool:
 	var mod_cells: Array[Vector2i] = modifier_placed.get_occupied_cells()
+	var reach_pattern: Array[Vector2i] = modifier_placed.item_data.get_reach_cells(modifier_placed.rotation)
 	for mc in mod_cells:
-		for tc in target_cells:
-			# Use Manhattan distance to match the visual preview (cross/diamond pattern)
-			var dist: int = absi(mc.x - tc.x) + absi(mc.y - tc.y)
-			if dist <= reach:
+		for offset in reach_pattern:
+			var affected: Vector2i = mc + offset
+			if target_cells.has(affected):
 				return true
 	return false
 

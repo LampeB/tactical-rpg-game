@@ -2,21 +2,127 @@
 
 [ext_resource type="Script" uid="uid://nc2hnjrvpwlu" path="res://scripts/resources/loot_table.gd" id="1"]
 [ext_resource type="Script" uid="uid://m8o0rj7cecdp" path="res://scripts/resources/loot_entry.gd" id="2"]
-[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="item_potion"]
+[ext_resource type="Resource" path="res://data/items/modifiers/megummy_gem.tres" id="item_megummy"]
+[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_common.tres" id="item_fire_gem"]
+[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_common.tres" id="item_ice_gem"]
+[ext_resource type="Resource" path="res://data/items/modifiers/poison_gem_common.tres" id="item_poison_gem"]
+[ext_resource type="Resource" path="res://data/items/modifiers/thunder_gem_common.tres" id="item_thunder_gem"]
+[ext_resource type="Resource" path="res://data/items/modifiers/power_gem_common.tres" id="item_power_gem"]
+[ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_common.tres" id="item_swift_gem"]
+[ext_resource type="Resource" path="res://data/items/weapons/sword_common.tres" id="item_sword"]
+[ext_resource type="Resource" path="res://data/items/weapons/dagger_common.tres" id="item_dagger"]
+[ext_resource type="Resource" path="res://data/items/weapons/mace_common.tres" id="item_mace"]
+[ext_resource type="Resource" path="res://data/items/weapons/bow_common.tres" id="item_bow"]
+[ext_resource type="Resource" path="res://data/items/weapons/staff_common.tres" id="item_staff"]
+[ext_resource type="Resource" path="res://data/items/weapons/axe_common.tres" id="item_axe"]
+[ext_resource type="Resource" path="res://data/items/armor/helmet_common.tres" id="item_helmet"]
+[ext_resource type="Resource" path="res://data/items/armor/chestplate_common.tres" id="item_chestplate"]
+[ext_resource type="Resource" path="res://data/items/armor/boots_common.tres" id="item_boots"]
+[ext_resource type="Resource" path="res://data/items/armor/gloves_common.tres" id="item_gloves"]
+[ext_resource type="Resource" path="res://data/items/armor/shield_common.tres" id="item_shield"]
 
 [sub_resource type="Resource" id="entry_potion_1"]
 script = ExtResource("2")
-item = ExtResource("3")
+item = ExtResource("item_potion")
 drop_chance = 0.8
-weight = 3.0
 
 [sub_resource type="Resource" id="entry_potion_2"]
 script = ExtResource("2")
-item = ExtResource("3")
-drop_chance = 0.6
-weight = 3.0
+item = ExtResource("item_potion")
+drop_chance = 0.5
+
+[sub_resource type="Resource" id="entry_fire_gem"]
+script = ExtResource("2")
+item = ExtResource("item_fire_gem")
+drop_chance = 0.2
+
+[sub_resource type="Resource" id="entry_ice_gem"]
+script = ExtResource("2")
+item = ExtResource("item_ice_gem")
+drop_chance = 0.2
+
+[sub_resource type="Resource" id="entry_poison_gem"]
+script = ExtResource("2")
+item = ExtResource("item_poison_gem")
+drop_chance = 0.2
+
+[sub_resource type="Resource" id="entry_thunder_gem"]
+script = ExtResource("2")
+item = ExtResource("item_thunder_gem")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_power_gem"]
+script = ExtResource("2")
+item = ExtResource("item_power_gem")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_swift_gem"]
+script = ExtResource("2")
+item = ExtResource("item_swift_gem")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_megummy"]
+script = ExtResource("2")
+item = ExtResource("item_megummy")
+drop_chance = 0.05
+
+[sub_resource type="Resource" id="entry_sword"]
+script = ExtResource("2")
+item = ExtResource("item_sword")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_dagger"]
+script = ExtResource("2")
+item = ExtResource("item_dagger")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_mace"]
+script = ExtResource("2")
+item = ExtResource("item_mace")
+drop_chance = 0.1
+
+[sub_resource type="Resource" id="entry_bow"]
+script = ExtResource("2")
+item = ExtResource("item_bow")
+drop_chance = 0.1
+
+[sub_resource type="Resource" id="entry_staff"]
+script = ExtResource("2")
+item = ExtResource("item_staff")
+drop_chance = 0.1
+
+[sub_resource type="Resource" id="entry_axe"]
+script = ExtResource("2")
+item = ExtResource("item_axe")
+drop_chance = 0.1
+
+[sub_resource type="Resource" id="entry_helmet"]
+script = ExtResource("2")
+item = ExtResource("item_helmet")
+drop_chance = 0.12
+
+[sub_resource type="Resource" id="entry_chestplate"]
+script = ExtResource("2")
+item = ExtResource("item_chestplate")
+drop_chance = 0.08
+
+[sub_resource type="Resource" id="entry_boots"]
+script = ExtResource("2")
+item = ExtResource("item_boots")
+drop_chance = 0.12
+
+[sub_resource type="Resource" id="entry_gloves"]
+script = ExtResource("2")
+item = ExtResource("item_gloves")
+drop_chance = 0.12
+
+[sub_resource type="Resource" id="entry_shield"]
+script = ExtResource("2")
+item = ExtResource("item_shield")
+drop_chance = 0.08
 
 [resource]
 script = ExtResource("1")
 id = "loot_slime"
-entries = [SubResource("entry_potion_1"), SubResource("entry_potion_2")]
+entries = [SubResource("entry_potion_1"), SubResource("entry_potion_2"), SubResource("entry_fire_gem"), SubResource("entry_ice_gem"), SubResource("entry_poison_gem"), SubResource("entry_thunder_gem"), SubResource("entry_power_gem"), SubResource("entry_swift_gem"), SubResource("entry_megummy"), SubResource("entry_sword"), SubResource("entry_dagger"), SubResource("entry_mace"), SubResource("entry_bow"), SubResource("entry_staff"), SubResource("entry_axe"), SubResource("entry_helmet"), SubResource("entry_chestplate"), SubResource("entry_boots"), SubResource("entry_gloves"), SubResource("entry_shield")]
