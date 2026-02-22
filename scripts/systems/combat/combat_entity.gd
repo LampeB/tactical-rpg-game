@@ -187,6 +187,15 @@ func get_available_skills() -> Array:
 	return skills
 
 
+func has_force_aoe() -> bool:
+	## Returns true if any equipped tool has force_aoe from gem modifiers.
+	for key in tool_modifier_states:
+		var state: ToolModifierState = tool_modifier_states[key]
+		if state.force_aoe:
+			return true
+	return false
+
+
 func get_primary_tool_modifier_state() -> ToolModifierState:
 	## Returns the ToolModifierState for the primary weapon (first ACTIVE_TOOL).
 	if not is_player or not grid_inventory:
@@ -225,7 +234,10 @@ func get_total_weapon_magical_power() -> int:
 
 
 func can_use_skill(skill: SkillData) -> bool:
-	if current_mp < skill.mp_cost:
+	if skill.use_all_mp:
+		if current_mp <= 0:
+			return false
+	elif current_mp < skill.mp_cost:
 		return false
 	if cooldowns.get(skill.id, 0) > 0:
 		return false

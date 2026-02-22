@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "explosion"
+display_name = "EXPLOOOOOOOOOOOOOOOSION !!!"
+description = "Channel ALL remaining mana into one devastating explosion that hits every enemy. Damage scales with MP spent (x3). Leaves you completely drained."
+usage = 0
+mp_cost = 0
+cooldown_turns = 0
+target_type = 4
+physical_scaling = 0.0
+magical_scaling = 0.0
+use_all_mp = true
+mp_damage_ratio = 3.0
+heal_amount = 0
+heal_percent = 0.0

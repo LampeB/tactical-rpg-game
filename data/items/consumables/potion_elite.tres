@@ -2,18 +2,18 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3"]
-[ext_resource type="Resource" path="res://data/skills/heal_minor.tres" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/manaPotion_common.png" id="5"]
+[ext_resource type="Resource" path="res://data/skills/heal_major.tres" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/manaPotion_elite.png" id="5"]
 
 [resource]
 script = ExtResource("1")
-id = "potion_common"
-display_name = "Health Potion"
-description = "A basic healing potion. Restores 30 HP."
+id = "potion_elite"
+display_name = "Superior Health Potion"
+description = "A masterfully brewed healing potion. Restores 175 HP."
 icon = ExtResource("5")
 item_type = 3
 category = 0
-rarity = 0
+rarity = 3
 shape = ExtResource("3")
-base_price = 20
+base_price = 250
 use_skill = ExtResource("4")

@@ -55,5 +55,6 @@ item_type = 2
 rarity = 2
 shape = ExtResource("4")
 modifier_reach = 1
+modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -2), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, 0)])
 conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
 base_price = 120

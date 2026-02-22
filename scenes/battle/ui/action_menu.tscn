@@ -109,6 +109,31 @@ layout_mode = 2
 text = "Description"
 autowrap_mode = 3
 
+[node name="AttackDetails" type="PanelContainer" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(280, 0)
+
+[node name="Margin" type="MarginContainer" parent="HBox/AttackDetails"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="HBox/AttackDetails/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="HBox/AttackDetails/Margin/VBox"]
+layout_mode = 2
+text = "Attack"
+
+[node name="StatsLabel" type="Label" parent="HBox/AttackDetails/Margin/VBox"]
+layout_mode = 2
+text = "Stats..."
+autowrap_mode = 3
+
 [node name="TargetPrompt" type="Label" parent="HBox"]
 visible = false
 layout_mode = 2

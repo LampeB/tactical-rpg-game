@@ -5,41 +5,43 @@
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" uid="uid://cywx5ypgqhhfi" path="res://assets/sprites/items/fireGem_rare.png" id="5"]
+[ext_resource type="Resource" path="res://data/skills/explosion.tres" id="6_explosion"]
 
 [sub_resource type="Resource" id="stat_spec_atk"]
 script = ExtResource("2")
 stat = 6
 value = 8.0
 
-[sub_resource type="Resource" id="stat_hp_penalty"]
-script = ExtResource("2")
-stat = 0
-value = -10.0
-
 [sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
 target_weapon_type = 0
-stat_bonuses = [SubResource("stat_spec_atk"), SubResource("stat_hp_penalty")]
+stat_bonuses = [SubResource("stat_spec_atk")]
+force_aoe = true
+hp_cost_per_attack = 10
 
 [sub_resource type="Resource" id="rule_ranged"]
 script = ExtResource("3")
 target_weapon_type = 1
 stat_bonuses = [SubResource("stat_spec_atk")]
+force_aoe = true
 
 [sub_resource type="Resource" id="rule_magic"]
 script = ExtResource("3")
 target_weapon_type = 2
 stat_bonuses = [SubResource("stat_spec_atk")]
+granted_skills = [ExtResource("6_explosion")]
+force_aoe = true
 
 [resource]
 script = ExtResource("1")
 id = "megummy_gem"
 display_name = "MeGummy"
-description = "An unstable explosive gem. Adds explosive damage to adjacent weapons. WARNING: Melee weapons (-10 HP penalty) cause self-damage. Ranged weapons are safe! [Future: AOE attacks, blast radius damage]"
+description = "An unstable explosive gem. All attacks become AoE, hitting every enemy! +8 Magical ATK. WARNING: Melee attacks cost 10 HP per use. Near a Staff, unlocks EXPLOOOOOOOOOOOOOOOSION!!!"
 icon = ExtResource("5")
 item_type = 2
 rarity = 2
 shape = ExtResource("4")
 modifier_reach = 1
+modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
 conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
 base_price = 80

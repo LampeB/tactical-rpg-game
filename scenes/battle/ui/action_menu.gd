@@ -32,6 +32,9 @@ var _flee_dialog: ConfirmationDialog = null
 @onready var _item_details: PanelContainer = $HBox/ItemDetails
 @onready var _item_details_name: Label = $HBox/ItemDetails/Margin/VBox/NameLabel
 @onready var _item_details_desc: Label = $HBox/ItemDetails/Margin/VBox/DescLabel
+@onready var _attack_details: PanelContainer = $HBox/AttackDetails
+@onready var _attack_details_title: Label = $HBox/AttackDetails/Margin/VBox/TitleLabel
+@onready var _attack_details_stats: Label = $HBox/AttackDetails/Margin/VBox/StatsLabel
 @onready var _target_prompt: Label = $HBox/TargetPrompt
 @onready var _confirm_bar: VBoxContainer = $HBox/ConfirmBar
 @onready var _confirm_label: Label = $HBox/ConfirmBar/ConfirmLabel
@@ -41,6 +44,8 @@ var _flee_dialog: ConfirmationDialog = null
 
 func _ready() -> void:
 	_attack_btn.pressed.connect(_on_attack)
+	_attack_btn.mouse_entered.connect(_on_attack_hovered)
+	_attack_btn.mouse_exited.connect(_on_attack_unhovered)
 	_defend_btn.pressed.connect(_on_defend)
 	_skills_btn.pressed.connect(_on_skills_open)
 	_items_btn.pressed.connect(_on_items_open)
@@ -51,6 +56,7 @@ func _ready() -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 
@@ -69,6 +75,7 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 	_flee_btn.disabled = not can_flee
@@ -99,6 +106,7 @@ func hide_menu() -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 
@@ -106,14 +114,13 @@ func hide_menu() -> void:
 # === Main Actions ===
 
 func _on_attack() -> void:
-	# Show target prompt in second column, keep main buttons visible
 	_skill_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_confirm_bar.visible = false
 	_target_prompt.visible = true
-	# Still emit the action to trigger target selection in battle.gd
 	action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 
 
@@ -137,6 +144,7 @@ func _on_skills_open() -> void:
 	else:
 		_item_list_scroll.visible = false
 		_item_details.visible = false
+		_attack_details.visible = false
 		_target_prompt.visible = false
 		_confirm_bar.visible = false
 		_skill_list_scroll.visible = true
@@ -151,6 +159,7 @@ func _on_items_open() -> void:
 	else:
 		_skill_list_scroll.visible = false
 		_skill_details.visible = false
+		_attack_details.visible = false
 		_target_prompt.visible = false
 		_confirm_bar.visible = false
 		_item_list_scroll.visible = true
@@ -182,6 +191,7 @@ func _show_confirm(text: String, action: int, skill: SkillData, target_type: int
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_target_prompt.visible = false
 	_confirm_bar.visible = true
 
@@ -202,6 +212,7 @@ func _on_cancel() -> void:
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
+	_attack_details.visible = false
 	_target_prompt.visible = false
 
 
@@ -321,3 +332,62 @@ func _on_item_hovered(item: ItemData) -> void:
 
 func _on_item_unhovered() -> void:
 	_item_details.visible = false
+
+
+# === Attack Details (hover) ===
+
+func _on_attack_hovered() -> void:
+	_build_attack_details()
+	_attack_details.visible = true
+
+
+func _on_attack_unhovered() -> void:
+	_attack_details.visible = false
+
+
+func _build_attack_details() -> void:
+	if not _current_entity:
+		return
+
+	var lines: Array = []
+
+	# Physical & Magical power
+	var phys_power: int = _current_entity.get_total_weapon_physical_power()
+	var mag_power: int = _current_entity.get_total_weapon_magical_power()
+	var phys_atk: float = _current_entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK)
+	var mag_atk: float = _current_entity.get_effective_stat(Enums.Stat.MAGICAL_ATTACK)
+	lines.append("Phys: %d power + %.0f ATK" % [phys_power, phys_atk])
+	lines.append("Mag: %d power + %.0f ATK" % [mag_power, mag_atk])
+
+	# Crit info
+	var luck: float = _current_entity.get_effective_stat(Enums.Stat.LUCK)
+	var crit_rate: float = Constants.BASE_CRITICAL_RATE + luck * Constants.LUCK_CRIT_SCALING
+	var bonus_crit: float = _current_entity.get_effective_stat(Enums.Stat.CRITICAL_RATE) / 100.0
+	crit_rate = clampf(crit_rate + bonus_crit, 0.0, Constants.MAX_CRITICAL_RATE)
+	lines.append("Crit: %.0f%%" % (crit_rate * 100.0))
+
+	# Gem effects from tool modifier states
+	var effects: Array = []
+	var tool_keys: Array = _current_entity.tool_modifier_states.keys()
+	for i in range(tool_keys.size()):
+		var state: ToolModifierState = _current_entity.tool_modifier_states[tool_keys[i]]
+		if state.force_aoe:
+			effects.append("AoE (hits all enemies)")
+		if state.status_effect_type != null:
+			var effect_name: String = Enums.StatusEffectType.keys()[state.status_effect_type]
+			effects.append("%s (%.0f%%)" % [effect_name, state.status_effect_chance * 100.0])
+		for j in range(state.active_modifiers.size()):
+			var mod_info: Dictionary = state.active_modifiers[j]
+			var rule: ConditionalModifierRule = mod_info.rule
+			for k in range(rule.stat_bonuses.size()):
+				var stat_mod: StatModifier = rule.stat_bonuses[k]
+				effects.append(stat_mod.get_description())
+
+	if not effects.is_empty():
+		lines.append("")
+		lines.append("Gem Effects:")
+		for effect in effects:
+			lines.append("  %s" % effect)
+
+	_attack_details_title.text = "Attack"
+	_attack_details_stats.text = "\n".join(lines)

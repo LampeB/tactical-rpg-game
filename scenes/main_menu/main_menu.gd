@@ -39,7 +39,7 @@ func _on_new_game_pressed():
 	SceneManager.replace_scene("res://scenes/world/overworld.tscn")
 
 func _on_inventory_pressed():
-	SceneManager.push_scene("res://scenes/inventory/inventory.tscn")
+	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
 
 func _on_squad_pressed():
 	SceneManager.push_scene("res://scenes/squad/squad.tscn")

@@ -60,8 +60,13 @@ static func get_rarity_stat_multiplier(rarity: Enums.Rarity) -> float:
 
 
 ## Creates an upgraded version of the item at the next rarity level.
-## NOTE: This creates a new ItemData resource in memory (not saved to disk).
+## If a pre-made variant exists in the ItemDatabase, returns that instead.
 static func create_upgraded_item(base_item: ItemData) -> ItemData:
+	# Check if a hand-crafted next-tier variant exists (e.g. fire_gem_common → fire_gem_uncommon)
+	var next_tier := _find_next_tier_variant(base_item)
+	if next_tier:
+		return next_tier
+
 	var upgraded := ItemData.new()
 
 	# Copy base properties
@@ -77,6 +82,7 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 	upgraded.bonus_hand_slots = base_item.bonus_hand_slots
 	upgraded.shape = base_item.shape
 	upgraded.modifier_reach = base_item.modifier_reach
+	upgraded.modifier_reach_pattern = base_item.modifier_reach_pattern.duplicate()
 	upgraded.granted_skills = base_item.granted_skills.duplicate()
 	upgraded.use_skill = base_item.use_skill  # For consumables
 
@@ -116,6 +122,8 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 		new_rule.status_effect = old_rule.status_effect
 		new_rule.status_effect_chance = minf(old_rule.status_effect_chance * stat_scale, 0.9)
 		new_rule.granted_skills = old_rule.granted_skills.duplicate()
+		new_rule.force_aoe = old_rule.force_aoe
+		new_rule.hp_cost_per_attack = old_rule.hp_cost_per_attack
 
 		# Scale stat bonuses within the rule
 		new_rule.stat_bonuses = []
@@ -158,3 +166,36 @@ static func _get_upgraded_name(item: ItemData) -> String:
 			break
 
 	return prefix + base_name
+
+
+## Looks up a pre-made next-tier variant in the ItemDatabase by rarity suffix convention.
+## e.g. "fire_gem_common" → "fire_gem_uncommon", "sword_uncommon" → "sword_rare"
+static func _find_next_tier_variant(base_item: ItemData) -> ItemData:
+	var suffix_map := {
+		Enums.Rarity.COMMON: "_common",
+		Enums.Rarity.UNCOMMON: "_uncommon",
+		Enums.Rarity.RARE: "_rare",
+		Enums.Rarity.ELITE: "_elite",
+		Enums.Rarity.LEGENDARY: "_legendary",
+	}
+	var next_suffix_map := {
+		Enums.Rarity.COMMON: "_uncommon",
+		Enums.Rarity.UNCOMMON: "_rare",
+		Enums.Rarity.RARE: "_elite",
+		Enums.Rarity.ELITE: "_legendary",
+		Enums.Rarity.LEGENDARY: "_unique",
+	}
+
+	var current_suffix: String = suffix_map.get(base_item.rarity, "")
+	var next_suffix: String = next_suffix_map.get(base_item.rarity, "")
+	if current_suffix.is_empty() or next_suffix.is_empty():
+		return null
+
+	if not base_item.id.ends_with(current_suffix):
+		return null
+
+	var base_id := base_item.id.substr(0, base_item.id.length() - current_suffix.length())
+	var next_id := base_id + next_suffix
+	if ItemDatabase.has_item(next_id):
+		return ItemDatabase.get_item(next_id)
+	return null

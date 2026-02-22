@@ -847,8 +847,15 @@ func _cancel_drag() -> void:
 func _rotate_dragged_item() -> void:
 	if not _dragged_item:
 		return
-	_drag_rotation = (_drag_rotation + 1) % _dragged_item.shape.rotation_states
+	# Allow 4 rotations if the item has a custom reach pattern (even for 1x1 gems)
+	var max_rotations: int = _dragged_item.shape.rotation_states
+	if max_rotations < 4 and not _dragged_item.modifier_reach_pattern.is_empty():
+		max_rotations = 4
+	_drag_rotation = (_drag_rotation + 1) % max_rotations
 	_drag_preview.rotate_cw()
+	# Refresh grid preview so the drop preview and reach pattern update immediately
+	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+	_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
 	EventBus.item_rotated.emit(_current_character_id, _dragged_item)
 
 
