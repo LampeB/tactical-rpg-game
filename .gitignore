@@ -9,6 +9,9 @@ debug_log.txt
 .DS_Store
 Thumbs.db
 
+# Vendor asset packs (not used in game)
+temp_sprites/
+
 # Old files ignored by Godot
 src/
 sprites/
