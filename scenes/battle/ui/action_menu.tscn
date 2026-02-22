@@ -6,76 +6,137 @@
 layout_mode = 2
 script = ExtResource("1_script")
 
-[node name="VBox" type="VBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="MainButtons" type="HBoxContainer" parent="VBox"]
+[node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="AttackButton" type="Button" parent="VBox/MainButtons"]
+[node name="MainButtons" type="VBoxContainer" parent="HBox"]
 layout_mode = 2
-size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AttackButton" type="Button" parent="HBox/MainButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
 text = "Attack"
 
-[node name="DefendButton" type="Button" parent="VBox/MainButtons"]
+[node name="DefendButton" type="Button" parent="HBox/MainButtons"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 text = "Defend"
 
-[node name="SkillsButton" type="Button" parent="VBox/MainButtons"]
+[node name="SkillsButton" type="Button" parent="HBox/MainButtons"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 text = "Skills"
 
-[node name="ItemsButton" type="Button" parent="VBox/MainButtons"]
+[node name="ItemsButton" type="Button" parent="HBox/MainButtons"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 text = "Items"
 
-[node name="FleeButton" type="Button" parent="VBox/MainButtons"]
+[node name="FleeButton" type="Button" parent="HBox/MainButtons"]
 layout_mode = 2
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(120, 0)
 text = "Flee"
 
-[node name="SkillList" type="VBoxContainer" parent="VBox"]
+[node name="SkillList" type="ScrollContainer" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(250, 200)
+
+[node name="VBox" type="VBoxContainer" parent="HBox/SkillList"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="ItemList" type="ScrollContainer" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(250, 200)
+
+[node name="VBox" type="VBoxContainer" parent="HBox/ItemList"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="SkillDetails" type="PanelContainer" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+
+[node name="Margin" type="MarginContainer" parent="HBox/SkillDetails"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="HBox/SkillDetails/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="HBox/SkillDetails/Margin/VBox"]
+layout_mode = 2
+text = "Skill Name"
+
+[node name="DescLabel" type="Label" parent="HBox/SkillDetails/Margin/VBox"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 3
+
+[node name="ItemDetails" type="PanelContainer" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+
+[node name="Margin" type="MarginContainer" parent="HBox/ItemDetails"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="HBox/ItemDetails/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="HBox/ItemDetails/Margin/VBox"]
+layout_mode = 2
+text = "Item Name"
+
+[node name="DescLabel" type="Label" parent="HBox/ItemDetails/Margin/VBox"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 3
+
+[node name="TargetPrompt" type="Label" parent="HBox"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+text = "Select a target..."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmBar" type="VBoxContainer" parent="HBox"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BackButton" type="Button" parent="VBox/SkillList"]
-layout_mode = 2
-text = "< Back"
-
-[node name="ItemList" type="VBoxContainer" parent="VBox"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="BackButton" type="Button" parent="VBox/ItemList"]
-layout_mode = 2
-text = "< Back"
-
-[node name="ConfirmBar" type="VBoxContainer" parent="VBox"]
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="ConfirmLabel" type="Label" parent="VBox/ConfirmBar"]
+[node name="ConfirmLabel" type="Label" parent="HBox/ConfirmBar"]
 layout_mode = 2
 horizontal_alignment = 1
 
-[node name="ConfirmButtons" type="HBoxContainer" parent="VBox/ConfirmBar"]
+[node name="ConfirmButtons" type="HBoxContainer" parent="HBox/ConfirmBar"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ConfirmButton" type="Button" parent="VBox/ConfirmBar/ConfirmButtons"]
+[node name="ConfirmButton" type="Button" parent="HBox/ConfirmBar/ConfirmButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Confirm"
 
-[node name="CancelButton" type="Button" parent="VBox/ConfirmBar/ConfirmButtons"]
+[node name="CancelButton" type="Button" parent="HBox/ConfirmBar/ConfirmButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Cancel"

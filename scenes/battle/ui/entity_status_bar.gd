@@ -67,6 +67,7 @@ enum HighlightType {
 	PRIMARY,    ## Direct hover target
 	SECONDARY,  ## Affected by AOE
 	INVALID,    ## Can't target
+	ACTIVE_TURN,  ## Currently acting (gold border)
 }
 
 var _highlight_type: HighlightType = HighlightType.NONE
@@ -80,6 +81,11 @@ func highlight(active: bool) -> void:
 		set_highlight(HighlightType.NONE)
 
 
+func highlight_active_turn() -> void:
+	## Highlights this entity bar with a gold border to show it's their turn
+	set_highlight(HighlightType.ACTIVE_TURN)
+
+
 func set_highlight(type: HighlightType) -> void:
 	_highlight_type = type
 	match type:
@@ -89,6 +95,8 @@ func set_highlight(type: HighlightType) -> void:
 			self_modulate = Constants.COLOR_HIGHLIGHT_HOVER
 		HighlightType.INVALID:
 			self_modulate = Constants.COLOR_HIGHLIGHT_TARGET
+		HighlightType.ACTIVE_TURN:
+			self_modulate = Color(1.0, 0.84, 0.0, 1.0)  # Gold
 		_:
 			self_modulate = Color.WHITE
 

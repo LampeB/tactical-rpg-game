@@ -111,12 +111,6 @@ func advance_turn() -> void:
 
 	log_message.emit("[TURN] %s's turn (time=%.1f, HP:%d/%d)" % [current_entity.entity_name, current_entity.time_until_turn, current_entity.current_hp, current_entity.max_hp], Color(0.6, 0.6, 0.6))
 
-	# Reset this entity's timer: add time based on speed (100 / speed)
-	# Faster characters have smaller increments, so they act more often
-	var speed: float = current_entity.get_effective_stat(Enums.Stat.SPEED)
-	var time_increment: float = 100.0 / max(speed, 1.0)  # Prevent divide by zero
-	current_entity.time_until_turn += time_increment
-
 	# Skip dead entities
 	if current_entity.is_dead:
 		log_message.emit("[TURN] %s is dead, skipping" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
@@ -153,6 +147,7 @@ func advance_turn() -> void:
 	# Check if entity can act (stun, etc.)
 	if not current_entity.can_act():
 		log_message.emit("%s is unable to act!" % current_entity.entity_name, Color(1.0, 0.6, 0.2))
+		_increment_turn_time(current_entity)  # Still increment time even if stunned
 		if is_combat_active:
 			advance_turn()
 		return
@@ -163,6 +158,9 @@ func advance_turn() -> void:
 
 func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 	log_message.emit("[ACTION] %s → Attack → %s (target HP:%d/%d, defending:%s)" % [source.entity_name, target.entity_name, target.current_hp, target.max_hp, str(target.is_defending)], Color(0.6, 0.6, 0.6))
+
+	# Increment source's turn timer (acts AFTER the action completes)
+	_increment_turn_time(source)
 
 	# Evasion check — target dodges the attack entirely
 	if target.has_passive_effect(PassiveEffects.EVASION):
@@ -250,6 +248,10 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 func execute_defend(source: CombatEntity) -> Dictionary:
 	log_message.emit("[ACTION] %s → Defend" % source.entity_name, Color(0.6, 0.6, 0.6))
+
+	# Increment source's turn timer (acts AFTER the action completes)
+	_increment_turn_time(source)
+
 	source.is_defending = true
 	var result: Dictionary = {
 		"source": source,
@@ -267,6 +269,10 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 	if skill.power > 0 and skill.damage_type >= 0 and skill.damage_type < Enums.DamageType.size():
 		dtype_name = Enums.DamageType.keys()[skill.damage_type]
 	log_message.emit("[ACTION] %s → Skill: %s (power:%d, type:%s, MP cost:%d) → %s" % [source.entity_name, skill.display_name, skill.power, dtype_name, skill.mp_cost, target_names], Color(0.6, 0.6, 0.6))
+
+	# Increment source's turn timer (acts AFTER the action completes)
+	_increment_turn_time(source)
+
 	source.spend_mp(skill.mp_cost)
 
 	if skill.cooldown_turns > 0:
@@ -405,6 +411,14 @@ func _simulate_future_turns(count: int) -> Array:
 
 
 # === Internal ===
+
+func _increment_turn_time(entity: CombatEntity) -> void:
+	## Increments an entity's turn timer based on their speed.
+	## Called AFTER an action executes, not before.
+	var speed: float = entity.get_effective_stat(Enums.Stat.SPEED)
+	var time_increment: float = 100.0 / max(speed, 1.0)
+	entity.time_until_turn += time_increment
+
 
 func _tick_statuses(entity: CombatEntity) -> void:
 	# Mana regen passive — restore MP at turn start

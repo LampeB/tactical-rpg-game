@@ -281,7 +281,8 @@ func _items_within_reach(modifier_placed: PlacedItem, target_cells: Array[Vector
 	var mod_cells: Array[Vector2i] = modifier_placed.get_occupied_cells()
 	for mc in mod_cells:
 		for tc in target_cells:
-			var dist: int = maxi(absi(mc.x - tc.x), absi(mc.y - tc.y))
+			# Use Manhattan distance to match the visual preview (cross/diamond pattern)
+			var dist: int = absi(mc.x - tc.x) + absi(mc.y - tc.y)
 			if dist <= reach:
 				return true
 	return false

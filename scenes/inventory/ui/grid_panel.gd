@@ -61,7 +61,18 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 	if item_data.item_type == Enums.ItemType.MODIFIER and item_data.modifier_reach > 0:
 		_show_modifier_reach_preview(shape_cells, grid_pos, item_data.modifier_reach)
 
-	# Show the item's own placement cells
+	# Check if this modifier would affect any tools
+	var would_modify_tools: bool = false
+	if can_place and item_data.item_type == Enums.ItemType.MODIFIER:
+		# Create temporary PlacedItem to check what tools would be affected
+		var temp_placed: GridInventory.PlacedItem = GridInventory.PlacedItem.new()
+		temp_placed.item_data = item_data
+		temp_placed.grid_position = grid_pos
+		temp_placed.rotation = rotation
+		var affected_tools: Array = _grid_inventory.get_tools_affected_by(temp_placed)
+		would_modify_tools = not affected_tools.is_empty()
+
+	# Show the item's own placement cells (always green if valid)
 	for cell_offset in shape_cells:
 		var target: Vector2i = grid_pos + cell_offset
 		if _cells.has(target):
@@ -69,6 +80,20 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 				_cells[target].set_state(_cells[target].CellState.VALID_DROP)
 			else:
 				_cells[target].set_state(_cells[target].CellState.INVALID_DROP)
+
+	# Highlight the tools that would be affected by this modifier
+	if would_modify_tools and can_place:
+		var temp_placed: GridInventory.PlacedItem = GridInventory.PlacedItem.new()
+		temp_placed.item_data = item_data
+		temp_placed.grid_position = grid_pos
+		temp_placed.rotation = rotation
+		var affected_tools: Array = _grid_inventory.get_tools_affected_by(temp_placed)
+		for i in range(affected_tools.size()):
+			var tool: GridInventory.PlacedItem = affected_tools[i]
+			var tool_cells: Array[Vector2i] = tool.get_occupied_cells()
+			for cell in tool_cells:
+				if _cells.has(cell):
+					_cells[cell]._background.color = Color(1.0, 0.0, 1.0, 0.8)  # Magenta highlights affected tools
 
 
 func clear_placement_preview() -> void:
@@ -202,6 +227,35 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	container.add_child(tex_rect)
+
+	# Create shape outline container
+	var shape_outline: Control = Control.new()
+	shape_outline.position = Vector2.ZERO
+	shape_outline.size = Vector2(bbox_w, bbox_h)
+	shape_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(shape_outline)
+
+	# Draw per-cell outlines for the actual shape
+	var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+	for cell in cells:
+		# Create a panel with border for each occupied cell
+		var cell_panel: PanelContainer = PanelContainer.new()
+		cell_panel.position = Vector2((cell.x - min_pos.x) * CELL_SIZE, (cell.y - min_pos.y) * CELL_SIZE)
+		cell_panel.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		cell_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# Create StyleBox with border
+		var style: StyleBoxFlat = StyleBoxFlat.new()
+		style.bg_color = Color.TRANSPARENT
+		style.border_width_left = 2
+		style.border_width_right = 2
+		style.border_width_top = 2
+		style.border_width_bottom = 2
+		style.border_color = rarity_color
+		cell_panel.add_theme_stylebox_override("panel", style)
+
+		shape_outline.add_child(cell_panel)
+
 	_items_layer.add_child(container)
 	_item_visuals[placed] = container
 

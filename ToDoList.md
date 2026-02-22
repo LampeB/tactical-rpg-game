@@ -37,3 +37,5 @@
 [x] issue when going back to the squad screen
 
 [x] post-battle reward/loot screen with drag-and-drop into character inventories
+
+[ ] add custom modifier reach patterns for gems (cross-shaped, diamond-shaped, L-shaped, etc.) instead of just simple radius
