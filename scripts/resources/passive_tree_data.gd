@@ -1,9 +1,8 @@
 class_name PassiveTreeData
 extends Resource
-## Defines the full passive skill tree for a character.
+## Defines the unified passive skill tree shared by all characters.
 
-@export var character_id: String = ""
-@export var display_name: String = "" ## e.g. "Warrior's Path"
+@export var display_name: String = "" ## e.g. "Skill Tree"
 @export var nodes: Array = [] ## of PassiveNodeData
 
 

@@ -124,7 +124,7 @@ func _start_battle() -> void:
 			var char_data: CharacterData = GameManager.party.roster.get(character_id)
 			if char_data:
 				var inv: GridInventory = _grid_inventories.get(character_id)
-				var tree = PassiveTreeDatabase.get_passive_tree(character_id)
+				var tree = PassiveTreeDatabase.get_passive_tree()
 				var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
 
 				# Load current HP/MP from persistent vitals
@@ -793,7 +793,7 @@ func _save_player_vitals() -> void:
 		var entity: CombatEntity = _combat_manager.player_entities[i]
 		if entity.character_data:
 			var char_id: String = entity.character_data.id
-			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 			GameManager.party.set_current_hp(char_id, entity.current_hp, tree)
 			GameManager.party.set_current_mp(char_id, entity.current_mp, tree)
 			DebugLogger.log_info("Saved vitals for %s: HP %d/%d, MP %d/%d" % [

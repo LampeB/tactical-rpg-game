@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scenes/passive_tree/ui/tree_view.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/tree_editor/ui/tree_editor_view.gd" id="1_script"]
 
-[node name="TreeView" type="Control"]
+[node name="TreeEditorView" type="Control"]
 custom_minimum_size = Vector2(900, 900)
 layout_mode = 2
 size_flags_horizontal = 3

@@ -57,6 +57,10 @@ text = "Inventory"
 layout_mode = 2
 text = "Squad"
 
+[node name="TreeEditorButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Tree Editor"
+
 [node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=191023814]
 layout_mode = 2
 text = "Settings"

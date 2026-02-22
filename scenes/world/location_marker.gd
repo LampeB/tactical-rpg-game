@@ -95,7 +95,7 @@ func _interact_lake() -> void:
 	# Heal all characters in roster (roster is Dictionary: character_id -> CharacterData)
 	for char_id in GameManager.party.roster.keys():
 		# Get passive tree for max HP/MP calculation
-		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 
 		# Get max values and set current to max
 		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)

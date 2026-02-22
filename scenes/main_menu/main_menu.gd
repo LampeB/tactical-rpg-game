@@ -5,6 +5,7 @@ func _ready():
 	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game_pressed)
 	$VBoxContainer/InventoryButton.pressed.connect(_on_inventory_pressed)
 	$VBoxContainer/SquadButton.pressed.connect(_on_squad_pressed)
+	$VBoxContainer/TreeEditorButton.pressed.connect(_on_tree_editor_pressed)
 	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
@@ -42,6 +43,9 @@ func _on_inventory_pressed():
 
 func _on_squad_pressed():
 	SceneManager.push_scene("res://scenes/squad/squad.tscn")
+
+func _on_tree_editor_pressed():
+	SceneManager.push_scene("res://scenes/tree_editor/tree_editor.tscn")
 
 func _on_settings_pressed():
 	SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")

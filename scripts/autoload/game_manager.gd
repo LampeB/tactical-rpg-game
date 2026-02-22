@@ -23,7 +23,7 @@ func new_game() -> void:
 		if character:
 			party.add_to_roster(character)
 			# Initialize vitals (HP/MP) to full
-			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(character.id)
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 			party.initialize_vitals(character.id, tree)
 			DebugLogger.log_info("Added starter character: %s (HP: %d/%d, MP: %d/%d)" % [
 				character.display_name,
