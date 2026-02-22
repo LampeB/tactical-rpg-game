@@ -6,11 +6,29 @@ extends Resource
 @export var modifier_type: Enums.ModifierType = Enums.ModifierType.FLAT
 @export var value: float = 0.0
 
+
+static func get_stat_display_name(s: Enums.Stat) -> String:
+	match s:
+		Enums.Stat.MAX_HP: return "Max HP"
+		Enums.Stat.MAX_MP: return "Max MP"
+		Enums.Stat.SPEED: return "Speed"
+		Enums.Stat.LUCK: return "Luck"
+		Enums.Stat.PHYSICAL_ATTACK: return "Phys Atk"
+		Enums.Stat.PHYSICAL_DEFENSE: return "Phys Def"
+		Enums.Stat.MAGICAL_ATTACK: return "Mag Atk"
+		Enums.Stat.MAGICAL_DEFENSE: return "Mag Def"
+		Enums.Stat.CRITICAL_RATE: return "Crit Rate"
+		Enums.Stat.CRITICAL_DAMAGE: return "Crit Dmg"
+		Enums.Stat.PHYSICAL_SCALING: return "Phys Scaling"
+		Enums.Stat.MAGICAL_SCALING: return "Mag Scaling"
+	return "Unknown"
+
+
 func get_description() -> String:
-	var stat_name: String = Enums.Stat.keys()[stat].replace("_", " ").to_pascal_case()
+	var stat_name: String = StatModifier.get_stat_display_name(stat)
 	if modifier_type == Enums.ModifierType.FLAT:
 		var sign := "+" if value >= 0 else ""
 		return "%s%d %s" % [sign, int(value), stat_name]
 	else:
 		var sign := "+" if value >= 0 else ""
-		return "%s%d%% %s" % [sign, int(value * 100), stat_name]
+		return "%s%d%% %s" % [sign, int(value), stat_name]

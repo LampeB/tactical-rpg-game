@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://b6aqpvjk86cur" path="res://assets/sprites/items/dagger_common.png" id="4"]
 
 [sub_resource type="Resource" id="stat_phys_atk"]
 script = ExtResource("2")
@@ -23,7 +23,6 @@ rarity = 1
 hand_slots_required = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_phys_atk")]
-damage_type = 0
 base_power = 4
 block_percentage = 0.15
 base_price = 40

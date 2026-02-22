@@ -64,8 +64,8 @@ func test_combat_entity_creation() -> void:
 	char_data.max_mp = 50
 	char_data.physical_attack = 15
 	char_data.physical_defense = 10
-	char_data.special_attack = 8
-	char_data.special_defense = 12  # This maps to MAGICAL_DEFENSE now
+	char_data.magical_attack = 8
+	char_data.magical_defense = 12  # This maps to MAGICAL_DEFENSE now
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -99,7 +99,7 @@ func test_hybrid_damage_in_combat() -> void:
 	attacker_data.max_hp = 100
 	attacker_data.max_mp = 50
 	attacker_data.physical_attack = 20
-	attacker_data.special_attack = 15
+	attacker_data.magical_attack = 15
 
 	var attacker_template := GridTemplate.new()
 	attacker_template.width = 6
@@ -124,7 +124,7 @@ func test_hybrid_damage_in_combat() -> void:
 	defender_data.display_name = "Defender"
 	defender_data.max_hp = 100
 	defender_data.physical_defense = 5
-	defender_data.special_defense = 3  # MAGICAL_DEFENSE
+	defender_data.magical_defense = 3  # MAGICAL_DEFENSE
 
 	var defender_template := GridTemplate.new()
 	defender_template.width = 6
@@ -160,7 +160,7 @@ func test_gem_bonuses_apply() -> void:
 	char_data.display_name = "Mage"
 	char_data.max_hp = 80
 	char_data.physical_attack = 10
-	char_data.special_attack = 25
+	char_data.magical_attack = 25
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -185,10 +185,13 @@ func test_gem_bonuses_apply() -> void:
 	gem.shape = ItemShape.new()
 	gem.shape.cells = [Vector2i(0, 0)]
 
-	# Create a rule that adds magical damage to magic weapons
+	# Create a rule that adds Mag Atk stat bonus to magic weapons
 	var rule := ConditionalModifierRule.new()
 	rule.target_weapon_type = Enums.WeaponType.MAGIC
-	rule.added_magical_damage = 5
+	var stat_mod := StatModifier.new()
+	stat_mod.stat = Enums.Stat.MAGICAL_ATTACK
+	stat_mod.value = 5.0
+	rule.stat_bonuses = [stat_mod]
 	gem.conditional_modifier_rules = [rule]
 
 	# Place gem next to staff
@@ -196,12 +199,10 @@ func test_gem_bonuses_apply() -> void:
 
 	var entity := CombatEntity.from_character(char_data, inv)
 
-	# Check magical power includes gem bonus
-	var mag_power := entity.get_primary_weapon_magical_power()
-
-	# Should be: base 8 + gem 5 = 13
-	if mag_power != 13:
-		add_failure(test_name, "Expected magical power 13, got %d" % mag_power)
+	# Check Mag Atk includes gem bonus (base 25 + gem 5 = 30)
+	var mag_atk := entity.get_effective_stat(Enums.Stat.MAGICAL_ATTACK)
+	if mag_atk < 29 or mag_atk > 31:
+		add_failure(test_name, "Expected Mag Atk ~30, got %.0f" % mag_atk)
 		return
 
 	add_success(test_name)
@@ -591,7 +592,7 @@ func test_magical_defense_reduces_magical_damage() -> void:
 	var char_data := CharacterData.new()
 	char_data.display_name = "Mage"
 	char_data.max_hp = 100
-	char_data.special_attack = 20
+	char_data.magical_attack = 20
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -613,12 +614,12 @@ func test_magical_defense_reduces_magical_damage() -> void:
 	var defender_data_low := CharacterData.new()
 	defender_data_low.display_name = "Low Def"
 	defender_data_low.max_hp = 100
-	defender_data_low.special_defense = 0
+	defender_data_low.magical_defense = 0
 
 	var defender_data_high := CharacterData.new()
 	defender_data_high.display_name = "High Def"
 	defender_data_high.max_hp = 100
-	defender_data_high.special_defense = 10
+	defender_data_high.magical_defense = 10
 
 	var defender_low := CombatEntity.from_character(defender_data_low, GridInventory.new(template))
 	var defender_high := CombatEntity.from_character(defender_data_high, GridInventory.new(template))
@@ -639,7 +640,7 @@ func test_hybrid_damage_split_calculation() -> void:
 	char_data.display_name = "Hybrid Fighter"
 	char_data.max_hp = 100
 	char_data.physical_attack = 15
-	char_data.special_attack = 12
+	char_data.magical_attack = 12
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -698,8 +699,19 @@ func test_melee_vs_magic_magical_damage_differs() -> void:
 		add_failure(test_name, "Missing melee or magic rule")
 		return
 
-	if magic_rule.added_magical_damage <= melee_rule.added_magical_damage:
-		add_failure(test_name, "Magic damage should be higher: melee=%d magic=%d" % [melee_rule.added_magical_damage, magic_rule.added_magical_damage])
+	# Compare Mag Atk stat bonuses (magic weapons get higher values)
+	var melee_mag_atk: float = 0.0
+	for i in range(melee_rule.stat_bonuses.size()):
+		var mod: StatModifier = melee_rule.stat_bonuses[i]
+		if mod.stat == Enums.Stat.MAGICAL_ATTACK:
+			melee_mag_atk += mod.value
+	var magic_mag_atk: float = 0.0
+	for i in range(magic_rule.stat_bonuses.size()):
+		var mod: StatModifier = magic_rule.stat_bonuses[i]
+		if mod.stat == Enums.Stat.MAGICAL_ATTACK:
+			magic_mag_atk += mod.value
+	if magic_mag_atk <= melee_mag_atk:
+		add_failure(test_name, "Magic Mag Atk should be higher: melee=%.0f magic=%.0f" % [melee_mag_atk, magic_mag_atk])
 		return
 
 	add_success(test_name)
@@ -741,7 +753,7 @@ func test_multiple_gems_stack_magical_damage() -> void:
 	var char_data := CharacterData.new()
 	char_data.display_name = "Mage"
 	char_data.max_hp = 100
-	char_data.special_attack = 20
+	char_data.magical_attack = 20
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -765,7 +777,10 @@ func test_multiple_gems_stack_magical_damage() -> void:
 	gem1.shape.cells = [Vector2i(0, 0)]
 	var rule1 := ConditionalModifierRule.new()
 	rule1.target_weapon_type = Enums.WeaponType.MAGIC
-	rule1.added_magical_damage = 5
+	var mod1 := StatModifier.new()
+	mod1.stat = Enums.Stat.MAGICAL_ATTACK
+	mod1.value = 5.0
+	rule1.stat_bonuses = [mod1]
 	gem1.conditional_modifier_rules = [rule1]
 
 	var gem2 := ItemData.new()
@@ -775,7 +790,10 @@ func test_multiple_gems_stack_magical_damage() -> void:
 	gem2.shape.cells = [Vector2i(0, 0)]
 	var rule2 := ConditionalModifierRule.new()
 	rule2.target_weapon_type = Enums.WeaponType.MAGIC
-	rule2.added_magical_damage = 3
+	var mod2 := StatModifier.new()
+	mod2.stat = Enums.Stat.MAGICAL_ATTACK
+	mod2.value = 3.0
+	rule2.stat_bonuses = [mod2]
 	gem2.conditional_modifier_rules = [rule2]
 
 	inv.place_item(gem1, Vector2i(1, 0), 0)
@@ -783,10 +801,10 @@ func test_multiple_gems_stack_magical_damage() -> void:
 
 	var entity := CombatEntity.from_character(char_data, inv)
 
-	var mag_power := entity.get_primary_weapon_magical_power()
-
-	if mag_power != 18:
-		add_failure(test_name, "Expected 18 (10+5+3), got %d" % mag_power)
+	# Gems add Mag Atk stat bonuses (base 20 + gem1 5 + gem2 3 = 28)
+	var mag_atk := entity.get_effective_stat(Enums.Stat.MAGICAL_ATTACK)
+	if mag_atk < 27 or mag_atk > 29:
+		add_failure(test_name, "Expected Mag Atk ~28, got %.0f" % mag_atk)
 		return
 
 	add_success(test_name)
@@ -810,8 +828,8 @@ func test_no_weapon_equipped() -> void:
 
 	var entity := CombatEntity.from_character(char_data, inv)
 
-	var phys_power := entity.get_primary_weapon_physical_power()
-	var mag_power := entity.get_primary_weapon_magical_power()
+	var phys_power := entity.get_total_weapon_physical_power()
+	var mag_power := entity.get_total_weapon_magical_power()
 
 	if phys_power != 0:
 		add_failure(test_name, "Physical power should be 0, got %d" % phys_power)
@@ -829,7 +847,7 @@ func test_weapon_with_no_gems() -> void:
 	var char_data := CharacterData.new()
 	char_data.display_name = "Fighter"
 	char_data.max_hp = 100
-	char_data.special_attack = 15
+	char_data.magical_attack = 15
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -904,7 +922,7 @@ func test_pure_magical_weapon() -> void:
 	var char_data := CharacterData.new()
 	char_data.display_name = "Wizard"
 	char_data.max_hp = 80
-	char_data.special_attack = 25
+	char_data.magical_attack = 25
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -940,7 +958,7 @@ func test_critical_hit_hybrid_damage() -> void:
 	char_data.display_name = "Lucky"
 	char_data.max_hp = 100
 	char_data.physical_attack = 15
-	char_data.special_attack = 10
+	char_data.magical_attack = 10
 
 	var template := GridTemplate.new()
 	template.width = 6
@@ -983,7 +1001,7 @@ func test_defending_reduces_hybrid_damage() -> void:
 	char_data.display_name = "Attacker"
 	char_data.max_hp = 100
 	char_data.physical_attack = 20
-	char_data.special_attack = 15
+	char_data.magical_attack = 15
 
 	var template := GridTemplate.new()
 	template.width = 6

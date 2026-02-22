@@ -187,48 +187,41 @@ func get_available_skills() -> Array:
 	return skills
 
 
-func get_primary_weapon_damage_type() -> Enums.DamageType:
-	## Returns primary weapon's base damage type (PHYSICAL or MAGICAL).
-	## Note: This is for legacy compatibility. Weapons now support hybrid damage.
+func get_primary_tool_modifier_state() -> ToolModifierState:
+	## Returns the ToolModifierState for the primary weapon (first ACTIVE_TOOL).
 	if not is_player or not grid_inventory:
-		return Enums.DamageType.PHYSICAL
+		return null
 
-	# Find first ACTIVE_TOOL in placement order
 	for i in range(grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-			return placed.item_data.damage_type
+			return tool_modifier_states.get(placed, null)
 
-	return Enums.DamageType.PHYSICAL
+	return null
 
 
-func get_primary_weapon_physical_power() -> int:
-	## Returns primary weapon's base physical damage.
+func get_total_weapon_physical_power() -> int:
+	## Sums base_power from ALL equipped active tools.
 	if not is_player or not grid_inventory:
 		return 0
-
+	var total: int = 0
 	for i in range(grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-			return placed.item_data.base_power
+			total += placed.item_data.base_power
+	return total
 
-	return 0
 
-
-func get_primary_weapon_magical_power() -> int:
-	## Returns primary weapon's total magical damage (base + gem bonuses).
+func get_total_weapon_magical_power() -> int:
+	## Sums magical_power from ALL equipped active tools.
 	if not is_player or not grid_inventory:
 		return 0
-
+	var total: int = 0
 	for i in range(grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-			var base_magical: int = placed.item_data.magical_power
-			var state: ToolModifierState = tool_modifier_states.get(placed, null)
-			var added_magical: int = state.added_magical_damage if state else 0
-			return base_magical + added_magical
-
-	return 0
+			total += placed.item_data.magical_power
+	return total
 
 
 func can_use_skill(skill: SkillData) -> bool:

@@ -34,7 +34,7 @@ func run_all_tests() -> void:
 
 	# Phase 5: Integration
 	test_combat_entity_weapon_power_methods()
-	test_gem_magical_damage_stacking()
+	test_gem_stat_bonus_stacking()
 
 	# Phase 6: Weapon Type Classification (Comprehensive)
 	test_all_weapon_categories_classified()
@@ -157,8 +157,12 @@ func test_tool_modifier_state_structure() -> void:
 		add_failure(test_name, "Old damage_type_override field still exists")
 		return
 
-	if not ("added_magical_damage" in state and "status_effect_chance" in state and "status_effect_type" in state):
-		add_failure(test_name, "Missing new hybrid damage fields")
+	if not ("status_effect_chance" in state and "status_effect_type" in state):
+		add_failure(test_name, "Missing hybrid damage fields")
+		return
+
+	if "added_magical_damage" in state:
+		add_failure(test_name, "Old added_magical_damage field still exists")
 		return
 
 	add_success(test_name)
@@ -175,8 +179,12 @@ func test_conditional_modifier_rule_structure() -> void:
 		add_failure(test_name, "Old override_damage_type field still exists")
 		return
 
-	if not ("target_weapon_type" in rule and "added_magical_damage" in rule and "status_effect" in rule):
-		add_failure(test_name, "Missing new weapon type fields")
+	if not ("target_weapon_type" in rule and "status_effect" in rule):
+		add_failure(test_name, "Missing weapon type fields")
+		return
+
+	if "added_magical_damage" in rule:
+		add_failure(test_name, "Old added_magical_damage field still exists on rule")
 		return
 
 	add_success(test_name)
@@ -220,7 +228,7 @@ func test_status_effect_data_files_exist() -> void:
 ## ============================================================================
 
 func test_hybrid_damage_calculation() -> void:
-	var test_name := "Hybrid damage calculation works correctly"
+	var test_name := "Dual scaling damage calculation works correctly"
 
 	# Create mock entities
 	var attacker := CombatEntity.new()
@@ -229,11 +237,11 @@ func test_hybrid_damage_calculation() -> void:
 	var defender := CombatEntity.new()
 	defender.is_player = false
 
-	# Test that the function exists and returns expected structure
-	var result := DamageCalculator.calculate_damage_hybrid(attacker, defender, 10, 5, 1.0)
+	# Test unified calculate_damage with physical + magical scaling
+	var result := DamageCalculator.calculate_damage(attacker, defender, 1.0, 1.0)
 
 	if not ("amount" in result and "is_crit" in result):
-		add_failure(test_name, "calculate_damage_hybrid missing required return fields")
+		add_failure(test_name, "calculate_damage missing required return fields")
 		return
 
 	if typeof(result.amount) != TYPE_INT:
@@ -275,16 +283,16 @@ func test_basic_attack_uses_hybrid() -> void:
 	var enemy := CombatEntity.new()
 	enemy.is_player = false
 
-	# Verify player has get_primary_weapon_physical_power method
-	if not player.has_method("get_primary_weapon_physical_power"):
-		add_failure(test_name, "Player missing get_primary_weapon_physical_power method")
+	# Verify player has get_total_weapon_physical_power method
+	if not player.has_method("get_total_weapon_physical_power"):
+		add_failure(test_name, "Player missing get_total_weapon_physical_power method")
 		return
 
-	if not player.has_method("get_primary_weapon_magical_power"):
-		add_failure(test_name, "Player missing get_primary_weapon_magical_power method")
+	if not player.has_method("get_total_weapon_magical_power"):
+		add_failure(test_name, "Player missing get_total_weapon_magical_power method")
 		return
 
-	var phys_power := player.get_primary_weapon_physical_power()
+	var phys_power := player.get_total_weapon_physical_power()
 	if phys_power != 15:
 		add_failure(test_name, "Expected physical power 15, got %d" % phys_power)
 		return
@@ -321,8 +329,8 @@ func test_combat_entity_weapon_power_methods() -> void:
 
 	var player := CombatEntity.from_character(char_data, inv)
 
-	var phys := player.get_primary_weapon_physical_power()
-	var mag := player.get_primary_weapon_magical_power()
+	var phys := player.get_total_weapon_physical_power()
+	var mag := player.get_total_weapon_magical_power()
 
 	if phys != 5:
 		add_failure(test_name, "Expected physical 5, got %d" % phys)
@@ -334,18 +342,37 @@ func test_combat_entity_weapon_power_methods() -> void:
 
 	add_success(test_name)
 
-func test_gem_magical_damage_stacking() -> void:
-	var test_name := "Gem magical damage stacks correctly"
+func test_gem_stat_bonus_stacking() -> void:
+	var test_name := "Gem stat bonuses stack correctly via aggregate_stats"
 
-	# This is a simplified test - in practice would need full gem setup
+	# Create two stat modifiers (simulating gem bonuses)
+	var mod1 := StatModifier.new()
+	mod1.stat = Enums.Stat.MAGICAL_ATTACK
+	mod1.modifier_type = Enums.ModifierType.FLAT
+	mod1.value = 5.0
+
+	var mod2 := StatModifier.new()
+	mod2.stat = Enums.Stat.MAGICAL_ATTACK
+	mod2.modifier_type = Enums.ModifierType.FLAT
+	mod2.value = 3.0
+
 	var state := ToolModifierState.new()
-	state.added_magical_damage = 5
+	state.aggregate_stats = [mod1, mod2]
 
-	# Simulate adding another gem's magical damage
-	state.added_magical_damage += 3
+	# Verify both modifiers are stored
+	if state.aggregate_stats.size() != 2:
+		add_failure(test_name, "Expected 2 stat mods, got %d" % state.aggregate_stats.size())
+		return
 
-	if state.added_magical_damage != 8:
-		add_failure(test_name, "Expected stacked damage 8, got %d" % state.added_magical_damage)
+	# Sum the MAGICAL_ATTACK bonuses
+	var total: float = 0.0
+	for i in range(state.aggregate_stats.size()):
+		var mod: StatModifier = state.aggregate_stats[i]
+		if mod.stat == Enums.Stat.MAGICAL_ATTACK:
+			total += mod.value
+
+	if total != 8.0:
+		add_failure(test_name, "Expected stacked bonus 8.0, got %.1f" % total)
 		return
 
 	add_success(test_name)
@@ -555,7 +582,7 @@ func test_no_old_override_fields() -> void:
 	add_success(test_name)
 
 func test_fire_gem_variants_scaling() -> void:
-	var test_name := "Fire gem variants have increasing magical damage"
+	var test_name := "Fire gem variants have increasing magical attack bonuses"
 
 	var common: ItemData = load("res://data/items/modifiers/fire_gem_common.tres")
 	var uncommon: ItemData = load("res://data/items/modifiers/fire_gem_uncommon.tres")
@@ -577,15 +604,26 @@ func test_fire_gem_variants_scaling() -> void:
 		add_failure(test_name, "Rare gem has no rules")
 		return
 
-	var common_dmg: int = common.conditional_modifier_rules[0].added_magical_damage
-	var uncommon_dmg: int = uncommon.conditional_modifier_rules[0].added_magical_damage
-	var rare_dmg: int = rare.conditional_modifier_rules[0].added_magical_damage
+	# Get MAGICAL_ATTACK stat bonus from first rule of each variant
+	var common_bonus: float = _get_rule_mag_atk_bonus(common.conditional_modifier_rules[0])
+	var uncommon_bonus: float = _get_rule_mag_atk_bonus(uncommon.conditional_modifier_rules[0])
+	var rare_bonus: float = _get_rule_mag_atk_bonus(rare.conditional_modifier_rules[0])
 
-	if not (common_dmg < uncommon_dmg and uncommon_dmg < rare_dmg):
-		add_failure(test_name, "Damage not scaling: %d, %d, %d" % [common_dmg, uncommon_dmg, rare_dmg])
+	if not (common_bonus < uncommon_bonus and uncommon_bonus < rare_bonus):
+		add_failure(test_name, "Bonuses not scaling: %.1f, %.1f, %.1f" % [common_bonus, uncommon_bonus, rare_bonus])
 		return
 
 	add_success(test_name)
+
+
+## Returns the total MAGICAL_ATTACK flat bonus from a rule's stat_bonuses.
+func _get_rule_mag_atk_bonus(rule: ConditionalModifierRule) -> float:
+	var total: float = 0.0
+	for i in range(rule.stat_bonuses.size()):
+		var mod: StatModifier = rule.stat_bonuses[i]
+		if mod.stat == Enums.Stat.MAGICAL_ATTACK:
+			total += mod.value
+	return total
 
 ## ============================================================================
 ## Test Infrastructure

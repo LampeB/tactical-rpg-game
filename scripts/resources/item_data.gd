@@ -29,11 +29,9 @@ extends Resource
 @export var stat_modifiers: Array = [] ## of StatModifier
 
 @export_group("Combat")
-## Element for damage-dealing active tools.
-@export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
 ## Base physical damage for active tools.
 @export var base_power: int = 0
-## Base magical damage for active tools (gems can add more).
+## Base magical damage for active tools.
 @export var magical_power: int = 0
 ## Percentage of damage blocked when defending with this item (0.0 to 1.0).
 @export_range(0.0, 1.0) var block_percentage: float = 0.0

@@ -33,10 +33,16 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 			_stats_container.add_child(label)
 
 	if item.base_power > 0:
-		var power_label: Label = Label.new()
-		power_label.text = "Power: %d" % item.base_power
-		power_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
-		_stats_container.add_child(power_label)
+		var phys_label: Label = Label.new()
+		phys_label.text = "Physical Power: %d" % item.base_power
+		phys_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+		_stats_container.add_child(phys_label)
+
+	if item.magical_power > 0:
+		var mag_label: Label = Label.new()
+		mag_label.text = "Magical Power: %d" % item.magical_power
+		mag_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+		_stats_container.add_child(mag_label)
 
 	# Modifier bonuses (for gems, show what they grant; for tools, show active gem bonuses)
 	_modifier_section.visible = false
@@ -63,11 +69,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var mod: StatModifier = rule.stat_bonuses[j]
 					_add_modifier_label("  " + mod.get_description(), Color(1.0, 0.9, 0.3))
 
-				# Added magical damage
-				if rule.added_magical_damage > 0:
-					_add_modifier_label("  +%d Magical Damage" % rule.added_magical_damage, Color(0.7, 0.5, 1.0))
-
-				# Status effect
+					# Status effect
 				if rule.status_effect:
 					var effect_name: String = _get_status_effect_name(rule.status_effect.effect_type)
 					var chance_pct: int = int(rule.status_effect_chance * 100)
@@ -93,10 +95,6 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed)
 		if state and not state.active_modifiers.is_empty():
 			_modifier_section.visible = true
-
-			# Added magical damage
-			if state.added_magical_damage > 0:
-				_add_modifier_label("+%d Magical Damage" % state.added_magical_damage, Color(0.7, 0.5, 1.0))
 
 			# Status effect
 			if state.status_effect_type != null:
@@ -203,12 +201,14 @@ func _get_stat_name(stat: Enums.Stat) -> String:
 		Enums.Stat.MAX_MP: return "Max MP"
 		Enums.Stat.PHYSICAL_ATTACK: return "Phys Atk"
 		Enums.Stat.PHYSICAL_DEFENSE: return "Phys Def"
-		Enums.Stat.SPECIAL_ATTACK: return "Spec Atk"
+		Enums.Stat.MAGICAL_ATTACK: return "Mag Atk"
 		Enums.Stat.MAGICAL_DEFENSE: return "Magical Def"
 		Enums.Stat.SPEED: return "Speed"
 		Enums.Stat.LUCK: return "Luck"
 		Enums.Stat.CRITICAL_RATE: return "Crit Rate"
 		Enums.Stat.CRITICAL_DAMAGE: return "Crit Dmg"
+		Enums.Stat.PHYSICAL_SCALING: return "Phys Scaling"
+		Enums.Stat.MAGICAL_SCALING: return "Mag Scaling"
 	return "Unknown"
 
 

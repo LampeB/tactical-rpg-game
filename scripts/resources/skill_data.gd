@@ -17,10 +17,10 @@ extends Resource
 @export var target_type: Enums.TargetType = Enums.TargetType.SINGLE_ENEMY
 
 @export_group("Damage")
-@export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
-@export var power: int = 0
-## Scaling factor for the relevant attack stat.
-@export var scaling: float = 1.0
+## How much this skill scales with physical damage (weapon power + stat).
+@export var physical_scaling: float = 0.0
+## How much this skill scales with magical damage (weapon power + stat).
+@export var magical_scaling: float = 0.0
 
 @export_group("Effects")
 ## Status effects applied on hit.
@@ -29,3 +29,7 @@ extends Resource
 @export var heal_amount: int = 0
 ## Healing as percentage of max HP.
 @export var heal_percent: float = 0.0
+
+
+func has_damage() -> bool:
+	return physical_scaling > 0.0 or magical_scaling > 0.0

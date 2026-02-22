@@ -241,8 +241,13 @@ func _build_skill_list() -> void:
 func _on_skill_hovered(skill: SkillData) -> void:
 	_skill_details_name.text = skill.display_name
 	var desc_parts: Array = []
-	if skill.power > 0:
-		desc_parts.append("Power: %d" % skill.power)
+	if skill.has_damage():
+		var scaling_parts: Array = []
+		if skill.physical_scaling > 0.0:
+			scaling_parts.append("Phys: %.1fx" % skill.physical_scaling)
+		if skill.magical_scaling > 0.0:
+			scaling_parts.append("Mag: %.1fx" % skill.magical_scaling)
+		desc_parts.append("Scaling: %s" % " / ".join(scaling_parts))
 	if skill.mp_cost > 0:
 		desc_parts.append("MP: %d" % skill.mp_cost)
 	if skill.cooldown_turns > 0:
@@ -302,8 +307,13 @@ func _on_item_hovered(item: ItemData) -> void:
 	if item.use_skill:
 		if item.use_skill.heal_amount > 0:
 			desc_parts.append("Heals: %d HP" % item.use_skill.heal_amount)
-		if item.use_skill.power > 0:
-			desc_parts.append("Power: %d" % item.use_skill.power)
+		if item.use_skill.has_damage():
+			var scaling_parts: Array = []
+			if item.use_skill.physical_scaling > 0.0:
+				scaling_parts.append("Phys: %.1fx" % item.use_skill.physical_scaling)
+			if item.use_skill.magical_scaling > 0.0:
+				scaling_parts.append("Mag: %.1fx" % item.use_skill.magical_scaling)
+			desc_parts.append("Scaling: %s" % " / ".join(scaling_parts))
 	desc_parts.append(item.description)
 	_item_details_desc.text = "\n".join(desc_parts)
 	_item_details.visible = true

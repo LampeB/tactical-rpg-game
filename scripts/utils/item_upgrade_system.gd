@@ -76,16 +76,15 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 	upgraded.armor_slot = base_item.armor_slot
 	upgraded.bonus_hand_slots = base_item.bonus_hand_slots
 	upgraded.shape = base_item.shape
-	upgraded.damage_type = base_item.damage_type
 	upgraded.modifier_reach = base_item.modifier_reach
 	upgraded.granted_skills = base_item.granted_skills.duplicate()
-	upgraded.conditional_modifier_rules = base_item.conditional_modifier_rules.duplicate()
 	upgraded.use_skill = base_item.use_skill  # For consumables
 
 	# Upgrade numeric stats - each upgrade is 1.5x the base item
 	var stat_scale := 1.5
 
 	upgraded.base_power = roundi(base_item.base_power * stat_scale)
+	upgraded.magical_power = roundi(base_item.magical_power * stat_scale)
 	upgraded.block_percentage = minf(base_item.block_percentage * stat_scale, 0.9)  # Cap at 90%
 	upgraded.base_price = roundi(base_item.base_price * stat_scale * 1.5)
 
@@ -108,6 +107,28 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 		new_mod.modifier_type = old_mod.modifier_type
 		new_mod.value = old_mod.value * stat_scale
 		upgraded.modifier_bonuses.append(new_mod)
+
+	# Upgrade conditional modifier rules (for gems - deep copy and scale stat bonuses)
+	upgraded.conditional_modifier_rules = []
+	for i in range(base_item.conditional_modifier_rules.size()):
+		var old_rule: ConditionalModifierRule = base_item.conditional_modifier_rules[i]
+		var new_rule := ConditionalModifierRule.new()
+		new_rule.target_weapon_type = old_rule.target_weapon_type
+		new_rule.status_effect = old_rule.status_effect
+		new_rule.status_effect_chance = minf(old_rule.status_effect_chance * stat_scale, 0.9)
+		new_rule.granted_skills = old_rule.granted_skills.duplicate()
+
+		# Scale stat bonuses within the rule
+		new_rule.stat_bonuses = []
+		for j in range(old_rule.stat_bonuses.size()):
+			var old_mod: StatModifier = old_rule.stat_bonuses[j]
+			var new_mod := StatModifier.new()
+			new_mod.stat = old_mod.stat
+			new_mod.modifier_type = old_mod.modifier_type
+			new_mod.value = old_mod.value * stat_scale
+			new_rule.stat_bonuses.append(new_mod)
+
+		upgraded.conditional_modifier_rules.append(new_rule)
 
 	return upgraded
 

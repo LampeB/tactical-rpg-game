@@ -70,11 +70,11 @@ func new_game() -> void:
 		"precision_gem_common",   # +5% crit rate, +10% crit dmg
 		"devastation_gem_common", # +25% crit dmg (specialized)
 		"power_gem_common",       # +15% physical attack
-		"mystic_gem_common",      # +15% special attack
+		"mystic_gem_common",      # +15% magical attack
 		"poison_gem_common",      # Poison damage [Future: DoT]
 		"swift_gem_common",       # +5 speed [Future: Double attack]
 		"vampiric_gem_common",    # Damage boost [Future: Life steal]
-		"megummy_gem",            # +8 spec atk, AOE [Melee: -10 HP penalty!]
+		"megummy_gem",            # +8 mag atk, AOE [Melee: -10 HP penalty!]
 		"ripple_gem_common",      # Chain to 1 enemy (20% dmg) [Combo: MeGummy]
 		"ripple_gem_uncommon",    # Chain to 1 enemy (40% dmg) [Combo: MeGummy]
 
