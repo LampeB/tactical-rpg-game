@@ -22,11 +22,21 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 	# Create visual slot for each upcoming turn
 	for i in range(turn_order.size()):
 		var entity: CombatEntity = turn_order[i]
-		var is_current: bool = (i == 0)  # First in queue is about to act
+		var is_current: bool = (entity == current_entity)  # Check if this is the active entity
 
-		# Create turn slot container
+		# Create turn slot container with size based on position
 		var slot: PanelContainer = PanelContainer.new()
-		slot.custom_minimum_size = Vector2(80, 60)
+		var base_width: float = 80.0
+		var base_height: float = 60.0
+		if i == 0:
+			# First slot: 50% bigger (both width and height)
+			slot.custom_minimum_size = Vector2(base_width * 1.5, base_height * 1.5)
+		elif i == 1:
+			# Second slot: 25% bigger (both width and height)
+			slot.custom_minimum_size = Vector2(base_width * 1.25, base_height * 1.25)
+		else:
+			# Rest: normal size
+			slot.custom_minimum_size = Vector2(base_width, base_height)
 
 		# Create background style
 		var style: StyleBoxFlat = StyleBoxFlat.new()

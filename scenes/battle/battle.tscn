@@ -65,49 +65,84 @@ layout_mode = 2
 [node name="BattleField" type="MarginContainer" parent="MainLayout"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_right = 32
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
-[node name="HBox" type="HBoxContainer" parent="MainLayout/BattleField"]
+[node name="Layout" type="Control" parent="MainLayout/BattleField"]
 layout_mode = 2
-theme_override_constants/separation = 60
 
-[node name="EnemyPanel" type="VBoxContainer" parent="MainLayout/BattleField/HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-theme_override_constants/separation = 12
-
-[node name="EnemyLabel" type="Label" parent="MainLayout/BattleField/HBox/EnemyPanel"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(1, 0.5, 0.5, 1)
-text = "⚔ Enemies"
-horizontal_alignment = 1
-
-[node name="EnemyList" type="VBoxContainer" parent="MainLayout/BattleField/HBox/EnemyPanel"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 8
+[node name="PlayerSprites" type="HBoxContainer" parent="MainLayout/BattleField/Layout"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 100.0
+offset_top = -100.0
+offset_right = 400.0
+offset_bottom = 100.0
+grow_vertical = 2
+theme_override_constants/separation = 32
 alignment = 1
 
-[node name="PartyPanel" type="VBoxContainer" parent="MainLayout/BattleField/HBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+[node name="EnemySprites" type="HBoxContainer" parent="MainLayout/BattleField/Layout"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -100.0
+offset_right = -100.0
+offset_bottom = 100.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="EnemyPortraits" type="VBoxContainer" parent="MainLayout/BattleField/Layout"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -150.0
+offset_right = 0.0
+offset_bottom = 150.0
+grow_horizontal = 0
+grow_vertical = 2
 theme_override_constants/separation = 12
 
-[node name="PartyLabel" type="Label" parent="MainLayout/BattleField/HBox/PartyPanel"]
+[node name="EnemyList" type="VBoxContainer" parent="MainLayout/BattleField/Layout/EnemyPortraits"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(0.5, 0.8, 1, 1)
-text = "🛡 Party"
-horizontal_alignment = 1
+size_flags_vertical = 6
+theme_override_constants/separation = 12
+alignment = 1
 
-[node name="PartyList" type="VBoxContainer" parent="MainLayout/BattleField/HBox/PartyPanel"]
+[node name="PartyCards" type="HBoxContainer" parent="MainLayout/BattleField/Layout"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -120.0
+offset_right = 400.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="PartyList" type="HBoxContainer" parent="MainLayout/BattleField/Layout/PartyCards"]
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 8
+size_flags_horizontal = 6
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="BottomSection" type="PanelContainer" parent="MainLayout"]
@@ -122,7 +157,7 @@ theme_override_constants/margin_bottom = 12
 
 [node name="VBox" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="TargetPrompt" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox"]
 visible = false
@@ -141,10 +176,28 @@ layout_mode = 2
 custom_minimum_size = Vector2(100, 0)
 text = "Cancel"
 
-[node name="ActionMenu" parent="MainLayout/BottomSection/MarginContainer/VBox" instance=ExtResource("4_action")]
+[node name="BottomRow" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ActionMenu" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow" instance=ExtResource("4_action")]
 layout_mode = 2
 
-[node name="BattleLog" parent="MainLayout/BottomSection/MarginContainer/VBox" instance=ExtResource("5_log")]
+[node name="Spacer" type="Control" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LogSection" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LogToggle" type="Button" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection"]
+layout_mode = 2
+text = "⚡ Battle Log"
+toggle_mode = true
+
+[node name="BattleLog" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection" instance=ExtResource("5_log")]
+visible = false
 layout_mode = 2
 
 [node name="PopupLayer" type="CanvasLayer" parent="."]

@@ -4,6 +4,7 @@ extends Control
 enum BattleState { INIT, PLAYER_ACTION, TARGET_SELECT, ENEMY_ACTION, ANIMATING, VICTORY, DEFEAT }
 
 const EntityStatusBarScene: PackedScene = preload("res://scenes/battle/ui/entity_status_bar.tscn")
+const BattleSpriteScene: PackedScene = preload("res://scenes/battle/ui/battle_sprite.tscn")
 const DamagePopupScene: PackedScene = preload("res://scenes/battle/ui/damage_popup.tscn")
 
 const LootGeneratorScript = preload("res://scripts/systems/loot/loot_generator.gd")
@@ -17,13 +18,16 @@ const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 @onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
 @onready var _round_label: Label = $MainLayout/TopBar/MarginContainer/HBox/RoundLabel
 @onready var _turn_order_bar: PanelContainer = $MainLayout/TurnOrderSection/TurnOrderBar
-@onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/HBox/EnemyPanel/EnemyList
-@onready var _party_list: VBoxContainer = $MainLayout/BattleField/HBox/PartyPanel/PartyList
+@onready var _player_sprites: HBoxContainer = $MainLayout/BattleField/Layout/PlayerSprites
+@onready var _enemy_sprites: HBoxContainer = $MainLayout/BattleField/Layout/EnemySprites
+@onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/Layout/EnemyPortraits/EnemyList
+@onready var _party_list: HBoxContainer = $MainLayout/BattleField/Layout/PartyCards/PartyList
 @onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
 @onready var _target_prompt_label: Label = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/Label
 @onready var _target_cancel_btn: Button = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/CancelButton
-@onready var _action_menu: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/ActionMenu
-@onready var _battle_log: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BattleLog
+@onready var _action_menu: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/ActionMenu
+@onready var _log_toggle: Button = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/LogToggle
+@onready var _battle_log: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/BattleLog
 @onready var _popup_layer: CanvasLayer = $PopupLayer
 
 # --- State ---
@@ -31,8 +35,9 @@ var _encounter_data: EncounterData
 var _combat_manager: CombatManager
 var _state: BattleState = BattleState.INIT
 
-# Entity -> UI bar mapping
+# Entity -> UI mappings
 var _entity_bars: Dictionary = {}  ## CombatEntity -> EntityStatusBar node
+var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite node
 var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 
 # Target selection
@@ -54,6 +59,8 @@ func _ready() -> void:
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_target_prompt.visible = false
 	_target_cancel_btn.pressed.connect(_cancel_target_selection)
+	_log_toggle.toggled.connect(_on_log_toggle)
+	_battle_log.visible = false
 	DebugLogger.log_info("Battle scene ready", "Battle")
 
 
@@ -105,7 +112,7 @@ func _start_battle() -> void:
 				var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses, starting_hp, starting_mp)
 				player_entities.append(entity)
 				var skill_count: int = entity.get_available_skills().size()
-				DebugLogger.log_info("  Player: %s — HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")
+				DebugLogger.log_info("  Player: %s - HP:%d/%d MP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d Inv:%s" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count, str(inv != null)], "Battle")
 			else:
 				DebugLogger.log_warn("Character ID '%s' not found in roster" % character_id, "Battle")
 	else:
@@ -128,11 +135,12 @@ func _start_battle() -> void:
 				entity.entity_name = "%s %s" % [e_data.display_name, _letter(count)]
 			enemy_entities.append(entity)
 			var skill_count: int = entity.get_available_skills().size()
-			DebugLogger.log_info("  Enemy: %s — HP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count], "Battle")
+			DebugLogger.log_info("  Enemy: %s - HP:%d/%d SPD:%.0f ATK:%.0f DEF:%.0f Skills:%d" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.get_effective_stat(Enums.Stat.SPEED), entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK), entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), skill_count], "Battle")
 
-	# Build UI bars
+	# Build UI bars and sprites
 	DebugLogger.log_info("Building UI bars (%d enemies, %d players)" % [enemy_entities.size(), player_entities.size()], "Battle")
 	_build_entity_bars(player_entities, enemy_entities)
+	_build_entity_sprites(player_entities, enemy_entities)
 
 	# Start combat
 	DebugLogger.log_info("Starting combat via CombatManager", "Battle")
@@ -152,7 +160,7 @@ func _letter(index: int) -> String:
 
 # === UI Building ===
 
-func _add_entity_bar(entity: CombatEntity, container: VBoxContainer) -> void:
+func _add_entity_bar(entity: CombatEntity, container: Container) -> void:
 	var bar: PanelContainer = EntityStatusBarScene.instantiate()
 	container.add_child(bar)
 	bar.setup(entity)
@@ -176,6 +184,30 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 		_add_entity_bar(players[i], _party_list)
 
 
+func _add_entity_sprite(entity: CombatEntity, container: Container) -> void:
+	var sprite: Control = BattleSpriteScene.instantiate()
+	container.add_child(sprite)
+	sprite.setup(entity)
+	sprite.gui_input.connect(_on_entity_sprite_input.bind(entity))
+	sprite.mouse_entered.connect(_on_entity_sprite_mouse_entered.bind(entity))
+	sprite.mouse_exited.connect(_on_entity_sprite_mouse_exited.bind(entity))
+	_entity_sprites[entity] = sprite
+
+
+func _build_entity_sprites(players: Array, enemies: Array) -> void:
+	for child in _player_sprites.get_children():
+		child.queue_free()
+	for child in _enemy_sprites.get_children():
+		child.queue_free()
+	_entity_sprites.clear()
+
+	for i in range(players.size()):
+		_add_entity_sprite(players[i], _player_sprites)
+
+	for i in range(enemies.size()):
+		_add_entity_sprite(enemies[i], _enemy_sprites)
+
+
 func _refresh_all_ui() -> void:
 	var keys: Array = _entity_bars.keys()
 	for i in range(keys.size()):
@@ -194,7 +226,15 @@ func _refresh_all_ui() -> void:
 		for i in range(keys.size()):
 			var entity: CombatEntity = keys[i]
 			var bar: PanelContainer = _entity_bars[entity]
-			bar.highlight(entity == _combat_manager.current_entity)
+			if entity == _combat_manager.current_entity and entity.is_player:
+				# Gold border for active player
+				bar.highlight_active_turn()
+			elif entity == _combat_manager.current_entity:
+				# Regular highlight for active enemy
+				bar.highlight(true)
+			else:
+				# No highlight for inactive entities
+				bar.highlight(false)
 
 
 # === Combat Manager Callbacks ===
@@ -260,12 +300,22 @@ func _on_combat_finished(victory: bool) -> void:
 
 func _on_entity_died(entity: CombatEntity) -> void:
 	DebugLogger.log_info("Entity died: %s (is_player: %s)" % [entity.entity_name, str(entity.is_player)], "Battle")
+
+	# Play death animation
+	var sprite: Control = _entity_sprites.get(entity)
+	if sprite:
+		sprite.play_death_animation()
+
 	_refresh_all_ui()
 
 
 func _on_log_message(text: String, color: Color) -> void:
 	_battle_log.add_message(text, color)
 	DebugLogger.log_info("[CombatLog] %s" % text, "Battle")
+
+
+func _on_log_toggle(toggled_on: bool) -> void:
+	_battle_log.visible = toggled_on
 
 
 func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -> void:
@@ -323,31 +373,31 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 
 func _enter_target_selection() -> void:
 	_state = BattleState.TARGET_SELECT
-	_action_menu.hide_menu()
-	_target_prompt.visible = true
+	# Keep action menu visible - it will show the target prompt in its second column
+	_target_prompt.visible = false
 
 	# Simpler prompts - hover shows affected targets
 	var skill_name: String = _pending_skill.display_name if _pending_skill else "action"
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
-			_target_prompt_label.text = "%s — Select an enemy" % skill_name
+			_target_prompt_label.text = "%s - Select an enemy" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single enemy)", "Battle")
 		Enums.TargetType.SINGLE_ALLY:
-			_target_prompt_label.text = "%s — Select an ally" % skill_name
+			_target_prompt_label.text = "%s - Select an ally" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single ally)", "Battle")
 		Enums.TargetType.SELF:
-			_target_prompt_label.text = "%s — Click to use on yourself" % skill_name
+			_target_prompt_label.text = "%s - Click to use on yourself" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (self)", "Battle")
 		Enums.TargetType.ALL_ENEMIES:
 			var count: int = _combat_manager.get_alive_enemies().size()
-			_target_prompt_label.text = "%s — Targets all enemies (%d)" % [skill_name, count]
+			_target_prompt_label.text = "%s - Targets all enemies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all enemies)", "Battle")
 		Enums.TargetType.ALL_ALLIES:
 			var count: int = _combat_manager.get_alive_players().size()
-			_target_prompt_label.text = "%s — Targets all allies (%d)" % [skill_name, count]
+			_target_prompt_label.text = "%s - Targets all allies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all allies)", "Battle")
 		_:
-			_target_prompt_label.text = "%s — Select a target" % skill_name
+			_target_prompt_label.text = "%s - Select a target" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (unknown)", "Battle")
 
 
@@ -379,8 +429,23 @@ func _on_entity_bar_mouse_exited(_entity: CombatEntity) -> void:
 	_clear_target_highlights()
 
 
+func _on_entity_sprite_input(event: InputEvent, entity: CombatEntity) -> void:
+	## Same as entity bar input - clicking sprites also selects targets
+	_on_entity_bar_input(event, entity)
+
+
+func _on_entity_sprite_mouse_entered(entity: CombatEntity) -> void:
+	## Same as entity bar hover
+	_on_entity_bar_mouse_entered(entity)
+
+
+func _on_entity_sprite_mouse_exited(entity: CombatEntity) -> void:
+	## Same as entity bar hover exit
+	_on_entity_bar_mouse_exited(entity)
+
+
 func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
-	"""Returns array of entities that would be affected if clicking on hovered_entity."""
+	##Returns array of entities that would be affected if clicking on hovered_entity.##
 	if hovered_entity.is_dead:
 		return []
 
@@ -416,7 +481,7 @@ func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
 
 
 func _update_target_highlights(hovered_entity: CombatEntity) -> void:
-	"""Highlight targets that would be affected by clicking on hovered_entity."""
+	##Highlight targets that would be affected by clicking on hovered_entity.##
 	_clear_target_highlights()
 
 	var targets: Array = _get_targets_for_hover(hovered_entity)
@@ -425,6 +490,9 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 		var bar: PanelContainer = _entity_bars.get(hovered_entity)
 		if bar:
 			bar.set_highlight(bar.HighlightType.INVALID)
+		var sprite: Control = _entity_sprites.get(hovered_entity)
+		if sprite:
+			sprite.set_highlight(false)
 		return
 
 	# Highlight all affected targets
@@ -438,14 +506,24 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 			else:
 				bar.set_highlight(bar.HighlightType.SECONDARY)
 
+		# Also highlight sprites
+		var sprite: Control = _entity_sprites.get(target)
+		if sprite:
+			sprite.set_highlight(target == hovered_entity)
+
 
 func _clear_target_highlights() -> void:
-	"""Remove all target highlighting."""
+	## Remove all target highlighting.
 	var keys: Array = _entity_bars.keys()
 	for i in range(keys.size()):
 		var entity: CombatEntity = keys[i]
 		var bar: PanelContainer = _entity_bars[entity]
 		bar.set_highlight(bar.HighlightType.NONE)
+
+		# Also clear sprite highlights
+		var sprite: Control = _entity_sprites.get(entity)
+		if sprite:
+			sprite.set_highlight(false)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -475,6 +553,11 @@ func _execute_player_action(targets: Array) -> void:
 
 	var source: CombatEntity = _combat_manager.current_entity
 	var result: Dictionary
+
+	# Play attacker animation
+	var attacker_sprite: Control = _entity_sprites.get(source)
+	if attacker_sprite:
+		attacker_sprite.play_attack_animation()
 
 	match _pending_action_type:
 		Enums.CombatAction.ATTACK:
@@ -523,6 +606,11 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	var action_name: String = Enums.CombatAction.keys()[action_type] if action_type < Enums.CombatAction.size() else str(action_type)
 	var skill_name: String = skill.display_name if skill else "none"
 	DebugLogger.log_info("Enemy AI chose: %s, skill: %s, targets: [%s]" % [action_name, skill_name, target_names], "Battle")
+
+	# Play enemy attack animation
+	var enemy_sprite: Control = _entity_sprites.get(entity)
+	if enemy_sprite:
+		enemy_sprite.play_attack_animation()
 
 	match action_type:
 		Enums.CombatAction.ATTACK:
@@ -610,3 +698,10 @@ func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums
 	_popup_layer.add_child(popup)
 	popup.global_position = bar.get_global_center() + Vector2(randf_range(-20, 20), -10)
 	popup.setup(amount, popup_type)
+
+	# Play sprite animation for damage/healing
+	var sprite: Control = _entity_sprites.get(entity)
+	if sprite:
+		if popup_type == Enums.PopupType.DAMAGE:
+			sprite.play_hurt_animation()
+		# Death animation is handled separately

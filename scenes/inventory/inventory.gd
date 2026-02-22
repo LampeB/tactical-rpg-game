@@ -29,6 +29,12 @@ var _drag_source_rotation: int = 0
 var _drag_source_stash_index: int = -1
 var _drag_rotation: int = 0
 
+# --- Tooltip control ---
+var _tooltips_enabled: bool = true  ## Hold T key to hide
+var _last_hovered_grid_pos: Variant = null  ## Vector2i or null
+var _last_hovered_stash_item: Variant = null  ## ItemData or null
+var _last_hovered_stash_global_pos: Vector2 = Vector2.ZERO
+
 # --- Consumable usage ---
 enum ConsumableSource { NONE = -1, STASH, GRID }
 var _pending_consumable: ItemData = null
@@ -87,6 +93,27 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Hold T to temporarily hide tooltips
+	if event is InputEventKey and event.keycode == KEY_T:
+		if event.pressed:
+			# T pressed - hide tooltips
+			_tooltips_enabled = false
+			_item_tooltip.hide_tooltip()
+		else:
+			# T released - show tooltips again
+			_tooltips_enabled = true
+			# Re-show tooltip if still hovering over something
+			if _last_hovered_grid_pos != null:
+				var inv: GridInventory = _grid_inventories.get(_current_character_id)
+				if inv:
+					var placed: GridInventory.PlacedItem = inv.get_item_at(_last_hovered_grid_pos)
+					if placed:
+						_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
+			elif _last_hovered_stash_item != null:
+				_item_tooltip.show_for_item(_last_hovered_stash_item, null, null, _last_hovered_stash_global_pos)
+		get_viewport().set_input_as_handled()
+		return
+
 	if _drag_state == DragState.DRAGGING:
 		if event is InputEventKey and event.pressed and event.keycode == KEY_R:
 			_rotate_dragged_item()
@@ -356,9 +383,14 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		# Show tooltip and modifier highlights for hovered item
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
+			_last_hovered_grid_pos = grid_pos
+			_last_hovered_stash_item = null
 			_grid_panel.highlight_modifier_connections(placed)
-			_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
+			if _tooltips_enabled:
+				_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 		else:
+			_last_hovered_grid_pos = null
+			_last_hovered_stash_item = null
 			_grid_panel.clear_highlights()
 			_item_tooltip.hide_tooltip()
 
@@ -393,7 +425,11 @@ func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 
 func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 	if _drag_state == DragState.IDLE:
-		_item_tooltip.show_for_item(item, null, null, global_pos)
+		_last_hovered_stash_item = item
+		_last_hovered_stash_global_pos = global_pos
+		_last_hovered_grid_pos = null
+		if _tooltips_enabled:
+			_item_tooltip.show_for_item(item, null, null, global_pos)
 
 
 func _on_stash_background_clicked() -> void:
@@ -404,6 +440,8 @@ func _on_stash_background_clicked() -> void:
 
 func _on_item_hover_exited() -> void:
 	if _drag_state == DragState.IDLE:
+		_last_hovered_grid_pos = null
+		_last_hovered_stash_item = null
 		_item_tooltip.hide_tooltip()
 		_grid_panel.clear_highlights()
 
@@ -621,6 +659,13 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 
 	# Show drag preview
 	_drag_preview.setup(_dragged_item, _drag_rotation)
+
+	# Show placement preview immediately at current mouse position
+	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+	_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
+	var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
+	_drag_preview.set_valid(can_place)
+
 	DebugLogger.log_info("Picked up %s from grid" % _dragged_item.display_name, "Inventory")
 
 
@@ -638,6 +683,15 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 
 	# Show drag preview
 	_drag_preview.setup(_dragged_item, _drag_rotation)
+
+	# Show placement preview immediately at current mouse position
+	var inv: GridInventory = _grid_inventories.get(_current_character_id)
+	if inv:
+		var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+		_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
+		var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
+		_drag_preview.set_valid(can_place)
+
 	DebugLogger.log_info("Picked up %s from stash" % _dragged_item.display_name, "Inventory")
 
 
