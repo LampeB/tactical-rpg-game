@@ -18,11 +18,11 @@
 
 [ ] add mechanic to block part of the map if certains conditions aren't met
 
-[ ] persist HP and Mana after a fight to keep spent spent mana and lost HP between fights.
+[x] persist HP and Mana after a fight to keep spent spent mana and lost HP between fights.
 
-[ ] add a way to use certains skills and objects outside of a fight (healing for example)
+[x] add a way to use certains skills and objects outside of a fight (healing for example)
 
-[ ] add a button to fully heal and regen mana for all characters, as a debug tool
+[x] add a button to fully heal and regen mana for all characters, as a debug tool (lake location)
 
 [x] add a passiv skill system based on the character class (add a skill tree), the points used to level up will be the gold coins
 
