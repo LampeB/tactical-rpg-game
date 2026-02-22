@@ -37,7 +37,7 @@ const DISPLAY_STATS: Array = [
 	Enums.Stat.LUCK,
 	Enums.Stat.PHYSICAL_ATTACK,
 	Enums.Stat.PHYSICAL_DEFENSE,
-	Enums.Stat.SPECIAL_ATTACK,
+	Enums.Stat.MAGICAL_ATTACK,
 	Enums.Stat.MAGICAL_DEFENSE,
 	Enums.Stat.CRITICAL_RATE,
 	Enums.Stat.CRITICAL_DAMAGE,
@@ -50,7 +50,7 @@ const STAT_NAMES: Dictionary = {
 	Enums.Stat.LUCK: "Luck",
 	Enums.Stat.PHYSICAL_ATTACK: "Phys Atk",
 	Enums.Stat.PHYSICAL_DEFENSE: "Phys Def",
-	Enums.Stat.SPECIAL_ATTACK: "Spec Atk",
+	Enums.Stat.MAGICAL_ATTACK: "Mag Atk",
 	Enums.Stat.MAGICAL_DEFENSE: "Mag Def",
 	Enums.Stat.CRITICAL_RATE: "Crit Rate",
 	Enums.Stat.CRITICAL_DAMAGE: "Crit Dmg",
@@ -191,7 +191,7 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 	for i in range(DISPLAY_STATS.size()):
 		var stat: int = DISPLAY_STATS[i]
 		var stat_name: String = STAT_NAMES[stat]
-		var is_pct_stat: bool = (stat == Enums.Stat.CRITICAL_RATE or stat == Enums.Stat.CRITICAL_DAMAGE)
+		var is_pct_stat: bool = (stat == Enums.Stat.CRITICAL_RATE or stat == Enums.Stat.CRITICAL_DAMAGE or stat == Enums.Stat.PHYSICAL_DEFENSE or stat == Enums.Stat.MAGICAL_DEFENSE)
 
 		# Base value
 		var base: float = float(char_data.get_base_stat(stat))

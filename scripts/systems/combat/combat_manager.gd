@@ -264,11 +264,7 @@ func execute_defend(source: CombatEntity) -> Dictionary:
 
 func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Dictionary:
 	var target_names: String = ", ".join(targets.map(func(t: CombatEntity) -> String: return t.entity_name))
-	# Get damage type name safely (handle old skill data with invalid indices)
-	var dtype_name: String = "N/A"
-	if skill.power > 0 and skill.damage_type >= 0 and skill.damage_type < Enums.DamageType.size():
-		dtype_name = Enums.DamageType.keys()[skill.damage_type]
-	log_message.emit("[ACTION] %s → Skill: %s (power:%d, type:%s, MP cost:%d) → %s" % [source.entity_name, skill.display_name, skill.power, dtype_name, skill.mp_cost, target_names], Color(0.6, 0.6, 0.6))
+	log_message.emit("[ACTION] %s → Skill: %s (phys:%.1f, mag:%.1f, MP cost:%d) → %s" % [source.entity_name, skill.display_name, skill.physical_scaling, skill.magical_scaling, skill.mp_cost, target_names], Color(0.6, 0.6, 0.6))
 
 	# Increment source's turn timer (acts AFTER the action completes)
 	_increment_turn_time(source)
@@ -286,7 +282,7 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 	}
 
 	# Damage-dealing skill
-	if skill.power > 0:
+	if skill.has_damage():
 		for t_i in range(targets.size()):
 			var target: CombatEntity = targets[t_i]
 			if target.is_dead:

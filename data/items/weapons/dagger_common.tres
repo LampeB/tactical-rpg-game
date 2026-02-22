@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://815o5afqba3w" path="res://assets/sprites/items/sword_common.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://b6aqpvjk86cur" path="res://assets/sprites/items/dagger_common.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/backstab.tres" id="5_bstab"]
 
 [sub_resource type="Resource" id="stat_phys_atk"]

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://815o5afqba3w" path="res://assets/sprites/items/sword_common.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/slash.tres" id="5_slash"]
 [ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="6_pstrike"]
 
@@ -25,7 +25,6 @@ rarity = 1
 hand_slots_required = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_phys_atk")]
-damage_type = 0
 base_power = 6
 block_percentage = 0.25
 granted_skills = [ExtResource("5_slash"), ExtResource("6_pstrike")]

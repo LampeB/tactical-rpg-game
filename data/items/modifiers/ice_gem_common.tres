@@ -4,28 +4,36 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://xnn3pfgp6s83" path="res://assets/sprites/items/iceGem_common.png" id="5"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7"]
 
-[sub_resource type="Resource" id="stat_spec_atk"]
+[sub_resource type="Resource" id="stat_magatk_melee"]
 script = ExtResource("2")
 stat = 6
-value = 3.0
+value = 8.0
+
+[sub_resource type="Resource" id="stat_magatk_magic"]
+script = ExtResource("2")
+stat = 6
+value = 11.0
+
+[sub_resource type="Resource" id="stat_magatk_ranged"]
+script = ExtResource("2")
+stat = 6
+value = 8.0
 
 [sub_resource type="Resource" id="rule_melee"]
 script = ExtResource("3")
 target_weapon_type = 0
-stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+stat_bonuses = [SubResource("stat_magatk_melee")]
 status_effect = ExtResource("7")
 status_effect_chance = 0.20
 
 [sub_resource type="Resource" id="rule_magic"]
 script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 8
+stat_bonuses = [SubResource("stat_magatk_magic")]
 granted_skills = [ExtResource("6")]
 status_effect = ExtResource("7")
 status_effect_chance = 0.25
@@ -33,8 +41,7 @@ status_effect_chance = 0.25
 [sub_resource type="Resource" id="rule_ranged"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_spec_atk")]
-added_magical_damage = 5
+stat_bonuses = [SubResource("stat_magatk_ranged")]
 status_effect = ExtResource("7")
 status_effect_chance = 0.20
 

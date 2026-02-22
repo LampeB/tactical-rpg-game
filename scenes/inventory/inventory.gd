@@ -303,13 +303,17 @@ func _create_skill_entry(skill: SkillData, sources: Array) -> void:
 	details.visible = false
 
 	# Power/Type if applicable
-	if skill.power > 0:
-		var power_label: Label = Label.new()
-		var damage_type_name: String = Enums.DamageType.keys()[skill.damage_type] if skill.damage_type < Enums.DamageType.size() else "?"
-		power_label.text = "     Power: %d (%s)" % [skill.power, damage_type_name]
-		power_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
-		power_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.4))
-		details.add_child(power_label)
+	if skill.has_damage():
+		var scaling_label: Label = Label.new()
+		var parts: Array = []
+		if skill.physical_scaling > 0.0:
+			parts.append("Phys: %.1fx" % skill.physical_scaling)
+		if skill.magical_scaling > 0.0:
+			parts.append("Mag: %.1fx" % skill.magical_scaling)
+		scaling_label.text = "     Scaling: %s" % " / ".join(parts)
+		scaling_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+		scaling_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.4))
+		details.add_child(scaling_label)
 
 	# Description
 	if not skill.description.is_empty():

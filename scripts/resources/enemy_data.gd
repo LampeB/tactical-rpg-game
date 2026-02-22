@@ -13,8 +13,8 @@ extends Resource
 @export var speed: int = 8
 @export var physical_attack: int = 8
 @export var physical_defense: int = 5
-@export var special_attack: int = 5
-@export var special_defense: int = 5
+@export var magical_attack: int = 5
+@export var magical_defense: int = 5
 
 @export_group("Combat")
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
@@ -32,6 +32,6 @@ func get_base_stat(stat: Enums.Stat) -> int:
 		Enums.Stat.SPEED: return speed
 		Enums.Stat.PHYSICAL_ATTACK: return physical_attack
 		Enums.Stat.PHYSICAL_DEFENSE: return physical_defense
-		Enums.Stat.SPECIAL_ATTACK: return special_attack
-		Enums.Stat.MAGICAL_DEFENSE: return special_defense
+		Enums.Stat.MAGICAL_ATTACK: return magical_attack
+		Enums.Stat.MAGICAL_DEFENSE: return magical_defense
 	return 0

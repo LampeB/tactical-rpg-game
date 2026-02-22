@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_uncommon.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://dxgoa174qaio5" path="res://assets/sprites/items/staff_uncommon.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="5_fbolt"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6_ishard"]
 
@@ -25,8 +25,8 @@ rarity = 1
 hand_slots_required = 2
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_sp_atk")]
-damage_type = 1
-base_power = 5
+base_power = 0
+magical_power = 5
 block_percentage = 0.25
 granted_skills = [ExtResource("5_fbolt"), ExtResource("6_ishard")]
 base_price = 80

@@ -179,10 +179,7 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 					var existing: float = state.aggregate_stats.get(stat, 0.0)
 					state.aggregate_stats[stat] = existing + stat_mod.value
 
-				# NEW: Add magical damage (stacking)
-				state.added_magical_damage += rule.added_magical_damage
-
-				# NEW: Status effect (first wins)
+				# Status effect (first wins)
 				if rule.status_effect and state.status_effect_type == null:
 					state.status_effect_type = rule.status_effect.effect_type
 					state.status_effect_chance = rule.status_effect_chance
@@ -240,8 +237,16 @@ func get_computed_stats() -> Dictionary:
 		var pct_val: float = pct_bonuses.get(stat, 0.0)
 		stats[stat] = flat_val * (1.0 + pct_val / 100.0)
 
-	# Add per-tool modifier states
+	# Add per-tool modifier states and fold conditional gem stats into totals
 	var tool_states: Dictionary = get_all_tool_modifier_states()
+	for placed_key in tool_states:
+		var state: ToolModifierState = tool_states[placed_key]
+		for stat in state.aggregate_stats:
+			var val: float = state.aggregate_stats[stat]
+			flat_bonuses[stat] = flat_bonuses.get(stat, 0.0) + val
+			# Recompute this stat's final value
+			var pct_val: float = pct_bonuses.get(stat, 0.0)
+			stats[stat] = flat_bonuses.get(stat, 0.0) * (1.0 + pct_val / 100.0)
 
 	return {
 		"stats": stats,

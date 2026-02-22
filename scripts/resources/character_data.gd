@@ -17,8 +17,8 @@ extends Resource
 @export var luck: int = 5
 @export var physical_attack: int = 10
 @export var physical_defense: int = 10
-@export var special_attack: int = 10
-@export var special_defense: int = 10
+@export var magical_attack: int = 10
+@export var magical_defense: int = 10
 
 @export_group("Inventory")
 ## The grid template this character uses for inventory.
@@ -36,8 +36,8 @@ func get_base_stat(stat: Enums.Stat) -> int:
 		Enums.Stat.LUCK: return luck
 		Enums.Stat.PHYSICAL_ATTACK: return physical_attack
 		Enums.Stat.PHYSICAL_DEFENSE: return physical_defense
-		Enums.Stat.SPECIAL_ATTACK: return special_attack
-		Enums.Stat.MAGICAL_DEFENSE: return special_defense
+		Enums.Stat.MAGICAL_ATTACK: return magical_attack
+		Enums.Stat.MAGICAL_DEFENSE: return magical_defense
 		Enums.Stat.CRITICAL_RATE: return 0
 		Enums.Stat.CRITICAL_DAMAGE: return 0
 	return 0

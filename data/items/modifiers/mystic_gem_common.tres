@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://xnn3pfgp6s83" path="res://assets/sprites/items/iceGem_common.png" id="5"]
 
 [sub_resource type="Resource" id="stat_spec_atk_pct"]
 script = ExtResource("2")

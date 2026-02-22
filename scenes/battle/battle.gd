@@ -181,16 +181,11 @@ func _letter(index: int) -> String:
 
 
 func _sync_viewport_size() -> void:
-	## Match SubViewport size to the container so sprites are correctly positioned.
-	var container_size: Vector2 = _battle_viewport.size
-	DebugLogger.log_info("Syncing viewport: container=%s" % str(container_size), "BattleView")
-	if container_size.x > 0 and container_size.y > 0:
-		_sub_viewport.size = Vector2i(int(container_size.x), int(container_size.y))
-		DebugLogger.log_info("  SubViewport size set to %s" % str(_sub_viewport.size), "BattleView")
-	else:
-		DebugLogger.log_warn("  Container size is zero! SubViewport not resized", "BattleView")
+	## Center camera on the viewport. Size is managed by SubViewportContainer (stretch=true).
+	var vp_size: Vector2 = Vector2(_sub_viewport.size)
+	DebugLogger.log_info("Syncing viewport: size=%s" % str(vp_size), "BattleView")
 	# Center camera on the viewport
-	_battle_camera.position = Vector2(container_size.x / 2.0, container_size.y / 2.0)
+	_battle_camera.position = Vector2(vp_size.x / 2.0, vp_size.y / 2.0)
 	DebugLogger.log_info("  Camera positioned at %s" % str(_battle_camera.position), "BattleView")
 
 
