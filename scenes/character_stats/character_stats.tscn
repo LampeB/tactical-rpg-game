@@ -1,8 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scenes/character_stats/character_stats.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
 [ext_resource type="PackedScene" path="res://scenes/inventory/ui/grid_panel.tscn" id="3_grid"]
+[ext_resource type="PackedScene" path="res://scenes/inventory/ui/drag_preview.tscn" id="4_drag"]
+[ext_resource type="PackedScene" path="res://scenes/inventory/ui/item_tooltip.tscn" id="5_tooltip"]
+[ext_resource type="PackedScene" path="res://scenes/inventory/ui/stash_panel.tscn" id="6_stash"]
 
 [sub_resource type="StyleBoxFlat" id="style_left_panel"]
 bg_color = Color(0.12, 0.1, 0.08, 0.9)
@@ -81,26 +84,6 @@ theme_override_font_sizes/font_size = 20
 [node name="CharacterTabs" parent="VBox" instance=ExtResource("2_tabs")]
 layout_mode = 2
 
-[node name="ViewTabs" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-alignment = 1
-
-[node name="StatsTab" type="Button" parent="VBox/ViewTabs"]
-layout_mode = 2
-toggle_mode = true
-button_pressed = true
-text = "Stats"
-
-[node name="SkillsTab" type="Button" parent="VBox/ViewTabs"]
-layout_mode = 2
-toggle_mode = true
-text = "Skills"
-
-[node name="InventoryTab" type="Button" parent="VBox/ViewTabs"]
-layout_mode = 2
-toggle_mode = true
-text = "Inventory"
-
 [node name="Content" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -177,67 +160,14 @@ theme_override_constants/separation = 2
 [node name="HSeparator2" type="HSeparator" parent="VBox/Content/LeftPanel/VBox"]
 layout_mode = 2
 
-[node name="StatTableHeader" type="HBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
-layout_mode = 2
-
-[node name="EquipLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.6
-text = "Equip"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
-
-[node name="StatLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
-text = "Stat"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="BaseLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.6
-text = "Base"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-
-[node name="EquipNumLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.6
-text = "Equip"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.3, 0.8, 1.0, 1)
-
-[node name="PassiveLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.6
-text = "Passives"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.2, 0.8, 0.3, 1)
-
-[node name="TotalLabel" type="Label" parent="VBox/Content/LeftPanel/VBox/StatTableHeader"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.6
-text = "Total"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(1.0, 0.9, 0.5, 1)
-
 [node name="StatRows" type="VBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 3
+
+[node name="AdvancedStatsBtn" type="Button" parent="VBox/Content/LeftPanel/VBox"]
+layout_mode = 2
+text = "Advanced Stats"
 
 [node name="CenterPanel" type="PanelContainer" parent="VBox/Content"]
 layout_mode = 2
@@ -288,3 +218,20 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
+
+[node name="HSeparator2" type="HSeparator" parent="VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+
+[node name="StashPanel" parent="VBox/Content/RightPanel/VBox" instance=ExtResource("6_stash")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="DragPreview" parent="DragLayer" instance=ExtResource("4_drag")]
+
+[node name="TooltipLayer" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("5_tooltip")]

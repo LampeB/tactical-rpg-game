@@ -85,7 +85,6 @@ static func create_upgraded_item(base_item: ItemData) -> ItemData:
 
 	upgraded.base_power = roundi(base_item.base_power * stat_scale)
 	upgraded.magical_power = roundi(base_item.magical_power * stat_scale)
-	upgraded.block_percentage = minf(base_item.block_percentage * stat_scale, 0.9)  # Cap at 90%
 	upgraded.base_price = roundi(base_item.base_price * stat_scale * 1.5)
 
 	# Upgrade stat modifiers
