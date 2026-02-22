@@ -18,3 +18,4 @@ physical_defense = 6
 magical_attack = 16
 magical_defense = 12
 grid_template = ExtResource("2")
+starting_passive_nodes = ["m_focus", "m_ward"]

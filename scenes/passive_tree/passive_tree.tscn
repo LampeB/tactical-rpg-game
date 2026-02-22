@@ -59,6 +59,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="TreePanel" type="PanelContainer" parent="VBox/Content"]
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
@@ -117,6 +118,32 @@ layout_mode = 2
 text = ""
 autowrap_mode = 2
 
-[node name="UnlockButton" type="Button" parent="VBox/Content/InfoPanel/MainVBox/NodeInfoVBox"]
+[node name="PendingVBox" type="VBoxContainer" parent="VBox/Content/InfoPanel/MainVBox"]
+visible = false
 layout_mode = 2
-text = "Unlock"
+size_flags_vertical = 0
+
+[node name="HSeparator2" type="HSeparator" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+
+[node name="PendingTitle" type="Label" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+text = "Pending Unlocks"
+horizontal_alignment = 1
+
+[node name="PendingList" type="Label" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+text = ""
+autowrap_mode = 2
+
+[node name="PendingCostLabel" type="Label" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+text = "Total: 0 Gold"
+
+[node name="ConfirmBtn" type="Button" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+text = "Confirm Unlocks"
+
+[node name="CancelBtn" type="Button" parent="VBox/Content/InfoPanel/MainVBox/PendingVBox"]
+layout_mode = 2
+text = "Cancel"

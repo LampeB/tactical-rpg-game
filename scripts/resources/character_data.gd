@@ -24,6 +24,10 @@ extends Resource
 ## The grid template this character uses for inventory.
 @export var grid_template: GridTemplate
 
+@export_group("Passive Tree")
+## Node IDs in the unified skill tree where this character can start unlocking.
+@export var starting_passive_nodes: Array[String] = []
+
 @export_group("Skills")
 ## Innate skills (not from items).
 @export var innate_skills: Array = [] ## of SkillData

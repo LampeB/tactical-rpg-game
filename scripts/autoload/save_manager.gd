@@ -252,7 +252,7 @@ func _deserialize(data: Dictionary):
 	# Initialize vitals for any characters without saved data
 	for char_id: String in party.roster:
 		if not party.character_vitals.has(char_id):
-			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 			party.initialize_vitals(char_id, tree)
 			DebugLogger.log_info("Initialized vitals for character without saved data: %s" % char_id, "SaveManager")
 

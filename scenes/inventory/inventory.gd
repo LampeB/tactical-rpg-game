@@ -519,7 +519,7 @@ func _show_target_selection_popup() -> void:
 		if not char_data:
 			continue
 
-		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 		var current_hp: int = GameManager.party.get_current_hp(char_id)
 		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
 		var current_mp: int = GameManager.party.get_current_mp(char_id)
@@ -588,7 +588,7 @@ func _execute_consumable(item: ItemData, target_id: String, source: ConsumableSo
 	var skill: SkillData = item.use_skill
 	DebugLogger.log_info("Using skill: %s (heal_amount=%d, heal_percent=%.1f%%)" % [skill.display_name, skill.heal_amount, skill.heal_percent], "Inventory")
 
-	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(target_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var current_hp_before: int = GameManager.party.get_current_hp(target_id)
 	var target_max_hp: int = GameManager.party.get_max_hp(target_id, tree)
 

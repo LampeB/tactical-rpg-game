@@ -18,6 +18,8 @@ extends Resource
 @export var gold_cost: int = 50
 ## IDs of nodes that must be unlocked before this one.
 @export var prerequisites: Array[String] = []
+## 0 = ALL prerequisites required (default), 1 = ANY one prerequisite suffices.
+@export var prerequisite_mode: int = 0
 
 @export_group("UI")
 ## Position in the tree canvas (pixels from top-left).

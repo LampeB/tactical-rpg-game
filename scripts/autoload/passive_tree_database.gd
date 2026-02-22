@@ -1,45 +1,20 @@
 extends Node
-## Autoload that loads and indexes all PassiveTreeData resources at startup.
-## Access trees by character ID: PassiveTreeDatabase.get_passive_tree("warrior")
+## Autoload that loads the unified PassiveTreeData resource at startup.
+## Access the shared tree: PassiveTreeDatabase.get_passive_tree()
 
-var _trees: Dictionary = {}  # character_id -> PassiveTreeData
+var _tree: PassiveTreeData = null
 
-const TREE_DIR := "res://data/passive_trees/"
+const TREE_PATH := "res://data/passive_trees/tree_unified.tres"
+
 
 func _ready():
-	_load_all_trees()
-	DebugLogger.log_info("Loaded %d passive trees" % _trees.size(), "PassiveTreeDB")
+	_tree = load(TREE_PATH) as PassiveTreeData
+	if _tree:
+		DebugLogger.log_info("Loaded unified passive tree (%d nodes)" % _tree.nodes.size(), "PassiveTreeDB")
+	else:
+		DebugLogger.log_warn("Failed to load unified passive tree: %s" % TREE_PATH, "PassiveTreeDB")
 
 
-func _load_all_trees():
-	var dir := DirAccess.open(TREE_DIR)
-	if not dir:
-		DebugLogger.log_warn("Passive tree directory not found: %s" % TREE_DIR, "PassiveTreeDB")
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var full_path := TREE_DIR + file_name
-			var tree := load(full_path) as PassiveTreeData
-			if tree and not tree.character_id.is_empty():
-				_trees[tree.character_id] = tree
-			elif tree:
-				DebugLogger.log_warn("Passive tree missing character_id: %s" % full_path, "PassiveTreeDB")
-			else:
-				DebugLogger.log_warn("Failed to load passive tree: %s" % full_path, "PassiveTreeDB")
-		file_name = dir.get_next()
-	dir.list_dir_end()
-
-
-func get_passive_tree(character_id: String) -> PassiveTreeData:
-	return _trees.get(character_id)
-
-
-func has_tree(character_id: String) -> bool:
-	return _trees.has(character_id)
-
-
-func get_all_trees() -> Array:
-	return _trees.values()
+## Returns the single unified passive tree shared by all characters.
+func get_passive_tree() -> PassiveTreeData:
+	return _tree

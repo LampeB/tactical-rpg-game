@@ -9,7 +9,7 @@ func try_enter():
 		return
 	
 	for char_id in GameManager.party.roster.keys():
-		var tree = PassiveTreeDatabase.get_passive_tree(char_id)
+		var tree = PassiveTreeDatabase.get_passive_tree()
 		var max_hp = GameManager.party.get_max_hp(char_id, tree)
 		var max_mp = GameManager.party.get_max_mp(char_id, tree)
 		GameManager.party.set_current_hp(char_id, max_hp, tree)

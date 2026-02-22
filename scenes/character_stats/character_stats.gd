@@ -203,7 +203,7 @@ func _on_character_selected(character_id: String) -> void:
 		return
 
 	var inv: GridInventory = GameManager.party.grid_inventories.get(character_id)
-	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(character_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
 
 	_update_left_panel(char_data, inv, passive_bonuses)
@@ -235,7 +235,7 @@ func _update_left_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 	_char_desc.text = char_data.description if not char_data.description.is_empty() else ""
 
 	# HP/MP vitals
-	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(_current_character_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var current_hp: int = GameManager.party.get_current_hp(_current_character_id)
 	var max_hp: int = GameManager.party.get_max_hp(_current_character_id, tree)
 	var current_mp: int = GameManager.party.get_current_mp(_current_character_id)
@@ -604,7 +604,7 @@ func _show_target_selection_popup() -> void:
 		if not char_data:
 			continue
 
-		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(char_id)
+		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 		var current_hp: int = GameManager.party.get_current_hp(char_id)
 		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
 		var current_mp: int = GameManager.party.get_current_mp(char_id)
@@ -643,7 +643,7 @@ func _on_target_selected(character_id: String) -> void:
 		return
 
 	var skill: SkillData = item.use_skill
-	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(character_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var target_max_hp: int = GameManager.party.get_max_hp(character_id, tree)
 
 	var heal: int = DamageCalculator.calculate_healing(
@@ -875,7 +875,7 @@ func _refresh_left_panel() -> void:
 	if not char_data:
 		return
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id)
-	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree(_current_character_id)
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(_current_character_id, tree)
 	_update_left_panel(char_data, inv, passive_bonuses)
 

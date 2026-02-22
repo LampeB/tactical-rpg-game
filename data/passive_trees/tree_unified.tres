@@ -1,0 +1,546 @@
+[gd_resource type="Resource" script_class="PassiveTreeData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/passive_tree_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/passive_node_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3"]
+
+[sub_resource type="Resource" id="Resource_wr538"]
+script = ExtResource("3")
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_c4jgx"]
+script = ExtResource("2")
+id = "w_vigor"
+display_name = "Vigor"
+description = "Increases maximum health."
+stat_modifiers = [SubResource("Resource_wr538")]
+position = Vector2(346, 351.3333)
+
+[sub_resource type="Resource" id="Resource_g7tri"]
+script = ExtResource("3")
+stat = 5
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_7qut3"]
+script = ExtResource("2")
+id = "w_tough"
+display_name = "Tough"
+description = "Hardens the body against blows."
+stat_modifiers = [SubResource("Resource_g7tri")]
+position = Vector2(452.6667, 384.6667)
+
+[sub_resource type="Resource" id="Resource_iihq7"]
+script = ExtResource("3")
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_acvvc"]
+script = ExtResource("2")
+id = "w_fortitude"
+display_name = "Fortitude"
+description = "Toughens the warrior's resolve."
+stat_modifiers = [SubResource("Resource_iihq7")]
+gold_cost = 75
+prerequisites = Array[String](["w_vigor"])
+position = Vector2(258.66666, 280.66666)
+
+[sub_resource type="Resource" id="Resource_awba6"]
+script = ExtResource("3")
+stat = 4
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_3ubgi"]
+script = ExtResource("2")
+id = "w_might"
+display_name = "Might"
+description = "Raw physical power flows through you."
+stat_modifiers = [SubResource("Resource_awba6")]
+gold_cost = 75
+prerequisites = Array[String](["w_tough"])
+position = Vector2(496.6667, 287.3333)
+
+[sub_resource type="Resource" id="Resource_q3pyn"]
+script = ExtResource("2")
+id = "w_thorns"
+display_name = "Thorns"
+description = "Enemies take 5 damage when they hit you."
+special_effect_id = "thorns"
+gold_cost = 100
+prerequisites = Array[String](["w_fortitude", "bridge_mw"])
+prerequisite_mode = 1
+position = Vector2(209.33334, 399.3333)
+
+[sub_resource type="Resource" id="Resource_xq2ms"]
+script = ExtResource("2")
+id = "w_lifesteal"
+display_name = "Lifesteal"
+description = "Heal 5% of physical damage dealt."
+special_effect_id = "lifesteal_5"
+gold_cost = 100
+prerequisites = Array[String](["w_might", "bridge_rw"])
+prerequisite_mode = 1
+position = Vector2(620, 220)
+
+[sub_resource type="Resource" id="Resource_pnef2"]
+script = ExtResource("3")
+stat = 5
+modifier_type = 1
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_4jrw3"]
+script = ExtResource("2")
+id = "w_ironhide"
+display_name = "Ironhide"
+description = "Greatly increases physical defense."
+stat_modifiers = [SubResource("Resource_pnef2")]
+gold_cost = 150
+prerequisites = Array[String](["w_thorns"])
+position = Vector2(127.33331, 238.66667)
+
+[sub_resource type="Resource" id="Resource_d6c14"]
+script = ExtResource("3")
+stat = 4
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_ltkcp"]
+script = ExtResource("2")
+id = "w_brute_force"
+display_name = "Brute Force"
+description = "Unleash devastating physical power."
+stat_modifiers = [SubResource("Resource_d6c14")]
+gold_cost = 150
+prerequisites = Array[String](["w_lifesteal"])
+position = Vector2(770, 122.66667)
+
+[sub_resource type="Resource" id="Resource_lxjos"]
+script = ExtResource("2")
+id = "w_shield_wall"
+display_name = "Shield Wall"
+description = "Start each battle with a protective shield."
+special_effect_id = "start_shield"
+gold_cost = 200
+prerequisites = Array[String](["w_ironhide"])
+position = Vector2(264.66666, 76.66669)
+
+[sub_resource type="Resource" id="Resource_7v52v"]
+script = ExtResource("2")
+id = "w_retaliation"
+display_name = "Retaliation"
+description = "15% chance to counter-attack when hit."
+special_effect_id = "counter_attack"
+gold_cost = 200
+prerequisites = Array[String](["w_brute_force"])
+position = Vector2(633.3333, 43.333324)
+
+[sub_resource type="Resource" id="Resource_qjdax"]
+script = ExtResource("3")
+modifier_type = 1
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_pn40s"]
+script = ExtResource("2")
+id = "w_bulwark"
+display_name = "Bulwark"
+description = "The warrior becomes an unstoppable fortress."
+stat_modifiers = [SubResource("Resource_qjdax")]
+gold_cost = 500
+prerequisites = Array[String](["w_shield_wall", "w_retaliation"])
+position = Vector2(395.3333, 17.333347)
+
+[sub_resource type="Resource" id="Resource_eosgc"]
+script = ExtResource("3")
+stat = 1
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_ldqq1"]
+script = ExtResource("2")
+id = "m_focus"
+display_name = "Focus"
+description = "Expand your mana reserves."
+stat_modifiers = [SubResource("Resource_eosgc")]
+position = Vector2(-109.33336, 891.3334)
+
+[sub_resource type="Resource" id="Resource_w3wfd"]
+script = ExtResource("3")
+stat = 7
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_5rptb"]
+script = ExtResource("2")
+id = "m_ward"
+display_name = "Ward"
+description = "Magical protection hardens your mind."
+stat_modifiers = [SubResource("Resource_w3wfd")]
+position = Vector2(52, 1038.6667)
+
+[sub_resource type="Resource" id="Resource_022uc"]
+script = ExtResource("3")
+stat = 1
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_4jcch"]
+script = ExtResource("2")
+id = "m_clarity"
+display_name = "Clarity"
+description = "Deepens mana flow."
+stat_modifiers = [SubResource("Resource_022uc")]
+gold_cost = 75
+prerequisites = Array[String](["m_focus"])
+position = Vector2(-64.66667, 767.3334)
+
+[sub_resource type="Resource" id="Resource_r5jcs"]
+script = ExtResource("3")
+stat = 6
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_j0yky"]
+script = ExtResource("2")
+id = "m_brilliance"
+display_name = "Brilliance"
+description = "Sharpen your magical aptitude."
+stat_modifiers = [SubResource("Resource_r5jcs")]
+gold_cost = 75
+prerequisites = Array[String](["m_ward"])
+position = Vector2(186.00002, 1059.3334)
+
+[sub_resource type="Resource" id="Resource_u6gsp"]
+script = ExtResource("2")
+id = "m_barrier"
+display_name = "Barrier"
+description = "Start each battle with a magical shield."
+special_effect_id = "start_shield"
+gold_cost = 100
+prerequisites = Array[String](["m_clarity", "bridge_wm"])
+prerequisite_mode = 1
+position = Vector2(31.333328, 728)
+
+[sub_resource type="Resource" id="Resource_j6vp8"]
+script = ExtResource("3")
+stat = 6
+modifier_type = 1
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_p7e8o"]
+script = ExtResource("2")
+id = "m_insight"
+display_name = "Insight"
+description = "Greatly boosts magical power."
+stat_modifiers = [SubResource("Resource_j6vp8")]
+gold_cost = 100
+prerequisites = Array[String](["m_brilliance", "bridge_rm"])
+prerequisite_mode = 1
+position = Vector2(334.66666, 1068.6667)
+
+[sub_resource type="Resource" id="Resource_ate70"]
+script = ExtResource("3")
+stat = 1
+modifier_type = 1
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_ifhfc"]
+script = ExtResource("2")
+id = "m_deep_pool"
+display_name = "Deep Pool"
+description = "Massively expands mana capacity."
+stat_modifiers = [SubResource("Resource_ate70")]
+gold_cost = 150
+prerequisites = Array[String](["m_barrier"])
+position = Vector2(107.33333, 768)
+
+[sub_resource type="Resource" id="Resource_365hd"]
+script = ExtResource("3")
+stat = 9
+modifier_type = 1
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_tqddo"]
+script = ExtResource("2")
+id = "m_focused_mind"
+display_name = "Focused Mind"
+description = "Critical hits deal more damage."
+stat_modifiers = [SubResource("Resource_365hd")]
+gold_cost = 150
+prerequisites = Array[String](["m_insight"])
+position = Vector2(370, 896.6667)
+
+[sub_resource type="Resource" id="Resource_1q64d"]
+script = ExtResource("2")
+id = "m_mana_surge"
+display_name = "Mana Surge"
+description = "Restore 3 MP at the start of each turn."
+special_effect_id = "mana_regen"
+gold_cost = 200
+prerequisites = Array[String](["m_deep_pool"])
+position = Vector2(93.33333, 876)
+
+[sub_resource type="Resource" id="Resource_alrlm"]
+script = ExtResource("2")
+id = "m_first_strike"
+display_name = "First Strike"
+description = "Act first in the opening round of combat."
+special_effect_id = "first_strike"
+gold_cost = 200
+prerequisites = Array[String](["m_focused_mind"])
+position = Vector2(283.33334, 908.6666)
+
+[sub_resource type="Resource" id="Resource_oia6q"]
+script = ExtResource("3")
+stat = 6
+modifier_type = 1
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_e2jrs"]
+script = ExtResource("2")
+id = "m_archmage"
+display_name = "Archmage"
+description = "Master of the arcane arts."
+stat_modifiers = [SubResource("Resource_oia6q")]
+gold_cost = 500
+prerequisites = Array[String](["m_mana_surge", "m_first_strike"])
+position = Vector2(199.33331, 912.6666)
+
+[sub_resource type="Resource" id="Resource_llp0p"]
+script = ExtResource("3")
+stat = 2
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_622yy"]
+script = ExtResource("2")
+id = "r_agility"
+display_name = "Agility"
+description = "Move faster than the eye can follow."
+stat_modifiers = [SubResource("Resource_llp0p")]
+position = Vector2(984.00006, 474.66672)
+
+[sub_resource type="Resource" id="Resource_howwd"]
+script = ExtResource("3")
+stat = 8
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_ay61q"]
+script = ExtResource("2")
+id = "r_keen_eye"
+display_name = "Keen Eye"
+description = "Spot weaknesses in enemy armor."
+stat_modifiers = [SubResource("Resource_howwd")]
+position = Vector2(775.3333, 780.6666)
+
+[sub_resource type="Resource" id="Resource_aoix1"]
+script = ExtResource("3")
+stat = 3
+value = 1.0
+
+[sub_resource type="Resource" id="Resource_ojppj"]
+script = ExtResource("2")
+id = "r_cunning"
+display_name = "Cunning"
+description = "Fortune favors the clever."
+stat_modifiers = [SubResource("Resource_aoix1")]
+gold_cost = 75
+prerequisites = Array[String](["r_agility"])
+position = Vector2(826.66675, 465.99997)
+
+[sub_resource type="Resource" id="Resource_gweyt"]
+script = ExtResource("3")
+stat = 4
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_0py75"]
+script = ExtResource("2")
+id = "r_sharpness"
+display_name = "Sharpness"
+description = "Hone your blades for deadlier strikes."
+stat_modifiers = [SubResource("Resource_gweyt")]
+gold_cost = 75
+prerequisites = Array[String](["r_keen_eye"])
+position = Vector2(734.66675, 888)
+
+[sub_resource type="Resource" id="Resource_qgjgy"]
+script = ExtResource("3")
+stat = 8
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_yqd70"]
+script = ExtResource("2")
+id = "r_precision"
+display_name = "Precision"
+description = "Strike with surgical accuracy."
+stat_modifiers = [SubResource("Resource_qgjgy")]
+gold_cost = 100
+prerequisites = Array[String](["r_cunning", "bridge_wr"])
+prerequisite_mode = 1
+position = Vector2(716, 431.33334)
+
+[sub_resource type="Resource" id="Resource_pbjmg"]
+script = ExtResource("3")
+stat = 2
+modifier_type = 1
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_ekq37"]
+script = ExtResource("2")
+id = "r_swiftness"
+display_name = "Swiftness"
+description = "Blur of motion in combat."
+stat_modifiers = [SubResource("Resource_pbjmg")]
+gold_cost = 100
+prerequisites = Array[String](["r_sharpness", "bridge_mr"])
+prerequisite_mode = 1
+position = Vector2(547.33325, 956.6666)
+
+[sub_resource type="Resource" id="Resource_t683c"]
+script = ExtResource("3")
+stat = 9
+modifier_type = 1
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_fodkt"]
+script = ExtResource("2")
+id = "r_lethal"
+display_name = "Lethal"
+description = "Critical strikes become devastating."
+stat_modifiers = [SubResource("Resource_t683c")]
+gold_cost = 150
+prerequisites = Array[String](["r_precision"])
+position = Vector2(551.3333, 463.33328)
+
+[sub_resource type="Resource" id="Resource_7oi86"]
+script = ExtResource("2")
+id = "r_nimble"
+display_name = "Nimble"
+description = "10% chance to dodge incoming attacks."
+special_effect_id = "evasion"
+gold_cost = 150
+prerequisites = Array[String](["r_swiftness"])
+position = Vector2(951.3333, 1042)
+
+[sub_resource type="Resource" id="Resource_sqn24"]
+script = ExtResource("2")
+id = "r_first_strike"
+display_name = "First Strike"
+description = "Always act first in the opening round."
+special_effect_id = "first_strike"
+gold_cost = 200
+prerequisites = Array[String](["r_lethal"])
+position = Vector2(600.66675, 544.66656)
+
+[sub_resource type="Resource" id="Resource_aky0k"]
+script = ExtResource("2")
+id = "r_fortune"
+display_name = "Fortune"
+description = "Double gold earned from battles."
+special_effect_id = "double_gold"
+gold_cost = 200
+prerequisites = Array[String](["r_nimble"])
+position = Vector2(772.6666, 652.6666)
+
+[sub_resource type="Resource" id="Resource_afx3d"]
+script = ExtResource("3")
+stat = 8
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_wdovs"]
+script = ExtResource("2")
+id = "r_shadow_master"
+display_name = "Shadow Master"
+description = "The ultimate rogue — deadly and elusive."
+stat_modifiers = [SubResource("Resource_afx3d")]
+gold_cost = 500
+prerequisites = Array[String](["r_first_strike", "r_fortune"])
+position = Vector2(666.6666, 657.33344)
+
+[sub_resource type="Resource" id="Resource_4h0yn"]
+script = ExtResource("3")
+stat = 7
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_2iko2"]
+script = ExtResource("2")
+id = "bridge_wm"
+display_name = "Mystic Guard"
+description = "Channel defensive energy into magical protection."
+stat_modifiers = [SubResource("Resource_4h0yn")]
+gold_cost = 125
+prerequisites = Array[String](["w_ironhide"])
+position = Vector2(84.66666, 321.99997)
+
+[sub_resource type="Resource" id="Resource_0wqcr"]
+script = ExtResource("3")
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_qxx75"]
+script = ExtResource("2")
+id = "bridge_mw"
+display_name = "Arcane Fortitude"
+description = "Mana reinforces your body."
+stat_modifiers = [SubResource("Resource_0wqcr")]
+gold_cost = 125
+prerequisites = Array[String](["m_deep_pool"])
+position = Vector2(156, 550)
+
+[sub_resource type="Resource" id="Resource_wbkpy"]
+script = ExtResource("3")
+stat = 2
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_bcpbq"]
+script = ExtResource("2")
+id = "bridge_wr"
+display_name = "Predator"
+description = "Aggressive instincts quicken your reflexes."
+stat_modifiers = [SubResource("Resource_wbkpy")]
+gold_cost = 125
+prerequisites = Array[String](["w_brute_force"])
+position = Vector2(820, 342)
+
+[sub_resource type="Resource" id="Resource_bahbd"]
+script = ExtResource("3")
+stat = 5
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_otrrq"]
+script = ExtResource("2")
+id = "bridge_rw"
+display_name = "Iron Will"
+description = "Determination hardens your defenses."
+stat_modifiers = [SubResource("Resource_bahbd")]
+gold_cost = 125
+prerequisites = Array[String](["r_lethal"])
+position = Vector2(604, 344.6667)
+
+[sub_resource type="Resource" id="Resource_sqpnu"]
+script = ExtResource("3")
+stat = 3
+value = 1.0
+
+[sub_resource type="Resource" id="Resource_sm4j8"]
+script = ExtResource("2")
+id = "bridge_mr"
+display_name = "Mental Acuity"
+description = "Keen magical awareness sharpens your luck."
+stat_modifiers = [SubResource("Resource_sqpnu")]
+gold_cost = 125
+prerequisites = Array[String](["m_focused_mind"])
+position = Vector2(449.33337, 847.3334)
+
+[sub_resource type="Resource" id="Resource_3xhvx"]
+script = ExtResource("3")
+stat = 1
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_qqa73"]
+script = ExtResource("2")
+id = "bridge_rm"
+display_name = "Mystic Flow"
+description = "Fluid movement channels magical energy."
+stat_modifiers = [SubResource("Resource_3xhvx")]
+gold_cost = 125
+prerequisites = Array[String](["r_nimble"])
+position = Vector2(508.6667, 1085.3334)
+
+[resource]
+script = ExtResource("1")
+display_name = "Skill Tree"
+nodes = [SubResource("Resource_c4jgx"), SubResource("Resource_7qut3"), SubResource("Resource_acvvc"), SubResource("Resource_3ubgi"), SubResource("Resource_q3pyn"), SubResource("Resource_xq2ms"), SubResource("Resource_4jrw3"), SubResource("Resource_ltkcp"), SubResource("Resource_lxjos"), SubResource("Resource_7v52v"), SubResource("Resource_pn40s"), SubResource("Resource_ldqq1"), SubResource("Resource_5rptb"), SubResource("Resource_4jcch"), SubResource("Resource_j0yky"), SubResource("Resource_u6gsp"), SubResource("Resource_p7e8o"), SubResource("Resource_ifhfc"), SubResource("Resource_tqddo"), SubResource("Resource_1q64d"), SubResource("Resource_alrlm"), SubResource("Resource_e2jrs"), SubResource("Resource_622yy"), SubResource("Resource_ay61q"), SubResource("Resource_ojppj"), SubResource("Resource_0py75"), SubResource("Resource_yqd70"), SubResource("Resource_ekq37"), SubResource("Resource_fodkt"), SubResource("Resource_7oi86"), SubResource("Resource_sqn24"), SubResource("Resource_aky0k"), SubResource("Resource_wdovs"), SubResource("Resource_2iko2"), SubResource("Resource_qxx75"), SubResource("Resource_bcpbq"), SubResource("Resource_otrrq"), SubResource("Resource_sm4j8"), SubResource("Resource_qqa73")]
