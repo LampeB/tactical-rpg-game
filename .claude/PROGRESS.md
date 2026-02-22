@@ -11,9 +11,8 @@
 - ✅ Armor slot system (helmet, chestplate, gloves, legs, boots - 1 per slot)
 - ✅ Jewelry system (1 necklace, up to 10 rings)
 - ✅ Equipment slots indicator panel in inventory UI
-- ✅ Block percentage system for weapons/shields (affects defend action)
 - ✅ Equipment stat bonuses properly displayed in character stats
-- ✅ Block Power stat row in character stats panel
+- ✅ Shields provide physical and magical defense stats
 
 #### Combat Enhancements
 - ✅ Fire gem improvements (now works with daggers, maces, shields)
@@ -95,7 +94,7 @@
 - ⚠️ PanelContainer children need `layout_mode = 2` for proper sizing
 
 ### Potential Issues to Address
-- [ ] Defend action doesn't yet use block_percentage (needs combat system update)
+- [ ] Defend action not yet implemented (needs combat system update)
 - [ ] No armor/jewelry items created yet (only weapons exist)
 - [ ] Ring counting logic assumes PASSIVE_GEAR but needs actual ring items
 - [ ] Overworld encounters need balancing (enemy count, spawn positions)
@@ -106,7 +105,7 @@
 ## 💡 Ideas for Future Development
 
 ### Combat Enhancements
-- [ ] Implement defend action with block_percentage calculation
+- [ ] Implement defend action (damage reduction based on defense stats)
 - [ ] Add elemental weakness/resistance system
 - [ ] Combo system (chain attacks for bonus damage)
 - [ ] Positioning/formation mechanics

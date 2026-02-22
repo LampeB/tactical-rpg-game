@@ -9,12 +9,12 @@
 [sub_resource type="Resource" id="stat_phys_def"]
 script = ExtResource("2")
 stat = 5
-value = 5.0
+value = 10.0
 
 [sub_resource type="Resource" id="stat_mag_def"]
 script = ExtResource("2")
 stat = 7
-value = 3.0
+value = 6.0
 
 [resource]
 script = ExtResource("1")
@@ -26,6 +26,5 @@ category = 5
 hand_slots_required = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_phys_def"), SubResource("stat_mag_def")]
-block_percentage = 0.5
 granted_skills = [ExtResource("5_sbash")]
 base_price = 40

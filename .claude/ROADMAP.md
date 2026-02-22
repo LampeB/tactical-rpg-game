@@ -43,9 +43,9 @@
 
 ### ⚔️ Combat Enhancements (High Priority - Core Gameplay)
 
-- [ ] **Implement defend action with block %**
-  - Use weapon/shield block_percentage for damage reduction
-  - Balance block values across weapon types
+- [ ] **Implement defend action**
+  - Use shield defense stats for damage reduction
+  - Balance defense values across shield types
   - Add visual feedback for blocked damage
 
 - [ ] **Create enemy variety**

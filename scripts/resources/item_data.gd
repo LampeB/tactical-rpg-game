@@ -33,8 +33,6 @@ extends Resource
 @export var base_power: int = 0
 ## Base magical damage for active tools.
 @export var magical_power: int = 0
-## Percentage of damage blocked when defending with this item (0.0 to 1.0).
-@export_range(0.0, 1.0) var block_percentage: float = 0.0
 ## Skills granted by this item when equipped.
 @export var granted_skills: Array = [] ## of SkillData
 

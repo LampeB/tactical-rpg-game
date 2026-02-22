@@ -27,6 +27,5 @@ shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_sp_atk")]
 base_power = 0
 magical_power = 4
-block_percentage = 0.2
 granted_skills = [ExtResource("5_fbolt"), ExtResource("6_ishard")]
 base_price = 55

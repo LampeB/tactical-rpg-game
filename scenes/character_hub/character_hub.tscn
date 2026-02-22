@@ -72,12 +72,6 @@ size_flags_horizontal = 3
 toggle_mode = true
 text = "Skills"
 
-[node name="InventoryTab" type="Button" parent="VBox/ViewTabs"]
-layout_mode = 2
-size_flags_horizontal = 3
-toggle_mode = true
-text = "Inventory"
-
 [node name="ViewContainer" type="Control" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3

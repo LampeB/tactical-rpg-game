@@ -26,6 +26,5 @@ hand_slots_required = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("stat_phys_atk")]
 base_power = 5
-block_percentage = 0.2
 granted_skills = [ExtResource("5_slash"), ExtResource("6_pstrike")]
 base_price = 50
