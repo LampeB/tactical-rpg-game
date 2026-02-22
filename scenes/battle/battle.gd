@@ -1,5 +1,6 @@
 extends Control
 ## Battle scene orchestrator. Manages combat flow, UI updates, and player input.
+## Battlefield uses a SubViewport with Node2D sprites for future camera/animation support.
 
 enum BattleState { INIT, PLAYER_ACTION, TARGET_SELECT, ENEMY_ACTION, ANIMATING, VICTORY, DEFEAT }
 
@@ -14,14 +15,26 @@ const BATTLE_START_DELAY: float = 0.5  ## Delay before first turn
 const VICTORY_DELAY: float = 1.5  ## Pause before victory screen
 const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 
-# --- Child references ---
+# Battle positions relative to SubViewport center (computed at runtime)
+const PLAYER_OFFSETS: Array[Vector2] = [
+	Vector2(-300, -30),
+	Vector2(-350, 40),
+	Vector2(-240, 50),
+	Vector2(-400, -10),
+]
+const ENEMY_OFFSETS: Array[Vector2] = [
+	Vector2(300, -30),
+	Vector2(350, 40),
+	Vector2(240, 50),
+	Vector2(400, -10),
+]
+
+# --- Child references (UI overlay) ---
 @onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
 @onready var _round_label: Label = $MainLayout/TopBar/MarginContainer/HBox/RoundLabel
 @onready var _turn_order_bar: PanelContainer = $MainLayout/TurnOrderSection/TurnOrderBar
-@onready var _player_sprites: HBoxContainer = $MainLayout/BattleField/Layout/PlayerSprites
-@onready var _enemy_sprites: HBoxContainer = $MainLayout/BattleField/Layout/EnemySprites
-@onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/Layout/EnemyPortraits/EnemyList
-@onready var _party_list: HBoxContainer = $MainLayout/BattleField/Layout/PartyCards/PartyList
+@onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/FieldLayout/EnemyPortraits/EnemyList
+@onready var _party_list: HBoxContainer = $MainLayout/BattleField/FieldLayout/PartyCards/PartyList
 @onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
 @onready var _target_prompt_label: Label = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/Label
 @onready var _target_cancel_btn: Button = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/CancelButton
@@ -30,6 +43,12 @@ const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 @onready var _battle_log: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/BattleLog
 @onready var _popup_layer: CanvasLayer = $PopupLayer
 
+# --- Battlefield (SubViewport) references ---
+@onready var _battle_viewport: SubViewportContainer = $MainLayout/BattleField/FieldLayout/BattleViewport
+@onready var _sub_viewport: SubViewport = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport
+@onready var _battle_world: Node2D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld
+@onready var _battle_camera: Camera2D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld/BattleCamera
+
 # --- State ---
 var _encounter_data: EncounterData
 var _combat_manager: CombatManager
@@ -37,7 +56,7 @@ var _state: BattleState = BattleState.INIT
 
 # Entity -> UI mappings
 var _entity_bars: Dictionary = {}  ## CombatEntity -> EntityStatusBar node
-var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite node
+var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite (Node2D)
 var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 
 # Target selection
@@ -81,6 +100,9 @@ func _start_battle() -> void:
 	if not _encounter_data:
 		DebugLogger.log_error("No encounter data!", "Battle")
 		return
+
+	# Sync SubViewport size to container
+	_sync_viewport_size()
 
 	_combat_manager = CombatManager.new()
 	_combat_manager.turn_ready.connect(_on_turn_ready)
@@ -158,6 +180,32 @@ func _letter(index: int) -> String:
 	return char(65 + index)  # A, B, C...
 
 
+func _sync_viewport_size() -> void:
+	## Match SubViewport size to the container so sprites are correctly positioned.
+	var container_size: Vector2 = _battle_viewport.size
+	if container_size.x > 0 and container_size.y > 0:
+		_sub_viewport.size = Vector2i(int(container_size.x), int(container_size.y))
+	# Center camera on the viewport
+	_battle_camera.position = Vector2(container_size.x / 2.0, container_size.y / 2.0)
+
+
+# === Camera Stubs (for future use) ===
+
+func _shake_camera(_intensity: float = 5.0, _duration: float = 0.3) -> void:
+	## Stub: will shake camera for impact effects.
+	pass
+
+
+func _pan_camera_to(_target: Vector2, _duration: float = 0.5) -> void:
+	## Stub: will smoothly pan camera to a position.
+	pass
+
+
+func _reset_camera(_duration: float = 0.3) -> void:
+	## Stub: will return camera to default center position.
+	pass
+
+
 # === UI Building ===
 
 func _add_entity_bar(entity: CombatEntity, container: Container) -> void:
@@ -184,28 +232,38 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 		_add_entity_bar(players[i], _party_list)
 
 
-func _add_entity_sprite(entity: CombatEntity, container: Container) -> void:
-	var sprite: Control = BattleSpriteScene.instantiate()
-	container.add_child(sprite)
+func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) -> void:
+	var sprite: Node2D = BattleSpriteScene.instantiate()
+	_battle_world.add_child(sprite)
+
+	# Position at battle slot
+	var viewport_center: Vector2 = Vector2(_sub_viewport.size) / 2.0
+	var offsets: Array[Vector2] = PLAYER_OFFSETS if is_player else ENEMY_OFFSETS
+	var offset: Vector2 = offsets[slot_index % offsets.size()]
+	sprite.position = viewport_center + offset
+
 	sprite.setup(entity)
-	sprite.gui_input.connect(_on_entity_sprite_input.bind(entity))
-	sprite.mouse_entered.connect(_on_entity_sprite_mouse_entered.bind(entity))
-	sprite.mouse_exited.connect(_on_entity_sprite_mouse_exited.bind(entity))
+
+	# Connect sprite signals for target selection
+	sprite.clicked.connect(_on_sprite_clicked)
+	sprite.mouse_entered_sprite.connect(_on_entity_bar_mouse_entered)
+	sprite.mouse_exited_sprite.connect(_on_entity_bar_mouse_exited)
+
 	_entity_sprites[entity] = sprite
 
 
 func _build_entity_sprites(players: Array, enemies: Array) -> void:
-	for child in _player_sprites.get_children():
-		child.queue_free()
-	for child in _enemy_sprites.get_children():
-		child.queue_free()
+	# Clear existing sprites from battle world
+	for child in _battle_world.get_children():
+		if child is Node2D and child != _battle_camera:
+			child.queue_free()
 	_entity_sprites.clear()
 
 	for i in range(players.size()):
-		_add_entity_sprite(players[i], _player_sprites)
+		_add_entity_sprite(players[i], i, true)
 
 	for i in range(enemies.size()):
-		_add_entity_sprite(enemies[i], _enemy_sprites)
+		_add_entity_sprite(enemies[i], i, false)
 
 
 func _refresh_all_ui() -> void:
@@ -227,13 +285,10 @@ func _refresh_all_ui() -> void:
 			var entity: CombatEntity = keys[i]
 			var bar: PanelContainer = _entity_bars[entity]
 			if entity == _combat_manager.current_entity and entity.is_player:
-				# Gold border for active player
 				bar.highlight_active_turn()
 			elif entity == _combat_manager.current_entity:
-				# Regular highlight for active enemy
 				bar.highlight(true)
 			else:
-				# No highlight for inactive entities
 				bar.highlight(false)
 
 
@@ -301,10 +356,11 @@ func _on_combat_finished(victory: bool) -> void:
 func _on_entity_died(entity: CombatEntity) -> void:
 	DebugLogger.log_info("Entity died: %s (is_player: %s)" % [entity.entity_name, str(entity.is_player)], "Battle")
 
-	# Play death animation
-	var sprite: Control = _entity_sprites.get(entity)
+	# Play death animation and wait for it
+	var sprite: Node2D = _entity_sprites.get(entity)
 	if sprite:
 		sprite.play_death_animation()
+		await sprite.animation_finished
 
 	_refresh_all_ui()
 
@@ -321,6 +377,13 @@ func _on_log_toggle(toggled_on: bool) -> void:
 func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -> void:
 	DebugLogger.log_info("Status tick on %s: %d damage from %s (HP now: %d/%d)" % [entity.entity_name, damage, status_name, entity.current_hp, entity.max_hp], "Battle")
 	_spawn_popup_at_entity(entity, damage, Enums.PopupType.DAMAGE)
+
+	# Play hurt animation for status tick
+	var sprite: Node2D = _entity_sprites.get(entity)
+	if sprite:
+		sprite.play_hurt_animation()
+		await sprite.animation_finished
+
 	_refresh_all_ui()
 
 
@@ -358,7 +421,6 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 				_pending_skill = skill
 				_pending_target_type = target_type
 				_pending_item = null
-				# All skills go through target selection/confirmation for consistency
 				_enter_target_selection()
 
 		Enums.CombatAction.ITEM:
@@ -367,16 +429,13 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 				_pending_skill = skill
 				_pending_target_type = target_type
 				_pending_item = item
-				# Items use their use_skill for targeting, same flow as skills
 				_enter_target_selection()
 
 
 func _enter_target_selection() -> void:
 	_state = BattleState.TARGET_SELECT
-	# Keep action menu visible - it will show the target prompt in its second column
-	_target_prompt.visible = false
+	_target_prompt.visible = true
 
-	# Simpler prompts - hover shows affected targets
 	var skill_name: String = _pending_skill.display_name if _pending_skill else "action"
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
@@ -407,13 +466,26 @@ func _on_entity_bar_input(event: InputEvent, entity: CombatEntity) -> void:
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 
-	# Get targets based on hovered entity and skill type
 	var targets: Array = _get_targets_for_hover(entity)
 	if targets.is_empty():
 		DebugLogger.log_info("Click on invalid target: %s" % entity.entity_name, "Battle")
 		return
 
 	DebugLogger.log_info("Target confirmed: %s (affecting %d targets)" % [entity.entity_name, targets.size()], "Battle")
+	_execute_player_action(targets)
+
+
+func _on_sprite_clicked(entity: CombatEntity) -> void:
+	## Handle clicks on battlefield sprites (same logic as entity bar clicks).
+	if _state != BattleState.TARGET_SELECT:
+		return
+
+	var targets: Array = _get_targets_for_hover(entity)
+	if targets.is_empty():
+		DebugLogger.log_info("Click on invalid target sprite: %s" % entity.entity_name, "Battle")
+		return
+
+	DebugLogger.log_info("Target confirmed via sprite: %s (affecting %d targets)" % [entity.entity_name, targets.size()], "Battle")
 	_execute_player_action(targets)
 
 
@@ -429,23 +501,7 @@ func _on_entity_bar_mouse_exited(_entity: CombatEntity) -> void:
 	_clear_target_highlights()
 
 
-func _on_entity_sprite_input(event: InputEvent, entity: CombatEntity) -> void:
-	## Same as entity bar input - clicking sprites also selects targets
-	_on_entity_bar_input(event, entity)
-
-
-func _on_entity_sprite_mouse_entered(entity: CombatEntity) -> void:
-	## Same as entity bar hover
-	_on_entity_bar_mouse_entered(entity)
-
-
-func _on_entity_sprite_mouse_exited(entity: CombatEntity) -> void:
-	## Same as entity bar hover exit
-	_on_entity_bar_mouse_exited(entity)
-
-
 func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
-	##Returns array of entities that would be affected if clicking on hovered_entity.##
 	if hovered_entity.is_dead:
 		return []
 
@@ -461,17 +517,14 @@ func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
 			return []
 
 		Enums.TargetType.SELF:
-			# Self targets always hit the current entity, regardless of hover
 			return [_combat_manager.current_entity]
 
 		Enums.TargetType.ALL_ENEMIES:
-			# Must hover an enemy to confirm
 			if not hovered_entity.is_player:
 				return _combat_manager.get_alive_enemies()
 			return []
 
 		Enums.TargetType.ALL_ALLIES:
-			# Must hover an ally to confirm
 			if hovered_entity.is_player:
 				return _combat_manager.get_alive_players()
 			return []
@@ -481,47 +534,40 @@ func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:
 
 
 func _update_target_highlights(hovered_entity: CombatEntity) -> void:
-	##Highlight targets that would be affected by clicking on hovered_entity.##
 	_clear_target_highlights()
 
 	var targets: Array = _get_targets_for_hover(hovered_entity)
 	if targets.is_empty():
-		# Invalid target - show red
 		var bar: PanelContainer = _entity_bars.get(hovered_entity)
 		if bar:
 			bar.set_highlight(bar.HighlightType.INVALID)
-		var sprite: Control = _entity_sprites.get(hovered_entity)
+		var sprite: Node2D = _entity_sprites.get(hovered_entity)
 		if sprite:
 			sprite.set_highlight(false)
 		return
 
-	# Highlight all affected targets
 	for i in range(targets.size()):
 		var target: CombatEntity = targets[i]
 		var bar: PanelContainer = _entity_bars.get(target)
 		if bar:
-			# Primary highlight for the hovered one, secondary for others
 			if target == hovered_entity:
 				bar.set_highlight(bar.HighlightType.PRIMARY)
 			else:
 				bar.set_highlight(bar.HighlightType.SECONDARY)
 
-		# Also highlight sprites
-		var sprite: Control = _entity_sprites.get(target)
+		var sprite: Node2D = _entity_sprites.get(target)
 		if sprite:
 			sprite.set_highlight(target == hovered_entity)
 
 
 func _clear_target_highlights() -> void:
-	## Remove all target highlighting.
 	var keys: Array = _entity_bars.keys()
 	for i in range(keys.size()):
 		var entity: CombatEntity = keys[i]
 		var bar: PanelContainer = _entity_bars[entity]
 		bar.set_highlight(bar.HighlightType.NONE)
 
-		# Also clear sprite highlights
-		var sprite: Control = _entity_sprites.get(entity)
+		var sprite: Node2D = _entity_sprites.get(entity)
 		if sprite:
 			sprite.set_highlight(false)
 
@@ -552,27 +598,34 @@ func _execute_player_action(targets: Array) -> void:
 	DebugLogger.log_info("State -> ANIMATING: executing player action on [%s]" % target_names, "Battle")
 
 	var source: CombatEntity = _combat_manager.current_entity
-	var result: Dictionary
 
-	# Play attacker animation
-	var attacker_sprite: Control = _entity_sprites.get(source)
+	# Step 1: Play attacker animation and wait
+	var attacker_sprite: Node2D = _entity_sprites.get(source)
 	if attacker_sprite:
 		attacker_sprite.play_attack_animation()
+		await attacker_sprite.animation_finished
 
+	# Step 2: Execute combat logic
+	var result: Dictionary
 	match _pending_action_type:
 		Enums.CombatAction.ATTACK:
 			if not targets.is_empty():
 				result = _combat_manager.execute_attack(source, targets[0])
 				_spawn_damage_popup(targets[0], result)
+				# Step 3: Play target reaction
+				await _play_target_reactions(targets, result)
+
 		Enums.CombatAction.SKILL:
 			if _pending_skill:
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
 				_spawn_popups_for_results(result)
+				await _play_target_reactions_from_results(result)
+
 		Enums.CombatAction.ITEM:
 			if _pending_skill:
-				# Execute the item's skill
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
 				_spawn_popups_for_results(result)
+				await _play_target_reactions_from_results(result)
 
 				# Remove item from character's grid inventory
 				if _pending_item and source.grid_inventory and source.character_data:
@@ -591,6 +644,34 @@ func _execute_player_action(targets: Array) -> void:
 	_advance_after_action()
 
 
+# === Animation Helpers ===
+
+func _play_target_reactions(targets: Array, result: Dictionary) -> void:
+	## Play hurt animation on single-target attack results.
+	if targets.is_empty():
+		return
+	var target: CombatEntity = targets[0]
+	if result.get("damage", result.get("actual_damage", 0)) > 0:
+		var sprite: Node2D = _entity_sprites.get(target)
+		if sprite and not target.is_dead:
+			sprite.play_hurt_animation()
+			await sprite.animation_finished
+
+
+func _play_target_reactions_from_results(result: Dictionary) -> void:
+	## Play hurt/heal animations from multi-target skill results.
+	var target_results: Array = result.get("target_results", [])
+	for i in range(target_results.size()):
+		var target_result: Dictionary = target_results[i]
+		var target: CombatEntity = target_result.target
+		var dmg: int = target_result.get("damage", target_result.get("actual_damage", 0))
+		if dmg > 0:
+			var sprite: Node2D = _entity_sprites.get(target)
+			if sprite and not target.is_dead:
+				sprite.play_hurt_animation()
+				await sprite.animation_finished
+
+
 # === Enemy Turn ===
 
 func _execute_enemy_turn(entity: CombatEntity) -> void:
@@ -607,20 +688,26 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	var skill_name: String = skill.display_name if skill else "none"
 	DebugLogger.log_info("Enemy AI chose: %s, skill: %s, targets: [%s]" % [action_name, skill_name, target_names], "Battle")
 
-	# Play enemy attack animation
-	var enemy_sprite: Control = _entity_sprites.get(entity)
+	# Step 1: Play enemy attack animation
+	var enemy_sprite: Node2D = _entity_sprites.get(entity)
 	if enemy_sprite:
 		enemy_sprite.play_attack_animation()
+		await enemy_sprite.animation_finished
 
+	# Step 2: Execute combat logic
 	match action_type:
 		Enums.CombatAction.ATTACK:
 			if not targets.is_empty():
 				var result: Dictionary = _combat_manager.execute_attack(entity, targets[0])
 				_spawn_damage_popup(targets[0], result)
+				await _play_target_reactions(targets, result)
+
 		Enums.CombatAction.SKILL:
 			if skill:
 				var result: Dictionary = _combat_manager.execute_skill(entity, skill, targets)
 				_spawn_popups_for_results(result)
+				await _play_target_reactions_from_results(result)
+
 		Enums.CombatAction.DEFEND:
 			_combat_manager.execute_defend(entity)
 
@@ -669,7 +756,6 @@ func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 
 
 func _save_player_vitals() -> void:
-	## Save current HP/MP from player entities back to persistent Party vitals
 	if not _combat_manager or not GameManager.party:
 		return
 
@@ -698,10 +784,3 @@ func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums
 	_popup_layer.add_child(popup)
 	popup.global_position = bar.get_global_center() + Vector2(randf_range(-20, 20), -10)
 	popup.setup(amount, popup_type)
-
-	# Play sprite animation for damage/healing
-	var sprite: Control = _entity_sprites.get(entity)
-	if sprite:
-		if popup_type == Enums.PopupType.DAMAGE:
-			sprite.play_hurt_animation()
-		# Death animation is handled separately
