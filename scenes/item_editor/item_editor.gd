@@ -6,13 +6,7 @@ const RARITY_SUFFIXES: Array[String] = [
 	"_common", "_uncommon", "_rare", "_elite", "_legendary", "_unique",
 ]
 
-const TYPE_SECTION_NAMES: Dictionary = {
-	Enums.ItemType.ACTIVE_TOOL: "Weapons",
-	Enums.ItemType.PASSIVE_GEAR: "Armor",
-	Enums.ItemType.MODIFIER: "Modifiers",
-	Enums.ItemType.CONSUMABLE: "Consumables",
-	Enums.ItemType.MATERIAL: "Materials",
-}
+var _type_section_names: Dictionary = {}
 
 # === Cached resource lists (loaded once) ===
 var _shapes: Array = []        # Array of ItemShape
@@ -48,6 +42,13 @@ var _editing_shape: bool = false  # true when inline shape editor is open
 
 
 func _ready() -> void:
+	_type_section_names = {
+		Enums.ItemType.ACTIVE_TOOL: "Weapons",
+		Enums.ItemType.PASSIVE_GEAR: "Armor",
+		Enums.ItemType.MODIFIER: "Modifiers",
+		Enums.ItemType.CONSUMABLE: "Consumables",
+		Enums.ItemType.MATERIAL: "Materials",
+	}
 	_title_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_HEADER)
 
 	_back_btn.pressed.connect(_on_back)
@@ -226,7 +227,7 @@ func _rebuild_item_list() -> void:
 
 		# Type section header
 		var section_label := Label.new()
-		section_label.text = TYPE_SECTION_NAMES.get(item_type, "Other")
+		section_label.text = _type_section_names.get(item_type, "Other")
 		section_label.add_theme_font_size_override("font_size", 15)
 		section_label.add_theme_color_override("font_color", Color(0.7, 0.85, 1.0))
 		_item_list_vbox.add_child(section_label)
