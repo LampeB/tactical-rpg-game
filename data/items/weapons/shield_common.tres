@@ -6,12 +6,12 @@
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="4_ekmb0"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_uf7bp"]
 
-[sub_resource type="Resource" id="Resource_tglf1"]
+[sub_resource type="Resource" id="Resource_1h2e1"]
 script = ExtResource("5_uf7bp")
 stat = 5
 value = 10.0
 
-[sub_resource type="Resource" id="Resource_gq4in"]
+[sub_resource type="Resource" id="Resource_glwkr"]
 script = ExtResource("5_uf7bp")
 stat = 7
 value = 6.0
@@ -24,7 +24,8 @@ description = "A sturdy wooden shield. Offers basic protection."
 icon = ExtResource("2_glwkr")
 category = 5
 hand_slots_required = 1
+armor_slot = 5
 shape = ExtResource("4_ekmb0")
-stat_modifiers = [SubResource("Resource_tglf1"), SubResource("Resource_gq4in")]
+stat_modifiers = [SubResource("Resource_1h2e1"), SubResource("Resource_glwkr")]
 granted_skills = [ExtResource("1_1h2e1")]
 base_price = 40

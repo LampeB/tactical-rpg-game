@@ -24,6 +24,7 @@ description = "A lightweight dagger. Quick and easy to conceal."
 icon = ExtResource("4")
 category = 4
 hand_slots_required = 1
+armor_slot = 4
 shape = ExtResource("3")
 stat_modifiers = [SubResource("Resource_aj780"), SubResource("Resource_ttodt")]
 base_power = 4

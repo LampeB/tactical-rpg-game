@@ -43,12 +43,27 @@ func set_state(state: CellState) -> void:
 	cell_state = state
 	if _background:
 		_background.color = STATE_COLORS.get(state, STATE_COLORS[CellState.EMPTY])
-	if _border:
-		# Apply special border color for upgradeable state
-		if BORDER_COLORS.has(state):
-			_border.color = BORDER_COLORS[state]
+		if state == CellState.OCCUPIED:
+			# Fill the entire cell (no 1px inset) to remove grid lines under items
+			_background.offset_left = 0.0
+			_background.offset_top = 0.0
+			_background.offset_right = 0.0
+			_background.offset_bottom = 0.0
 		else:
-			_border.color = Color(0.4, 0.4, 0.5, 1.0)  # Default border
+			# Restore 1px inset for visible grid lines
+			_background.offset_left = 1.0
+			_background.offset_top = 1.0
+			_background.offset_right = -1.0
+			_background.offset_bottom = -1.0
+	if _border:
+		if state == CellState.OCCUPIED:
+			_border.visible = false
+		else:
+			_border.visible = true
+			if BORDER_COLORS.has(state):
+				_border.color = BORDER_COLORS[state]
+			else:
+				_border.color = Color(0.4, 0.4, 0.5, 1.0)
 
 
 func set_rarity_tint(color: Color) -> void:

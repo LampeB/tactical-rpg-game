@@ -18,6 +18,7 @@ description = "A lightweight hunting bow. Ranged weapon with a distinctive zigza
 icon = ExtResource("4")
 category = 2
 hand_slots_required = 2
+armor_slot = 2
 shape = ExtResource("3")
 stat_modifiers = [SubResource("Resource_25iub")]
 base_power = 4

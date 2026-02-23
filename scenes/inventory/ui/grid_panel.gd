@@ -11,6 +11,7 @@ const GridCellScene: PackedScene = preload("res://scenes/inventory/ui/grid_cell.
 var _grid_inventory: GridInventory
 var _cells: Dictionary = {}  ## Vector2i -> GridCell node
 var _item_visuals: Dictionary = {}  ## PlacedItem -> TextureRect
+var _star_overlays: Array = []  ## Star labels for modifier connections
 var _last_hovered_cell: Vector2i = Vector2i(-1, -1)
 
 @onready var _cells_layer: Control = $CellsLayer
@@ -72,7 +73,7 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 		var affected_tools: Array = _grid_inventory.get_tools_affected_by(temp_placed)
 		would_modify_tools = not affected_tools.is_empty()
 
-	# Show the item's own placement cells (always green if valid)
+	# Show valid/invalid drop on grid cells
 	for cell_offset in shape_cells:
 		var target: Vector2i = grid_pos + cell_offset
 		if _cells.has(target):
@@ -101,28 +102,106 @@ func clear_placement_preview() -> void:
 
 
 func highlight_modifier_connections(placed: GridInventory.PlacedItem) -> void:
+	_clear_star_overlays()
 	if not _grid_inventory or not placed:
 		return
 	if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+		# Hovering a weapon: one star per gem, on the gem cell that reaches the weapon
+		var tool_cells: Array[Vector2i] = placed.get_occupied_cells()
 		var modifiers: Array = _grid_inventory.get_modifiers_affecting(placed)
 		for j in range(modifiers.size()):
 			var mod: GridInventory.PlacedItem = modifiers[j]
-			var mod_cells: Array[Vector2i] = mod.get_occupied_cells()
-			for cell in mod_cells:
-				if _cells.has(cell):
-					_cells[cell].set_state(_cells[cell].CellState.MODIFIER_HIGHLIGHT)
+			var best: Vector2i = _pick_best_reaching_cell(mod, tool_cells)
+			if best != Vector2i(-999, -999):
+				_add_star_at_cell(best)
 	elif placed.item_data.item_type == Enums.ItemType.MODIFIER:
+		# Hovering a gem: one star per weapon, on the weapon cell reached by this gem
 		var tools: Array = _grid_inventory.get_tools_affected_by(placed)
 		for j in range(tools.size()):
 			var tool_item: GridInventory.PlacedItem = tools[j]
 			var tool_cells: Array[Vector2i] = tool_item.get_occupied_cells()
-			for cell in tool_cells:
-				if _cells.has(cell):
-					_cells[cell].set_state(_cells[cell].CellState.MODIFIER_HIGHLIGHT)
+			var best: Vector2i = _pick_best_reached_cell(placed, tool_cells)
+			if best != Vector2i(-999, -999):
+				_add_star_at_cell(best)
 
 
 func clear_highlights() -> void:
-	refresh()
+	_clear_star_overlays()
+
+
+func _pick_best_reaching_cell(modifier: GridInventory.PlacedItem, target_cells: Array[Vector2i]) -> Vector2i:
+	## Pick the single best gem cell that reaches the weapon.
+	## Priority: closest to weapon, then clockwise from top.
+	var mod_cells: Array[Vector2i] = modifier.get_occupied_cells()
+	var reach_pattern: Array[Vector2i] = modifier.item_data.get_reach_cells(modifier.rotation)
+	var best: Vector2i = Vector2i(-999, -999)
+	var best_dist: float = INF
+	var best_angle: float = INF
+	for mc in mod_cells:
+		for offset in reach_pattern:
+			if target_cells.has(mc + offset):
+				# Distance = offset length (how far the reach extends)
+				var dist: float = Vector2(offset).length()
+				var angle: float = _clockwise_angle(offset)
+				if dist < best_dist or (dist == best_dist and angle < best_angle):
+					best = mc
+					best_dist = dist
+					best_angle = angle
+				break  # One match per mod cell is enough
+	return best
+
+
+func _pick_best_reached_cell(modifier: GridInventory.PlacedItem, target_cells: Array[Vector2i]) -> Vector2i:
+	## Pick the single best weapon cell reached by the gem.
+	## Priority: closest to gem, then clockwise from top.
+	var mod_cells: Array[Vector2i] = modifier.get_occupied_cells()
+	var reach_pattern: Array[Vector2i] = modifier.item_data.get_reach_cells(modifier.rotation)
+	var best: Vector2i = Vector2i(-999, -999)
+	var best_dist: float = INF
+	var best_angle: float = INF
+	for mc in mod_cells:
+		for offset in reach_pattern:
+			var affected: Vector2i = mc + offset
+			if target_cells.has(affected):
+				var dist: float = Vector2(offset).length()
+				var angle: float = _clockwise_angle(offset)
+				if dist < best_dist or (dist == best_dist and angle < best_angle):
+					best = affected
+					best_dist = dist
+					best_angle = angle
+	return best
+
+
+func _clockwise_angle(offset: Vector2i) -> float:
+	## Returns angle in [0, TAU) clockwise from top (up = 0, right = PI/2, etc.)
+	var angle: float = atan2(float(offset.x), float(-offset.y))
+	if angle < 0.0:
+		angle += TAU
+	return angle
+
+
+func _add_star_at_cell(cell_pos: Vector2i) -> void:
+	var star: Label = Label.new()
+	star.text = "*"
+	star.add_theme_font_size_override("font_size", 28)
+	star.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2))
+	star.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
+	star.add_theme_constant_override("shadow_offset_x", 1)
+	star.add_theme_constant_override("shadow_offset_y", 1)
+	star.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	star.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	star.size = Vector2(CELL_SIZE, CELL_SIZE)
+	star.position = Vector2(cell_pos.x * CELL_SIZE, cell_pos.y * CELL_SIZE)
+	_items_layer.add_child(star)
+	_star_overlays.append(star)
+
+
+func _clear_star_overlays() -> void:
+	for star in _star_overlays:
+		if is_instance_valid(star):
+			star.queue_free()
+	_star_overlays.clear()
 
 
 func highlight_upgradeable_items(dragged_item: ItemData) -> void:
@@ -237,23 +316,22 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	shape_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(shape_outline)
 
-	# Draw per-cell outlines for the actual shape
+	# Draw outer-only border for the item shape
 	var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
 	for cell in cells:
-		# Create a panel with border for each occupied cell
 		var cell_panel: PanelContainer = PanelContainer.new()
 		cell_panel.position = Vector2((cell.x - min_pos.x) * CELL_SIZE, (cell.y - min_pos.y) * CELL_SIZE)
 		cell_panel.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
 		cell_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-		# Create StyleBox with border
+		# Only draw border on edges not shared with another cell of the same item
 		var style: StyleBoxFlat = StyleBoxFlat.new()
 		style.bg_color = Color.TRANSPARENT
-		style.border_width_left = 2
-		style.border_width_right = 2
-		style.border_width_top = 2
-		style.border_width_bottom = 2
 		style.border_color = rarity_color
+		style.border_width_left = 2 if not cells.has(cell + Vector2i(-1, 0)) else 0
+		style.border_width_right = 2 if not cells.has(cell + Vector2i(1, 0)) else 0
+		style.border_width_top = 2 if not cells.has(cell + Vector2i(0, -1)) else 0
+		style.border_width_bottom = 2 if not cells.has(cell + Vector2i(0, 1)) else 0
 		cell_panel.add_theme_stylebox_override("panel", style)
 
 		shape_outline.add_child(cell_panel)

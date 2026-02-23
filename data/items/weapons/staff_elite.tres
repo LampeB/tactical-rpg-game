@@ -4,10 +4,10 @@
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_ax4cr"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/staff_common.png" id="3_dheca"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_0dv4x"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_3dctn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_custom_212525.tres" id="5_2j3wd"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_k8um2"]
 
-[sub_resource type="Resource" id="Resource_2j3wd"]
+[sub_resource type="Resource" id="Resource_ax4cr"]
 script = ExtResource("6_k8um2")
 stat = 6
 value = 13.0
@@ -21,8 +21,8 @@ icon = ExtResource("3_dheca")
 category = 3
 rarity = 3
 hand_slots_required = 2
-shape = ExtResource("5_3dctn")
-stat_modifiers = [SubResource("Resource_2j3wd")]
+shape = ExtResource("5_2j3wd")
+stat_modifiers = [SubResource("Resource_ax4cr")]
 magical_power = 9
 granted_skills = [ExtResource("1_2j3wd"), ExtResource("2_ax4cr")]
 base_price = 145
