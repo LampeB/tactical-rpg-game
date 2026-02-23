@@ -7,7 +7,7 @@
 size = Vector2(28, 28)
 
 [sub_resource type="CircleShape2D" id="detection_collision"]
-radius = 20.0
+radius = 40.0
 
 [node name="RoamingEnemy" type="CharacterBody2D"]
 collision_layer = 0

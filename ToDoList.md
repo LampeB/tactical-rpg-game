@@ -42,6 +42,8 @@
 - [ ] Damage numbers animation in combat
 - [ ] Screen shake on critical hits
 - [ ] Skill visual effects / particles
+- [ ] Hover tooltip on skills in the stats screen (show skill details on mouseover)
+- [ ] Show number of hands required on weapon card
 
 ### Items & Equipment
 - [ ] Create armor items (helmets, chestplates, gloves, legs, boots — multiple tiers)
