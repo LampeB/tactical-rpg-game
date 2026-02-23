@@ -19,6 +19,7 @@ display_name = "Iron Sword"
 description = "A basic iron sword. Reliable if unexceptional."
 icon = ExtResource("4")
 hand_slots_required = 1
+armor_slot = 0
 shape = ExtResource("3")
 stat_modifiers = [SubResource("Resource_a8et7")]
 base_power = 5

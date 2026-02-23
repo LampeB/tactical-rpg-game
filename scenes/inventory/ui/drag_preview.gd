@@ -5,7 +5,6 @@ const CELL_SIZE: int = Constants.GRID_CELL_SIZE
 
 var item_data: ItemData
 var current_rotation: int = 0
-var _shape_rects: Array[ColorRect] = []
 
 @onready var _icon: TextureRect = $Icon
 @onready var _shape_container: Control = $ShapeCells
@@ -33,11 +32,7 @@ func get_cells() -> Array[Vector2i]:
 	return item_data.shape.get_rotated_cells(current_rotation)
 
 
-func set_valid(is_valid: bool) -> void:
-	var tint: Color = Constants.COLOR_DRAG_VALID if is_valid else Constants.COLOR_DRAG_INVALID
-	for rect in _shape_rects:
-		if is_instance_valid(rect):
-			rect.color = tint
+func set_valid(_is_valid: bool) -> void:
 	modulate.a = 0.8
 
 
@@ -52,10 +47,9 @@ func _process(_delta: float) -> void:
 
 
 func _rebuild_shape() -> void:
-	# Clear old shape rects
+	# Clear old shape panels
 	for child in _shape_container.get_children():
 		child.queue_free()
-	_shape_rects.clear()
 
 	if not item_data:
 		return
@@ -83,12 +77,21 @@ func _rebuild_shape() -> void:
 	_icon.pivot_offset = bbox_size / 2.0
 	_icon.rotation = current_rotation * PI / 2.0
 
-	# Draw shape cell outlines
+	# Draw outer-only rarity border (no fill)
+	var rarity_color: Color = Constants.RARITY_COLORS.get(item_data.rarity, Color.WHITE)
 	for cell in cells:
-		var rect: ColorRect = ColorRect.new()
-		rect.position = Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
-		rect.size = Vector2(CELL_SIZE, CELL_SIZE)
-		rect.color = Constants.COLOR_DRAG_VALID
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_shape_container.add_child(rect)
-		_shape_rects.append(rect)
+		var panel: PanelContainer = PanelContainer.new()
+		panel.position = Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
+		panel.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		var style: StyleBoxFlat = StyleBoxFlat.new()
+		style.bg_color = Color.TRANSPARENT
+		style.border_color = rarity_color
+		style.border_width_left = 2 if not cells.has(cell + Vector2i(-1, 0)) else 0
+		style.border_width_right = 2 if not cells.has(cell + Vector2i(1, 0)) else 0
+		style.border_width_top = 2 if not cells.has(cell + Vector2i(0, -1)) else 0
+		style.border_width_bottom = 2 if not cells.has(cell + Vector2i(0, 1)) else 0
+		panel.add_theme_stylebox_override("panel", style)
+
+		_shape_container.add_child(panel)

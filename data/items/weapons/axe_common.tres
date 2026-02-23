@@ -18,6 +18,7 @@ description = "A heavy two-handed battle axe. The wide blade takes up significan
 icon = ExtResource("4")
 category = 6
 hand_slots_required = 2
+armor_slot = 6
 shape = ExtResource("3")
 stat_modifiers = [SubResource("Resource_pmhvt")]
 base_power = 8

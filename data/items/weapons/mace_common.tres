@@ -18,6 +18,7 @@ description = "A heavy iron mace. Slow but powerful."
 icon = ExtResource("4")
 category = 1
 hand_slots_required = 1
+armor_slot = 1
 shape = ExtResource("3")
 stat_modifiers = [SubResource("Resource_ly47x")]
 base_power = 7

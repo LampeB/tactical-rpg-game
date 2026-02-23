@@ -20,6 +20,7 @@ description = "An exceptionally long staff of ancient wood. Channels immense mag
 icon = ExtResource("3_b4ilm")
 category = 3
 hand_slots_required = 2
+armor_slot = 3
 shape = ExtResource("5_fqyu0")
 stat_modifiers = [SubResource("Resource_mku6x")]
 magical_power = 4

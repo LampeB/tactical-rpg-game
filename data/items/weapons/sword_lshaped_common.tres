@@ -19,6 +19,7 @@ display_name = "L-Shaped Broadsword"
 description = "An unusual broad-bladed sword with an L-shaped profile. Takes up more space but hits harder."
 icon = ExtResource("3_hna4t")
 hand_slots_required = 1
+armor_slot = 0
 shape = ExtResource("5_ix6la")
 stat_modifiers = [SubResource("Resource_1hc5i")]
 base_power = 5

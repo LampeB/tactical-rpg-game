@@ -99,12 +99,12 @@ func _unhandled_input(event: InputEvent) -> void:
 # Resource scanning
 # =========================================================================
 
-func _load_shapes() -> void:
+func _load_shapes(force_reload: bool = false) -> void:
 	_scan_resources("res://data/shapes/", func(res: Resource, path: String) -> void:
 		if res is ItemShape:
 			_shapes.append(res)
 			_shape_paths.append(path)
-	)
+	, force_reload)
 
 func _load_skills() -> void:
 	_scan_resources("res://data/skills/", func(res: Resource, path: String) -> void:
@@ -136,7 +136,7 @@ func _load_icons() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-func _scan_resources(dir_path: String, callback: Callable) -> void:
+func _scan_resources(dir_path: String, callback: Callable, force_reload: bool = false) -> void:
 	var dir := DirAccess.open(dir_path)
 	if not dir:
 		return
@@ -145,7 +145,11 @@ func _scan_resources(dir_path: String, callback: Callable) -> void:
 	while file_name != "":
 		if not dir.current_is_dir() and file_name.ends_with(".tres"):
 			var full_path := dir_path + file_name
-			var res := load(full_path)
+			var res: Resource
+			if force_reload:
+				res = ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_REPLACE)
+			else:
+				res = load(full_path)
 			if res:
 				callback.call(res, full_path)
 		file_name = dir.get_next()
@@ -396,6 +400,13 @@ func _save_single_item(item: ItemData) -> bool:
 	for d in all_dirs:
 		if d != dir_path and FileAccess.file_exists(d + file_name):
 			DirAccess.remove_absolute(d + file_name)
+
+	# Ensure shape references the external .tres file so it's saved as ext_resource
+	if item.shape and not item.shape.id.is_empty():
+		var shape_path: String = "res://data/shapes/" + item.shape.id + ".tres"
+		if FileAccess.file_exists(shape_path):
+			item.shape = ResourceLoader.load(shape_path, "", ResourceLoader.CACHE_MODE_REPLACE) as ItemShape
+
 	var file_path: String = dir_path + file_name
 	var err := ResourceSaver.save(item, file_path)
 	return err == OK
@@ -876,54 +887,62 @@ func _build_equipment_section(item: ItemData) -> void:
 
 	_add_section_header("Equipment Slots")
 
-	var hand_row := HBoxContainer.new()
-	var hand_label := Label.new()
-	hand_label.text = "Hand Slots:"
-	hand_row.add_child(hand_label)
-	var hand_spin := SpinBox.new()
-	hand_spin.min_value = 0
-	hand_spin.max_value = 2
-	hand_spin.value = item.hand_slots_required
-	hand_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hand_spin.value_changed.connect(func(val: float) -> void:
-		item.hand_slots_required = int(val)
-		_dirty_ids[item.id] = true
-	)
-	hand_row.add_child(hand_spin)
-	_property_vbox.add_child(hand_row)
+	# Weapons: show hand slots required
+	if item.item_type == Enums.ItemType.ACTIVE_TOOL:
+		var hand_row := HBoxContainer.new()
+		var hand_label := Label.new()
+		hand_label.text = "Hand Slots:"
+		hand_row.add_child(hand_label)
+		var hand_spin := SpinBox.new()
+		hand_spin.min_value = 0
+		hand_spin.max_value = 2
+		hand_spin.value = item.hand_slots_required
+		hand_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hand_spin.value_changed.connect(func(val: float) -> void:
+			item.hand_slots_required = int(val)
+			_dirty_ids[item.id] = true
+		)
+		hand_row.add_child(hand_spin)
+		_property_vbox.add_child(hand_row)
 
-	var armor_row := HBoxContainer.new()
-	var armor_label := Label.new()
-	armor_label.text = "Armor Slot:"
-	armor_row.add_child(armor_label)
-	var armor_btn := OptionButton.new()
-	armor_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var cat_keys: PackedStringArray = Enums.EquipmentCategory.keys()
-	for i in range(cat_keys.size()):
-		armor_btn.add_item(cat_keys[i].capitalize().replace("_", " "), i)
-	armor_btn.selected = item.armor_slot
-	armor_btn.item_selected.connect(func(idx: int) -> void:
-		item.armor_slot = idx
-		_dirty_ids[item.id] = true
-	)
-	armor_row.add_child(armor_btn)
-	_property_vbox.add_child(armor_row)
+	# Armor: show armor slot and bonus hand slots
+	if item.item_type == Enums.ItemType.PASSIVE_GEAR:
+		var armor_row := HBoxContainer.new()
+		var armor_label := Label.new()
+		armor_label.text = "Armor Slot:"
+		armor_row.add_child(armor_label)
+		var armor_btn := OptionButton.new()
+		armor_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var cat_keys: PackedStringArray = Enums.EquipmentCategory.keys()
+		# Only show armor-relevant categories (HELMET through RING)
+		for i in range(Enums.EquipmentCategory.HELMET, cat_keys.size()):
+			armor_btn.add_item(cat_keys[i].capitalize().replace("_", " "), i)
+		for j in range(armor_btn.item_count):
+			if armor_btn.get_item_id(j) == item.armor_slot:
+				armor_btn.selected = j
+				break
+		armor_btn.item_selected.connect(func(idx: int) -> void:
+			item.armor_slot = armor_btn.get_item_id(idx)
+			_dirty_ids[item.id] = true
+		)
+		armor_row.add_child(armor_btn)
+		_property_vbox.add_child(armor_row)
 
-	var bonus_row := HBoxContainer.new()
-	var bonus_label := Label.new()
-	bonus_label.text = "Bonus Hand Slots:"
-	bonus_row.add_child(bonus_label)
-	var bonus_spin := SpinBox.new()
-	bonus_spin.min_value = 0
-	bonus_spin.max_value = 4
-	bonus_spin.value = item.bonus_hand_slots
-	bonus_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bonus_spin.value_changed.connect(func(val: float) -> void:
-		item.bonus_hand_slots = int(val)
-		_dirty_ids[item.id] = true
-	)
-	bonus_row.add_child(bonus_spin)
-	_property_vbox.add_child(bonus_row)
+		var bonus_row := HBoxContainer.new()
+		var bonus_label := Label.new()
+		bonus_label.text = "Bonus Hand Slots:"
+		bonus_row.add_child(bonus_label)
+		var bonus_spin := SpinBox.new()
+		bonus_spin.min_value = 0
+		bonus_spin.max_value = 4
+		bonus_spin.value = item.bonus_hand_slots
+		bonus_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		bonus_spin.value_changed.connect(func(val: float) -> void:
+			item.bonus_hand_slots = int(val)
+			_dirty_ids[item.id] = true
+		)
+		bonus_row.add_child(bonus_spin)
+		_property_vbox.add_child(bonus_row)
 
 
 # === Shape ===
@@ -1057,10 +1076,15 @@ func _build_shape_editor(item: ItemData) -> void:
 	save_shape_btn.pressed.connect(func() -> void:
 		_save_shape(shape)
 		_editing_shape = false
+		# Re-link item to the external shape file (bypass cache to get fresh version)
+		var shape_path: String = "res://data/shapes/" + shape.id + ".tres"
+		if FileAccess.file_exists(shape_path):
+			item.shape = ResourceLoader.load(shape_path, "", ResourceLoader.CACHE_MODE_REPLACE) as ItemShape
+		_dirty_ids[item.id] = true
 		# Reload shapes so the dropdown picks up the new/edited one
 		_shapes.clear()
 		_shape_paths.clear()
-		_load_shapes()
+		_load_shapes(true)
 		_build_property_panel(item)
 	)
 	btn_row.add_child(save_shape_btn)

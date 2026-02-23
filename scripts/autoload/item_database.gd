@@ -32,10 +32,14 @@ func _load_items_from_directory(dir_path: String):
 	while file_name != "":
 		if not dir.current_is_dir() and file_name.ends_with(".tres"):
 			var full_path := dir_path + file_name
-			var item := load(full_path) as ItemData
+			var item: ItemData = ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_REPLACE) as ItemData
 			if item:
 				if item.id.is_empty():
 					item.id = file_name.get_basename()
+				var shape_info: String = "null"
+				if item.shape:
+					shape_info = "%s (%s)" % [item.shape.id, str(item.shape.cells)]
+				DebugLogger.log_info("  %s — shape: %s" % [item.id, shape_info], "ItemDatabase")
 				_register_item(item)
 			else:
 				DebugLogger.log_warn("Failed to load item: %s" % full_path, "ItemDatabase")
@@ -84,4 +88,62 @@ func reload():
 	_items_by_type.clear()
 	_items_by_rarity.clear()
 	_load_all_items()
+	_refresh_party_items()
 	DebugLogger.log_info("Reloaded %d items" % _items.size(), "ItemDatabase")
+
+
+## After reloading items from disk, update all live item references held by the party
+## (stash + grid inventories) so they reflect the latest data.
+func _refresh_party_items() -> void:
+	if not GameManager.is_game_started or not GameManager.party:
+		return
+	var party = GameManager.party
+
+	# Refresh stash items
+	for i in range(party.stash.size()):
+		var old_item: ItemData = party.stash[i]
+		var fresh: ItemData = _items.get(old_item.id)
+		if fresh:
+			if old_item.rarity == fresh.rarity:
+				party.stash[i] = fresh
+			else:
+				# Upgraded item — just update the shape reference
+				old_item.shape = fresh.shape
+
+	# Refresh grid inventory items — rebuild cell maps with updated references
+	var char_ids: Array = party.grid_inventories.keys()
+	for ci in range(char_ids.size()):
+		var char_id: String = char_ids[ci]
+		var grid: GridInventory = party.grid_inventories[char_id]
+		# Snapshot current placements
+		var placements: Array = []
+		for pi in range(grid.placed_items.size()):
+			var placed: GridInventory.PlacedItem = grid.placed_items[pi]
+			placements.append({
+				"id": placed.item_data.id,
+				"rarity": placed.item_data.rarity,
+				"pos": placed.grid_position,
+				"rot": placed.rotation,
+				"old_item": placed.item_data,
+			})
+		# Clear and re-place with fresh references
+		grid.clear()
+		for pi in range(placements.size()):
+			var entry: Dictionary = placements[pi]
+			var fresh: ItemData = _items.get(entry.id)
+			var item_to_place: ItemData
+			if fresh and entry.rarity == fresh.rarity:
+				item_to_place = fresh
+			elif fresh:
+				# Upgraded — use old item but update its shape
+				entry.old_item.shape = fresh.shape
+				item_to_place = entry.old_item
+			else:
+				item_to_place = entry.old_item
+			var placed = grid.place_item(item_to_place, entry.pos, entry.rot)
+			if not placed:
+				# Shape changed and no longer fits — return to stash
+				party.stash.append(item_to_place)
+				DebugLogger.log_warn("Item %s no longer fits at (%d,%d) after reload — moved to stash" % [
+					item_to_place.id, entry.pos.x, entry.pos.y
+				], "ItemDatabase")

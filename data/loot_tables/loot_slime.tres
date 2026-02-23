@@ -20,7 +20,7 @@
 [ext_resource type="Resource" path="res://data/items/armor/chestplate_common.tres" id="item_chestplate"]
 [ext_resource type="Resource" path="res://data/items/armor/boots_common.tres" id="item_boots"]
 [ext_resource type="Resource" path="res://data/items/armor/gloves_common.tres" id="item_gloves"]
-[ext_resource type="Resource" path="res://data/items/armor/shield_common.tres" id="item_shield"]
+[ext_resource type="Resource" path="res://data/items/weapons/shield_common.tres" id="item_shield"]
 
 [sub_resource type="Resource" id="entry_potion_1"]
 script = ExtResource("2")
