@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="1_0m0yt"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_51j5d"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_c8oqx"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_fwqu4"]
+
+[sub_resource type="Resource" id="Resource_0m0yt"]
+script = ExtResource("4_fwqu4")
+stat = 4
+value = 9.0
+
+[resource]
+script = ExtResource("2_51j5d")
+id = "mace_uncommon"
+display_name = "Fine Iron Mace"
+description = "A heavy iron mace. Slow but powerful."
+icon = ExtResource("1_0m0yt")
+category = 1
+rarity = 1
+hand_slots_required = 1
+shape = ExtResource("3_c8oqx")
+stat_modifiers = [SubResource("Resource_0m0yt")]
+base_power = 9
+base_price = 94

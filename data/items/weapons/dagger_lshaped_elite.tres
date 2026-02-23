@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="1_166uw"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_drquy"]
+[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3_yg6fj"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_mjojd"]
+
+[sub_resource type="Resource" id="Resource_166uw"]
+script = ExtResource("4_mjojd")
+stat = 4
+value = 7.0
+
+[resource]
+script = ExtResource("2_drquy")
+id = "dagger_lshaped_elite"
+display_name = "Elite Hooked Dagger"
+description = "A wicked dagger with a hooked blade. The L-shape makes it awkward to store."
+icon = ExtResource("1_166uw")
+category = 4
+rarity = 3
+hand_slots_required = 1
+shape = ExtResource("3_yg6fj")
+stat_modifiers = [SubResource("Resource_166uw")]
+base_power = 7
+base_price = 81

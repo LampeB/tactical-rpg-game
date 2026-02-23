@@ -1,31 +1,30 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" uid="uid://xnn3pfgp6s83" path="res://assets/sprites/items/iceGem_common.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
 
-[sub_resource type="Resource" id="stat_spec_atk_pct"]
+[sub_resource type="Resource" id="Resource_s1xmc"]
 script = ExtResource("2")
 stat = 6
 modifier_type = 1
 value = 15.0
 
-[sub_resource type="Resource" id="rule_melee"]
+[sub_resource type="Resource" id="Resource_ohl3p"]
 script = ExtResource("3")
-target_weapon_type = 0
-stat_bonuses = [SubResource("stat_spec_atk_pct")]
+stat_bonuses = [SubResource("Resource_s1xmc")]
 
-[sub_resource type="Resource" id="rule_ranged"]
+[sub_resource type="Resource" id="Resource_ramqk"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_spec_atk_pct")]
+stat_bonuses = [SubResource("Resource_s1xmc")]
 
-[sub_resource type="Resource" id="rule_magic"]
+[sub_resource type="Resource" id="Resource_5aquy"]
 script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("stat_spec_atk_pct")]
+stat_bonuses = [SubResource("Resource_s1xmc")]
 
 [resource]
 script = ExtResource("1")
@@ -36,6 +35,5 @@ icon = ExtResource("5")
 item_type = 2
 rarity = 1
 shape = ExtResource("4")
-modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
+conditional_modifier_rules = [SubResource("Resource_ohl3p"), SubResource("Resource_ramqk"), SubResource("Resource_5aquy")]
 base_price = 50

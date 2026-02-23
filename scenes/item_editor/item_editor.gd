@@ -22,7 +22,6 @@ var _icon_textures: Array = []
 var _items: Dictionary = {}    # id -> ItemData (working copies)
 var _selected_id: String = ""
 var _dirty_ids: Dictionary = {}
-var _expanded_families: Dictionary = {}  # family_key -> bool (collapsed state)
 var _editing_shape: bool = false  # true when inline shape editor is open
 
 # === Node references ===
@@ -74,6 +73,13 @@ func _ready() -> void:
 		var copy: ItemData = item.duplicate(true) as ItemData
 		_items[copy.id] = copy
 
+	var generated_count: int = _prefill_all_variants()
+	if generated_count > 0:
+		# Save generated variants to disk so they exist as game files
+		for item_id in _dirty_ids.keys():
+			_save_single_item(_items[item_id])
+		_dirty_ids.clear()
+		ItemDatabase.reload()
 	_rebuild_item_list()
 	_clear_property_panel()
 	_update_hint_bar()
@@ -243,9 +249,6 @@ func _rebuild_item_list() -> void:
 			if filtered_items.is_empty():
 				continue
 
-			var family_key: String = "%d_%s" % [item_type, family_name]
-			var is_expanded: bool = _expanded_families.get(family_key, false)
-
 			# Check if selected item is in this family
 			var selected_in_family: bool = false
 			for item in filtered_items:
@@ -253,57 +256,38 @@ func _rebuild_item_list() -> void:
 					selected_in_family = true
 					break
 
-			# Auto-expand if selection is inside
-			if selected_in_family:
-				is_expanded = true
-				_expanded_families[family_key] = true
-
-			# Family header button
+			# Flat family button (no expand/collapse)
 			var first_item: ItemData = filtered_items[0]
-			var family_display: String = first_item.display_name
-			# If multiple variants, show the family base name
-			if filtered_items.size() > 1:
-				family_display = family_name.replace("_", " ").capitalize()
-			var arrow: String = "v " if is_expanded else "> "
 			var family_btn := Button.new()
-			family_btn.text = "%s%s  (%d)" % [arrow, family_display, filtered_items.size()]
+			if filtered_items.size() == 1:
+				family_btn.text = "  %s" % first_item.display_name
+			else:
+				family_btn.text = "  %s  (%d)" % [family_name.replace("_", " ").capitalize(), filtered_items.size()]
 			family_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			family_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			family_btn.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-			var captured_key: String = family_key
-			# Single item family: click selects directly
-			if filtered_items.size() == 1:
-				var single_id: String = filtered_items[0].id
-				family_btn.text = "  %s" % filtered_items[0].display_name
-				var rarity_color: Color = Constants.RARITY_COLORS.get(filtered_items[0].rarity, Color.WHITE)
-				family_btn.add_theme_color_override("font_color", rarity_color)
-				if single_id == _selected_id:
-					family_btn.add_theme_color_override("font_color", Color.WHITE)
-					family_btn.add_theme_stylebox_override("normal", _make_selected_stylebox())
-				family_btn.pressed.connect(func() -> void: _select_item(single_id))
-			else:
-				family_btn.pressed.connect(func() -> void:
-					_expanded_families[captured_key] = not _expanded_families.get(captured_key, false)
-					_rebuild_item_list()
-				)
-			_item_list_vbox.add_child(family_btn)
 
-			# Expanded: show rarity variants
-			if is_expanded and filtered_items.size() > 1:
-				for item in filtered_items:
-					var variant_btn := Button.new()
-					var rarity_name: String = Enums.Rarity.keys()[item.rarity].capitalize()
-					variant_btn.text = "    %s [%s]" % [item.display_name, rarity_name]
-					variant_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-					variant_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-					var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
-					variant_btn.add_theme_color_override("font_color", rarity_color)
-					if item.id == _selected_id:
-						variant_btn.add_theme_color_override("font_color", Color.WHITE)
-						variant_btn.add_theme_stylebox_override("normal", _make_selected_stylebox())
-					var captured_id: String = item.id
-					variant_btn.pressed.connect(func() -> void: _select_item(captured_id))
-					_item_list_vbox.add_child(variant_btn)
+			var rarity_color: Color
+			if filtered_items.size() == 1:
+				rarity_color = Constants.RARITY_COLORS.get(first_item.rarity, Color.WHITE)
+			else:
+				rarity_color = Color(0.9, 0.9, 0.9)
+
+			if selected_in_family:
+				family_btn.add_theme_color_override("font_color", Color.WHITE)
+				family_btn.add_theme_stylebox_override("normal", _make_selected_stylebox())
+			else:
+				family_btn.add_theme_color_override("font_color", rarity_color)
+
+			# Click: select first variant, or keep current if already in this family
+			var family_variant_ids: Array = []
+			for item in filtered_items:
+				family_variant_ids.append(item.id)
+			family_btn.pressed.connect(func() -> void:
+				if _selected_id in family_variant_ids:
+					return
+				_select_item(family_variant_ids[0])
+			)
+			_item_list_vbox.add_child(family_btn)
 
 		# Separator between type sections
 		var sep := HSeparator.new()
@@ -400,7 +384,19 @@ func _get_item_directory(item: ItemData) -> String:
 func _save_single_item(item: ItemData) -> bool:
 	var dir_path: String = _get_item_directory(item)
 	DirAccess.make_dir_recursive_absolute(dir_path)
-	var file_path: String = dir_path + item.id + ".tres"
+	# Remove stale files in other type directories (e.g. after type change)
+	var all_dirs: Array = [
+		"res://data/items/weapons/",
+		"res://data/items/armor/",
+		"res://data/items/modifiers/",
+		"res://data/items/consumables/",
+		"res://data/items/materials/",
+	]
+	var file_name: String = item.id + ".tres"
+	for d in all_dirs:
+		if d != dir_path and FileAccess.file_exists(d + file_name):
+			DirAccess.remove_absolute(d + file_name)
+	var file_path: String = dir_path + file_name
 	var err := ResourceSaver.save(item, file_path)
 	return err == OK
 
@@ -468,6 +464,7 @@ func _build_property_panel(item: ItemData) -> void:
 		_property_vbox.remove_child(child)
 		child.queue_free()
 
+	_build_variant_picker(item)
 	_build_identity_section(item)
 	_add_separator()
 	_build_classification_section(item)
@@ -492,6 +489,229 @@ func _build_property_panel(item: ItemData) -> void:
 	delete_btn.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
 	delete_btn.pressed.connect(func() -> void: _on_delete_item())
 	_property_vbox.add_child(delete_btn)
+
+
+# === Variant Picker ===
+
+func _build_variant_picker(item: ItemData) -> void:
+	var family: String = _get_family(item.id)
+	# Gather all variants in this family
+	var variants: Array = []
+	for other in _items.values():
+		if _get_family(other.id) == family and other.item_type == item.item_type:
+			variants.append(other)
+	variants.sort_custom(func(a: ItemData, b: ItemData) -> bool:
+		return a.rarity < b.rarity
+	)
+
+	var picker_row := HBoxContainer.new()
+	picker_row.add_theme_constant_override("separation", 4)
+
+	var lbl := Label.new()
+	lbl.text = "Variant:"
+	lbl.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5))
+	picker_row.add_child(lbl)
+
+	for variant in variants:
+		var btn := Button.new()
+		var rarity_name: String = Enums.Rarity.keys()[variant.rarity].capitalize()
+		btn.text = rarity_name
+		btn.custom_minimum_size.x = 70
+		var rarity_color: Color = Constants.RARITY_COLORS.get(variant.rarity, Color.WHITE)
+		if variant.id == _selected_id:
+			btn.add_theme_stylebox_override("normal", _make_selected_stylebox())
+			btn.add_theme_color_override("font_color", Color.WHITE)
+		else:
+			btn.add_theme_color_override("font_color", rarity_color)
+		var captured_id: String = variant.id
+		btn.pressed.connect(func() -> void:
+			_selected_id = captured_id
+			var sel_item: ItemData = _items.get(captured_id)
+			if sel_item:
+				_build_property_panel(sel_item)
+		)
+		picker_row.add_child(btn)
+
+	# "Fill All" button if any rarity variants are missing
+	var existing_rarities: Dictionary = {}
+	for variant in variants:
+		existing_rarities[variant.rarity] = true
+	var rarity_count: int = Enums.Rarity.keys().size()
+	if existing_rarities.size() < rarity_count:
+		var fill_btn := Button.new()
+		fill_btn.text = "Fill All"
+		fill_btn.tooltip_text = "Create all missing rarity variants with scaled values"
+		fill_btn.add_theme_color_override("font_color", Color(0.5, 0.8, 0.5))
+		var captured_family: String = family
+		fill_btn.pressed.connect(func() -> void:
+			_create_all_variants(item, captured_family)
+		)
+		picker_row.add_child(fill_btn)
+
+	_property_vbox.add_child(picker_row)
+	_add_separator()
+
+
+func _create_all_variants(source: ItemData, family: String) -> void:
+	# Find the base (lowest rarity) variant to scale from
+	var base_item: ItemData = source
+	for other in _items.values():
+		if _get_family(other.id) == family and other.item_type == source.item_type:
+			if other.rarity < base_item.rarity:
+				base_item = other
+
+	# Collect existing rarities
+	var existing_rarities: Dictionary = {}
+	for other in _items.values():
+		if _get_family(other.id) == family and other.item_type == source.item_type:
+			existing_rarities[other.rarity] = true
+
+	var base_mult: float = ItemUpgradeSystem.get_rarity_stat_multiplier(base_item.rarity)
+	var rarity_count: int = Enums.Rarity.keys().size()
+	var last_created_id: String = ""
+
+	for r in range(rarity_count):
+		if existing_rarities.has(r):
+			continue
+		var scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
+		var new_id: String = family + RARITY_SUFFIXES[r]
+		if _items.has(new_id):
+			continue
+		var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, scale)
+		_items[new_id] = new_item
+		_dirty_ids[new_id] = true
+		_save_single_item(new_item)
+		last_created_id = new_id
+
+	if not last_created_id.is_empty():
+		ItemDatabase.reload()
+		_select_item(last_created_id)
+
+
+static func _get_scaled_name(base_name: String, rarity: int) -> String:
+	# Strip existing rarity prefixes
+	var prefixes := ["Fine ", "Superior ", "Elite ", "Legendary ", "Mythic "]
+	var clean_name: String = base_name
+	for p in prefixes:
+		if clean_name.begins_with(p):
+			clean_name = clean_name.substr(p.length())
+			break
+
+	match rarity:
+		Enums.Rarity.COMMON:
+			return clean_name
+		Enums.Rarity.UNCOMMON:
+			return "Fine " + clean_name
+		Enums.Rarity.RARE:
+			return "Superior " + clean_name
+		Enums.Rarity.ELITE:
+			return "Elite " + clean_name
+		Enums.Rarity.LEGENDARY:
+			return "Legendary " + clean_name
+		Enums.Rarity.UNIQUE:
+			return "Mythic " + clean_name
+		_:
+			return clean_name
+
+
+func _prefill_all_variants() -> int:
+	# Group items by family
+	var families: Dictionary = {}  # "type_family" -> Array[ItemData]
+	for item in _items.values():
+		var family: String = _get_family(item.id)
+		var key: String = "%d_%s" % [item.item_type, family]
+		if not families.has(key):
+			families[key] = []
+		families[key].append(item)
+
+	var rarity_count: int = Enums.Rarity.keys().size()
+	var created: int = 0
+
+	var family_keys: Array = families.keys()
+	for i in range(family_keys.size()):
+		var family_items: Array = families[family_keys[i]]
+
+		# Collect existing rarities
+		var existing_rarities: Dictionary = {}
+		for item in family_items:
+			existing_rarities[item.rarity] = true
+
+		if existing_rarities.size() >= rarity_count:
+			continue
+
+		# Find base (lowest rarity) to scale from
+		var base_item: ItemData = family_items[0]
+		for item in family_items:
+			if item.rarity < base_item.rarity:
+				base_item = item
+
+		var family_name: String = _get_family(base_item.id)
+		var base_mult: float = ItemUpgradeSystem.get_rarity_stat_multiplier(base_item.rarity)
+
+		for r in range(rarity_count):
+			if existing_rarities.has(r):
+				continue
+			var scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
+			var new_id: String = family_name + RARITY_SUFFIXES[r]
+			if _items.has(new_id):
+				continue
+			var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, scale)
+			_items[new_id] = new_item
+			_dirty_ids[new_id] = true
+			created += 1
+
+	return created
+
+
+func _create_scaled_variant(base_item: ItemData, new_id: String, rarity: int, scale: float) -> ItemData:
+	var new_item: ItemData = base_item.duplicate(true) as ItemData
+	new_item.id = new_id
+	new_item.rarity = rarity
+	new_item.display_name = _get_scaled_name(base_item.display_name, rarity)
+
+	new_item.base_power = roundi(base_item.base_power * scale)
+	new_item.magical_power = roundi(base_item.magical_power * scale)
+	new_item.base_price = roundi(base_item.base_price * scale * 1.2)
+
+	new_item.stat_modifiers = []
+	for i in range(base_item.stat_modifiers.size()):
+		var old_mod: StatModifier = base_item.stat_modifiers[i]
+		var new_mod := StatModifier.new()
+		new_mod.stat = old_mod.stat
+		new_mod.modifier_type = old_mod.modifier_type
+		new_mod.value = roundf(old_mod.value * scale)
+		new_item.stat_modifiers.append(new_mod)
+
+	new_item.modifier_bonuses = []
+	for i in range(base_item.modifier_bonuses.size()):
+		var old_mod: StatModifier = base_item.modifier_bonuses[i]
+		var new_mod := StatModifier.new()
+		new_mod.stat = old_mod.stat
+		new_mod.modifier_type = old_mod.modifier_type
+		new_mod.value = roundf(old_mod.value * scale)
+		new_item.modifier_bonuses.append(new_mod)
+
+	new_item.conditional_modifier_rules = []
+	for i in range(base_item.conditional_modifier_rules.size()):
+		var old_rule: ConditionalModifierRule = base_item.conditional_modifier_rules[i]
+		var new_rule := ConditionalModifierRule.new()
+		new_rule.target_weapon_type = old_rule.target_weapon_type
+		new_rule.status_effect = old_rule.status_effect
+		new_rule.status_effect_chance = minf(old_rule.status_effect_chance * scale, 0.9)
+		new_rule.granted_skills = old_rule.granted_skills.duplicate()
+		new_rule.force_aoe = old_rule.force_aoe
+		new_rule.hp_cost_per_attack = old_rule.hp_cost_per_attack
+		new_rule.stat_bonuses = []
+		for j in range(old_rule.stat_bonuses.size()):
+			var old_mod: StatModifier = old_rule.stat_bonuses[j]
+			var new_mod := StatModifier.new()
+			new_mod.stat = old_mod.stat
+			new_mod.modifier_type = old_mod.modifier_type
+			new_mod.value = roundf(old_mod.value * scale)
+			new_rule.stat_bonuses.append(new_mod)
+		new_item.conditional_modifier_rules.append(new_rule)
+
+	return new_item
 
 
 # === Identity ===
@@ -599,22 +819,35 @@ func _build_classification_section(item: ItemData) -> void:
 	type_row.add_child(type_btn)
 	_property_vbox.add_child(type_row)
 
-	var cat_row := HBoxContainer.new()
-	var cat_label := Label.new()
-	cat_label.text = "Category:"
-	cat_row.add_child(cat_label)
-	var cat_btn := OptionButton.new()
-	cat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var cat_keys: PackedStringArray = Enums.EquipmentCategory.keys()
-	for i in range(cat_keys.size()):
-		cat_btn.add_item(cat_keys[i].capitalize().replace("_", " "), i)
-	cat_btn.selected = item.category
-	cat_btn.item_selected.connect(func(idx: int) -> void:
-		item.category = idx
-		_dirty_ids[item.id] = true
-	)
-	cat_row.add_child(cat_btn)
-	_property_vbox.add_child(cat_row)
+	# Category only applies to weapons and armor
+	if item.item_type == Enums.ItemType.ACTIVE_TOOL or item.item_type == Enums.ItemType.PASSIVE_GEAR:
+		var cat_row := HBoxContainer.new()
+		var cat_label := Label.new()
+		cat_label.text = "Category:"
+		cat_row.add_child(cat_label)
+		var cat_btn := OptionButton.new()
+		cat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var cat_keys: PackedStringArray = Enums.EquipmentCategory.keys()
+		# Filter categories based on item type: weapons (0-6) for ACTIVE_TOOL, armor (7-13) for PASSIVE_GEAR
+		var cat_start: int = 0
+		var cat_end: int = cat_keys.size()
+		if item.item_type == Enums.ItemType.ACTIVE_TOOL:
+			cat_end = Enums.EquipmentCategory.HELMET  # 0..6 (SWORD through AXE)
+		elif item.item_type == Enums.ItemType.PASSIVE_GEAR:
+			cat_start = Enums.EquipmentCategory.HELMET  # 7..13 (HELMET through RING)
+		for i in range(cat_start, cat_end):
+			cat_btn.add_item(cat_keys[i].capitalize().replace("_", " "), i)
+		# Select the matching item index in the filtered dropdown
+		for j in range(cat_btn.item_count):
+			if cat_btn.get_item_id(j) == item.category:
+				cat_btn.selected = j
+				break
+		cat_btn.item_selected.connect(func(idx: int) -> void:
+			item.category = cat_btn.get_item_id(idx)
+			_dirty_ids[item.id] = true
+		)
+		cat_row.add_child(cat_btn)
+		_property_vbox.add_child(cat_row)
 
 	var rar_row := HBoxContainer.new()
 	var rar_label := Label.new()
@@ -638,6 +871,9 @@ func _build_classification_section(item: ItemData) -> void:
 # === Equipment Slots ===
 
 func _build_equipment_section(item: ItemData) -> void:
+	if item.item_type != Enums.ItemType.ACTIVE_TOOL and item.item_type != Enums.ItemType.PASSIVE_GEAR:
+		return
+
 	_add_section_header("Equipment Slots")
 
 	var hand_row := HBoxContainer.new()

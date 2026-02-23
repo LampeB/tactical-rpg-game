@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="1_4owjr"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_bbtae"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_common.png" id="3_33k8l"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_1j368"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_038wp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_8j2hm"]
+
+[sub_resource type="Resource" id="Resource_4owjr"]
+script = ExtResource("6_8j2hm")
+stat = 6
+value = 18.0
+
+[resource]
+script = ExtResource("4_1j368")
+id = "staff_legendary"
+display_name = "Legendary Oak Staff"
+description = "A staff carved from ancient oak. Channels magical energy."
+icon = ExtResource("3_33k8l")
+category = 3
+rarity = 4
+hand_slots_required = 2
+shape = ExtResource("5_038wp")
+stat_modifiers = [SubResource("Resource_4owjr")]
+magical_power = 12
+granted_skills = [ExtResource("1_4owjr"), ExtResource("2_bbtae")]
+base_price = 198

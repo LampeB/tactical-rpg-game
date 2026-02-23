@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="1_by8lb"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_3erqy"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="3_wkfh4"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_p3od6"]
+
+[sub_resource type="Resource" id="Resource_by8lb"]
+script = ExtResource("4_p3od6")
+stat = 4
+value = 32.0
+
+[resource]
+script = ExtResource("2_3erqy")
+id = "axe_unique"
+display_name = "Mythic Battle Axe"
+description = "A heavy two-handed battle axe. The wide blade takes up significant space but delivers devastating blows."
+icon = ExtResource("1_by8lb")
+category = 6
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_wkfh4")
+stat_modifiers = [SubResource("Resource_by8lb")]
+base_power = 32
+base_price = 336

@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_0v40p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_jbjri"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_uncommon.png" id="3_3dq0x"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_yaapq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_7rld1"]
+
+[sub_resource type="Resource" id="Resource_0v40p"]
+script = ExtResource("2_jbjri")
+stat = 6
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_jbjri"]
+script = ExtResource("1_0v40p")
+stat_bonuses = [SubResource("Resource_0v40p")]
+status_effect_chance = 0.33
+
+[sub_resource type="Resource" id="Resource_3dq0x"]
+script = ExtResource("2_jbjri")
+stat = 6
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_yaapq"]
+script = ExtResource("1_0v40p")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_3dq0x")]
+status_effect_chance = 0.33
+
+[sub_resource type="Resource" id="Resource_7rld1"]
+script = ExtResource("2_jbjri")
+stat = 6
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_g6gj1"]
+script = ExtResource("1_0v40p")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_7rld1")]
+status_effect_chance = 0.33
+
+[resource]
+script = ExtResource("4_yaapq")
+id = "ripple_gem_elite"
+display_name = "Elite Ripple Gem"
+description = "A gem that creates cascading energy waves. [Future: Chains attack to 1 enemy for 20% damage. COMBO: If used with MeGummy, creates massive explosion (100% AoE) then ripple explosion (50% AoE)!]"
+icon = ExtResource("3_3dq0x")
+item_type = 2
+rarity = 3
+shape = ExtResource("5_7rld1")
+conditional_modifier_rules = [SubResource("Resource_jbjri"), SubResource("Resource_yaapq"), SubResource("Resource_g6gj1")]
+base_price = 158

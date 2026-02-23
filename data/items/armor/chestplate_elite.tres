@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_ynp2y"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_ef813"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_f2123"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_iftrg"]
+
+[sub_resource type="Resource" id="Resource_ynp2y"]
+script = ExtResource("4_iftrg")
+stat = 5
+value = 18.0
+
+[sub_resource type="Resource" id="Resource_ef813"]
+script = ExtResource("4_iftrg")
+stat = 7
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_f2123"]
+script = ExtResource("4_iftrg")
+value = 44.0
+
+[resource]
+script = ExtResource("2_ef813")
+id = "chestplate_elite"
+display_name = "Elite Iron Chestplate"
+description = "Heavy iron armor protecting the torso. Provides significant defense and vitality."
+icon = ExtResource("1_ynp2y")
+item_type = 1
+category = 8
+rarity = 3
+armor_slot = 8
+shape = ExtResource("3_f2123")
+stat_modifiers = [SubResource("Resource_ynp2y"), SubResource("Resource_ef813"), SubResource("Resource_f2123")]
+base_price = 264

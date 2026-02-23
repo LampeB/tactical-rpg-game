@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="1_0jabi"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_q62ns"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="3_amohh"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_bjbxr"]
+
+[sub_resource type="Resource" id="Resource_0jabi"]
+script = ExtResource("4_bjbxr")
+stat = 4
+value = 12.0
+
+[resource]
+script = ExtResource("2_q62ns")
+id = "bow_legendary"
+display_name = "Legendary Hunting Bow"
+description = "A lightweight hunting bow. Ranged weapon with a distinctive zigzag profile."
+icon = ExtResource("1_0jabi")
+category = 2
+rarity = 4
+hand_slots_required = 2
+shape = ExtResource("3_amohh")
+stat_modifiers = [SubResource("Resource_0jabi")]
+base_power = 12
+base_price = 162

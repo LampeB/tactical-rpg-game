@@ -1,30 +1,29 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" uid="uid://hglgm3q1k7d" path="res://assets/sprites/items/iceGem_uncommon.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_uncommon.png" id="5"]
 
-[sub_resource type="Resource" id="stat_spec_atk"]
+[sub_resource type="Resource" id="Resource_6x78b"]
 script = ExtResource("2")
 stat = 6
 value = 3.0
 
-[sub_resource type="Resource" id="rule_melee"]
+[sub_resource type="Resource" id="Resource_fh0s8"]
 script = ExtResource("3")
-target_weapon_type = 0
-stat_bonuses = [SubResource("stat_spec_atk")]
+stat_bonuses = [SubResource("Resource_6x78b")]
 
-[sub_resource type="Resource" id="rule_ranged"]
+[sub_resource type="Resource" id="Resource_w2hlh"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_spec_atk")]
+stat_bonuses = [SubResource("Resource_6x78b")]
 
-[sub_resource type="Resource" id="rule_magic"]
+[sub_resource type="Resource" id="Resource_83m3o"]
 script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("stat_spec_atk")]
+stat_bonuses = [SubResource("Resource_6x78b")]
 
 [resource]
 script = ExtResource("1")
@@ -33,8 +32,6 @@ display_name = "Ripple Gem"
 description = "A gem that creates cascading energy waves. [Future: Chains attack to 1 enemy for 20% damage. COMBO: If used with MeGummy, creates massive explosion (100% AoE) then ripple explosion (50% AoE)!]"
 icon = ExtResource("5")
 item_type = 2
-rarity = 0
 shape = ExtResource("4")
-modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
+conditional_modifier_rules = [SubResource("Resource_fh0s8"), SubResource("Resource_w2hlh"), SubResource("Resource_83m3o")]
 base_price = 60

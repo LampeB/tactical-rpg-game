@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="1_21b37"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="2_v1xya"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_2oyfo"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="4_o5wn2"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_m1k5n"]
+
+[sub_resource type="Resource" id="Resource_21b37"]
+script = ExtResource("5_m1k5n")
+stat = 5
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_v1xya"]
+script = ExtResource("5_m1k5n")
+stat = 7
+value = 8.0
+
+[resource]
+script = ExtResource("3_2oyfo")
+id = "shield_uncommon"
+display_name = "Fine Wooden Shield"
+description = "A sturdy wooden shield. Offers basic protection."
+icon = ExtResource("2_v1xya")
+category = 5
+rarity = 1
+hand_slots_required = 1
+shape = ExtResource("4_o5wn2")
+stat_modifiers = [SubResource("Resource_21b37"), SubResource("Resource_v1xya")]
+granted_skills = [ExtResource("1_21b37")]
+base_price = 62

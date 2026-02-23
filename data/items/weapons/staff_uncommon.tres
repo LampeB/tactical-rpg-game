@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="1_53os4"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_1fp83"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_common.png" id="3_1fnh3"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_hrbfm"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_ahf8t"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_6kjqj"]
+
+[sub_resource type="Resource" id="Resource_53os4"]
+script = ExtResource("6_6kjqj")
+stat = 6
+value = 8.0
+
+[resource]
+script = ExtResource("4_hrbfm")
+id = "staff_uncommon"
+display_name = "Fine Oak Staff"
+description = "A staff carved from ancient oak. Channels magical energy."
+icon = ExtResource("3_1fnh3")
+category = 3
+rarity = 1
+hand_slots_required = 2
+shape = ExtResource("5_ahf8t")
+stat_modifiers = [SubResource("Resource_53os4")]
+magical_power = 5
+granted_skills = [ExtResource("1_53os4"), ExtResource("2_1fp83")]
+base_price = 86

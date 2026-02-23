@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/manaPotion_common.png" id="1_svcbi"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_vucg7"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_mms2n"]
+[ext_resource type="Resource" path="res://data/skills/heal_minor.tres" id="4_kg502"]
+
+[resource]
+script = ExtResource("2_vucg7")
+id = "potion_unique"
+display_name = "Mythic Health Potion"
+description = "A basic healing potion. Restores 30 HP."
+icon = ExtResource("1_svcbi")
+item_type = 3
+rarity = 5
+shape = ExtResource("3_mms2n")
+use_skill = ExtResource("4_kg502")
+base_price = 96

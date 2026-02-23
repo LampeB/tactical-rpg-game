@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="1_dxjva"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="2_kx6vr"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_hsqt7"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="4_7ttcl"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_0s2g5"]
+
+[sub_resource type="Resource" id="Resource_dxjva"]
+script = ExtResource("5_0s2g5")
+stat = 5
+value = 40.0
+
+[sub_resource type="Resource" id="Resource_kx6vr"]
+script = ExtResource("5_0s2g5")
+stat = 7
+value = 24.0
+
+[resource]
+script = ExtResource("3_hsqt7")
+id = "shield_unique"
+display_name = "Mythic Wooden Shield"
+description = "A sturdy wooden shield. Offers basic protection."
+icon = ExtResource("2_kx6vr")
+category = 5
+rarity = 5
+hand_slots_required = 1
+shape = ExtResource("4_7ttcl")
+stat_modifiers = [SubResource("Resource_dxjva"), SubResource("Resource_kx6vr")]
+granted_skills = [ExtResource("1_dxjva")]
+base_price = 192

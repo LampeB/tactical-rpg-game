@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_nq6v3"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_lojli"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="3_qa3ss"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_8lan3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_a8cbb"]
+
+[sub_resource type="Resource" id="Resource_nq6v3"]
+script = ExtResource("2_lojli")
+stat = 6
+modifier_type = 1
+value = 25.0
+
+[sub_resource type="Resource" id="Resource_lojli"]
+script = ExtResource("1_nq6v3")
+stat_bonuses = [SubResource("Resource_nq6v3")]
+status_effect_chance = 0.25384615384615383
+
+[sub_resource type="Resource" id="Resource_qa3ss"]
+script = ExtResource("2_lojli")
+stat = 6
+modifier_type = 1
+value = 25.0
+
+[sub_resource type="Resource" id="Resource_8lan3"]
+script = ExtResource("1_nq6v3")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_qa3ss")]
+status_effect_chance = 0.25384615384615383
+
+[sub_resource type="Resource" id="Resource_a8cbb"]
+script = ExtResource("2_lojli")
+stat = 6
+modifier_type = 1
+value = 25.0
+
+[sub_resource type="Resource" id="Resource_4twvm"]
+script = ExtResource("1_nq6v3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_a8cbb")]
+status_effect_chance = 0.25384615384615383
+
+[resource]
+script = ExtResource("4_8lan3")
+id = "mystic_gem_elite"
+display_name = "Elite Mystic Gem"
+description = "A violet gem humming with arcane energy. Adds +15% special attack to adjacent weapons."
+icon = ExtResource("3_qa3ss")
+item_type = 2
+rarity = 3
+shape = ExtResource("5_a8cbb")
+conditional_modifier_rules = [SubResource("Resource_lojli"), SubResource("Resource_8lan3"), SubResource("Resource_4twvm")]
+base_price = 102

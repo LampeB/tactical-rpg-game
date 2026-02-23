@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_so8rw"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_vptrs"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="3_c8ub7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/poisonGem_common.png" id="4_le5v2"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_amp24"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_8hqgg"]
+
+[sub_resource type="Resource" id="Resource_so8rw"]
+script = ExtResource("2_vptrs")
+stat = 6
+value = 21.0
+
+[sub_resource type="Resource" id="Resource_vptrs"]
+script = ExtResource("1_so8rw")
+stat_bonuses = [SubResource("Resource_so8rw")]
+status_effect = ExtResource("3_c8ub7")
+status_effect_chance = 0.75
+
+[sub_resource type="Resource" id="Resource_c8ub7"]
+script = ExtResource("2_vptrs")
+stat = 6
+value = 27.0
+
+[sub_resource type="Resource" id="Resource_le5v2"]
+script = ExtResource("1_so8rw")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_c8ub7")]
+status_effect = ExtResource("3_c8ub7")
+status_effect_chance = 0.8999999999999999
+
+[sub_resource type="Resource" id="Resource_amp24"]
+script = ExtResource("2_vptrs")
+stat = 6
+value = 21.0
+
+[sub_resource type="Resource" id="Resource_8hqgg"]
+script = ExtResource("1_so8rw")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_amp24")]
+status_effect = ExtResource("3_c8ub7")
+status_effect_chance = 0.75
+
+[resource]
+script = ExtResource("5_amp24")
+id = "poison_gem_legendary"
+display_name = "Legendary Poison Gem"
+description = "A sickly green gem that oozes venom. Adds poison damage and poisoned status to weapons."
+icon = ExtResource("4_le5v2")
+item_type = 2
+rarity = 4
+shape = ExtResource("6_8hqgg")
+conditional_modifier_rules = [SubResource("Resource_vptrs"), SubResource("Resource_le5v2"), SubResource("Resource_8hqgg")]
+base_price = 126

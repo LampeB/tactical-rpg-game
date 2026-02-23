@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_8m12l"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_kd77t"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_2mo3o"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_u6d8k"]
+
+[sub_resource type="Resource" id="Resource_8m12l"]
+script = ExtResource("4_u6d8k")
+stat = 5
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_kd77t"]
+script = ExtResource("4_u6d8k")
+stat = 7
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_2mo3o"]
+script = ExtResource("4_u6d8k")
+value = 26.0
+
+[resource]
+script = ExtResource("2_kd77t")
+id = "chestplate_uncommon"
+display_name = "Fine Iron Chestplate"
+description = "Heavy iron armor protecting the torso. Provides significant defense and vitality."
+icon = ExtResource("1_8m12l")
+item_type = 1
+category = 8
+rarity = 1
+armor_slot = 8
+shape = ExtResource("3_2mo3o")
+stat_modifiers = [SubResource("Resource_8m12l"), SubResource("Resource_kd77t"), SubResource("Resource_2mo3o")]
+base_price = 156

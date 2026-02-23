@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://caxatcgdsf5v7"]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
-[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://b6aqpvjk86cur" path="res://assets/sprites/items/dagger_common.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/backstab.tres" id="5_bstab"]
 
-[sub_resource type="Resource" id="stat_phys_atk"]
+[sub_resource type="Resource" id="Resource_aj780"]
 script = ExtResource("2")
 stat = 4
-value = 4.0
+value = 28.0
 
-[sub_resource type="Resource" id="stat_speed"]
+[sub_resource type="Resource" id="Resource_ttodt"]
 script = ExtResource("2")
 stat = 2
 value = 3.0
@@ -25,7 +25,7 @@ icon = ExtResource("4")
 category = 4
 hand_slots_required = 1
 shape = ExtResource("3")
-stat_modifiers = [SubResource("stat_phys_atk"), SubResource("stat_speed")]
+stat_modifiers = [SubResource("Resource_aj780"), SubResource("Resource_ttodt")]
 base_power = 4
 granted_skills = [ExtResource("5_bstab")]
 base_price = 40

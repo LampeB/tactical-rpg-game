@@ -1,21 +1,21 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://c46y6y64bvp1k"]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
-[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://7yjogecaxpoo" path="res://assets/sprites/items/chestplate_common.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="4"]
 
-[sub_resource type="Resource" id="stat_phys_def"]
+[sub_resource type="Resource" id="Resource_3cio0"]
 script = ExtResource("2")
 stat = 5
 value = 8.0
 
-[sub_resource type="Resource" id="stat_mag_def"]
+[sub_resource type="Resource" id="Resource_23kyk"]
 script = ExtResource("2")
 stat = 7
 value = 5.0
 
-[sub_resource type="Resource" id="stat_hp"]
+[sub_resource type="Resource" id="Resource_s4u0o"]
 script = ExtResource("2")
 value = 20.0
 
@@ -29,5 +29,5 @@ item_type = 1
 category = 8
 armor_slot = 8
 shape = ExtResource("3")
-stat_modifiers = [SubResource("stat_phys_def"), SubResource("stat_mag_def"), SubResource("stat_hp")]
+stat_modifiers = [SubResource("Resource_3cio0"), SubResource("Resource_23kyk"), SubResource("Resource_s4u0o")]
 base_price = 100

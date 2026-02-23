@@ -1,49 +1,48 @@
-[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://csbywedwkyrk6"]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" uid="uid://mvw2aaq2wd2k" path="res://scripts/resources/item_data.gd" id="1"]
-[ext_resource type="Script" uid="uid://bf66eywdmluoj" path="res://scripts/resources/stat_modifier.gd" id="2"]
-[ext_resource type="Script" uid="uid://df51f0yyvy3sr" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" uid="uid://nida0wya7uyt" path="res://assets/sprites/items/fireGem_common.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_common.png" id="5"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="6"]
 [ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7"]
 
-[sub_resource type="Resource" id="stat_magatk_melee"]
+[sub_resource type="Resource" id="Resource_ytg8n"]
 script = ExtResource("2")
 stat = 6
 value = 13.0
 
-[sub_resource type="Resource" id="stat_magatk_magic"]
+[sub_resource type="Resource" id="Resource_p1j02"]
+script = ExtResource("3")
+stat_bonuses = [SubResource("Resource_ytg8n")]
+status_effect = ExtResource("7")
+status_effect_chance = 0.2
+
+[sub_resource type="Resource" id="Resource_vyeao"]
 script = ExtResource("2")
 stat = 6
 value = 17.0
 
-[sub_resource type="Resource" id="stat_magatk_ranged"]
+[sub_resource type="Resource" id="Resource_t3kkp"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_vyeao")]
+status_effect = ExtResource("7")
+status_effect_chance = 0.25
+granted_skills = [ExtResource("6")]
+
+[sub_resource type="Resource" id="Resource_dpdxc"]
 script = ExtResource("2")
 stat = 6
 value = 13.0
 
-[sub_resource type="Resource" id="rule_melee"]
-script = ExtResource("3")
-target_weapon_type = 0
-stat_bonuses = [SubResource("stat_magatk_melee")]
-status_effect = ExtResource("7")
-status_effect_chance = 0.20
-
-[sub_resource type="Resource" id="rule_magic"]
-script = ExtResource("3")
-target_weapon_type = 2
-stat_bonuses = [SubResource("stat_magatk_magic")]
-granted_skills = [ExtResource("6")]
-status_effect = ExtResource("7")
-status_effect_chance = 0.25
-
-[sub_resource type="Resource" id="rule_ranged"]
+[sub_resource type="Resource" id="Resource_yoie5"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_magatk_ranged")]
+stat_bonuses = [SubResource("Resource_dpdxc")]
 status_effect = ExtResource("7")
-status_effect_chance = 0.20
+status_effect_chance = 0.2
 
 [resource]
 script = ExtResource("1")
@@ -54,7 +53,6 @@ icon = ExtResource("5")
 item_type = 2
 rarity = 1
 shape = ExtResource("4")
-modifier_reach = 1
 modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, 1)])
-conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
+conditional_modifier_rules = [SubResource("Resource_p1j02"), SubResource("Resource_t3kkp"), SubResource("Resource_yoie5")]
 base_price = 60

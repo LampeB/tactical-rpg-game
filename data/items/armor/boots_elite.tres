@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="1_xvb2n"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_jqud3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_ilavh"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_sme4w"]
+
+[sub_resource type="Resource" id="Resource_xvb2n"]
+script = ExtResource("4_sme4w")
+stat = 2
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_jqud3"]
+script = ExtResource("4_sme4w")
+stat = 7
+value = 4.0
+
+[resource]
+script = ExtResource("2_jqud3")
+id = "boots_elite"
+display_name = "Elite Leather Boots"
+description = "Light leather boots. Enhances movement speed."
+icon = ExtResource("1_xvb2n")
+item_type = 1
+category = 11
+rarity = 3
+armor_slot = 11
+shape = ExtResource("3_ilavh")
+stat_modifiers = [SubResource("Resource_xvb2n"), SubResource("Resource_jqud3")]
+base_price = 92
