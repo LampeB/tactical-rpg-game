@@ -78,3 +78,10 @@ func get_items_by_rarity(rarity: Enums.Rarity) -> Array:
 
 func has_item(id: String) -> bool:
 	return _items.has(id)
+
+func reload():
+	_items.clear()
+	_items_by_type.clear()
+	_items_by_rarity.clear()
+	_load_all_items()
+	DebugLogger.log_info("Reloaded %d items" % _items.size(), "ItemDatabase")
