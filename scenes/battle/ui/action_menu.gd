@@ -27,14 +27,14 @@ var _flee_dialog: ConfirmationDialog = null
 @onready var _item_list_scroll: ScrollContainer = $HBox/ItemList
 @onready var _item_list: VBoxContainer = $HBox/ItemList/VBox
 @onready var _skill_details: PanelContainer = $HBox/SkillDetails
-@onready var _skill_details_name: Label = $HBox/SkillDetails/Margin/VBox/NameLabel
-@onready var _skill_details_desc: Label = $HBox/SkillDetails/Margin/VBox/DescLabel
+@onready var _skill_details_name: Label = $HBox/SkillDetails/Scroll/Margin/VBox/NameLabel
+@onready var _skill_details_desc: Label = $HBox/SkillDetails/Scroll/Margin/VBox/DescLabel
 @onready var _item_details: PanelContainer = $HBox/ItemDetails
-@onready var _item_details_name: Label = $HBox/ItemDetails/Margin/VBox/NameLabel
-@onready var _item_details_desc: Label = $HBox/ItemDetails/Margin/VBox/DescLabel
+@onready var _item_details_name: Label = $HBox/ItemDetails/Scroll/Margin/VBox/NameLabel
+@onready var _item_details_desc: Label = $HBox/ItemDetails/Scroll/Margin/VBox/DescLabel
 @onready var _attack_details: PanelContainer = $HBox/AttackDetails
-@onready var _attack_details_title: Label = $HBox/AttackDetails/Margin/VBox/TitleLabel
-@onready var _attack_details_stats: Label = $HBox/AttackDetails/Margin/VBox/StatsLabel
+@onready var _attack_details_title: Label = $HBox/AttackDetails/Scroll/Margin/VBox/TitleLabel
+@onready var _attack_details_stats: Label = $HBox/AttackDetails/Scroll/Margin/VBox/StatsLabel
 @onready var _target_prompt: Label = $HBox/TargetPrompt
 @onready var _confirm_bar: VBoxContainer = $HBox/ConfirmBar
 @onready var _confirm_label: Label = $HBox/ConfirmBar/ConfirmLabel
@@ -66,6 +66,22 @@ func _ready() -> void:
 	_flee_dialog.dialog_text = "Attempt to flee from this battle?"
 	_flee_dialog.confirmed.connect(_on_flee_confirmed)
 	add_child(_flee_dialog)
+
+	# Cap all sub-panels to MainButtons height after layout completes
+	_cap_panel_heights.call_deferred()
+
+
+func _cap_panel_heights() -> void:
+	var max_h: float = _main_buttons.size.y
+	if max_h <= 0:
+		return
+	# SkillList and ItemList are ScrollContainers — set their height to match
+	_skill_list_scroll.custom_minimum_size.y = max_h
+	_item_list_scroll.custom_minimum_size.y = max_h
+	# Detail panels: set the inner ScrollContainer height
+	$HBox/SkillDetails/Scroll.custom_minimum_size.y = max_h
+	$HBox/ItemDetails/Scroll.custom_minimum_size.y = max_h
+	$HBox/AttackDetails/Scroll.custom_minimum_size.y = max_h
 
 
 func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:

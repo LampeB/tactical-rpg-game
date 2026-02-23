@@ -42,7 +42,7 @@ text = "Flee"
 [node name="SkillList" type="ScrollContainer" parent="HBox"]
 visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(250, 200)
+custom_minimum_size = Vector2(250, 0)
 
 [node name="VBox" type="VBoxContainer" parent="HBox/SkillList"]
 layout_mode = 2
@@ -52,7 +52,7 @@ theme_override_constants/separation = 4
 [node name="ItemList" type="ScrollContainer" parent="HBox"]
 visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(250, 200)
+custom_minimum_size = Vector2(250, 0)
 
 [node name="VBox" type="VBoxContainer" parent="HBox/ItemList"]
 layout_mode = 2
@@ -64,22 +64,28 @@ visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(250, 0)
 
-[node name="Margin" type="MarginContainer" parent="HBox/SkillDetails"]
+[node name="Scroll" type="ScrollContainer" parent="HBox/SkillDetails"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="HBox/SkillDetails/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="HBox/SkillDetails/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HBox/SkillDetails/Scroll/Margin"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="NameLabel" type="Label" parent="HBox/SkillDetails/Margin/VBox"]
+[node name="NameLabel" type="Label" parent="HBox/SkillDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Skill Name"
 
-[node name="DescLabel" type="Label" parent="HBox/SkillDetails/Margin/VBox"]
+[node name="DescLabel" type="Label" parent="HBox/SkillDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Description"
 autowrap_mode = 3
@@ -89,22 +95,28 @@ visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(250, 0)
 
-[node name="Margin" type="MarginContainer" parent="HBox/ItemDetails"]
+[node name="Scroll" type="ScrollContainer" parent="HBox/ItemDetails"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="HBox/ItemDetails/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="HBox/ItemDetails/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HBox/ItemDetails/Scroll/Margin"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="NameLabel" type="Label" parent="HBox/ItemDetails/Margin/VBox"]
+[node name="NameLabel" type="Label" parent="HBox/ItemDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Item Name"
 
-[node name="DescLabel" type="Label" parent="HBox/ItemDetails/Margin/VBox"]
+[node name="DescLabel" type="Label" parent="HBox/ItemDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Description"
 autowrap_mode = 3
@@ -114,22 +126,28 @@ visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(280, 0)
 
-[node name="Margin" type="MarginContainer" parent="HBox/AttackDetails"]
+[node name="Scroll" type="ScrollContainer" parent="HBox/AttackDetails"]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="HBox/AttackDetails/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBox" type="VBoxContainer" parent="HBox/AttackDetails/Margin"]
+[node name="VBox" type="VBoxContainer" parent="HBox/AttackDetails/Scroll/Margin"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="TitleLabel" type="Label" parent="HBox/AttackDetails/Margin/VBox"]
+[node name="TitleLabel" type="Label" parent="HBox/AttackDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Attack"
 
-[node name="StatsLabel" type="Label" parent="HBox/AttackDetails/Margin/VBox"]
+[node name="StatsLabel" type="Label" parent="HBox/AttackDetails/Scroll/Margin/VBox"]
 layout_mode = 2
 text = "Stats..."
 autowrap_mode = 3
