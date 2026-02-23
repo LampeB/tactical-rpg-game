@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scenes/item_editor/item_editor.gd" id="1"]
+[ext_resource type="Script" uid="uid://cc6oupy77cg0b" path="res://scenes/item_editor/item_editor.gd" id="1"]
 
 [node name="ItemEditor" type="Control"]
 layout_mode = 3
