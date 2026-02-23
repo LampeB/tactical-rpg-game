@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_lg2g6"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_201ep"]
+[ext_resource type="Resource" path="res://data/skills/explosion.tres" id="3_bepg8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_rare.png" id="4_fgrq3"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_14gew"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_rujte"]
+
+[sub_resource type="Resource" id="Resource_lg2g6"]
+script = ExtResource("2_201ep")
+stat = 6
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_201ep"]
+script = ExtResource("1_lg2g6")
+stat_bonuses = [SubResource("Resource_lg2g6")]
+status_effect_chance = 0.19411764705882353
+force_aoe = true
+hp_cost_per_attack = 10
+
+[sub_resource type="Resource" id="Resource_bepg8"]
+script = ExtResource("2_201ep")
+stat = 6
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_fgrq3"]
+script = ExtResource("1_lg2g6")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_bepg8")]
+status_effect_chance = 0.19411764705882353
+force_aoe = true
+
+[sub_resource type="Resource" id="Resource_14gew"]
+script = ExtResource("2_201ep")
+stat = 6
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_rujte"]
+script = ExtResource("1_lg2g6")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_14gew")]
+status_effect_chance = 0.19411764705882353
+granted_skills = [ExtResource("3_bepg8")]
+force_aoe = true
+
+[resource]
+script = ExtResource("5_14gew")
+id = "megummy_gem_elite"
+display_name = "Elite MeGummy"
+description = "An unstable explosive gem. All attacks become AoE, hitting every enemy! +8 Magical ATK. WARNING: Melee attacks cost 10 HP per use. Near a Staff, unlocks EXPLOOOOOOOOOOOOOOOSION!!!"
+icon = ExtResource("4_fgrq3")
+item_type = 2
+rarity = 3
+shape = ExtResource("6_rujte")
+modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
+conditional_modifier_rules = [SubResource("Resource_201ep"), SubResource("Resource_fgrq3"), SubResource("Resource_rujte")]
+base_price = 124

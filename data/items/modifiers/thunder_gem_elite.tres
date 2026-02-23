@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_dlat1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_gehab"]
+[ext_resource type="Resource" path="res://data/status_effects/shocked.tres" id="3_y10et"]
+[ext_resource type="Resource" path="res://data/skills/thunder_bolt.tres" id="4_0yfu1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/thunderGem_common.png" id="5_nbtts"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="6_q14dl"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="7_xu460"]
+
+[sub_resource type="Resource" id="Resource_dlat1"]
+script = ExtResource("2_gehab")
+stat = 6
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_gehab"]
+script = ExtResource("1_dlat1")
+stat_bonuses = [SubResource("Resource_dlat1")]
+status_effect = ExtResource("3_y10et")
+status_effect_chance = 0.22000000000000003
+
+[sub_resource type="Resource" id="Resource_y10et"]
+script = ExtResource("2_gehab")
+stat = 6
+value = 26.0
+
+[sub_resource type="Resource" id="Resource_0yfu1"]
+script = ExtResource("1_dlat1")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_y10et")]
+status_effect = ExtResource("3_y10et")
+status_effect_chance = 0.33
+granted_skills = [ExtResource("4_0yfu1")]
+
+[sub_resource type="Resource" id="Resource_nbtts"]
+script = ExtResource("2_gehab")
+stat = 6
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_q14dl"]
+script = ExtResource("1_dlat1")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_nbtts")]
+status_effect = ExtResource("3_y10et")
+status_effect_chance = 0.22000000000000003
+
+[resource]
+script = ExtResource("6_q14dl")
+id = "thunder_gem_elite"
+display_name = "Elite Thunder Gem"
+description = "A crackling lightning gem. Adds shock damage and stun chance to weapons. Grants Thunder Bolt to magic weapons."
+icon = ExtResource("5_nbtts")
+item_type = 2
+rarity = 3
+shape = ExtResource("7_xu460")
+conditional_modifier_rules = [SubResource("Resource_gehab"), SubResource("Resource_0yfu1"), SubResource("Resource_q14dl")]
+base_price = 79

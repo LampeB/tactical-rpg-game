@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_hwpjd"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_vk0pa"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_elite.png" id="3_vsxnb"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_2u06b"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_hyjp5"]
+
+[sub_resource type="Resource" id="Resource_hwpjd"]
+script = ExtResource("2_vk0pa")
+stat = 9
+value = 77.0
+
+[sub_resource type="Resource" id="Resource_vk0pa"]
+script = ExtResource("1_hwpjd")
+stat_bonuses = [SubResource("Resource_hwpjd")]
+status_effect_chance = 0.46153846153846145
+
+[sub_resource type="Resource" id="Resource_vsxnb"]
+script = ExtResource("2_vk0pa")
+stat = 9
+value = 77.0
+
+[sub_resource type="Resource" id="Resource_2u06b"]
+script = ExtResource("1_hwpjd")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_vsxnb")]
+status_effect_chance = 0.46153846153846145
+
+[sub_resource type="Resource" id="Resource_hyjp5"]
+script = ExtResource("2_vk0pa")
+stat = 9
+value = 77.0
+
+[sub_resource type="Resource" id="Resource_ko7y4"]
+script = ExtResource("1_hwpjd")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_hyjp5")]
+status_effect_chance = 0.46153846153846145
+
+[resource]
+script = ExtResource("4_2u06b")
+id = "devastation_gem_unique"
+display_name = "Mythic Devastation Gem"
+description = "A dark gem crackling with destructive power. Adds +25% critical damage to adjacent weapons. Maximize your critical strikes!"
+icon = ExtResource("3_vsxnb")
+item_type = 2
+rarity = 5
+shape = ExtResource("5_hyjp5")
+conditional_modifier_rules = [SubResource("Resource_vk0pa"), SubResource("Resource_2u06b"), SubResource("Resource_ko7y4")]
+base_price = 166

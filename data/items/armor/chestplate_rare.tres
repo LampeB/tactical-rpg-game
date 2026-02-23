@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_ofblq"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_iwmu8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_kllxn"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_k2r2r"]
+
+[sub_resource type="Resource" id="Resource_ofblq"]
+script = ExtResource("4_k2r2r")
+stat = 5
+value = 14.0
+
+[sub_resource type="Resource" id="Resource_iwmu8"]
+script = ExtResource("4_k2r2r")
+stat = 7
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_kllxn"]
+script = ExtResource("4_k2r2r")
+value = 34.0
+
+[resource]
+script = ExtResource("2_iwmu8")
+id = "chestplate_rare"
+display_name = "Superior Iron Chestplate"
+description = "Heavy iron armor protecting the torso. Provides significant defense and vitality."
+icon = ExtResource("1_ofblq")
+item_type = 1
+category = 8
+rarity = 2
+armor_slot = 8
+shape = ExtResource("3_kllxn")
+stat_modifiers = [SubResource("Resource_ofblq"), SubResource("Resource_iwmu8"), SubResource("Resource_kllxn")]
+base_price = 204

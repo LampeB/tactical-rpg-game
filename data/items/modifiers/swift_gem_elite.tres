@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_vvjfa"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_chvrs"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/thunderGem_common.png" id="3_yp6dk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_82a2x"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_oss86"]
+
+[sub_resource type="Resource" id="Resource_vvjfa"]
+script = ExtResource("2_chvrs")
+stat = 2
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_chvrs"]
+script = ExtResource("1_vvjfa")
+stat_bonuses = [SubResource("Resource_vvjfa")]
+status_effect_chance = 0.33
+
+[sub_resource type="Resource" id="Resource_yp6dk"]
+script = ExtResource("2_chvrs")
+stat = 2
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_82a2x"]
+script = ExtResource("1_vvjfa")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_yp6dk")]
+status_effect_chance = 0.33
+
+[sub_resource type="Resource" id="Resource_oss86"]
+script = ExtResource("2_chvrs")
+stat = 2
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_hbpn4"]
+script = ExtResource("1_vvjfa")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_oss86")]
+status_effect_chance = 0.33
+
+[resource]
+script = ExtResource("4_82a2x")
+id = "swift_gem_elite"
+display_name = "Elite Swift Gem"
+description = "A shimmering gem that pulses rapidly. Adds +5 speed to adjacent weapons. [Future: Chance to attack twice]"
+icon = ExtResource("3_yp6dk")
+item_type = 2
+rarity = 3
+shape = ExtResource("5_oss86")
+conditional_modifier_rules = [SubResource("Resource_chvrs"), SubResource("Resource_82a2x"), SubResource("Resource_hbpn4")]
+base_price = 92

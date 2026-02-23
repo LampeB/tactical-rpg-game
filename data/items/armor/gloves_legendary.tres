@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_373ct"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_wtpgn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_pkntc"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_dvywp"]
+
+[sub_resource type="Resource" id="Resource_373ct"]
+script = ExtResource("4_dvywp")
+stat = 4
+value = 6.0
+
+[sub_resource type="Resource" id="Resource_wtpgn"]
+script = ExtResource("4_dvywp")
+stat = 7
+value = 3.0
+
+[resource]
+script = ExtResource("2_wtpgn")
+id = "gloves_legendary"
+display_name = "Legendary Leather Gloves"
+description = "Flexible leather gloves. Improves grip and striking power."
+icon = ExtResource("1_373ct")
+item_type = 1
+category = 9
+rarity = 4
+armor_slot = 9
+shape = ExtResource("3_pkntc")
+stat_modifiers = [SubResource("Resource_373ct"), SubResource("Resource_wtpgn")]
+base_price = 108

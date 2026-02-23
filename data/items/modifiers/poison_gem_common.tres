@@ -1,45 +1,44 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" uid="uid://dyh0n5pu1h3mu" path="res://assets/sprites/items/poisonGem_common.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/poisonGem_common.png" id="5"]
 [ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="6"]
 
-[sub_resource type="Resource" id="stat_magatk_melee"]
+[sub_resource type="Resource" id="Resource_1hd8q"]
 script = ExtResource("2")
 stat = 6
 value = 7.0
 
-[sub_resource type="Resource" id="stat_magatk_magic"]
+[sub_resource type="Resource" id="Resource_kdn8a"]
+script = ExtResource("3")
+stat_bonuses = [SubResource("Resource_1hd8q")]
+status_effect = ExtResource("6")
+status_effect_chance = 0.25
+
+[sub_resource type="Resource" id="Resource_3tdbd"]
 script = ExtResource("2")
 stat = 6
 value = 9.0
 
-[sub_resource type="Resource" id="stat_magatk_ranged"]
+[sub_resource type="Resource" id="Resource_kfrfu"]
+script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_3tdbd")]
+status_effect = ExtResource("6")
+status_effect_chance = 0.3
+
+[sub_resource type="Resource" id="Resource_xd80x"]
 script = ExtResource("2")
 stat = 6
 value = 7.0
 
-[sub_resource type="Resource" id="rule_melee"]
-script = ExtResource("3")
-target_weapon_type = 0
-stat_bonuses = [SubResource("stat_magatk_melee")]
-status_effect = ExtResource("6")
-status_effect_chance = 0.25
-
-[sub_resource type="Resource" id="rule_magic"]
-script = ExtResource("3")
-target_weapon_type = 2
-stat_bonuses = [SubResource("stat_magatk_magic")]
-status_effect = ExtResource("6")
-status_effect_chance = 0.30
-
-[sub_resource type="Resource" id="rule_ranged"]
+[sub_resource type="Resource" id="Resource_i1xrh"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_magatk_ranged")]
+stat_bonuses = [SubResource("Resource_xd80x")]
 status_effect = ExtResource("6")
 status_effect_chance = 0.25
 
@@ -50,8 +49,6 @@ display_name = "Poison Gem"
 description = "A sickly green gem that oozes venom. Adds poison damage and poisoned status to weapons."
 icon = ExtResource("5")
 item_type = 2
-rarity = 0
 shape = ExtResource("4")
-modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_magic"), SubResource("rule_ranged")]
+conditional_modifier_rules = [SubResource("Resource_kdn8a"), SubResource("Resource_kfrfu"), SubResource("Resource_i1xrh")]
 base_price = 35

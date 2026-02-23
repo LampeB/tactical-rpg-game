@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_f4rky"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_shvqc"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="3_h812g"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="4_iwok3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5_p2ogs"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="6_n1xrc"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="7_b4spn"]
+
+[sub_resource type="Resource" id="Resource_f4rky"]
+script = ExtResource("2_shvqc")
+stat = 6
+value = 24.0
+
+[sub_resource type="Resource" id="Resource_shvqc"]
+script = ExtResource("1_f4rky")
+stat_bonuses = [SubResource("Resource_f4rky")]
+status_effect = ExtResource("3_h812g")
+status_effect_chance = 0.6000000000000001
+
+[sub_resource type="Resource" id="Resource_h812g"]
+script = ExtResource("2_shvqc")
+stat = 6
+value = 33.0
+
+[sub_resource type="Resource" id="Resource_iwok3"]
+script = ExtResource("1_f4rky")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_h812g")]
+status_effect = ExtResource("3_h812g")
+status_effect_chance = 0.75
+granted_skills = [ExtResource("4_iwok3")]
+
+[sub_resource type="Resource" id="Resource_p2ogs"]
+script = ExtResource("2_shvqc")
+stat = 6
+value = 24.0
+
+[sub_resource type="Resource" id="Resource_n1xrc"]
+script = ExtResource("1_f4rky")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_p2ogs")]
+status_effect = ExtResource("3_h812g")
+status_effect_chance = 0.6000000000000001
+
+[resource]
+script = ExtResource("6_n1xrc")
+id = "ice_gem_legendary"
+display_name = "Legendary Ice Gem"
+description = "A crystalline frost gem. Adds ice damage and chill chance to weapons. Grants Ice Shard to magic weapons."
+icon = ExtResource("5_p2ogs")
+item_type = 2
+rarity = 4
+shape = ExtResource("7_b4spn")
+conditional_modifier_rules = [SubResource("Resource_shvqc"), SubResource("Resource_iwok3"), SubResource("Resource_n1xrc")]
+base_price = 108

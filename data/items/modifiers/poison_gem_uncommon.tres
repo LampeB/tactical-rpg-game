@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_id2bb"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_qv4dr"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="3_cpdmg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/poisonGem_common.png" id="4_urs3b"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_ybkqk"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_ftjct"]
+
+[sub_resource type="Resource" id="Resource_id2bb"]
+script = ExtResource("2_qv4dr")
+stat = 6
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_qv4dr"]
+script = ExtResource("1_id2bb")
+stat_bonuses = [SubResource("Resource_id2bb")]
+status_effect = ExtResource("3_cpdmg")
+status_effect_chance = 0.325
+
+[sub_resource type="Resource" id="Resource_cpdmg"]
+script = ExtResource("2_qv4dr")
+stat = 6
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_urs3b"]
+script = ExtResource("1_id2bb")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_cpdmg")]
+status_effect = ExtResource("3_cpdmg")
+status_effect_chance = 0.39
+
+[sub_resource type="Resource" id="Resource_ybkqk"]
+script = ExtResource("2_qv4dr")
+stat = 6
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_ftjct"]
+script = ExtResource("1_id2bb")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_ybkqk")]
+status_effect = ExtResource("3_cpdmg")
+status_effect_chance = 0.325
+
+[resource]
+script = ExtResource("5_ybkqk")
+id = "poison_gem_uncommon"
+display_name = "Fine Poison Gem"
+description = "A sickly green gem that oozes venom. Adds poison damage and poisoned status to weapons."
+icon = ExtResource("4_urs3b")
+item_type = 2
+rarity = 1
+shape = ExtResource("6_ftjct")
+conditional_modifier_rules = [SubResource("Resource_qv4dr"), SubResource("Resource_urs3b"), SubResource("Resource_ftjct")]
+base_price = 55

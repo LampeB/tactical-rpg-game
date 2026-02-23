@@ -1,30 +1,29 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
-[ext_resource type="Texture2D" uid="uid://tc6wj6ue4yty" path="res://assets/sprites/items/fireGem_elite.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_elite.png" id="5"]
 
-[sub_resource type="Resource" id="stat_crit_dmg"]
+[sub_resource type="Resource" id="Resource_ehsw8"]
 script = ExtResource("2")
 stat = 9
 value = 25.0
 
-[sub_resource type="Resource" id="rule_melee"]
+[sub_resource type="Resource" id="Resource_3yp30"]
 script = ExtResource("3")
-target_weapon_type = 0
-stat_bonuses = [SubResource("stat_crit_dmg")]
+stat_bonuses = [SubResource("Resource_ehsw8")]
 
-[sub_resource type="Resource" id="rule_ranged"]
+[sub_resource type="Resource" id="Resource_um3ed"]
 script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("stat_crit_dmg")]
+stat_bonuses = [SubResource("Resource_ehsw8")]
 
-[sub_resource type="Resource" id="rule_magic"]
+[sub_resource type="Resource" id="Resource_n5l3s"]
 script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("stat_crit_dmg")]
+stat_bonuses = [SubResource("Resource_ehsw8")]
 
 [resource]
 script = ExtResource("1")
@@ -35,6 +34,5 @@ icon = ExtResource("5")
 item_type = 2
 rarity = 1
 shape = ExtResource("4")
-modifier_reach = 1
-conditional_modifier_rules = [SubResource("rule_melee"), SubResource("rule_ranged"), SubResource("rule_magic")]
+conditional_modifier_rules = [SubResource("Resource_3yp30"), SubResource("Resource_um3ed"), SubResource("Resource_n5l3s")]
 base_price = 45

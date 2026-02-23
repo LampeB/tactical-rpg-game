@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_d61x6"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_uaef2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_gd18r"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_6qcqu"]
+
+[sub_resource type="Resource" id="Resource_d61x6"]
+script = ExtResource("4_6qcqu")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_uaef2"]
+script = ExtResource("4_6qcqu")
+stat = 7
+value = 2.0
+
+[resource]
+script = ExtResource("2_uaef2")
+id = "gloves_elite"
+display_name = "Elite Leather Gloves"
+description = "Flexible leather gloves. Improves grip and striking power."
+icon = ExtResource("1_d61x6")
+item_type = 1
+category = 9
+rarity = 3
+armor_slot = 9
+shape = ExtResource("3_gd18r")
+stat_modifiers = [SubResource("Resource_d61x6"), SubResource("Resource_uaef2")]
+base_price = 79

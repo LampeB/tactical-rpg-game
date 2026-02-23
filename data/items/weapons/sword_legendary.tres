@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="1_s7s86"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="2_vo7dv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="3_6bu22"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_dahjk"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_6p1ld"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_0p2cn"]
+
+[sub_resource type="Resource" id="Resource_s7s86"]
+script = ExtResource("6_0p2cn")
+stat = 4
+value = 15.0
+
+[resource]
+script = ExtResource("4_dahjk")
+id = "sword_legendary"
+display_name = "Legendary Iron Sword"
+description = "A basic iron sword. Reliable if unexceptional."
+icon = ExtResource("3_6bu22")
+rarity = 4
+hand_slots_required = 1
+shape = ExtResource("5_6p1ld")
+stat_modifiers = [SubResource("Resource_s7s86")]
+base_power = 15
+granted_skills = [ExtResource("1_s7s86"), ExtResource("2_vo7dv")]
+base_price = 180

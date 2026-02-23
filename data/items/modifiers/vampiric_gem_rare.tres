@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_wn4qa"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_bv8y6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_uncommon.png" id="3_67psr"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_wx1ce"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_8mbi8"]
+
+[sub_resource type="Resource" id="Resource_wn4qa"]
+script = ExtResource("2_bv8y6")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_bv8y6"]
+script = ExtResource("1_wn4qa")
+stat_bonuses = [SubResource("Resource_wn4qa")]
+status_effect_chance = 0.19615384615384615
+
+[sub_resource type="Resource" id="Resource_67psr"]
+script = ExtResource("2_bv8y6")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_wx1ce"]
+script = ExtResource("1_wn4qa")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_67psr")]
+status_effect_chance = 0.19615384615384615
+
+[sub_resource type="Resource" id="Resource_8mbi8"]
+script = ExtResource("2_bv8y6")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_brx2n"]
+script = ExtResource("1_wn4qa")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_8mbi8")]
+status_effect_chance = 0.19615384615384615
+
+[resource]
+script = ExtResource("4_wx1ce")
+id = "vampiric_gem_rare"
+display_name = "Superior Vampiric Gem"
+description = "A blood-red gem that hungers. Adds damage to adjacent weapons. [Future: Life steal on hit]"
+icon = ExtResource("3_67psr")
+item_type = 2
+rarity = 2
+shape = ExtResource("5_8mbi8")
+conditional_modifier_rules = [SubResource("Resource_bv8y6"), SubResource("Resource_wx1ce"), SubResource("Resource_brx2n")]
+base_price = 71

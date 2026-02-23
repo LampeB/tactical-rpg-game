@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_jp4cl"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_esaqd"]
+[ext_resource type="Resource" path="res://data/skills/explosion.tres" id="3_k12di"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_rare.png" id="4_h6uwp"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_popr4"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_4ncee"]
+
+[sub_resource type="Resource" id="Resource_jp4cl"]
+script = ExtResource("2_esaqd")
+stat = 6
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_esaqd"]
+script = ExtResource("1_jp4cl")
+stat_bonuses = [SubResource("Resource_jp4cl")]
+status_effect_chance = 0.08823529411764706
+force_aoe = true
+hp_cost_per_attack = 10
+
+[sub_resource type="Resource" id="Resource_k12di"]
+script = ExtResource("2_esaqd")
+stat = 6
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_h6uwp"]
+script = ExtResource("1_jp4cl")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_k12di")]
+status_effect_chance = 0.08823529411764706
+force_aoe = true
+
+[sub_resource type="Resource" id="Resource_popr4"]
+script = ExtResource("2_esaqd")
+stat = 6
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_4ncee"]
+script = ExtResource("1_jp4cl")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_popr4")]
+status_effect_chance = 0.08823529411764706
+granted_skills = [ExtResource("3_k12di")]
+force_aoe = true
+
+[sub_resource type="Resource" id="Resource_e4hna"]
+script = ExtResource("2_esaqd")
+stat = 4
+value = 5.0
+
+[resource]
+script = ExtResource("5_popr4")
+id = "megummy_gem_common"
+display_name = "MeGummy"
+description = "An unstable explosive gem. All attacks become AoE, hitting every enemy! +8 Magical ATK. WARNING: Melee attacks cost 10 HP per use. Near a Staff, unlocks EXPLOOOOOOOOOOOOOOOSION!!!"
+icon = ExtResource("4_h6uwp")
+item_type = 2
+shape = ExtResource("6_4ncee")
+modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
+modifier_bonuses = [SubResource("Resource_e4hna")]
+conditional_modifier_rules = [SubResource("Resource_esaqd"), SubResource("Resource_h6uwp"), SubResource("Resource_4ncee")]
+base_price = 56

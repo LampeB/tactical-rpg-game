@@ -1,16 +1,15 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://dxgoa174qaio5" path="res://assets/sprites/items/staff_uncommon.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_uncommon.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="5_fbolt"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6_ishard"]
 
-[sub_resource type="Resource" id="stat_sp_atk"]
+[sub_resource type="Resource" id="Resource_kkp08"]
 script = ExtResource("2")
 stat = 6
-modifier_type = 0
 value = 7.0
 
 [resource]
@@ -19,13 +18,11 @@ id = "staff_long"
 display_name = "Elder's Staff"
 description = "An exceptionally long staff of ancient wood. Channels immense magical power."
 icon = ExtResource("4")
-item_type = 0
 category = 3
 rarity = 1
 hand_slots_required = 2
 shape = ExtResource("3")
-stat_modifiers = [SubResource("stat_sp_atk")]
-base_power = 0
+stat_modifiers = [SubResource("Resource_kkp08")]
 magical_power = 5
 granted_skills = [ExtResource("5_fbolt"), ExtResource("6_ishard")]
 base_price = 80

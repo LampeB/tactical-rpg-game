@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="1_qy32e"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_tht8f"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_cmkxt"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_wxetb"]
+
+[sub_resource type="Resource" id="Resource_qy32e"]
+script = ExtResource("4_wxetb")
+stat = 5
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_tht8f"]
+script = ExtResource("4_wxetb")
+stat = 7
+value = 6.0
+
+[resource]
+script = ExtResource("2_tht8f")
+id = "helmet_legendary"
+display_name = "Legendary Iron Helmet"
+description = "A sturdy iron helmet. Protects the head from blows."
+icon = ExtResource("1_qy32e")
+item_type = 1
+category = 7
+rarity = 4
+shape = ExtResource("3_cmkxt")
+stat_modifiers = [SubResource("Resource_qy32e"), SubResource("Resource_tht8f")]
+base_price = 144

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="1_qkpa7"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_6emh8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="3_tgbqj"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_htw05"]
+
+[sub_resource type="Resource" id="Resource_qkpa7"]
+script = ExtResource("4_htw05")
+stat = 4
+value = 9.0
+
+[resource]
+script = ExtResource("2_6emh8")
+id = "bow_elite"
+display_name = "Elite Hunting Bow"
+description = "A lightweight hunting bow. Ranged weapon with a distinctive zigzag profile."
+icon = ExtResource("1_qkpa7")
+category = 2
+rarity = 3
+hand_slots_required = 2
+shape = ExtResource("3_tgbqj")
+stat_modifiers = [SubResource("Resource_qkpa7")]
+base_power = 9
+base_price = 119

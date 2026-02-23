@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="1_f37np"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="2_f3qpe"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_rfcsn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4_dqw7p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_20rqb"]
+
+[sub_resource type="Resource" id="Resource_f37np"]
+script = ExtResource("5_20rqb")
+stat = 4
+value = 16.0
+
+[sub_resource type="Resource" id="Resource_f3qpe"]
+script = ExtResource("5_20rqb")
+stat = 2
+value = 12.0
+
+[resource]
+script = ExtResource("3_rfcsn")
+id = "dagger_unique"
+display_name = "Mythic Iron Dagger"
+description = "A lightweight dagger. Quick and easy to conceal."
+icon = ExtResource("2_f3qpe")
+category = 4
+rarity = 5
+hand_slots_required = 1
+shape = ExtResource("4_dqw7p")
+stat_modifiers = [SubResource("Resource_f37np"), SubResource("Resource_f3qpe")]
+base_power = 16
+granted_skills = [ExtResource("1_f37np")]
+base_price = 192

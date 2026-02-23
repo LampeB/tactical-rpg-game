@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_d7xrg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_lyg2k"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/precisionGem_common.png" id="3_v8k6k"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_a8ifk"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_qbril"]
+
+[sub_resource type="Resource" id="Resource_d7xrg"]
+script = ExtResource("2_lyg2k")
+stat = 8
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_lyg2k"]
+script = ExtResource("2_lyg2k")
+stat = 9
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_v8k6k"]
+script = ExtResource("1_d7xrg")
+stat_bonuses = [SubResource("Resource_d7xrg"), SubResource("Resource_lyg2k")]
+status_effect_chance = 0.195
+
+[sub_resource type="Resource" id="Resource_a8ifk"]
+script = ExtResource("2_lyg2k")
+stat = 8
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_qbril"]
+script = ExtResource("2_lyg2k")
+stat = 9
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_cbxi5"]
+script = ExtResource("1_d7xrg")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_a8ifk"), SubResource("Resource_qbril")]
+status_effect_chance = 0.195
+
+[sub_resource type="Resource" id="Resource_c1885"]
+script = ExtResource("2_lyg2k")
+stat = 8
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_5hsrd"]
+script = ExtResource("2_lyg2k")
+stat = 9
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_g46dm"]
+script = ExtResource("1_d7xrg")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_c1885"), SubResource("Resource_5hsrd")]
+status_effect_chance = 0.195
+
+[resource]
+script = ExtResource("4_a8ifk")
+id = "precision_gem_uncommon"
+display_name = "Fine Precision Gem"
+description = "A crystalline gem that sharpens focus. Adds +5% crit rate and +10% crit damage to adjacent weapons."
+icon = ExtResource("3_v8k6k")
+item_type = 2
+rarity = 1
+shape = ExtResource("5_qbril")
+conditional_modifier_rules = [SubResource("Resource_v8k6k"), SubResource("Resource_cbxi5"), SubResource("Resource_g46dm")]
+base_price = 62

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemShape" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ItemShape" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_shape.gd" id="1"]
 
@@ -6,5 +6,5 @@
 script = ExtResource("1")
 id = "shape_1x3"
 display_name = "Long Bar"
-cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2)])
+cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(1, 2), Vector2i(1, 3), Vector2i(0, 2), Vector2i(1, 4)])
 rotation_states = 2

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="1_5vmp7"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="2_pp6ru"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="3_p0yay"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_ll7el"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_1s2dy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_a76dl"]
+
+[sub_resource type="Resource" id="Resource_5vmp7"]
+script = ExtResource("6_a76dl")
+stat = 4
+value = 7.0
+
+[resource]
+script = ExtResource("4_ll7el")
+id = "sword_uncommon"
+display_name = "Fine Iron Sword"
+description = "A basic iron sword. Reliable if unexceptional."
+icon = ExtResource("3_p0yay")
+rarity = 1
+hand_slots_required = 1
+shape = ExtResource("5_1s2dy")
+stat_modifiers = [SubResource("Resource_5vmp7")]
+base_power = 7
+granted_skills = [ExtResource("1_5vmp7"), ExtResource("2_pp6ru")]
+base_price = 78

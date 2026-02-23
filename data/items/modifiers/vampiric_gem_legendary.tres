@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_heu7d"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_xkbq3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_uncommon.png" id="3_7b80w"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_osqru"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_1vejy"]
+
+[sub_resource type="Resource" id="Resource_heu7d"]
+script = ExtResource("2_xkbq3")
+stat = 4
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_xkbq3"]
+script = ExtResource("1_heu7d")
+stat_bonuses = [SubResource("Resource_heu7d")]
+status_effect_chance = 0.3461538461538461
+
+[sub_resource type="Resource" id="Resource_7b80w"]
+script = ExtResource("2_xkbq3")
+stat = 4
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_osqru"]
+script = ExtResource("1_heu7d")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_7b80w")]
+status_effect_chance = 0.3461538461538461
+
+[sub_resource type="Resource" id="Resource_1vejy"]
+script = ExtResource("2_xkbq3")
+stat = 4
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_ktpql"]
+script = ExtResource("1_heu7d")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_1vejy")]
+status_effect_chance = 0.3461538461538461
+
+[resource]
+script = ExtResource("4_osqru")
+id = "vampiric_gem_legendary"
+display_name = "Legendary Vampiric Gem"
+description = "A blood-red gem that hungers. Adds damage to adjacent weapons. [Future: Life steal on hit]"
+icon = ExtResource("3_7b80w")
+item_type = 2
+rarity = 4
+shape = ExtResource("5_1vejy")
+conditional_modifier_rules = [SubResource("Resource_xkbq3"), SubResource("Resource_osqru"), SubResource("Resource_ktpql")]
+base_price = 125

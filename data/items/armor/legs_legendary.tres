@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_klc4b"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_nqq77"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="3_2naoa"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_vt7ku"]
+
+[sub_resource type="Resource" id="Resource_klc4b"]
+script = ExtResource("4_vt7ku")
+stat = 5
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_nqq77"]
+script = ExtResource("4_vt7ku")
+stat = 7
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_2naoa"]
+script = ExtResource("4_vt7ku")
+stat = 2
+value = -6.0
+
+[resource]
+script = ExtResource("2_nqq77")
+id = "legs_legendary"
+display_name = "Legendary Iron Greaves"
+description = "Heavy leg armor. Provides good protection but reduces mobility."
+icon = ExtResource("1_klc4b")
+item_type = 1
+category = 10
+rarity = 4
+armor_slot = 10
+shape = ExtResource("3_2naoa")
+stat_modifiers = [SubResource("Resource_klc4b"), SubResource("Resource_nqq77"), SubResource("Resource_2naoa")]
+base_price = 216

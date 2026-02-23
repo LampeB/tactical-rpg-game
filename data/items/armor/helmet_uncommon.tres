@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="1_3crhy"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_d437c"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_egep8"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_bvx7c"]
+
+[sub_resource type="Resource" id="Resource_3crhy"]
+script = ExtResource("4_bvx7c")
+stat = 5
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_d437c"]
+script = ExtResource("4_bvx7c")
+stat = 7
+value = 3.0
+
+[resource]
+script = ExtResource("2_d437c")
+id = "helmet_uncommon"
+display_name = "Fine Iron Helmet"
+description = "A sturdy iron helmet. Protects the head from blows."
+icon = ExtResource("1_3crhy")
+item_type = 1
+category = 7
+rarity = 1
+shape = ExtResource("3_egep8")
+stat_modifiers = [SubResource("Resource_3crhy"), SubResource("Resource_d437c")]
+base_price = 62

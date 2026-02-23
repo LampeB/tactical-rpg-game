@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_legh8"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_lv4ub"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="3_1hoe6"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_w6jmb"]
+
+[sub_resource type="Resource" id="Resource_legh8"]
+script = ExtResource("4_w6jmb")
+stat = 5
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_lv4ub"]
+script = ExtResource("4_w6jmb")
+stat = 7
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_1hoe6"]
+script = ExtResource("4_w6jmb")
+stat = 2
+value = -4.0
+
+[resource]
+script = ExtResource("2_lv4ub")
+id = "legs_elite"
+display_name = "Elite Iron Greaves"
+description = "Heavy leg armor. Provides good protection but reduces mobility."
+icon = ExtResource("1_legh8")
+item_type = 1
+category = 10
+rarity = 3
+armor_slot = 10
+shape = ExtResource("3_1hoe6")
+stat_modifiers = [SubResource("Resource_legh8"), SubResource("Resource_lv4ub"), SubResource("Resource_1hoe6")]
+base_price = 158

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="1_co3fn"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_lemlj"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_uncommon.png" id="3_pab1s"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_ikis2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_8tigm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_oiitm"]
+
+[sub_resource type="Resource" id="Resource_co3fn"]
+script = ExtResource("6_oiitm")
+stat = 6
+value = 12.0
+
+[resource]
+script = ExtResource("4_ikis2")
+id = "staff_long_elite"
+display_name = "Elite Elder's Staff"
+description = "An exceptionally long staff of ancient wood. Channels immense magical power."
+icon = ExtResource("3_pab1s")
+category = 3
+rarity = 3
+hand_slots_required = 2
+shape = ExtResource("5_8tigm")
+stat_modifiers = [SubResource("Resource_co3fn")]
+magical_power = 8
+granted_skills = [ExtResource("1_co3fn"), ExtResource("2_lemlj")]
+base_price = 162

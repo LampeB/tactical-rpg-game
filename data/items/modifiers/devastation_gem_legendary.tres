@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_6lv4i"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_m2w12"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_elite.png" id="3_ibaxl"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_lgi3n"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_qk0vw"]
+
+[sub_resource type="Resource" id="Resource_6lv4i"]
+script = ExtResource("2_m2w12")
+stat = 9
+value = 58.0
+
+[sub_resource type="Resource" id="Resource_m2w12"]
+script = ExtResource("1_6lv4i")
+stat_bonuses = [SubResource("Resource_6lv4i")]
+status_effect_chance = 0.3461538461538461
+
+[sub_resource type="Resource" id="Resource_ibaxl"]
+script = ExtResource("2_m2w12")
+stat = 9
+value = 58.0
+
+[sub_resource type="Resource" id="Resource_lgi3n"]
+script = ExtResource("1_6lv4i")
+target_weapon_type = 1
+stat_bonuses = [SubResource("Resource_ibaxl")]
+status_effect_chance = 0.3461538461538461
+
+[sub_resource type="Resource" id="Resource_qk0vw"]
+script = ExtResource("2_m2w12")
+stat = 9
+value = 58.0
+
+[sub_resource type="Resource" id="Resource_5k1fy"]
+script = ExtResource("1_6lv4i")
+target_weapon_type = 2
+stat_bonuses = [SubResource("Resource_qk0vw")]
+status_effect_chance = 0.3461538461538461
+
+[resource]
+script = ExtResource("4_lgi3n")
+id = "devastation_gem_legendary"
+display_name = "Legendary Devastation Gem"
+description = "A dark gem crackling with destructive power. Adds +25% critical damage to adjacent weapons. Maximize your critical strikes!"
+icon = ExtResource("3_ibaxl")
+item_type = 2
+rarity = 4
+shape = ExtResource("5_qk0vw")
+conditional_modifier_rules = [SubResource("Resource_m2w12"), SubResource("Resource_lgi3n"), SubResource("Resource_5k1fy")]
+base_price = 125
