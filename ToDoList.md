@@ -40,6 +40,8 @@
 
 [x] add custom modifier reach patterns for gems (cross-shaped, diamond-shaped, L-shaped, etc.) instead of just simple radius
 
+[x] item and reach pattern rotation — rotating items also rotates their sprite and modifier reach pattern
+
 [ ] item crafting system — combine multiple items to create new ones (e.g., Ripple Gem + Buckler = Frisbee weapon). Recipes stored in a database, crafting UI accessible from inventory or shop.
 
 [ ] in-game item editor — a debug/dev tool accessible from the main menu (like the skill tree editor) to create and edit ItemData resources visually: set stats, type, rarity, shape, icon, modifier rules, reach patterns, skills, etc.
@@ -59,3 +61,5 @@
 [ ] audio settings (master volume, music volume, SFX volume) in settings menu
 
 [ ] smooth music transitions when switching scenes (crossfade)
+
+[ ] in-game enemy editor — a debug/dev tool to create and edit enemy definitions: stats, loot tables, sprites, AI behavior, etc.
