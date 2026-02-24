@@ -43,6 +43,7 @@ var _drag_source_pos: Vector2i = Vector2i.ZERO
 var _drag_source_rotation: int = 0
 var _drag_source_stash_index: int = -1
 var _drag_rotation: int = 0
+var _last_preview_grid_pos: Vector2i = Vector2i(-999, -999)
 
 # Tooltip control
 var _tooltips_enabled: bool = true
@@ -133,6 +134,15 @@ func _ready() -> void:
 	# Hide tooltip and drag preview initially
 	_item_tooltip.visible = false
 	_drag_preview.visible = false
+
+	# Placement hint label — always in the tree to avoid layout reflow
+	_placement_hint_label = Label.new()
+	_placement_hint_label.add_theme_font_size_override("font_size", 13)
+	_placement_hint_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	_placement_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_placement_hint_label.custom_minimum_size.y = 18
+	_placement_hint_label.text = ""
+	_grid_panel.get_parent().get_parent().add_child(_placement_hint_label)
 
 	DebugLogger.log_info("Character stats scene ready", "CharStats")
 
@@ -492,9 +502,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
-		_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
-		var can_place: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
-		_drag_preview.set_valid(can_place)
+		return  # Handled by _update_drag_preview in _process
 	else:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
@@ -704,6 +712,7 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 
 	# Show placement preview at current mouse position
 	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+	_last_preview_grid_pos = mouse_grid_pos
 	_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
 	var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
 	_drag_preview.set_valid(can_place)
@@ -726,6 +735,7 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if inv:
 		var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+		_last_preview_grid_pos = mouse_grid_pos
 		_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
 		var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
@@ -850,14 +860,28 @@ func _rotate_dragged_item() -> void:
 	# Always allow 4 rotations so items can face any direction
 	_drag_rotation = (_drag_rotation + 1) % 4
 	_drag_preview.rotate_cw()
-	# Refresh grid preview so the drop preview and reach pattern update immediately
-	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
-	_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
+	# Force preview refresh at current position (rotation changed)
+	_last_preview_grid_pos = Vector2i(-999, -999)
 	EventBus.item_rotated.emit(_current_character_id, _dragged_item)
 
 
 func _update_drag_preview() -> void:
 	_stash_panel.highlight_drop_target(_stash_panel.is_mouse_over())
+
+	# Update grid placement preview every frame based on mouse position
+	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
+	if inv and _dragged_item:
+		var grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+		if grid_pos != _last_preview_grid_pos:
+			_last_preview_grid_pos = grid_pos
+			_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
+			var placeable: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
+			_drag_preview.set_valid(placeable)
+			if not placeable and _grid_panel.last_failure_reason != "":
+				_show_placement_hint(_grid_panel.last_failure_reason)
+			else:
+				_hide_placement_hint()
+
 	_grid_panel.highlight_upgradeable_items(_dragged_item)
 	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
@@ -866,12 +890,14 @@ func _end_drag() -> void:
 	_drag_state = DragState.IDLE
 	_dragged_item = null
 	_drag_source = DragSource.NONE
+	_last_preview_grid_pos = Vector2i(-999, -999)
 	_drag_source_placed = null
 	_drag_source_stash_index = -1
 	_drag_preview.hide_preview()
 	_stash_panel.highlight_drop_target(false)
 	_stash_panel.clear_upgradeable_highlights()
 	_grid_panel.clear_placement_preview()
+	_hide_placement_hint()
 
 
 func _refresh_left_panel() -> void:
@@ -920,6 +946,17 @@ func _make_cell(text: String, stretch: float) -> Label:
 func _clear_children(container: Node) -> void:
 	for child in container.get_children():
 		child.queue_free()
+
+
+var _placement_hint_label: Label = null
+
+func _show_placement_hint(reason: String) -> void:
+	if _placement_hint_label:
+		_placement_hint_label.text = reason
+
+func _hide_placement_hint() -> void:
+	if _placement_hint_label:
+		_placement_hint_label.text = ""
 
 
 func _on_gold_changed(_new_gold: int) -> void:

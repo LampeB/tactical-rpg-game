@@ -51,12 +51,18 @@ func refresh() -> void:
 	_update_item_visuals()
 
 
+var last_failure_reason: String = ""
+
 func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> void:
 	clear_placement_preview()
 	if not _grid_inventory:
 		return
 	var shape_cells: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
 	var can_place: bool = _grid_inventory.can_place(item_data, grid_pos, rotation)
+	if not can_place:
+		last_failure_reason = _grid_inventory.get_placement_failure_reason(item_data, grid_pos, rotation)
+	else:
+		last_failure_reason = ""
 
 	# Show modifier reach area if this is a modifier item
 	if item_data.item_type == Enums.ItemType.MODIFIER:
