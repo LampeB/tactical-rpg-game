@@ -35,3 +35,8 @@ signal show_message(message: String)
 # === DIALOGUE ===
 signal dialogue_started(npc_id: String)
 signal dialogue_ended(npc_id: String)
+
+# === INVENTORY UPGRADES ===
+signal inventory_expanded()
+signal backpack_expanded(character_id: String, unlocked_cells: int)
+signal backpack_tier_unlocked(character_id: String, new_tier: int)

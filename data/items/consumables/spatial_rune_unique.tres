@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_f6e5r"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_7riyk"]
+
+[resource]
+script = ExtResource("1_f6e5r")
+id = "spatial_rune_unique"
+display_name = "Mythic Spatial Rune"
+description = "A crystallized fragment of compressed dimensional space. Skilled weavers use these to craft a superior backpack for the whole party."
+item_type = 3
+rarity = 5
+shape = ExtResource("2_7riyk")
+base_price = 2400

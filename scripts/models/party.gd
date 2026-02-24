@@ -26,15 +26,25 @@ var unlocked_passives: Dictionary = {}
 ## Runtime HP/MP state per character (character_id -> {"current_hp": int, "current_mp": int}).
 var character_vitals: Dictionary = {}
 
+## Backpack upgrade state per character.
+## Key: character_id -> { "tier": int, "purchased_cells": Array }
+## purchased_cells holds every Vector2i cell the player individually unlocked.
+var backpack_states: Dictionary = {}
+
 func add_to_roster(character: CharacterData) -> bool:
 	if roster.size() >= Constants.MAX_ROSTER_SIZE:
 		return false
 	if roster.has(character.id):
 		return false
 	roster[character.id] = character
-	# Create persistent grid inventory for this character
-	if character.grid_template and not grid_inventories.has(character.id):
-		grid_inventories[character.id] = GridInventory.new(character.grid_template)
+	# Create persistent grid inventory with tier-aware template.
+	if not grid_inventories.has(character.id):
+		var bp_state := get_or_init_backpack_state(character)
+		if not character.backpack_tiers.is_empty():
+			var tpl := BackpackUpgradeSystem.build_grid_template(character, bp_state)
+			grid_inventories[character.id] = GridInventory.new(tpl)
+		elif character.grid_template:
+			grid_inventories[character.id] = GridInventory.new(character.grid_template)
 	roster_changed.emit()
 	# Auto-add to squad if there's room
 	if squad.size() < Constants.MAX_SQUAD_SIZE:
@@ -47,8 +57,31 @@ func remove_from_roster(character_id: String):
 	squad.erase(character_id)
 	grid_inventories.erase(character_id)
 	character_vitals.erase(character_id)
+	backpack_states.erase(character_id)
 	roster_changed.emit()
 	squad_changed.emit()
+
+
+## Returns all characters in the roster as an Array of CharacterData.
+func get_full_roster() -> Array:
+	return roster.values()
+
+
+## Returns (or initialises) the backpack state dict for a character.
+## State format: { "tier": int, "purchased_cells": Array }
+## Bootstraps from T1 config (no purchased cells = just the initial block).
+## Falls back to grid_template dimensions if backpack_tiers is not configured.
+func get_or_init_backpack_state(character: CharacterData) -> Dictionary:
+	if backpack_states.has(character.id):
+		var state: Dictionary = backpack_states[character.id]
+		# Migrate old "unlocked_cells" saves: discard count, start fresh on this tier.
+		if not state.has("purchased_cells"):
+			state["purchased_cells"] = []
+		return state
+
+	var state: Dictionary = {"tier": 0, "purchased_cells": []}
+	backpack_states[character.id] = state
+	return state
 
 func set_squad(member_ids: Array[String]):
 	squad = member_ids.slice(0, Constants.MAX_SQUAD_SIZE)

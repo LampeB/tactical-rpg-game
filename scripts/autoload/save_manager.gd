@@ -3,7 +3,7 @@ extends Node
 ## Single save slot at user://save.json.
 
 const SAVE_PATH := "user://save.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 
 var _playtime_accumulator: float = 0.0
 var _is_tracking_playtime: bool = false
@@ -94,6 +94,7 @@ func _serialize() -> Dictionary:
 		"squad": Array(party.squad),
 		"stash": _serialize_stash(party.stash),
 		"grid_inventories": _serialize_grid_inventories(party.grid_inventories),
+		"backpack_states": _serialize_backpack_states(party.backpack_states),
 		"unlocked_passives": _serialize_passives(party.unlocked_passives),
 		"character_vitals": party.character_vitals.duplicate(true),
 		"overworld_position": {"x": overworld_pos.x, "y": overworld_pos.y},
@@ -131,6 +132,21 @@ func _serialize_passives(passives: Dictionary) -> Dictionary:
 		result[character_id] = Array(passives[character_id])
 	return result
 
+func _serialize_backpack_states(states: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for char_id: String in states:
+		var s: Dictionary = states[char_id]
+		# Serialize purchased_cells as [[x,y],...] for JSON compatibility.
+		var cells_raw: Array = []
+		for cell in s.get("purchased_cells", []):
+			var v: Vector2i = cell if cell is Vector2i else Vector2i(int(cell[0]), int(cell[1]))
+			cells_raw.append([v.x, v.y])
+		result[char_id] = {
+			"tier": s.get("tier", 0),
+			"purchased_cells": cells_raw,
+		}
+	return result
+
 
 # === Deserialization ===
 
@@ -144,6 +160,21 @@ func _deserialize(data: Dictionary):
 	# Rebuild party
 	var party := Party.new()
 	GameManager.party = party
+
+	# Backpack states must be restored BEFORE add_to_roster so the correct grid
+	# template is used when each character's GridInventory is created. (version 4+;
+	# v3 saves have no backpack_states key — bootstraps T1 automatically.)
+	var bp_data: Dictionary = data.get("backpack_states", {})
+	for char_id: String in bp_data:
+		var s: Dictionary = bp_data[char_id]
+		# Deserialize purchased_cells from [[x,y],...] back to Array of Vector2i.
+		var cells: Array = []
+		for raw in s.get("purchased_cells", []):
+			cells.append(Vector2i(int(raw[0]), int(raw[1])))
+		party.backpack_states[char_id] = {
+			"tier": int(s.get("tier", 0)),
+			"purchased_cells": cells,
+		}
 
 	# Roster: load CharacterData from CharacterDatabase
 	var roster_ids: Array = data.get("roster", [])

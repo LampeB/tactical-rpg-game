@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_463fm"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_m6cv4"]
+
+[resource]
+script = ExtResource("1_463fm")
+id = "spatial_rune_elite"
+display_name = "Elite Spatial Rune"
+description = "A crystallized fragment of compressed dimensional space. Skilled weavers use these to craft a superior backpack for the whole party."
+item_type = 3
+rarity = 3
+shape = ExtResource("2_m6cv4")
+base_price = 1320

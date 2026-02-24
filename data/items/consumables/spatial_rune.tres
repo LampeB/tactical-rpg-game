@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "spatial_rune"
+display_name = "Spatial Rune"
+description = "A crystallized fragment of compressed dimensional space. Skilled weavers use these to craft a superior backpack for the whole party."
+item_type = 3
+shape = ExtResource("2")
+base_price = 500
