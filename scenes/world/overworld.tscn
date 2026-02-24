@@ -1323,5 +1323,13 @@ position = Vector2(218, 403)
 position = Vector2(216, 372)
 
 [node name="Blacksmith" parent="." instance=ExtResource("18")]
-position = Vector2(150, 120)
+position = Vector2(580, 330)
 npc_id = "blacksmith"
+
+[node name="Merchant" parent="." instance=ExtResource("18")]
+position = Vector2(280, 330)
+npc_id = "merchant"
+
+[node name="Weaver" parent="." instance=ExtResource("18")]
+position = Vector2(425, 490)
+npc_id = "weaver"
