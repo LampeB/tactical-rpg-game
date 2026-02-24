@@ -6,6 +6,10 @@ const GRID_CELL_SIZE := 48          ## Pixel size of one inventory cell
 const GRID_MAX_WIDTH := 12          ## Maximum grid width
 const GRID_MAX_HEIGHT := 12         ## Maximum grid height
 
+# === BACKPACK TIERS ===
+const BACKPACK_TIER_COUNT := 6
+const SPATIAL_RUNE_ITEM_ID := "spatial_rune"
+
 # === COMBAT ===
 const BASE_CRITICAL_RATE := 0.05    ## 5% base crit chance
 const BASE_CRITICAL_DAMAGE := 1.5   ## 150% crit damage multiplier

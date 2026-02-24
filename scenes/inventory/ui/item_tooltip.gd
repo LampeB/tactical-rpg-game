@@ -125,6 +125,25 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 	visible = true
 
 
+## Show a tooltip for a purchasable backpack cell.
+func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) -> void:
+	_name_label.text = "Unlock Cell"
+	_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.1))
+	_rarity_label.text = ""
+	_type_label.text = "Cost: %d gold" % cost
+	if can_afford:
+		_type_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))
+	else:
+		_type_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	_clear_container(_stats_container)
+	_modifier_section.visible = false
+	_clear_container(_modifier_list)
+	_description_label.text = "Left-click to purchase." if can_afford else "Not enough gold."
+	_description_label.visible = true
+	_position_at(screen_pos)
+	visible = true
+
+
 func hide_tooltip() -> void:
 	visible = false
 

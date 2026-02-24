@@ -184,12 +184,16 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 	if not choice.set_flag.is_empty():
 		GameManager.set_flag(choice.set_flag, choice.set_flag_value)
 
-	if choice.action == "end" or choice.next_conversation_id.is_empty():
+	# Check specific actions FIRST before falling back on next_conversation_id.
+	if choice.action == "unlock_backpack_tier":
+		GameManager.unlock_next_tier_via_weaver()
 		_end_dialogue()
 	elif choice.action.begins_with("open_shop:"):
 		# TODO: wire shop when ShopUI is implemented
 		var shop_id := choice.action.trim_prefix("open_shop:")
 		DebugLogger.log_info("Would open shop: %s" % shop_id, "Dialogue")
+		_end_dialogue()
+	elif choice.action == "end" or choice.next_conversation_id.is_empty():
 		_end_dialogue()
 	else:
 		var next := _find_conversation_by_id(choice.next_conversation_id)

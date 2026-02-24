@@ -131,6 +131,7 @@ func _ready() -> void:
 	# Update gold display
 	EventBus.gold_changed.connect(_on_gold_changed)
 	EventBus.stash_changed.connect(_on_stash_changed)
+	EventBus.inventory_expanded.connect(_on_inventory_expanded)
 	_update_gold_display()
 
 	# Hide tooltip and drag preview initially
@@ -490,6 +491,16 @@ func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	if not inv:
 		return
 
+	# Left-click on an inactive (purchasable) cell: try to buy it.
+	if _drag_state == DragState.IDLE and not inv.grid_template.is_cell_active(grid_pos):
+		var char_data: CharacterData = GameManager.party.roster.get(_current_character_id)
+		if char_data and not char_data.backpack_tiers.is_empty():
+			var state := GameManager.party.get_or_init_backpack_state(char_data)
+			if BackpackUpgradeSystem.get_purchasable_cells(char_data, state).has(grid_pos):
+				if GameManager.buy_backpack_cell(_current_character_id, grid_pos):
+					_grid_panel.refresh()
+		return
+
 	if _drag_state == DragState.DRAGGING:
 		_try_place_item(grid_pos)
 	else:
@@ -505,19 +516,34 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 
 	if _drag_state == DragState.DRAGGING:
 		return  # Handled by _update_drag_preview in _process
+
+	var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+	if placed:
+		_last_hovered_grid_pos = grid_pos
+		_last_hovered_stash_item = null
+		_grid_panel.highlight_modifier_connections(placed)
+		if _tooltips_enabled:
+			_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
+	elif not inv.grid_template.is_cell_active(grid_pos):
+		# Hovering an inactive cell — show purchase info if the cell is buyable.
+		var char_data: CharacterData = GameManager.party.roster.get(_current_character_id)
+		if char_data and not char_data.backpack_tiers.is_empty():
+			var state := GameManager.party.get_or_init_backpack_state(char_data)
+			if BackpackUpgradeSystem.get_purchasable_cells(char_data, state).has(grid_pos):
+				var cost := BackpackUpgradeSystem.get_next_cell_cost(char_data, state)
+				_grid_panel.set_cell_purchasable(grid_pos)
+				if _tooltips_enabled:
+					_item_tooltip.show_for_cell_purchase(cost, GameManager.gold >= cost, get_global_mouse_position())
+				return
+		_last_hovered_grid_pos = null
+		_last_hovered_stash_item = null
+		_grid_panel.clear_highlights()
+		_item_tooltip.hide_tooltip()
 	else:
-		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
-		if placed:
-			_last_hovered_grid_pos = grid_pos
-			_last_hovered_stash_item = null
-			_grid_panel.highlight_modifier_connections(placed)
-			if _tooltips_enabled:
-				_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
-		else:
-			_last_hovered_grid_pos = null
-			_last_hovered_stash_item = null
-			_grid_panel.clear_highlights()
-			_item_tooltip.hide_tooltip()
+		_last_hovered_grid_pos = null
+		_last_hovered_stash_item = null
+		_grid_panel.clear_highlights()
+		_item_tooltip.hide_tooltip()
 
 
 func _on_hover_exited() -> void:
@@ -559,6 +585,13 @@ func _on_stash_background_clicked() -> void:
 func _on_stash_changed() -> void:
 	if GameManager.party:
 		_stash_panel.refresh(GameManager.party.stash)
+
+
+func _on_inventory_expanded() -> void:
+	if _current_character_id.is_empty() or not GameManager.party:
+		return
+	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id)
+	_update_center_panel(inv)
 
 
 # === Consumable Usage ===

@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/human1.png" id="4"]
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Farewell."
+action = "end"
+
+[sub_resource type="Resource" id="choice_ask_upgrade"]
+script = ExtResource("3")
+text = "Craft a superior pack."
+next_conversation_id = "unlock_offer"
+
+[sub_resource type="Resource" id="choice_unlock_confirm"]
+script = ExtResource("3")
+text = "Yes, craft superior packs."
+action = "unlock_backpack_tier"
+
+[sub_resource type="Resource" id="choice_back_from_unlock"]
+script = ExtResource("3")
+text = "Let me think on it."
+next_conversation_id = "greeting"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Traveler. I am the Weaver — one who bends the seams of space to fit more within less.", "You can expand individual cells from your inventory screen. Come to me only when you are ready to forge a finer vessel entirely."]
+choices = [SubResource("choice_ask_upgrade"), SubResource("choice_bye")]
+
+[sub_resource type="Resource" id="conv_unlock_offer"]
+script = ExtResource("2")
+id = "unlock_offer"
+lines = ["Ah — you seek a finer vessel. A superior pack begins larger and can grow further than what you carry now.", "It requires gold and a Spatial Rune — a crystallized fragment of compressed space. Your current possessions will transfer, though some may not fit the new shape.", "Say the word, and it is done."]
+choices = [SubResource("choice_unlock_confirm"), SubResource("choice_back_from_unlock")]
+
+[resource]
+script = ExtResource("1")
+id = "weaver"
+display_name = "The Weaver"
+sprite = ExtResource("4")
+conversations = [SubResource("conv_greeting"), SubResource("conv_unlock_offer")]

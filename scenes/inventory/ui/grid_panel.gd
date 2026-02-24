@@ -13,6 +13,7 @@ var _cells: Dictionary = {}  ## Vector2i -> GridCell node
 var _item_visuals: Dictionary = {}  ## PlacedItem -> TextureRect
 var _star_overlays: Array = []  ## Star labels for modifier connections
 var _last_hovered_cell: Vector2i = Vector2i(-1, -1)
+var _last_purchasable_cell: Vector2i = Vector2i(-1, -1)  ## Tracks highlighted buyable cell.
 
 @onready var _cells_layer: Control = $CellsLayer
 @onready var _items_layer: Control = $ItemsLayer
@@ -30,6 +31,7 @@ func setup(grid_inventory: GridInventory) -> void:
 func refresh() -> void:
 	if not _grid_inventory:
 		return
+	_last_purchasable_cell = Vector2i(-1, -1)  # Reset purchasable tracker on full refresh.
 	# Reset all cell states
 	for pos: Vector2i in _cells:
 		var cell_node: Control = _cells[pos]
@@ -226,6 +228,23 @@ func highlight_upgradeable_items(dragged_item: ItemData) -> void:
 					_cells[cell].set_state(_cells[cell].CellState.UPGRADEABLE)
 
 
+## Highlights a single inactive cell as purchasable (golden tint on hover).
+## Automatically resets the previously highlighted cell so only one is lit at a time.
+func set_cell_purchasable(cell: Vector2i) -> void:
+	# Reset the previous purchasable highlight first.
+	if _cells.has(_last_purchasable_cell):
+		var prev: Control = _cells[_last_purchasable_cell]
+		if prev.cell_state == prev.CellState.PURCHASABLE:
+			prev.set_state(prev.CellState.INACTIVE)
+	_last_purchasable_cell = Vector2i(-1, -1)
+
+	if _cells.has(cell):
+		var cell_node: Control = _cells[cell]
+		if cell_node.cell_state == cell_node.CellState.INACTIVE:
+			cell_node.set_state(cell_node.CellState.PURCHASABLE)
+			_last_purchasable_cell = cell
+
+
 func world_to_grid(screen_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = screen_pos - _cells_layer.global_position
 	var gx: int = floori(local_pos.x / CELL_SIZE)
@@ -249,18 +268,27 @@ func _build_cells() -> void:
 		return
 
 	var template: GridTemplate = _grid_inventory.grid_template
-	for y in range(template.height):
-		for x in range(template.width):
-			var pos: Vector2i = Vector2i(x, y)
-			var cell_node: Control = GridCellScene.instantiate()
-			cell_node.position = Vector2(x * CELL_SIZE, y * CELL_SIZE)
-			cell_node.setup(pos)
-			if not template.is_cell_active(pos):
-				cell_node.set_state(cell_node.CellState.INACTIVE)
-			_cells_layer.add_child(cell_node)
-			_cells[pos] = cell_node
 
-	# Size this control to match grid dimensions
+	# Determine which cell positions to render: layout_cells if set, else full bounding box.
+	# Cells NOT in the layout are VOID — they are simply not created.
+	var positions: Array[Vector2i] = []
+	if template.layout_cells.is_empty():
+		for y in range(template.height):
+			for x in range(template.width):
+				positions.append(Vector2i(x, y))
+	else:
+		positions = template.layout_cells.duplicate()
+
+	for pos in positions:
+		var cell_node: Control = GridCellScene.instantiate()
+		cell_node.position = Vector2(pos.x * CELL_SIZE, pos.y * CELL_SIZE)
+		cell_node.setup(pos)
+		if not template.is_cell_active(pos):
+			cell_node.set_state(cell_node.CellState.INACTIVE)
+		_cells_layer.add_child(cell_node)
+		_cells[pos] = cell_node
+
+	# Size to bounding box so the panel reserves the right amount of space.
 	custom_minimum_size = Vector2(template.width * CELL_SIZE, template.height * CELL_SIZE)
 	size = custom_minimum_size
 

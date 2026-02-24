@@ -115,3 +115,80 @@ func get_flag(flag: String, default: Variant = false) -> Variant:
 
 func has_flag(flag: String) -> bool:
 	return story_flags.has(flag)
+
+## Purchase a specific backpack cell chosen by the player for a given character.
+## Called directly from the inventory UI when the player clicks a grayed-out cell.
+## Returns true if the purchase succeeded.
+func buy_backpack_cell(character_id: String, cell: Vector2i) -> bool:
+	if not party:
+		return false
+	var character: CharacterData = party.roster.get(character_id)
+	if not character or character.backpack_tiers.is_empty():
+		return false
+	var state := party.get_or_init_backpack_state(character)
+	var cost := BackpackUpgradeSystem.expand(character, state, cell, gold)
+	if cost < 0:
+		return false
+	spend_gold(cost)
+	var tpl := BackpackUpgradeSystem.build_grid_template(character, state)
+	party.grid_inventories[character_id].grid_template = tpl
+	EventBus.backpack_expanded.emit(character_id, state.get("purchased_cells", []).size())
+	EventBus.inventory_expanded.emit()
+	return true
+
+
+## Returns true if at least one character has purchasable cells and enough gold.
+func can_expand_any() -> bool:
+	for character in party.get_full_roster():
+		var state := party.get_or_init_backpack_state(character)
+		var cost := BackpackUpgradeSystem.get_next_cell_cost(character, state)
+		if cost > 0 and gold >= cost:
+			return true
+	return false
+
+
+## Unlock the next backpack tier for all characters simultaneously.
+## Costs gold + Spatial Runes drawn from the party pool. Called by the Weaver NPC.
+## Returns true if the unlock succeeded.
+func unlock_next_tier_via_weaver() -> bool:
+	var characters: Array = party.get_full_roster()
+	if characters.is_empty():
+		return false
+
+	# Use the first character as the cost reference (all share the same tier).
+	var first_char: CharacterData = characters[0]
+	var first_state := party.get_or_init_backpack_state(first_char)
+	var total_runes := BackpackUpgradeSystem.count_party_runes(party)
+	var check := BackpackUpgradeSystem.can_unlock_next_tier(first_char, first_state, gold, total_runes)
+
+	if not check.ok:
+		DebugLogger.log_warn("Cannot unlock backpack tier: %s" % check.reason, "GameManager")
+		return false
+
+	# Deduct resources (one payment for the whole party).
+	spend_gold(check.cost_gold)
+	BackpackUpgradeSystem.consume_party_runes(party, check.cost_runes)
+
+	# Unlock for every character; displaced items go to stash.
+	for character in characters:
+		var state := party.get_or_init_backpack_state(character)
+		var displaced: Array = BackpackUpgradeSystem.unlock_next_tier(
+			character, state, party.grid_inventories[character.id])
+		for item in displaced:
+			party.add_to_stash(item)
+		EventBus.backpack_tier_unlocked.emit(character.id, state.get("tier", 0))
+
+	EventBus.inventory_expanded.emit()
+	return true
+
+
+## Returns true if the next tier can be unlocked (enough gold + runes in party pool).
+func can_unlock_tier_any() -> bool:
+	var characters: Array = party.get_full_roster()
+	if characters.is_empty():
+		return false
+	var first_char: CharacterData = characters[0]
+	var first_state := party.get_or_init_backpack_state(first_char)
+	var total_runes := BackpackUpgradeSystem.count_party_runes(party)
+	var check := BackpackUpgradeSystem.can_unlock_next_tier(first_char, first_state, gold, total_runes)
+	return check.ok

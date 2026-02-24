@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/grid_templates/grid_rogue.tres" id="2"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier1.tres" id="3"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier2.tres" id="4"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier3.tres" id="5"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier4.tres" id="6"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier5.tres" id="7"]
+[ext_resource type="Resource" path="res://data/backpack_tiers/rogue_tier6.tres" id="8"]
 
 [resource]
 script = ExtResource("1")
@@ -18,4 +24,5 @@ physical_defense = 7
 magical_attack = 8
 magical_defense = 6
 grid_template = ExtResource("2")
+backpack_tiers = [ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")]
 starting_passive_nodes = ["r_agility", "r_keen_eye"]

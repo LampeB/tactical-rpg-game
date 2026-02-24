@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_txicc"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_v4m0g"]
+
+[resource]
+script = ExtResource("1_txicc")
+id = "spatial_rune_legendary"
+display_name = "Legendary Spatial Rune"
+description = "A crystallized fragment of compressed dimensional space. Skilled weavers use these to craft a superior backpack for the whole party."
+item_type = 3
+rarity = 4
+shape = ExtResource("2_v4m0g")
+base_price = 1800

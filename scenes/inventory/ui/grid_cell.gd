@@ -10,6 +10,7 @@ enum CellState {
 	MODIFIER_HIGHLIGHT,
 	MODIFIER_REACH,
 	UPGRADEABLE,
+	PURCHASABLE,
 }
 
 var STATE_COLORS: Dictionary:
@@ -23,6 +24,7 @@ var STATE_COLORS: Dictionary:
 			CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
 			CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),
 			CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),
+			CellState.PURCHASABLE: Color(0.7, 0.55, 0.0, 0.5),
 		}
 
 const BORDER_COLORS := {
