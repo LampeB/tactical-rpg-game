@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://lfmh3wdf04at"]
 
 [ext_resource type="Script" uid="uid://cc6oupy77cg0b" path="res://scenes/item_editor/item_editor.gd" id="1"]
 
-[node name="ItemEditor" type="Control"]
+[node name="ItemEditor" type="Control" unique_id=140416246]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="BG" type="ColorRect" parent="." unique_id=1896300968]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.12, 0.14, 0.18, 1)
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="VBoxContainer" parent="." unique_id=845076104]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,96 +33,95 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 8
 
-[node name="TopBar" type="HBoxContainer" parent="VBox"]
+[node name="TopBar" type="HBoxContainer" parent="VBox" unique_id=64813067]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="VBox/TopBar"]
+[node name="BackButton" type="Button" parent="VBox/TopBar" unique_id=459652753]
 layout_mode = 2
 text = "Back"
 
-[node name="Title" type="Label" parent="VBox/TopBar"]
+[node name="Title" type="Label" parent="VBox/TopBar" unique_id=1988936166]
 layout_mode = 2
 text = "Item Editor"
 
-[node name="SaveButton" type="Button" parent="VBox/TopBar"]
+[node name="SaveButton" type="Button" parent="VBox/TopBar" unique_id=1901441073]
 layout_mode = 2
 text = "Save Item"
 
-[node name="SaveAllButton" type="Button" parent="VBox/TopBar"]
+[node name="SaveAllButton" type="Button" parent="VBox/TopBar" unique_id=1870296989]
 layout_mode = 2
 text = "Save All"
 
-[node name="StatusLabel" type="Label" parent="VBox/TopBar"]
+[node name="StatusLabel" type="Label" parent="VBox/TopBar" unique_id=304163013]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Content" type="HBoxContainer" parent="VBox"]
+[node name="Content" type="HBoxContainer" parent="VBox" unique_id=2009965606]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="ListPanel" type="PanelContainer" parent="VBox/Content"]
+[node name="ListPanel" type="PanelContainer" parent="VBox/Content" unique_id=1301131317]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
 
-[node name="ListVBox" type="VBoxContainer" parent="VBox/Content/ListPanel"]
+[node name="ListVBox" type="VBoxContainer" parent="VBox/Content/ListPanel" unique_id=683508595]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="FilterRow" type="HBoxContainer" parent="VBox/Content/ListPanel/ListVBox"]
+[node name="FilterRow" type="HBoxContainer" parent="VBox/Content/ListPanel/ListVBox" unique_id=263427282]
 layout_mode = 2
 
-[node name="SearchEdit" type="LineEdit" parent="VBox/Content/ListPanel/ListVBox/FilterRow"]
+[node name="SearchEdit" type="LineEdit" parent="VBox/Content/ListPanel/ListVBox/FilterRow" unique_id=2102185033]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search..."
 
-[node name="TypeFilter" type="OptionButton" parent="VBox/Content/ListPanel/ListVBox/FilterRow"]
+[node name="TypeFilter" type="OptionButton" parent="VBox/Content/ListPanel/ListVBox/FilterRow" unique_id=1272673120]
 layout_mode = 2
 
-[node name="ItemListScroll" type="ScrollContainer" parent="VBox/Content/ListPanel/ListVBox"]
+[node name="ItemListScroll" type="ScrollContainer" parent="VBox/Content/ListPanel/ListVBox" unique_id=1019168255]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="ItemListVBox" type="VBoxContainer" parent="VBox/Content/ListPanel/ListVBox/ItemListScroll"]
+[node name="ItemListVBox" type="VBoxContainer" parent="VBox/Content/ListPanel/ListVBox/ItemListScroll" unique_id=1142176545]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
-[node name="ListButtons" type="HBoxContainer" parent="VBox/Content/ListPanel/ListVBox"]
+[node name="ListButtons" type="HBoxContainer" parent="VBox/Content/ListPanel/ListVBox" unique_id=1953429738]
 layout_mode = 2
 
-[node name="NewButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons"]
+[node name="NewButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons" unique_id=12478177]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "+ New"
 
-[node name="DuplicateButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons"]
+[node name="DuplicateButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons" unique_id=160996732]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Duplicate"
 
-[node name="DeleteButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons"]
+[node name="DeleteButton" type="Button" parent="VBox/Content/ListPanel/ListVBox/ListButtons" unique_id=1839722364]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Delete"
 
-[node name="PropertyPanel" type="PanelContainer" parent="VBox/Content"]
+[node name="PropertyPanel" type="PanelContainer" parent="VBox/Content" unique_id=2006121545]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="PropertyScroll" type="ScrollContainer" parent="VBox/Content/PropertyPanel"]
+[node name="PropertyScroll" type="ScrollContainer" parent="VBox/Content/PropertyPanel" unique_id=858165580]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="PropertyVBox" type="VBoxContainer" parent="VBox/Content/PropertyPanel/PropertyScroll"]
+[node name="PropertyVBox" type="VBoxContainer" parent="VBox/Content/PropertyPanel/PropertyScroll" unique_id=891836926]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="HintBar" type="Label" parent="VBox"]
+[node name="HintBar" type="Label" parent="VBox" unique_id=1570967399]
 layout_mode = 2
