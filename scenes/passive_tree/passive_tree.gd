@@ -2,6 +2,7 @@ extends Control
 ## Passive skill tree screen. Lets players spend gold to unlock passive bonuses
 ## for each character. Double-click nodes to queue them, then confirm to batch unlock.
 
+@onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _title: Label = $VBox/TopBar/Title
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
@@ -29,6 +30,7 @@ var _pending_total_cost: int = 0
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_PASSIVE_TREE
 	_back_btn.pressed.connect(_on_back)
 	_confirm_btn.pressed.connect(_on_confirm_unlocks)
 	_cancel_btn.pressed.connect(_on_cancel_unlocks)

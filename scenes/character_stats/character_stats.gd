@@ -2,6 +2,7 @@ extends Control
 ## Character stat screen with inventory grid and stash.
 ## Shows character info, skills, stat breakdown, inventory grid, unlocked passives, and stash.
 
+@onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _title: Label = $VBox/TopBar/Title
 @onready var _gold_label: Label = $VBox/TopBar/Gold
@@ -101,6 +102,7 @@ const STAT_NAMES: Dictionary = {
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_CHARACTER_STATS
 	_back_btn.pressed.connect(_on_back)
 	_advanced_stats_btn.pressed.connect(_on_advanced_stats_pressed)
 

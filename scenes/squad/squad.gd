@@ -1,6 +1,7 @@
 extends Control
 ## Squad management screen. Move characters between active squad and bench.
 
+@onready var _bg: ColorRect = $Background
 @onready var _squad_list: VBoxContainer = $VBox/Panels/SquadPanel/SquadList
 @onready var _bench_list: VBoxContainer = $VBox/Panels/BenchPanel/BenchList
 @onready var _squad_count: Label = $VBox/TopBar/SquadCount
@@ -9,6 +10,7 @@ var _card_buttons: Dictionary = {}  ## character_id -> Button
 
 
 func _ready():
+	_bg.color = UIColors.BG_SQUAD
 	$VBox/TopBar/BackButton.pressed.connect(_on_back)
 	_refresh()
 	DebugLogger.log_info("Squad scene ready", "Squad")

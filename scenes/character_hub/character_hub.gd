@@ -5,6 +5,7 @@ extends Control
 
 enum ViewType { STATS, SKILLS }
 
+@onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
 @onready var _character_tabs: HBoxContainer = $VBox/CharacterTabs
@@ -24,6 +25,7 @@ var _dirty_views: Dictionary = {ViewType.STATS: false, ViewType.SKILLS: false}
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_CHARACTER_HUB
 	_back_btn.pressed.connect(_on_back)
 	_stats_tab.pressed.connect(_on_view_tab.bind(ViewType.STATS))
 	_skills_tab.pressed.connect(_on_view_tab.bind(ViewType.SKILLS))

@@ -12,19 +12,21 @@ enum CellState {
 	UPGRADEABLE,
 }
 
-const STATE_COLORS := {
-	CellState.EMPTY: Color(0.2, 0.2, 0.3, 0.8),
-	CellState.INACTIVE: Color(0.1, 0.1, 0.1, 0.4),
-	CellState.OCCUPIED: Color(0.3, 0.3, 0.4, 0.9),
-	CellState.VALID_DROP: Color(0.2, 0.8, 0.2, 0.4),
-	CellState.INVALID_DROP: Color(0.8, 0.2, 0.2, 0.4),
-	CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
-	CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),  # Blue tint for modifier reach
-	CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),  # Green background
-}
+var STATE_COLORS: Dictionary:
+	get:
+		return {
+			CellState.EMPTY: UIColors.GRID_CELL_BG,
+			CellState.INACTIVE: Color(0.1, 0.1, 0.1, 0.4),
+			CellState.OCCUPIED: Color(0.3, 0.3, 0.4, 0.9),
+			CellState.VALID_DROP: Color(0.2, 0.8, 0.2, 0.4),
+			CellState.INVALID_DROP: Color(0.8, 0.2, 0.2, 0.4),
+			CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
+			CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),
+			CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),
+		}
 
 const BORDER_COLORS := {
-	CellState.UPGRADEABLE: Color(1.0, 0.9, 0.2, 1.0),  # Yellow border for upgradeable
+	CellState.UPGRADEABLE: Color(1.0, 0.9, 0.2, 1.0),
 }
 
 var grid_position: Vector2i
@@ -63,7 +65,7 @@ func set_state(state: CellState) -> void:
 			if BORDER_COLORS.has(state):
 				_border.color = BORDER_COLORS[state]
 			else:
-				_border.color = Color(0.4, 0.4, 0.5, 1.0)
+				_border.color = UIColors.GRID_CELL_BORDER
 
 
 func set_rarity_tint(color: Color) -> void:

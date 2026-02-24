@@ -1,6 +1,7 @@
 extends Control
 
 func _ready():
+	$Background.color = UIColors.BG_MAIN_MENU
 	$VBoxContainer/PlayButton.pressed.connect(_on_play_pressed)
 	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game_pressed)
 	$VBoxContainer/InventoryButton.pressed.connect(_on_inventory_pressed)

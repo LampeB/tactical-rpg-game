@@ -1,6 +1,7 @@
 extends Control
 ## Settings menu for configuring game options and keybindings.
 
+@onready var _bg: ColorRect = $ColorRect
 @onready var _keybind_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/ScrollContainer/KeybindContainer
 @onready var _rebind_popup: Panel = $RebindPopup
 @onready var _rebind_label: Label = $RebindPopup/MarginContainer/VBoxContainer/Label
@@ -24,6 +25,7 @@ const ACTION_NAMES := {
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_SETTINGS
 	_populate_keybinds()
 	_rebind_popup.hide()
 
