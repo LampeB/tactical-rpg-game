@@ -4,6 +4,7 @@ extends Area2D
 
 @export var npc_id: String = ""
 
+@onready var _sprite: Sprite2D = $Sprite2D
 @onready var _name_label: Label = $NameLabel
 @onready var _interact_prompt: Label = $InteractPrompt
 
@@ -21,6 +22,8 @@ func _ready() -> void:
 		DebugLogger.log_warn("NPC not found: %s" % npc_id, "NpcMarker")
 		return
 
+	if _npc_data.sprite:
+		_sprite.texture = _npc_data.sprite
 	_name_label.text = _npc_data.display_name
 	_interact_prompt.visible = false
 
