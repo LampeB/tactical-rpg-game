@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://b6203wi757jdo" path="res://assets/sprites/enemies/minotaur.png" id="15"]
 [ext_resource type="TileSet" uid="uid://dixuhh5sk1cel" path="res://assets/tilesets/woods_tileset.tres" id="17"]
 [ext_resource type="PackedScene" uid="uid://jx3c34ltejgr" path="res://scenes/world/tree.tscn" id="17_koevj"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc_marker.tscn" id="18"]
 
 [sub_resource type="RectangleShape2D" id="player_collision"]
 size = Vector2(32, 32)
@@ -1320,3 +1321,7 @@ position = Vector2(218, 403)
 
 [node name="Tree" parent="." unique_id=261043747 instance=ExtResource("17_koevj")]
 position = Vector2(216, 372)
+
+[node name="Blacksmith" parent="." instance=ExtResource("18")]
+position = Vector2(150, 120)
+npc_id = "blacksmith"

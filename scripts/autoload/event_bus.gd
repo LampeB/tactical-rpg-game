@@ -31,3 +31,7 @@ signal game_loaded()
 # === OVERWORLD ===
 signal location_prompt_visible(visible: bool, location_name: String)
 signal show_message(message: String)
+
+# === DIALOGUE ===
+signal dialogue_started(npc_id: String)
+signal dialogue_ended(npc_id: String)

@@ -14,6 +14,8 @@ const BG_PASSIVE_TREE  := Color(0.674, 0.335, 0.934, 1.0)
 const BG_SETTINGS      := Color(0.0, 0.0, 0.0, 1.0)
 const BG_SQUAD         := Color(0.453, 0.365, 0.0, 1.0)
 
+const BG_DIALOGUE      := Color(0.08, 0.08, 0.12, 0.90)
+
 # ── Inventory grid cell ─────────────────────────────────────────────
 const GRID_CELL_BG     := Color(0.20, 0.20, 0.30, 0.8)
 const GRID_CELL_BORDER := Color(0.40, 0.40, 0.50, 0.3)

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+
+[sub_resource type="Resource" id="choice_wares"]
+script = ExtResource("3")
+text = "Tell me about your wares"
+next_conversation_id = "wares"
+
+[sub_resource type="Resource" id="choice_farewell"]
+script = ExtResource("3")
+text = "Farewell"
+action = "end"
+
+[sub_resource type="Resource" id="choice_goodbye"]
+script = ExtResource("3")
+text = "Goodbye"
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Welcome, traveler! Need your weapons sharpened?", "I've been smithing for 30 years. You won't find better steel in this town."]
+choices = [SubResource("choice_wares"), SubResource("choice_farewell")]
+
+[sub_resource type="Resource" id="conv_wares"]
+script = ExtResource("2")
+id = "wares"
+lines = ["I deal in swords, axes, and shields. Come back when the shop is properly open — I'm still setting up."]
+choices = [SubResource("choice_goodbye")]
+
+[resource]
+script = ExtResource("1")
+id = "blacksmith"
+display_name = "Aldric the Blacksmith"
+conversations = [SubResource("conv_greeting"), SubResource("conv_wares")]
