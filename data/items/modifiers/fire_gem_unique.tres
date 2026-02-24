@@ -53,6 +53,6 @@ icon = ExtResource("5_oy5q0")
 item_type = 2
 rarity = 5
 shape = ExtResource("7_rhmh1")
-modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -1)])
+modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, -1), Vector2i(-1, 0), Vector2i(-1, 1), Vector2i(1, 1), Vector2i(1, 0), Vector2i(1, -1), Vector2i(0, -2), Vector2i(0, -3)])
 conditional_modifier_rules = [SubResource("Resource_wj0ed"), SubResource("Resource_p6jnt"), SubResource("Resource_3o8il")]
 base_price = 144
