@@ -87,9 +87,32 @@ func reload():
 	_items.clear()
 	_items_by_type.clear()
 	_items_by_rarity.clear()
+	_bust_sub_resource_cache()
 	_load_all_items()
 	_refresh_party_items()
 	DebugLogger.log_info("Reloaded %d items" % _items.size(), "ItemDatabase")
+
+
+## Force-reload all sub-resources that items reference as ext_resources.
+## Without this, CACHE_MODE_REPLACE on items alone won't refresh shapes,
+## skills, or status effects that were already cached by Godot.
+func _bust_sub_resource_cache() -> void:
+	var dirs: Array[String] = [
+		"res://data/shapes/",
+		"res://data/skills/",
+		"res://data/status_effects/",
+	]
+	for dir_path in dirs:
+		var dir := DirAccess.open(dir_path)
+		if not dir:
+			continue
+		dir.list_dir_begin()
+		var file_name := dir.get_next()
+		while file_name != "":
+			if not dir.current_is_dir() and file_name.ends_with(".tres"):
+				ResourceLoader.load(dir_path + file_name, "", ResourceLoader.CACHE_MODE_REPLACE)
+			file_name = dir.get_next()
+		dir.list_dir_end()
 
 
 ## After reloading items from disk, update all live item references held by the party
@@ -111,6 +134,7 @@ func _refresh_party_items() -> void:
 				old_item.shape = fresh.shape
 
 	# Refresh grid inventory items — rebuild cell maps with updated references
+	var displaced_items: Array = []
 	var char_ids: Array = party.grid_inventories.keys()
 	for ci in range(char_ids.size()):
 		var char_id: String = char_ids[ci]
@@ -140,10 +164,21 @@ func _refresh_party_items() -> void:
 				item_to_place = entry.old_item
 			else:
 				item_to_place = entry.old_item
+			# Guard against null/empty shapes — send to stash instead of crashing
+			if not item_to_place.shape or item_to_place.shape.cells.is_empty():
+				DebugLogger.log_warn("Item %s has no shape — moved to stash" % item_to_place.id, "ItemDatabase")
+				displaced_items.append(item_to_place)
+				continue
 			var placed = grid.place_item(item_to_place, entry.pos, entry.rot)
 			if not placed:
-				# Shape changed and no longer fits — return to stash
-				party.stash.append(item_to_place)
-				DebugLogger.log_warn("Item %s no longer fits at (%d,%d) after reload — moved to stash" % [
-					item_to_place.id, entry.pos.x, entry.pos.y
+				DebugLogger.log_warn("Item %s no longer fits at (%d,%d) on %s — moved to stash" % [
+					item_to_place.id, entry.pos.x, entry.pos.y, char_id
 				], "ItemDatabase")
+				displaced_items.append(item_to_place)
+
+	# Add all displaced items to stash
+	for item in displaced_items:
+		party.stash.append(item)
+	if not displaced_items.is_empty():
+		DebugLogger.log_info("Moved %d displaced items to stash after reload" % displaced_items.size(), "ItemDatabase")
+		EventBus.stash_changed.emit()

@@ -7,7 +7,7 @@
 [ext_resource type="Resource" path="res://data/shapes/shape_custom_212525.tres" id="5_8ocoj"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_lcjha"]
 
-[sub_resource type="Resource" id="Resource_limko"]
+[sub_resource type="Resource" id="Resource_8ocoj"]
 script = ExtResource("6_lcjha")
 stat = 6
 value = 24.0
@@ -22,7 +22,7 @@ category = 3
 rarity = 5
 hand_slots_required = 2
 shape = ExtResource("5_8ocoj")
-stat_modifiers = [SubResource("Resource_limko")]
+stat_modifiers = [SubResource("Resource_8ocoj")]
 magical_power = 16
 granted_skills = [ExtResource("1_8ocoj"), ExtResource("2_limko")]
 base_price = 264

@@ -46,6 +46,33 @@ func can_place(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> bool:
 	return true
 
 
+## Returns a human-readable reason why placement would fail, or "" if it can be placed.
+func get_placement_failure_reason(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> String:
+	var cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
+	for cell in cells:
+		if not grid_template.is_cell_active(cell):
+			return "Out of bounds at (%d, %d)" % [cell.x, cell.y]
+		if _cell_map.has(cell):
+			var blocking: PlacedItem = _cell_map[cell]
+			return "Blocked by %s at (%d, %d)" % [blocking.item_data.display_name, cell.x, cell.y]
+	if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
+		var available_slots: int = get_available_hand_slots()
+		var used_slots: int = get_used_hand_slots()
+		if used_slots + item_data.hand_slots_required > available_slots:
+			return "Need %d hand slots, only %d available" % [item_data.hand_slots_required, available_slots - used_slots]
+	if item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
+		if item_data.armor_slot == Enums.EquipmentCategory.RING:
+			if _count_equipped_by_slot(Enums.EquipmentCategory.RING) >= 10:
+				return "Max rings equipped"
+		elif item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
+			if _count_equipped_by_slot(Enums.EquipmentCategory.NECKLACE) >= 1:
+				return "Necklace slot occupied"
+		else:
+			if get_equipped_armor_slots().has(item_data.armor_slot):
+				return "Armor slot already occupied"
+	return ""
+
+
 func place_item(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> PlacedItem:
 	if not can_place(item_data, grid_pos, rotation):
 		return null

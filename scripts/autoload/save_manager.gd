@@ -218,9 +218,10 @@ func _deserialize(data: Dictionary):
 			var rot := int(entry.rotation)
 			var placed := grid.place_item(item, pos, rot)
 			if not placed:
-				DebugLogger.log_warn("Failed to place %s at (%d,%d) rot %d for %s" % [
+				DebugLogger.log_warn("Failed to place %s at (%d,%d) rot %d for %s — moved to stash" % [
 					str(entry.item_id), pos.x, pos.y, rot, char_id
 				], "SaveManager")
+				party.stash.append(item)
 
 	# Unlocked passives
 	var passives_data: Dictionary = data.get("unlocked_passives", {})

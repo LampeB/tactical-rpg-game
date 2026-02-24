@@ -7,7 +7,7 @@
 [ext_resource type="Resource" path="res://data/shapes/shape_custom_212525.tres" id="5_uiahd"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_mxsln"]
 
-[sub_resource type="Resource" id="Resource_l6gbq"]
+[sub_resource type="Resource" id="Resource_uiahd"]
 script = ExtResource("6_mxsln")
 stat = 6
 value = 10.0
@@ -22,7 +22,7 @@ category = 3
 rarity = 2
 hand_slots_required = 2
 shape = ExtResource("5_uiahd")
-stat_modifiers = [SubResource("Resource_l6gbq")]
+stat_modifiers = [SubResource("Resource_uiahd")]
 magical_power = 7
 granted_skills = [ExtResource("1_uiahd"), ExtResource("2_l6gbq")]
 base_price = 112
