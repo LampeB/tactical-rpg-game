@@ -27,6 +27,7 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 SceneManager="*res://scripts/autoload/scene_manager.gd"
 InputManager="*res://scripts/autoload/input_manager.gd"
+UIColors="*res://scripts/autoload/ui_colors.gd"
 
 [display]
 
@@ -94,6 +95,10 @@ fast_travel={
 2d_physics/layer_2="player"
 2d_physics/layer_3="enemies"
 2d_physics/layer_4="interactables"
+
+[gui]
+
+theme/custom="res://assets/ui/default_theme.tres"
 
 [rendering]
 

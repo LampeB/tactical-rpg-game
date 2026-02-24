@@ -7,6 +7,7 @@ enum DragState { IDLE, DRAGGING }
 enum DragSource { NONE, GRID, LOOT }
 
 # --- Child references ---
+@onready var _bg: ColorRect = $Background
 @onready var _title: Label = $VBox/TopBar/Title
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
 @onready var _loot_pool: PanelContainer = $VBox/Content/LootPool
@@ -35,6 +36,7 @@ var _drag_rotation: int = 0
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_LOOT
 	# Wire buttons
 	_continue_btn.pressed.connect(_on_continue)
 	_send_to_stash_btn.pressed.connect(_on_send_all_to_stash)

@@ -30,6 +30,7 @@ const ENEMY_OFFSETS: Array[Vector2] = [
 ]
 
 # --- Child references (UI overlay) ---
+@onready var _bg: ColorRect = $Background
 @onready var _title: Label = $MainLayout/TopBar/MarginContainer/HBox/Title
 @onready var _round_label: Label = $MainLayout/TopBar/MarginContainer/HBox/RoundLabel
 @onready var _turn_order_bar: PanelContainer = $MainLayout/TurnOrderSection/TurnOrderBar
@@ -74,6 +75,7 @@ func _clear_pending_action() -> void:
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_BATTLE
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_target_prompt.visible = false

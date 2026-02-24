@@ -24,7 +24,11 @@ var _selected_id: String = ""
 var _dirty_ids: Dictionary = {}
 var _editing_shape: bool = false  # true when inline shape editor is open
 
+# === Unsaved-changes dialog ===
+var _unsaved_dialog: ConfirmationDialog
+
 # === Node references ===
+@onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _save_btn: Button = $VBox/TopBar/SaveButton
 @onready var _save_all_btn: Button = $VBox/TopBar/SaveAllButton
@@ -41,6 +45,7 @@ var _editing_shape: bool = false  # true when inline shape editor is open
 
 
 func _ready() -> void:
+	_bg.color = UIColors.BG_ITEM_EDITOR
 	_type_section_names = {
 		Enums.ItemType.ACTIVE_TOOL: "Weapons",
 		Enums.ItemType.PASSIVE_GEAR: "Armor",
@@ -68,6 +73,15 @@ func _ready() -> void:
 	_load_skills()
 	_load_status_effects()
 	_load_icons()
+
+	_unsaved_dialog = ConfirmationDialog.new()
+	_unsaved_dialog.title = "Unsaved Changes"
+	_unsaved_dialog.dialog_text = "You have unsaved changes.\nWhat would you like to do?"
+	_unsaved_dialog.ok_button_text = "Save All & Leave"
+	_unsaved_dialog.add_button("Discard & Leave", true, "discard")
+	_unsaved_dialog.confirmed.connect(_on_unsaved_save_and_leave)
+	_unsaved_dialog.custom_action.connect(_on_unsaved_custom_action)
+	add_child(_unsaved_dialog)
 
 	for item in ItemDatabase.get_all_items():
 		var copy: ItemData = item.duplicate(true) as ItemData
@@ -452,7 +466,32 @@ func _show_status(text: String, color: Color) -> void:
 
 
 func _on_back() -> void:
+	if not _dirty_ids.is_empty():
+		_unsaved_dialog.popup_centered()
+		return
 	SceneManager.pop_scene()
+
+
+func _on_unsaved_save_and_leave() -> void:
+	_on_save_all()
+	SceneManager.pop_scene()
+
+
+func _on_unsaved_custom_action(action: StringName) -> void:
+	if action == "discard":
+		_discard_changes()
+		_unsaved_dialog.hide()
+		SceneManager.pop_scene()
+
+
+func _discard_changes() -> void:
+	_items.clear()
+	_dirty_ids.clear()
+	_selected_id = ""
+	_editing_shape = false
+	for item in ItemDatabase.get_all_items():
+		var copy: ItemData = item.duplicate(true) as ItemData
+		_items[copy.id] = copy
 
 
 # =========================================================================
@@ -1102,6 +1141,20 @@ func _build_shape_editor(item: ItemData) -> void:
 	_property_vbox.add_child(editor_box)
 
 
+static func _apply_grid_cell_style(btn: Button, active: bool, color_on: Color = Color(0.05, 0.6, 0.95)) -> void:
+	var color_off := Color(0.12, 0.14, 0.18)
+	var color_on_hover := color_on.lightened(0.2)
+	var color_off_hover := Color(0.22, 0.26, 0.34)
+	var sb := StyleBoxFlat.new()
+	var sb_hover := StyleBoxFlat.new()
+	sb.bg_color = color_on if active else color_off
+	sb_hover.bg_color = color_on_hover if active else color_off_hover
+	btn.add_theme_stylebox_override("normal", sb)
+	btn.add_theme_stylebox_override("hover", sb_hover)
+	btn.add_theme_stylebox_override("pressed", sb)
+	btn.add_theme_stylebox_override("focus", sb)
+
+
 func _create_shape_cell_editor(item: ItemData, shape: ItemShape) -> Control:
 	var grid_size: int = 6
 	var cell_size: int = 28
@@ -1118,11 +1171,7 @@ func _create_shape_cell_editor(item: ItemData, shape: ItemShape) -> Control:
 			var btn := Button.new()
 			btn.position = Vector2(gx * cell_size, gy * cell_size)
 			btn.size = Vector2(cell_size - 1, cell_size - 1)
-
-			if active_cells.has(coord):
-				btn.modulate = Color(0.4, 0.7, 1.0)
-			else:
-				btn.modulate = Color(0.25, 0.25, 0.25)
+			_apply_grid_cell_style(btn, active_cells.has(coord))
 
 			var captured_coord: Vector2i = coord
 			btn.pressed.connect(func() -> void:
@@ -1168,7 +1217,7 @@ func _create_shape_preview(cells: Array[Vector2i]) -> Control:
 		var rect := ColorRect.new()
 		rect.position = Vector2(cell.x * cell_size + 1, cell.y * cell_size + 1)
 		rect.size = Vector2(cell_size - 2, cell_size - 2)
-		rect.color = Color(0.4, 0.6, 0.9, 0.8)
+		rect.color = Color(0.05, 0.6, 0.95, 1.0)
 		container.add_child(rect)
 	return container
 
@@ -1423,14 +1472,14 @@ func _create_reach_pattern_editor(item: ItemData) -> Control:
 			btn.size = Vector2(cell_size - 1, cell_size - 1)
 
 			if offset == Vector2i.ZERO:
-				btn.modulate = Color(0.5, 0.5, 0.5)
+				_apply_grid_cell_style(btn, true, Color(0.35, 0.35, 0.4))
 				btn.disabled = true
 				btn.text = "G"
 			elif active_offsets.has(offset):
-				btn.modulate = Color(0.3, 0.8, 0.4)
+				_apply_grid_cell_style(btn, true, Color(0.05, 0.75, 0.2))
 				btn.text = "+"
 			else:
-				btn.modulate = Color(0.25, 0.25, 0.25)
+				_apply_grid_cell_style(btn, false)
 				btn.text = ""
 
 			var captured_offset: Vector2i = offset
