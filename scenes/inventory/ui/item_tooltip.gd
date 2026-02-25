@@ -4,13 +4,14 @@ extends PanelContainer
 @onready var _name_label: Label = $Margin/VBox/NameLabel
 @onready var _rarity_label: Label = $Margin/VBox/RarityLabel
 @onready var _type_label: Label = $Margin/VBox/TypeLabel
+@onready var _price_label: Label = $Margin/VBox/PriceLabel
 @onready var _stats_container: VBoxContainer = $Margin/VBox/StatsContainer
 @onready var _modifier_section: VBoxContainer = $Margin/VBox/ModifierSection
 @onready var _modifier_list: VBoxContainer = $Margin/VBox/ModifierSection/ModifierList
 @onready var _description_label: Label = $Margin/VBox/DescriptionLabel
 
 
-func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO) -> void:
+func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO, price: int = -1, price_label: String = "Value") -> void:
 	# Name with rarity color
 	_name_label.text = item.display_name
 	var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
@@ -22,6 +23,13 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 
 	# Type
 	_type_label.text = _get_type_text(item.item_type)
+
+	# Price (shown only when explicitly provided, e.g. in the shop)
+	if price > 0:
+		_price_label.text = "%s: %dg" % [price_label, price]
+		_price_label.visible = true
+	else:
+		_price_label.visible = false
 
 	# Stats
 	_clear_container(_stats_container)
@@ -135,6 +143,7 @@ func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) ->
 		_type_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))
 	else:
 		_type_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	_price_label.visible = false
 	_clear_container(_stats_container)
 	_modifier_section.visible = false
 	_clear_container(_modifier_list)

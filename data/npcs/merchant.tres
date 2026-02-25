@@ -1,9 +1,14 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/characters/elder.png" id="4"]
+
+[sub_resource type="Resource" id="choice_browse"]
+script = ExtResource("3")
+text = "Let me see your wares."
+action = "open_shop:merchant_general"
 
 [sub_resource type="Resource" id="choice_prices"]
 script = ExtResource("3")
@@ -24,7 +29,7 @@ action = "end"
 script = ExtResource("2")
 id = "greeting"
 lines = ["Ah, a customer! I have the finest goods from across the realm.", "Potions, trinkets, and the occasional rare find — all at reasonable prices!"]
-choices = [SubResource("choice_prices"), SubResource("choice_bye")]
+choices = [SubResource("choice_browse"), SubResource("choice_prices"), SubResource("choice_bye")]
 
 [sub_resource type="Resource" id="conv_haggle"]
 script = ExtResource("2")
@@ -37,4 +42,6 @@ script = ExtResource("1")
 id = "merchant"
 display_name = "Lyra the Merchant"
 sprite = ExtResource("4")
+role = 1
+shop_id = "merchant_general"
 conversations = [SubResource("conv_greeting"), SubResource("conv_haggle")]
