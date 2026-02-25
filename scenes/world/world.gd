@@ -12,7 +12,7 @@ func _ready():
 
 	# Auto-save when entering the world scene
 	if GameManager.is_game_started:
-		SaveManager.save_game()
+		SaveManager.auto_save()
 
 	DebugLogger.log_info("World scene ready", "World")
 

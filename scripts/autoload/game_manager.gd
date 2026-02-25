@@ -6,6 +6,7 @@ var party: Party
 var gold: int = 0
 var story_flags: Dictionary = {}
 var is_game_started: bool = false
+var current_location_name: String = "Overworld"
 
 func _ready() -> void:
 	DebugLogger.log_info("GameManager ready", "GameManager")

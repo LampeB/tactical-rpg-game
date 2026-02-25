@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://c5pausmnu001"]
+
+[ext_resource type="Script" path="res://scenes/menus/pause_menu.gd" id="1_script"]
+
+[node name="PauseMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Blocker" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.0, 0.0, 0.0, 0.6)
+mouse_filter = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 0)
+theme_override_constants/separation = 12
+
+[node name="PausedLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Resume"
+
+[node name="SaveButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Save Game"
+
+[node name="LoadButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Load Game"
+
+[node name="MainMenuButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Main Menu"

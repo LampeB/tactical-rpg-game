@@ -16,4 +16,4 @@ func try_enter():
 		GameManager.party.set_current_mp(char_id, max_mp, tree)
 	
 	EventBus.show_message.emit("The lake's waters restore your party to full health!")
-	SaveManager.save_game()
+	SaveManager.auto_save()

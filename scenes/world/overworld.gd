@@ -4,6 +4,7 @@ extends Node2D
 @onready var _player: CharacterBody2D = $Player
 @onready var _location_markers: Node2D = $LocationMarkers
 @onready var _camera: Camera2D = $Camera2D
+@onready var _ui: CanvasLayer = $UI
 @onready var _fast_travel_menu: PanelContainer = $UI/FastTravelMenu
 @onready var _hud_gold_label: Label = $UI/HUD/GoldLabel
 @onready var _hud_location_label: Label = $UI/HUD/LocationLabel
@@ -11,9 +12,11 @@ extends Node2D
 
 const BATTLE_COOLDOWN_TIME: float = 3.0  ## Seconds of immunity after battle
 const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
+const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
 
 var _message_timer: float = 0.0
 var _current_message: String = ""
+var _pause_menu_instance: Control = null
 
 
 func _ready() -> void:
@@ -51,7 +54,8 @@ func _ready() -> void:
 		$UI/HUD.add_child(_message_label)
 
 	# Auto-save on entry
-	SaveManager.save_game()
+	GameManager.current_location_name = "Overworld"
+	SaveManager.auto_save()
 	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
 
 	# Set camera to follow player
@@ -79,9 +83,7 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("escape"):
-		# Save position before opening menu
-		_save_current_position()
-		SceneManager.push_scene("res://scenes/main_menu/main_menu.tscn")
+		_toggle_pause_menu()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("fast_travel"):
 		_open_fast_travel_menu()
@@ -101,7 +103,7 @@ func receive_data(data: Dictionary) -> void:
 		# Re-enable player input after battle
 		_player.enable_input(true)
 		# Auto-save after battle (with new position)
-		SaveManager.save_game()
+		SaveManager.auto_save()
 		# Re-enable enemy detection after player is safely positioned
 		_enable_enemy_detection()
 		# Apply battle cooldown to all enemies
@@ -177,7 +179,7 @@ func _on_fast_travel_selected(location: LocationData) -> void:
 
 			# Save new position
 			GameManager.set_flag("overworld_position", _player.global_position)
-			SaveManager.save_game()
+			SaveManager.auto_save()
 			break
 
 
@@ -242,3 +244,38 @@ func _apply_battle_cooldown() -> void:
 			enemy._can_trigger_battle = true
 
 	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")
+
+
+# === Pause Menu ===
+
+func _toggle_pause_menu() -> void:
+	if _pause_menu_instance:
+		_pause_menu_instance.queue_free()
+		_pause_menu_instance = null
+		return
+	_save_current_position()
+	_pause_menu_instance = _PAUSE_SCENE.instantiate()
+	_ui.add_child(_pause_menu_instance)
+	_pause_menu_instance.resume_requested.connect(_toggle_pause_menu)
+	_pause_menu_instance.save_requested.connect(_open_save_screen)
+	_pause_menu_instance.load_requested.connect(_open_load_screen)
+	_pause_menu_instance.main_menu_requested.connect(_go_to_main_menu)
+
+
+func _open_save_screen() -> void:
+	_pause_menu_instance.queue_free()
+	_pause_menu_instance = null
+	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "save"})
+
+
+func _open_load_screen() -> void:
+	_pause_menu_instance.queue_free()
+	_pause_menu_instance = null
+	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "load"})
+
+
+func _go_to_main_menu() -> void:
+	_pause_menu_instance.queue_free()
+	_pause_menu_instance = null
+	SceneManager.clear_stack()
+	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")

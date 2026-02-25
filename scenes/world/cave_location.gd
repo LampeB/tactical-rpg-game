@@ -13,5 +13,5 @@ func try_enter():
 	for flag in flags_to_clear:
 		GameManager.story_flags.erase(flag)
 	
-	SaveManager.save_game()
+	SaveManager.auto_save()
 	EventBus.show_message.emit("Cave cleared! Enemies will respawn.")
