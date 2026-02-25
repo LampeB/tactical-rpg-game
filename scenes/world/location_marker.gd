@@ -107,7 +107,7 @@ func _interact_lake() -> void:
 
 	DebugLogger.log_info("Lake healed %d characters to full HP/MP" % healed_count, "LocationMarker")
 	EventBus.show_message.emit("The lake's waters restore your party to full health!")
-	SaveManager.save_game()
+	SaveManager.auto_save()
 
 
 func _interact_cave() -> void:
@@ -124,7 +124,7 @@ func _interact_cave() -> void:
 		GameManager.story_flags.erase(flag)
 
 	DebugLogger.log_info("Cave cleared %d defeated enemy flags" % flags_to_clear.size(), "LocationMarker")
-	SaveManager.save_game()
+	SaveManager.auto_save()
 
 	# Show message - enemies will respawn on next scene load
 	var message := "Cave cleared %d defeated enemy flags. Enemies will respawn when you reload the area." % flags_to_clear.size()
