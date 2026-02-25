@@ -1,7 +1,7 @@
 extends Node
 ## Manages scene transitions with fade effects and a scene stack for back-navigation.
 
-const FADE_DURATION := 0.3
+const FADE_DURATION := 0.15
 
 var _scene_stack: Array[String] = []
 var _transition_overlay: ColorRect
@@ -81,7 +81,8 @@ func _change_scene(scene_path: String, data: Dictionary):
 		_is_transitioning = false
 		return
 
-	# Wait for the new scene to fully initialize
+	# Two frames: first lets the deferred scene swap complete and _ready() run,
+	# second ensures child _ready() callbacks have all propagated before receive_data.
 	await get_tree().process_frame
 	await get_tree().process_frame
 
