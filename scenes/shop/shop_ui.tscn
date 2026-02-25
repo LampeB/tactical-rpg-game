@@ -1,0 +1,140 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/shop/shop_ui.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c5chartabs01" path="res://scenes/inventory/ui/character_tabs.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://c5gridpanl001" path="res://scenes/inventory/ui/grid_panel.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="6"]
+
+[node name="ShopUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.14, 0.2, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Shop"
+
+[node name="GoldLabel" type="Label" parent="VBox/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+text = "0 g"
+
+[node name="Content" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="MerchantSide" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+theme_override_constants/separation = 8
+
+[node name="MerchantLabel" type="Label" parent="VBox/Content/MerchantSide"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Wares  (drag to buy)"
+
+[node name="MerchantGridCentering" type="CenterContainer" parent="VBox/Content/MerchantSide"]
+layout_mode = 2
+
+[node name="MerchantGridPanel" parent="VBox/Content/MerchantSide/MerchantGridCentering" instance=ExtResource("3")]
+
+[node name="HoverInfoLabel" type="Label" parent="VBox/Content/MerchantSide"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+
+[node name="SoldPanel" type="PanelContainer" parent="VBox/Content/MerchantSide"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SoldVBox" type="VBoxContainer" parent="VBox/Content/MerchantSide/SoldPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SoldTitleLabel" type="Label" parent="VBox/Content/MerchantSide/SoldPanel/SoldVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Sold this session"
+
+[node name="SoldScroll" type="ScrollContainer" parent="VBox/Content/MerchantSide/SoldPanel/SoldVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SoldItemList" type="VBoxContainer" parent="VBox/Content/MerchantSide/SoldPanel/SoldVBox/SoldScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="SoldTotalLabel" type="Label" parent="VBox/Content/MerchantSide/SoldPanel/SoldVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.5, 1.0, 0.5, 1)
+text = "Total received: +0g"
+
+[node name="PlayerSide" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+theme_override_constants/separation = 8
+
+[node name="CharacterTabs" parent="VBox/Content/PlayerSide" instance=ExtResource("2")]
+layout_mode = 2
+
+[node name="GridCentering" type="CenterContainer" parent="VBox/Content/PlayerSide"]
+layout_mode = 2
+
+[node name="PlayerGridPanel" parent="VBox/Content/PlayerSide/GridCentering" instance=ExtResource("3")]
+
+[node name="StashPanel" parent="VBox/Content/PlayerSide" instance=ExtResource("4")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BottomBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="VBox/BottomBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="VBox/BottomBar"]
+layout_mode = 2
+text = "Close"
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="DragPreview" parent="DragLayer" instance=ExtResource("5")]
+
+[node name="TooltipLayer" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6")]

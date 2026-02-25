@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ShopData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shop_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_uncommon.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/weapons/sword_common.tres" id="4"]
+[ext_resource type="Resource" path="res://data/items/weapons/dagger_common.tres" id="5"]
+[ext_resource type="Resource" path="res://data/items/weapons/mace_common.tres" id="6"]
+[ext_resource type="Resource" path="res://data/items/weapons/staff_common.tres" id="7"]
+[ext_resource type="Resource" path="res://data/items/weapons/bow_common.tres" id="8"]
+[ext_resource type="Resource" path="res://data/items/weapons/shield_common.tres" id="9"]
+[ext_resource type="Resource" path="res://data/items/armor/helmet_common.tres" id="10"]
+[ext_resource type="Resource" path="res://data/items/armor/chestplate_common.tres" id="11"]
+[ext_resource type="Resource" path="res://data/items/armor/gloves_common.tres" id="12"]
+[ext_resource type="Resource" path="res://data/items/armor/legs_common.tres" id="13"]
+[ext_resource type="Resource" path="res://data/items/armor/boots_common.tres" id="14"]
+[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_common.tres" id="15"]
+[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_common.tres" id="16"]
+[ext_resource type="Resource" path="res://data/items/modifiers/power_gem_common.tres" id="17"]
+[ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_common.tres" id="18"]
+
+[resource]
+script = ExtResource("1")
+id = "merchant_general"
+display_name = "Lyra's Wares"
+shop_type = 0
+pricing_type = 0
+stock = [ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("11"), ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18")]
+buy_multiplier = 1.0
+sell_multiplier = 0.5

@@ -189,10 +189,9 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 		GameManager.unlock_next_tier_via_weaver()
 		_end_dialogue()
 	elif choice.action.begins_with("open_shop:"):
-		# TODO: wire shop when ShopUI is implemented
 		var shop_id := choice.action.trim_prefix("open_shop:")
-		DebugLogger.log_info("Would open shop: %s" % shop_id, "Dialogue")
-		_end_dialogue()
+		_end_dialogue()  # pops dialogue → overworld
+		SceneManager.push_scene("res://scenes/shop/shop_ui.tscn", {"shop_id": shop_id})
 	elif choice.action == "end" or choice.next_conversation_id.is_empty():
 		_end_dialogue()
 	else:
