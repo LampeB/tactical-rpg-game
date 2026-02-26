@@ -10,6 +10,7 @@ enum ItemType {
 	MODIFIER,       ## Gems that enhance adjacent active tools
 	CONSUMABLE,     ## Single-use items (potions, scrolls)
 	MATERIAL,       ## Crafting materials
+	BLUEPRINT,      ## Unlocks a crafting recipe when used; id must match the recipe's unlock_flag
 }
 
 enum Rarity {

@@ -597,6 +597,10 @@ func _on_inventory_expanded() -> void:
 # === Consumable Usage ===
 
 func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
+	# Blueprints are used instantly — no target selection needed.
+	if item.item_type == Enums.ItemType.BLUEPRINT:
+		_use_blueprint(item)
+		return
 	if not item.use_skill:
 		return
 	_pending_consumable = item
@@ -604,6 +608,17 @@ func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
 	_pending_consumable_index = index
 	_pending_consumable_placed = null
 	_show_target_selection_popup()
+
+
+func _use_blueprint(item: ItemData) -> void:
+	if GameManager.get_flag(item.id) == true:
+		DebugLogger.log_info("Blueprint already learned: %s" % item.id, "Crafting")
+		return
+	GameManager.set_flag(item.id, true)
+	GameManager.party.remove_from_stash(item)
+	EventBus.stash_changed.emit()
+	EventBus.show_message.emit("New recipe unlocked!")
+	DebugLogger.log_info("Blueprint used: %s" % item.id, "Crafting")
 
 
 func _on_grid_item_use_requested(placed: GridInventory.PlacedItem) -> void:

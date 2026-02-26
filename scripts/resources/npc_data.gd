@@ -6,12 +6,14 @@ enum NpcRole {
 	GENERIC,
 	SHOPKEEPER,
 	QUEST_GIVER,
+	CRAFTSMAN,
 }
 
 @export var id: String = ""
 @export var display_name: String = ""
-@export var sprite: Texture2D = null            ## Overworld sprite shown on the map.
-@export var portrait: Texture2D = null          ## Optional face texture shown in dialogue.
+@export var sprite: Texture2D = null                    ## Overworld sprite shown on the map.
+@export var portrait: Texture2D = null                  ## Optional face texture shown in dialogue.
 @export var role: NpcRole = NpcRole.GENERIC
-@export var shop_id: String = ""               ## Used when role == SHOPKEEPER.
+@export var shop_id: String = ""                       ## Used when role == SHOPKEEPER.
+@export var crafting_station_id: String = ""           ## Used when role == CRAFTSMAN.
 @export var conversations: Array[DialogueConversation] = []

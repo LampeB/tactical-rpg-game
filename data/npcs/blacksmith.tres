@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/characters/human2.png" id="4"]
 
-[sub_resource type="Resource" id="choice_wares"]
+[sub_resource type="Resource" id="choice_craft"]
 script = ExtResource("3")
-text = "Tell me about your wares"
-next_conversation_id = "wares"
+text = "Show me what you can make"
+action = "open_crafting:blacksmith"
 
 [sub_resource type="Resource" id="choice_farewell"]
 script = ExtResource("3")
@@ -24,17 +24,19 @@ action = "end"
 script = ExtResource("2")
 id = "greeting"
 lines = ["Welcome, traveler! Need your weapons sharpened?", "I've been smithing for 30 years. You won't find better steel in this town."]
-choices = [SubResource("choice_wares"), SubResource("choice_farewell")]
+choices = [SubResource("choice_craft"), SubResource("choice_farewell")]
 
-[sub_resource type="Resource" id="conv_wares"]
+[sub_resource type="Resource" id="conv_crafting"]
 script = ExtResource("2")
-id = "wares"
-lines = ["I deal in swords, axes, and shields. Come back when the shop is properly open — I'm still setting up."]
-choices = [SubResource("choice_goodbye")]
+id = "crafting"
+lines = ["I can forge you something special if you bring me the right materials. What'll it be?"]
+choices = [SubResource("choice_craft"), SubResource("choice_goodbye")]
 
 [resource]
 script = ExtResource("1")
 id = "blacksmith"
 display_name = "Aldric the Blacksmith"
 sprite = ExtResource("4")
-conversations = [SubResource("conv_greeting"), SubResource("conv_wares")]
+role = 3
+crafting_station_id = "blacksmith"
+conversations = [SubResource("conv_greeting"), SubResource("conv_crafting")]

@@ -21,8 +21,11 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 	_rarity_label.text = Constants.RARITY_NAMES.get(item.rarity, "Common")
 	_rarity_label.add_theme_color_override("font_color", rarity_color)
 
-	# Type
-	_type_label.text = _get_type_text(item.item_type)
+	# Type (with hand requirement for weapons)
+	var type_text := _get_type_text(item.item_type)
+	if item.item_type == Enums.ItemType.ACTIVE_TOOL and item.hand_slots_required > 0:
+		type_text += "  ·  %s" % ("1 Hand" if item.hand_slots_required == 1 else "2 Hands")
+	_type_label.text = type_text
 
 	# Price (shown only when explicitly provided, e.g. in the shop)
 	if price > 0:

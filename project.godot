@@ -38,6 +38,10 @@ window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[gui]
+
+theme/custom="res://assets/ui/default_theme.tres"
+
 [input]
 
 move_up={
@@ -96,10 +100,6 @@ fast_travel={
 2d_physics/layer_2="player"
 2d_physics/layer_3="enemies"
 2d_physics/layer_4="interactables"
-
-[gui]
-
-theme/custom="res://assets/ui/default_theme.tres"
 
 [rendering]
 

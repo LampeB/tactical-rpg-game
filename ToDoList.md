@@ -38,6 +38,7 @@
 ## General Tasks
 
 ### UI & Polish
+- [ ] Unified screen/menu presentation — rework all menus and screens to follow a single consistent pattern (no mix of floating overlays and full-screen panels; decide on one approach and apply it everywhere)
 - [ ] Make it possible to use sprites for every UI element
 - [ ] Damage numbers animation in combat
 - [ ] Screen shake on critical hits
@@ -63,6 +64,7 @@
 ### World & Progression
 - [ ] Add mechanic to block parts of the map if conditions aren't met
 - [ ] Expand passive skill tree (PoE-style, 150-300 nodes, characters start at different positions)
+- [ ] Make skill tree connections non-directional — adjacency should be symmetric (having skill A unlocks skill B, and vice versa), regardless of which node was defined first
 - [ ] Fixed map system — easily editable, different placeable elements stored in a DB
 
 ### Audio
