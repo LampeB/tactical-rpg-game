@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_uncommon.png" id="1_r11gm"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="2_3smey"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_3u8tr"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4_46040"]
+
+[resource]
+script = ExtResource("3_3u8tr")
+id = "dagger_snake_fang_rare"
+display_name = "Superior Snake Fang"
+description = "A blade carved from a serpent's tooth. Even a glancing blow leaves the target poisoned."
+icon = ExtResource("1_r11gm")
+category = 4
+rarity = 2
+hand_slots_required = 1
+shape = ExtResource("4_46040")
+base_power = 7
+innate_status_effect = ExtResource("2_3smey")
+innate_status_effect_chance = 0.5
+base_price = 282

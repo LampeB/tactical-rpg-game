@@ -66,6 +66,10 @@ var _pending_skill: SkillData = null
 var _pending_target_type: int = -1
 var _pending_item: ItemData = null
 
+# Battle log file recording
+var _log_lines: Array[String] = []
+const BATTLE_LOG_PATH := "res://battle_log.txt"
+
 
 func _clear_pending_action() -> void:
 	_pending_action_type = -1
@@ -98,6 +102,7 @@ func receive_data(data: Dictionary) -> void:
 
 
 func _start_battle() -> void:
+	_log_lines.clear()
 	DebugLogger.log_info("_start_battle called", "Battle")
 	if not _encounter_data:
 		DebugLogger.log_error("No encounter data!", "Battle")
@@ -183,11 +188,11 @@ func _letter(index: int) -> String:
 
 
 func _sync_viewport_size() -> void:
-	## Center camera on the viewport. Size is managed by SubViewportContainer (stretch=true).
+	## Position camera to show the full viewport.
+	## anchor_mode = FIXED_TOP_LEFT (0), so position (0,0) shows the entire SubViewport.
 	var vp_size: Vector2 = Vector2(_sub_viewport.size)
 	DebugLogger.log_info("Syncing viewport: size=%s" % str(vp_size), "BattleView")
-	# Center camera on the viewport
-	_battle_camera.position = Vector2(vp_size.x / 2.0, vp_size.y / 2.0)
+	_battle_camera.position = Vector2.ZERO
 	DebugLogger.log_info("  Camera positioned at %s" % str(_battle_camera.position), "BattleView")
 
 
@@ -324,7 +329,27 @@ func _on_action_resolved(_results: Dictionary) -> void:
 	_refresh_all_ui()
 
 
+func _write_battle_log(victory: bool) -> void:
+	var encounter_name: String = _encounter_data.display_name if _encounter_data else "Unknown"
+	var result_str: String = "VICTORY" if victory else "DEFEAT"
+	var path: String = ProjectSettings.globalize_path(BATTLE_LOG_PATH)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if not file:
+		DebugLogger.log_warn("Could not write battle log to %s" % path, "Battle")
+		return
+	file.store_line("=== BATTLE LOG: %s ===" % encounter_name)
+	file.store_line("=== %s ===" % result_str)
+	file.store_line("")
+	for line in _log_lines:
+		file.store_line(line)
+	file.store_line("")
+	file.store_line("=== END ===")
+	file.close()
+	DebugLogger.log_info("Battle log written to: %s" % path, "Battle")
+
+
 func _on_combat_finished(victory: bool) -> void:
+	_write_battle_log(victory)
 	_action_menu.hide_menu()
 	_target_prompt.visible = false
 
@@ -380,6 +405,7 @@ func _on_entity_died(entity: CombatEntity) -> void:
 func _on_log_message(text: String, color: Color) -> void:
 	_battle_log.add_message(text, color)
 	DebugLogger.log_info("[CombatLog] %s" % text, "Battle")
+	_log_lines.append(text)
 
 
 func _on_log_toggle(toggled_on: bool) -> void:

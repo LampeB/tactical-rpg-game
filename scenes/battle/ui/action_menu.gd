@@ -389,9 +389,9 @@ func _build_attack_details() -> void:
 		var state: ToolModifierState = _current_entity.tool_modifier_states[tool_keys[i]]
 		if state.force_aoe:
 			effects.append("AoE (hits all enemies)")
-		if state.status_effect_type != null:
-			var effect_name: String = Enums.StatusEffectType.keys()[state.status_effect_type]
-			effects.append("%s (%.0f%%)" % [effect_name, state.status_effect_chance * 100.0])
+		for proc in state.status_procs:
+			var effect_name: String = Enums.StatusEffectType.keys()[proc.type]
+			effects.append("%s (%.0f%%)" % [effect_name, proc.chance * 100.0])
 		for j in range(state.active_modifiers.size()):
 			var mod_info: Dictionary = state.active_modifiers[j]
 			var rule: ConditionalModifierRule = mod_info.rule

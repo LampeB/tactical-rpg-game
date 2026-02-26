@@ -1,6 +1,8 @@
 extends PanelContainer
 ## Tooltip popup showing item details on hover.
 
+const FONT_SIZE := 12  ## Font size used for all dynamically-created labels in the tooltip
+
 @onready var _name_label: Label = $Margin/VBox/NameLabel
 @onready var _rarity_label: Label = $Margin/VBox/RarityLabel
 @onready var _type_label: Label = $Margin/VBox/TypeLabel
@@ -9,6 +11,16 @@ extends PanelContainer
 @onready var _modifier_section: VBoxContainer = $Margin/VBox/ModifierSection
 @onready var _modifier_list: VBoxContainer = $Margin/VBox/ModifierSection/ModifierList
 @onready var _description_label: Label = $Margin/VBox/DescriptionLabel
+
+
+func _ready() -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.10, 0.16, 0.82)
+	style.corner_radius_top_left    = 4
+	style.corner_radius_top_right   = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	add_theme_stylebox_override("panel", style)
 
 
 func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO, price: int = -1, price_label: String = "Value") -> void:
@@ -40,19 +52,19 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 		if mod is StatModifier:
 			var label: Label = Label.new()
 			label.text = mod.get_description()
-			label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+			label.add_theme_font_size_override("font_size", FONT_SIZE)
 			_stats_container.add_child(label)
 
 	if item.base_power > 0:
 		var phys_label: Label = Label.new()
 		phys_label.text = "Physical Power: %d" % item.base_power
-		phys_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+		phys_label.add_theme_font_size_override("font_size", FONT_SIZE)
 		_stats_container.add_child(phys_label)
 
 	if item.magical_power > 0:
 		var mag_label: Label = Label.new()
 		mag_label.text = "Magical Power: %d" % item.magical_power
-		mag_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+		mag_label.add_theme_font_size_override("font_size", FONT_SIZE)
 		_stats_container.add_child(mag_label)
 
 	# Modifier bonuses (for gems, show what they grant; for tools, show active gem bonuses)
@@ -91,41 +103,59 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var skill: SkillData = rule.granted_skills[j]
 					_add_modifier_label("  Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
 
-	elif item.item_type == Enums.ItemType.ACTIVE_TOOL and placed and grid_inv:
-		# Show active unconditional modifier bonuses
-		var modifiers: Array = grid_inv.get_modifiers_affecting(placed)
-		if not modifiers.is_empty():
+	elif item.item_type == Enums.ItemType.ACTIVE_TOOL:
+		var has_innate: bool = item.innate_status_effect != null
+		var modifiers: Array = grid_inv.get_modifiers_affecting(placed) if placed and grid_inv else []
+		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed) if placed and grid_inv else null
+		var has_gem_effects: bool = not modifiers.is_empty() or (state and not state.active_modifiers.is_empty())
+
+		# ── Innate section ───────────────────────────────────────────────────
+		if has_innate:
 			_modifier_section.visible = true
+			if has_gem_effects:
+				_add_header_label("Innate:", Color(0.6, 0.85, 1.0))
+			var effect_name: String = _get_status_effect_name(item.innate_status_effect.effect_type)
+			var chance_pct: int = int(item.innate_status_effect_chance * 100)
+			var indent: String = "  " if has_gem_effects else ""
+			_add_modifier_label("%s%s: %d%%  ·  +%d stack (+%d on crit)" % [indent, effect_name, chance_pct, item.innate_status_stacks, item.innate_crit_status_stacks], Color(1.0, 0.7, 0.3))
+
+		# ── Gem section ───────────────────────────────────────────────────────
+		if has_gem_effects:
+			_modifier_section.visible = true
+			if has_innate:
+				_add_header_label("From gems:", Color(1.0, 0.9, 0.3))
+
+			# Unconditional stat bonuses from each gem
 			for i in range(modifiers.size()):
 				var gem_placed: GridInventory.PlacedItem = modifiers[i]
 				for gem_mod in gem_placed.item_data.modifier_bonuses:
 					if gem_mod is StatModifier:
-						_add_modifier_label("%s (from %s)" % [gem_mod.get_description(), gem_placed.item_data.display_name], Color(1.0, 0.9, 0.3))
+						var indent: String = "  " if has_innate else ""
+						_add_modifier_label("%s%s (from %s)" % [indent, gem_mod.get_description(), gem_placed.item_data.display_name], Color(1.0, 0.9, 0.3))
 
-		# Show active conditional effects
-		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed)
-		if state and not state.active_modifiers.is_empty():
-			_modifier_section.visible = true
+			if state and not state.active_modifiers.is_empty():
+				var indent: String = "  " if has_innate else ""
 
-			# Status effect
-			if state.status_effect_type != null:
-				var effect_name: String = _get_status_effect_name(state.status_effect_type)
-				var chance_pct: int = int(state.status_effect_chance * 100)
-				_add_modifier_label("%s (%d%% chance)" % [effect_name, chance_pct], Color(1.0, 0.7, 0.3))
+				# Status effect from gems (read from active_modifiers, not state.status_effect_type)
+				for mod_entry in state.active_modifiers:
+					var rule: ConditionalModifierRule = mod_entry.get("rule")
+					if rule and rule.status_effect:
+						var effect_name: String = _get_status_effect_name(rule.status_effect.effect_type)
+						var chance_pct: int = int(rule.status_effect_chance * 100)
+						_add_modifier_label("%s%s: %d%%  ·  +%d stack (+%d on crit)" % [indent, effect_name, chance_pct, rule.status_stacks, rule.status_crit_stacks], Color(1.0, 0.7, 0.3))
 
-			# Aggregate stats from conditional modifiers
-			var stat_keys: Array = state.aggregate_stats.keys()
-			for i in range(stat_keys.size()):
-				var stat: Enums.Stat = stat_keys[i]
-				var value: float = state.aggregate_stats[stat]
-				var stat_name: String = _get_stat_name(stat)
-				var sign: String = "+" if value >= 0 else ""
-				_add_modifier_label("%s%s %s (conditional)" % [sign, value, stat_name], Color(1.0, 0.9, 0.3))
+				# Aggregate conditional stats
+				var stat_keys: Array = state.aggregate_stats.keys()
+				for i in range(stat_keys.size()):
+					var stat: Enums.Stat = stat_keys[i]
+					var value: float = state.aggregate_stats[stat]
+					var sign: String = "+" if value >= 0 else ""
+					_add_modifier_label("%s%s%d %s" % [indent, sign, int(value), _get_stat_name(stat)], Color(1.0, 0.9, 0.3))
 
-			# Conditional skills
-			for i in range(state.conditional_skills.size()):
-				var skill: SkillData = state.conditional_skills[i]
-				_add_modifier_label("Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
+				# Conditional skills
+				for i in range(state.conditional_skills.size()):
+					var skill: SkillData = state.conditional_skills[i]
+					_add_modifier_label("%sGrants: %s" % [indent, skill.display_name], Color(0.6, 1.0, 0.6))
 
 	# Description
 	_description_label.text = item.description
@@ -191,7 +221,7 @@ func _clear_container(container: VBoxContainer) -> void:
 func _add_header_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
 
@@ -199,7 +229,7 @@ func _add_header_label(text: String, color: Color) -> void:
 func _add_modifier_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
 

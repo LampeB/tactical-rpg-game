@@ -46,6 +46,13 @@ extends Resource
 ## For gems: context-sensitive effects based on neighboring item categories.
 @export var conditional_modifier_rules: Array = [] ## of ConditionalModifierRule
 
+@export_group("Innate Effects")
+## Built-in status effect proc on hit (no gem required). Overridden by any gem on the weapon.
+@export var innate_status_effect: StatusEffect = null
+@export_range(0.0, 1.0) var innate_status_effect_chance: float = 0.0
+@export var innate_status_stacks: int = 1      ## Stacks applied on a normal hit
+@export var innate_crit_status_stacks: int = 2  ## Stacks applied on a critical hit
+
 @export_group("Consumable")
 ## For consumables: the skill triggered on use.
 @export var use_skill: SkillData

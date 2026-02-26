@@ -207,10 +207,21 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 					var existing: float = state.aggregate_stats.get(stat, 0.0)
 					state.aggregate_stats[stat] = existing + stat_mod.value
 
-				# Status effect (first wins)
-				if rule.status_effect and state.status_effect_type == null:
-					state.status_effect_type = rule.status_effect.effect_type
-					state.status_effect_chance = rule.status_effect_chance
+				# Status effect — collect all unique types
+				if rule.status_effect:
+					var new_type: int = rule.status_effect.effect_type
+					var already_have: bool = false
+					for proc in state.status_procs:
+						if proc.type == new_type:
+							already_have = true
+							break
+					if not already_have:
+						state.status_procs.append({
+							"type": new_type,
+							"chance": rule.status_effect_chance,
+							"stacks": rule.status_stacks,
+							"crit_stacks": rule.status_crit_stacks,
+						})
 
 				# Conditional skills (no duplicates)
 				for k in range(rule.granted_skills.size()):
@@ -225,6 +236,23 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 				# HP cost per attack (stacking)
 				if rule.hp_cost_per_attack > 0:
 					state.hp_cost_per_attack += rule.hp_cost_per_attack
+
+	# Innate status effect — add if not already covered by a gem
+	var innate: ItemData = tool_placed.item_data
+	if innate.innate_status_effect:
+		var innate_type: int = innate.innate_status_effect.effect_type
+		var already_have: bool = false
+		for proc in state.status_procs:
+			if proc.type == innate_type:
+				already_have = true
+				break
+		if not already_have:
+			state.status_procs.append({
+				"type": innate_type,
+				"chance": innate.innate_status_effect_chance,
+				"stacks": innate.innate_status_stacks,
+				"crit_stacks": innate.innate_crit_status_stacks,
+			})
 
 	return state
 

@@ -334,22 +334,20 @@ func tick_cooldowns() -> void:
 
 ## Gem-based status effect system (Burn, Poisoned, Chilled, Shocked)
 
-func apply_gem_status_effect(effect_template: StatusEffect, chance: float) -> bool:
-	## Attempts to apply a gem-based status effect with the given chance.
-	## Returns true if the effect was successfully applied.
-	if randf() >= chance:
-		return false
+func apply_gem_status_effect(effect_template: StatusEffect, stacks: int) -> bool:
+	## Applies a gem-based status effect by adding the given number of stacks.
+	## Stacks accumulate on existing effects (each stack = 1 remaining turn).
 
-	# Check if already has this effect type - refresh duration if so
+	# Check if already has this effect type — ADD stacks, don't refresh to max
 	for i in range(active_gem_status_effects.size()):
 		var existing: StatusEffect = active_gem_status_effects[i]
 		if existing.effect_type == effect_template.effect_type:
-			# Refresh duration to maximum
-			existing.duration_turns = effect_template.duration_turns
+			existing.duration_turns += stacks
 			return true
 
-	# Apply new effect
+	# Apply new effect with given stacks as initial duration
 	var new_effect: StatusEffect = effect_template.create_instance()
+	new_effect.duration_turns = stacks
 	active_gem_status_effects.append(new_effect)
 	return true
 
@@ -365,9 +363,11 @@ func process_gem_status_effects() -> void:
 		# Apply effect based on type
 		match effect.effect_type:
 			Enums.StatusEffectType.BURN, Enums.StatusEffectType.POISONED:
-				# Deal tick damage
+				# Damage scales with remaining stacks, capped at max_tick_damage
 				if effect.tick_damage > 0:
-					take_damage(effect.tick_damage)
+					var raw: int = effect.duration_turns * effect.tick_damage
+					var dmg: int = raw if effect.max_tick_damage == 0 else mini(raw, effect.max_tick_damage)
+					take_damage(dmg)
 
 			Enums.StatusEffectType.CHILLED:
 				# Speed reduction is handled in get_effective_stat()

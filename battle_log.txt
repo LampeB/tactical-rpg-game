@@ -1,0 +1,65 @@
+=== BATTLE LOG: Minotaur ===
+=== VICTORY ===
+
+[INIT] Players: 3, Enemies: 1
+[INIT]   Player: Kael — HP:120/120 MP:20/20 SPD:13 ATK:88 DEF:15
+[INIT]   Player: Lyra — HP:80/100 MP:50/50 SPD:19 ATK:50 DEF:14
+[INIT]   Player: Vex — HP:90/90 MP:30/30 SPD:33 ATK:39 DEF:7
+[INIT]   Enemy: Minotaur — HP:600/600 SPD:2 ATK:250 DEF:40
+[TURN ORDER] Initial: Kael(13,t=0.5), Vex(33,t=1.0), Lyra(19,t=1.2), Minotaur(2,t=19.4)
+Battle started: Minotaur
+[TURN] Kael's turn (time=0.5, HP:120/120)
+[TURN] Emitting turn_ready for Kael (is_player=true)
+[ACTION] Kael → Attack → Minotaur (target HP:600/600, defending:false)
+[DAMAGE] Calculated: 166, crit: false
+Kael attacks Minotaur for 166 damage
+[AOE] Kael has force_aoe — splashing to all enemies!
+Kael suffers 20 HP from unstable gem!
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Vex's turn (time=1.0, HP:90/90)
+[TURN] Emitting turn_ready for Vex (is_player=true)
+[ACTION] Vex → Attack → Minotaur (target HP:434/600, defending:false)
+[DAMAGE] Calculated: 80, crit: false
+Vex attacks Minotaur for 80 damage
+[AOE] Vex has force_aoe — splashing to all enemies!
+Minotaur is afflicted with BURN (+1 stack)
+Minotaur is afflicted with SHOCKED (+1 stack)
+Minotaur is afflicted with POISONED (+1 stack)
+Vex suffers 10 HP from unstable gem!
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Lyra's turn (time=1.2, HP:80/100)
+[TURN] Emitting turn_ready for Lyra (is_player=true)
+[ACTION] Lyra → Attack → Minotaur (target HP:354/600, defending:false)
+[DAMAGE] Calculated: 83, crit: false
+Lyra attacks Minotaur for 83 damage
+[AOE] Lyra has force_aoe — splashing to all enemies!
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Vex's turn (time=4.1, HP:80/90)
+[TURN] Emitting turn_ready for Vex (is_player=true)
+[ACTION] Vex → Attack → Minotaur (target HP:271/600, defending:false)
+[DAMAGE] Calculated: 80, crit: false
+Vex attacks Minotaur for 80 damage
+[AOE] Vex has force_aoe — splashing to all enemies!
+Vex suffers 10 HP from unstable gem!
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Lyra's turn (time=6.4, HP:80/100)
+[TURN] Emitting turn_ready for Lyra (is_player=true)
+[ACTION] Lyra → Attack → Minotaur (target HP:191/600, defending:false)
+[DAMAGE] Calculated: 125, crit: true
+Lyra attacks Minotaur for 125 damage (CRITICAL!)
+[AOE] Lyra has force_aoe — splashing to all enemies!
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Vex's turn (time=7.1, HP:70/90)
+[TURN] Emitting turn_ready for Vex (is_player=true)
+[ACTION] Vex → Attack → Minotaur (target HP:66/600, defending:false)
+[DAMAGE] Calculated: 80, crit: false
+Vex attacks Minotaur for 66 damage
+[AOE] Vex has force_aoe — splashing to all enemies!
+Minotaur is afflicted with BURN (+1 stack)
+Vex suffers 10 HP from unstable gem!
+Minotaur has been defeated!
+[CHECK END] Alive players: 3, Alive enemies: 0
+Vex's fortune doubles the gold!
+Victory! Earned 400 gold.
+
+=== END ===

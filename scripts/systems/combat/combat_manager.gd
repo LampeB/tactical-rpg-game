@@ -176,6 +176,7 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 	var result: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
 	log_message.emit("[DAMAGE] Calculated: %d, crit: %s" % [result.amount, str(result.is_crit)], Color(0.6, 0.6, 0.6))
+	var target_was_alive: bool = not target.is_dead
 	var actual: int = target.take_damage(result.amount)
 	result["actual_damage"] = actual
 	result["target"] = target
@@ -209,22 +210,19 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 				entity_died.emit(splash_target)
 	result["splash_results"] = splash_results
 
-	# Gem-based status effects — apply status from equipped gems
-	if actual > 0 and source.is_player and not target.is_dead:
+	# Gem/innate status effects — roll each proc independently
+	if actual > 0 and source.is_player and target_was_alive:
 		var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
-		if modifier_state and modifier_state.status_effect_type != null:
-			# Get the status effect template from the weapon's gem modifiers
-			var status_chance: float = modifier_state.status_effect_chance
-			var effect_name: String = Enums.StatusEffectType.keys()[modifier_state.status_effect_type]
-
-			# Try to apply the status effect
-			if randf() < status_chance:
-				# Create a status effect instance matching the gem's effect type
-				var status_template: StatusEffect = _get_status_effect_template(modifier_state.status_effect_type)
-				if status_template:
-					var applied: bool = target.apply_gem_status_effect(status_template, 1.0)
-					if applied:
-						log_message.emit("%s is afflicted with %s!" % [target.entity_name, effect_name], Color(1.0, 0.6, 0.2))
+		if modifier_state:
+			for proc in modifier_state.status_procs:
+				if randf() < proc.chance:
+					var stacks: int = proc.crit_stacks if result.is_crit else proc.stacks
+					var status_template: StatusEffect = _get_status_effect_template(proc.type)
+					if status_template:
+						target.apply_gem_status_effect(status_template, stacks)
+						var effect_name: String = Enums.StatusEffectType.keys()[proc.type]
+						var crit_tag: String = " (CRIT — %d stacks)" % stacks if result.is_crit else " (+%d stack)" % stacks
+						log_message.emit("%s is afflicted with %s%s" % [target.entity_name, effect_name, crit_tag], Color(1.0, 0.6, 0.2))
 
 	# Gem HP cost per attack (e.g. MeGummy)
 	if source.is_player and not source.is_dead:
