@@ -259,6 +259,21 @@ func _find_recipe_by_id(recipe_id: String) -> CraftingRecipeData:
 func _select_recipe(recipe: CraftingRecipeData) -> void:
 	if not recipe:
 		return
+
+	# Return any items currently assigned to slots back to the stash
+	for slot in _slot_nodes:
+		if slot.assigned_item:
+			GameManager.party.add_to_stash(slot.assigned_item)
+	if not _slot_nodes.is_empty():
+		EventBus.stash_changed.emit()
+		_refresh_stash()
+
+	# Return output item (crafted but not yet picked up) to the stash
+	if _output_item:
+		GameManager.party.add_to_stash(_output_item)
+		EventBus.stash_changed.emit()
+		_refresh_stash()
+
 	_selected_recipe = recipe
 	_slot_nodes.clear()
 	_output_item = null

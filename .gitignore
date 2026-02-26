@@ -15,3 +15,4 @@ temp_sprites/
 # Old root-level directories (not used)
 /src/
 /sprites/
+build/
