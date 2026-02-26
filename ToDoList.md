@@ -38,6 +38,7 @@
 ## General Tasks
 
 ### UI & Polish
+- [ ] Stash sorting and filtering: primary + secondary sort order (e.g. by type then by rarity → all weapons sorted by rarity, then all armor sorted by rarity, etc.); available sort keys: alphabetical, item type, rarity; also support filtering by type
 - [ ] Unified screen/menu presentation — rework all menus and screens to follow a single consistent pattern (no mix of floating overlays and full-screen panels; decide on one approach and apply it everywhere)
 - [ ] Make it possible to use sprites for every UI element
 - [ ] Damage numbers animation in combat
@@ -47,13 +48,20 @@
 - [ ] Show number of hands required on weapon card
 
 ### Items & Equipment
-- [ ] Create armor items (helmets, chestplates, gloves, legs, boots — multiple tiers)
+- [ ] Create armor items with subtypes per slot — each slot has 3–4 weight classes with different stat profiles:
+  - **Head:** Hood (light), Helmet (medium), Great Helm (heavy), Crown (magic)
+  - **Chest:** Robe (light), Hauberk (medium), Plate (heavy), Enchanted Vest (magic)
+  - **Hands:** Wraps (light), Gloves (medium), Gauntlets (heavy), Arcane Gloves (magic)
+  - **Legs:** Leggings (light), Chainlegs (medium), Greaves (heavy), Runic Leggings (magic)
+  - **Feet:** Shoes (light), Boots (medium), Sabatons (heavy), Sandals (magic)
+- [ ] Allow modifiers (gems) to affect armor items — loosen the ACTIVE_TOOL-only gate in grid_inventory.gd so gems placed adjacent to armor also apply their modifier_bonuses
 - [ ] Create jewelry items (necklaces, rings with various effects)
 - [ ] Expand weapon variety (multiple tiers per type: iron → steel → mythril → legendary)
 - [ ] Design unique legendary items with special effects
 - [ ] Balance item stats across all tiers
 - [ ] Item crafting system — combine items to create new ones, recipes in a database, crafting UI
-- [ ] Inventory grid size upgrades (at shops)
+- [ ] Remove gold cost from blacksmith recipes (crafting cost should be ingredients only, no gold)
+- [ ] Inventory grid size upgrades: use a dedicated resource (not gold, not an inventory item) tracked globally like gold — earned through gameplay and spent to unlock additional grid cells
 
 ### Combat
 - [ ] Implement defend action (damage reduction via shield/defense stats)
@@ -63,7 +71,8 @@
 
 ### World & Progression
 - [ ] Add mechanic to block parts of the map if conditions aren't met
-- [ ] Expand passive skill tree (PoE-style, 150-300 nodes, characters start at different positions)
+- [ ] Expand passive skill tree (PoE-style, 1000-1500 nodes, characters start at different positions)
+- [ ] Replace fixed per-node gold cost in skill tree with a formula based on total nodes already unlocked (cost scales up the more nodes a character has)
 - [ ] Make skill tree connections non-directional — adjacency should be symmetric (having skill A unlocks skill B, and vice versa), regardless of which node was defined first
 - [ ] Fixed map system — easily editable, different placeable elements stored in a DB
 
@@ -81,6 +90,17 @@
 - [ ] Story mode with cutscenes (dialogue boxes, portraits, basic animations)
 - [ ] Character development (unique abilities, recruitment through story)
 - [ ] Multiple endings based on choices
+
+### Gamepad & Steam Deck
+- [ ] Full gamepad support — all menus, combat, overworld, and inventory navigable with controller; remap actions to gamepad buttons in the existing keybinding system
+- [ ] Inventory/stash cursor navigation with left stick or d-pad (move cell-by-cell, pick up/place items with a button)
+- [ ] On-screen button prompts that switch between keyboard and gamepad glyphs automatically based on last input device
+- [ ] Steam Deck compatibility — verify 16:10 layout (1280×800), touch input passthrough, and Steam Input profile; submit to Steam Deck Verified checklist
+
+### Localisation
+- [ ] Integrate Godot's built-in TranslationServer — extract all displayed strings into CSV/PO translation files
+- [ ] Language selector in settings menu; persist chosen language across sessions
+- [ ] Initial languages: English + French (at minimum); structure to make adding more languages straightforward
 
 ### Quality of Life
 - [ ] Multiple save slots (5-10) with metadata (playtime, location, party level)
