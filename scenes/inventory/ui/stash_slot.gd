@@ -29,10 +29,16 @@ func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 	else:
 		self_modulate = Color.WHITE
 
-	# Add "Use" button for consumables with use_skill
+	# Add "Use" button for consumables with use_skill, or "Learn" for blueprints
 	if item.item_type == Enums.ItemType.CONSUMABLE and item.use_skill:
 		_use_button = Button.new()
 		_use_button.text = "Use"
+		_use_button.custom_minimum_size = Vector2(60, 0)
+		_use_button.pressed.connect(_on_use_button_pressed)
+		$HBox.add_child(_use_button)
+	elif item.item_type == Enums.ItemType.BLUEPRINT:
+		_use_button = Button.new()
+		_use_button.text = "Learn"
 		_use_button.custom_minimum_size = Vector2(60, 0)
 		_use_button.pressed.connect(_on_use_button_pressed)
 		$HBox.add_child(_use_button)
@@ -45,6 +51,7 @@ func _get_type_text(item_type: Enums.ItemType) -> String:
 		Enums.ItemType.MODIFIER: return "Gem"
 		Enums.ItemType.CONSUMABLE: return "Consumable"
 		Enums.ItemType.MATERIAL: return "Material"
+		Enums.ItemType.BLUEPRINT: return "Blueprint"
 	return ""
 
 
