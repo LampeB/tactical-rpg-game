@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_uncommon.png" id="1_iuir8"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="2_v8dud"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_6mfgt"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4_j3dhc"]
+
+[resource]
+script = ExtResource("3_6mfgt")
+id = "dagger_snake_fang_legendary"
+display_name = "Legendary Snake Fang"
+description = "A blade carved from a serpent's tooth. Even a glancing blow leaves the target poisoned."
+icon = ExtResource("1_iuir8")
+category = 4
+rarity = 4
+hand_slots_required = 1
+shape = ExtResource("4_j3dhc")
+base_power = 12
+innate_status_effect = ExtResource("2_v8dud")
+innate_status_effect_chance = 0.5
+base_price = 498

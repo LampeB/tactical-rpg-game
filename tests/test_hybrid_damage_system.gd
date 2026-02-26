@@ -157,8 +157,8 @@ func test_tool_modifier_state_structure() -> void:
 		add_failure(test_name, "Old damage_type_override field still exists")
 		return
 
-	if not ("status_effect_chance" in state and "status_effect_type" in state):
-		add_failure(test_name, "Missing hybrid damage fields")
+	if not ("status_procs" in state):
+		add_failure(test_name, "Missing status_procs field")
 		return
 
 	if "added_magical_damage" in state:

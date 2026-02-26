@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/roaming_enemy.tscn" id="7"]
 [ext_resource type="Resource" path="res://data/encounters/encounter_slimes.tres" id="8"]
 [ext_resource type="Resource" path="res://data/encounters/encounter_goblins.tres" id="9"]
+[ext_resource type="Resource" path="res://data/encounters/encounter_minotaur.tres" id="16"]
 [ext_resource type="Resource" uid="uid://cr64yvgw8jhh5" path="res://data/locations/location_lake.tres" id="10"]
 [ext_resource type="Texture2D" uid="uid://c6itgynnpqrap" path="res://assets/sprites/characters/human1.png" id="11"]
 [ext_resource type="Texture2D" uid="uid://c5giyrk6v306v" path="res://assets/sprites/enemies/goblin.png" id="12"]
@@ -1171,6 +1172,11 @@ position = Vector2(1300, 700)
 encounter_data = ExtResource("8")
 enemy_sprite = ExtResource("12")
 
+[node name="Minotaur" parent="Enemies" unique_id=631847293 instance=ExtResource("7")]
+position = Vector2(950, 350)
+encounter_data = ExtResource("16")
+enemy_sprite = ExtResource("15")
+
 [node name="Player" type="CharacterBody2D" parent="." unique_id=487517501]
 position = Vector2(960, 540)
 collision_layer = 2
@@ -1202,6 +1208,7 @@ shape = SubResource("player_collision")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1449541761]
 position = Vector2(960, 540)
+zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 

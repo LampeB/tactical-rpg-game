@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="LootTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_rare.tres" id="item_potion"]
+[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_rare.tres" id="item_fire"]
+[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_rare.tres" id="item_ice"]
+[ext_resource type="Resource" path="res://data/items/modifiers/power_gem_rare.tres" id="item_power"]
+[ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_rare.tres" id="item_swift"]
+[ext_resource type="Resource" path="res://data/items/weapons/axe_rare.tres" id="item_axe"]
+[ext_resource type="Resource" path="res://data/items/weapons/mace_rare.tres" id="item_mace"]
+[ext_resource type="Resource" path="res://data/items/armor/chestplate_rare.tres" id="item_chest"]
+
+[sub_resource type="Resource" id="entry_potion"]
+script = ExtResource("2")
+item = ExtResource("item_potion")
+drop_chance = 0.9
+
+[sub_resource type="Resource" id="entry_fire"]
+script = ExtResource("2")
+item = ExtResource("item_fire")
+drop_chance = 0.4
+
+[sub_resource type="Resource" id="entry_ice"]
+script = ExtResource("2")
+item = ExtResource("item_ice")
+drop_chance = 0.4
+
+[sub_resource type="Resource" id="entry_power"]
+script = ExtResource("2")
+item = ExtResource("item_power")
+drop_chance = 0.4
+
+[sub_resource type="Resource" id="entry_swift"]
+script = ExtResource("2")
+item = ExtResource("item_swift")
+drop_chance = 0.35
+
+[sub_resource type="Resource" id="entry_axe"]
+script = ExtResource("2")
+item = ExtResource("item_axe")
+drop_chance = 0.3
+
+[sub_resource type="Resource" id="entry_mace"]
+script = ExtResource("2")
+item = ExtResource("item_mace")
+drop_chance = 0.3
+
+[sub_resource type="Resource" id="entry_chest"]
+script = ExtResource("2")
+item = ExtResource("item_chest")
+drop_chance = 0.25
+
+[resource]
+script = ExtResource("1")
+id = "loot_minotaur"
+entries = [SubResource("entry_potion"), SubResource("entry_fire"), SubResource("entry_ice"), SubResource("entry_power"), SubResource("entry_swift"), SubResource("entry_axe"), SubResource("entry_mace"), SubResource("entry_chest")]

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_minotaur.tres" id="2_loot"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/minotaur.png" id="3_sprite"]
+
+[resource]
+script = ExtResource("1")
+id = "minotaur"
+display_name = "Minotaur"
+description = "An ancient beast of iron and fury. Slow as a boulder, hits like an avalanche. One swing is all it needs."
+sprite = ExtResource("3_sprite")
+max_hp = 600
+speed = 2
+physical_attack = 250
+physical_defense = 40
+magical_attack = 10
+magical_defense = 25
+damage_type = 0
+gold_reward = 150
+loot_table = ExtResource("2_loot")

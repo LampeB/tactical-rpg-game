@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_uncommon.png" id="1_1ukhy"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="2_56dkq"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_fx52v"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4_6200y"]
+
+[resource]
+script = ExtResource("3_fx52v")
+id = "dagger_snake_fang_unique"
+display_name = "Mythic Snake Fang"
+description = "A blade carved from a serpent's tooth. Even a glancing blow leaves the target poisoned."
+icon = ExtResource("1_1ukhy")
+category = 4
+rarity = 5
+hand_slots_required = 1
+shape = ExtResource("4_6200y")
+base_power = 15
+innate_status_effect = ExtResource("2_56dkq")
+innate_status_effect_chance = 0.5
+base_price = 665

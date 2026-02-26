@@ -35,6 +35,15 @@
 
 ---
 
+## Bugs to Fix
+
+- [ ] Rotating an item does not rotate its reach shape (gem conditional modifier reach pattern doesn't rotate with the item)
+- [ ] KO'd characters still play their animations / act during battle
+- [ ] Tooltip doesn't disappear correctly when leaving items in the blacksmith interface
+- [ ] Item editor has no fields to edit innate status effect modifiers (poison, chill, etc.)
+
+---
+
 ## General Tasks
 
 ### UI & Polish

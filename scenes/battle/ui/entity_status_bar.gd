@@ -110,6 +110,8 @@ func _update_status_icons() -> void:
 		child.queue_free()
 	if not _entity:
 		return
+
+	# Regular status effects (text labels)
 	for effect in _entity.status_effects:
 		var data: StatusEffectData = effect.data
 		var label: Label = Label.new()
@@ -117,3 +119,51 @@ func _update_status_icons() -> void:
 		label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
 		label.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
 		_status_icons.add_child(label)
+
+	# Gem status effects — colored squares with stack count
+	for gem_effect in _entity.active_gem_status_effects:
+		if gem_effect.duration_turns <= 0:
+			continue
+		var bg_color: Color = _gem_status_color(gem_effect.effect_type)
+		var short_name: String = _gem_status_name(gem_effect.effect_type)
+
+		var panel := PanelContainer.new()
+		var style := StyleBoxFlat.new()
+		style.bg_color = bg_color
+		style.corner_radius_top_left = 3
+		style.corner_radius_top_right = 3
+		style.corner_radius_bottom_left = 3
+		style.corner_radius_bottom_right = 3
+		style.set_content_margin_all(2)
+		panel.add_theme_stylebox_override("panel", style)
+		panel.custom_minimum_size = Vector2(20, 20)
+		panel.tooltip_text = "%s (%d stacks)" % [short_name, gem_effect.duration_turns]
+
+		var count_label := Label.new()
+		count_label.text = str(gem_effect.duration_turns)
+		count_label.add_theme_font_size_override("font_size", 10)
+		count_label.add_theme_color_override("font_color", Color.WHITE)
+		count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		count_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		panel.add_child(count_label)
+		_status_icons.add_child(panel)
+
+
+func _gem_status_color(effect_type: int) -> Color:
+	match effect_type:
+		Enums.StatusEffectType.BURN:     return Color(0.90, 0.20, 0.10)
+		Enums.StatusEffectType.POISONED: return Color(0.15, 0.72, 0.20)
+		Enums.StatusEffectType.CHILLED:  return Color(0.20, 0.55, 1.00)
+		Enums.StatusEffectType.SHOCKED:  return Color(1.00, 0.85, 0.10)
+	return Color(0.5, 0.5, 0.5)
+
+
+func _gem_status_name(effect_type: int) -> String:
+	match effect_type:
+		Enums.StatusEffectType.BURN:     return "Burn"
+		Enums.StatusEffectType.POISONED: return "Poison"
+		Enums.StatusEffectType.CHILLED:  return "Chill"
+		Enums.StatusEffectType.SHOCKED:  return "Shock"
+	return "?"

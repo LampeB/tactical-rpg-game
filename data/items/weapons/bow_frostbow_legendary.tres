@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_rare.png" id="1_eie4u"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="2_enhjp"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_yl72l"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="4_1yusg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_dkjok"]
+
+[sub_resource type="Resource" id="Resource_mtmqn"]
+script = ExtResource("5_dkjok")
+stat = 6
+value = 14.0
+
+[resource]
+script = ExtResource("3_yl72l")
+id = "bow_frostbow_legendary"
+display_name = "Legendary Frostbow"
+description = "A bow threaded with frozen sinew. Every arrow carries a chill. Critical shots freeze even deeper."
+icon = ExtResource("1_eie4u")
+category = 2
+rarity = 4
+hand_slots_required = 2
+shape = ExtResource("4_1yusg")
+stat_modifiers = [SubResource("Resource_mtmqn")]
+base_power = 11
+innate_status_effect = ExtResource("2_enhjp")
+innate_status_effect_chance = 0.35
+base_price = 529

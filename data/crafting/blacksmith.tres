@@ -92,7 +92,7 @@ id = "frostbow"
 display_name = "Frostbow"
 description = "A bow strung with ice-enchanted thread. Arrows chill on impact."
 ingredients = [SubResource("ingr_bow_uncommon"), SubResource("ingr_ice_gem")]
-result_item_id = "bow_rare"
+result_item_id = "bow_frostbow"
 gold_cost = 200
 unlock_flag = ""
 
@@ -138,7 +138,7 @@ id = "venom_dagger"
 display_name = "Venom Dagger"
 description = "A blade coated in concentrated poison. A small cut is all it takes."
 ingredients = [SubResource("ingr_dagger_common"), SubResource("ingr_poison_gem")]
-result_item_id = "dagger_uncommon"
+result_item_id = "dagger_snake_fang"
 gold_cost = 120
 unlock_flag = ""
 
