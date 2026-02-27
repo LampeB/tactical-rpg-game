@@ -202,12 +202,16 @@ func set_current_mp(character_id: String, value: int, tree: PassiveTreeData = nu
 
 
 ## Heal a character (add HP and/or MP, clamped to max).
+## Does nothing if the character is dead (0 HP) — use set_current_hp() directly to revive.
 ## Requires PassiveTreeData for max HP/MP calculation.
 func heal_character(character_id: String, hp_amount: int, mp_amount: int, tree: PassiveTreeData = null) -> void:
 	if not character_vitals.has(character_id):
 		initialize_vitals(character_id, tree)
 
 	var current_hp: int = get_current_hp(character_id)
+	if current_hp <= 0:
+		return
+
 	var current_mp: int = get_current_mp(character_id)
 
 	set_current_hp(character_id, current_hp + hp_amount, tree)
