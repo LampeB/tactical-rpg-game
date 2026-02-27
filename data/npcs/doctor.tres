@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/human1.png" id="4"]
+
+[sub_resource type="Resource" id="choice_heal"]
+script = ExtResource("3")
+text = "Heal my party (Free)"
+action = "heal_party"
+
+[sub_resource type="Resource" id="choice_resurrect"]
+script = ExtResource("3")
+text = "Resurrect a fallen ally (1 Gold each)"
+action = "resurrect_party"
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Farewell."
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Welcome, traveler. I am Doctor Maris — healer of wounds and mender of broken spirits.", "I can tend to your party's injuries free of charge, or bring back those who have fallen... for a modest fee."]
+choices = [SubResource("choice_heal"), SubResource("choice_resurrect"), SubResource("choice_bye")]
+
+[resource]
+script = ExtResource("1")
+id = "doctor"
+display_name = "Doctor Maris"
+sprite = ExtResource("4")
+conversations = [SubResource("conv_greeting")]

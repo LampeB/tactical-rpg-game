@@ -233,7 +233,8 @@ func get_max_hp(character_id: String, tree: PassiveTreeData = null) -> int:
 
 	# Equipment bonuses
 	if inv:
-		var equip_stats: Dictionary = inv.get_computed_stats()
+		var computed: Dictionary = inv.get_computed_stats()
+		var equip_stats: Dictionary = computed.get("stats", {})
 		hp_flat += equip_stats.get(Enums.Stat.MAX_HP, 0.0)
 
 	# Passive bonuses
@@ -322,7 +323,8 @@ func get_max_mp(character_id: String, tree: PassiveTreeData = null) -> int:
 
 	# Equipment bonuses
 	if inv:
-		var equip_stats: Dictionary = inv.get_computed_stats()
+		var computed: Dictionary = inv.get_computed_stats()
+		var equip_stats: Dictionary = computed.get("stats", {})
 		mp_flat += equip_stats.get(Enums.Stat.MAX_MP, 0.0)
 
 	# Passive bonuses

@@ -52,9 +52,6 @@ func try_enter() -> void:
 
 	# Handle special location types
 	match location_data.location_type:
-		LocationData.LocationType.LAKE:
-			_interact_lake()
-			return
 		LocationData.LocationType.CAVE:
 			_interact_cave()
 			return
@@ -83,31 +80,6 @@ func _on_mouse_exited() -> void:
 
 
 # === Special Interactions (Development/Testing) ===
-
-func _interact_lake() -> void:
-	## Heals all party members' HP and mana to full.
-	if not GameManager.party:
-		DebugLogger.log_warning("No party to heal", "LocationMarker")
-		return
-
-	var healed_count := 0
-
-	# Heal all characters in roster (roster is Dictionary: character_id -> CharacterData)
-	for char_id in GameManager.party.roster.keys():
-		# Get passive tree for max HP/MP calculation
-		var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
-
-		# Get max values and set current to max
-		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
-		var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
-
-		GameManager.party.set_current_hp(char_id, max_hp, tree)
-		GameManager.party.set_current_mp(char_id, max_mp, tree)
-		healed_count += 1
-
-	DebugLogger.log_info("Lake healed %d characters to full HP/MP" % healed_count, "LocationMarker")
-	EventBus.show_message.emit("The lake's waters restore your party to full health!")
-	SaveManager.auto_save()
 
 
 func _interact_cave() -> void:

@@ -608,6 +608,9 @@ func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 
 func _input(event: InputEvent) -> void:
 	if _drag_state != DragState.DRAGGING:
+		if event.is_action_pressed("escape"):
+			_on_close()
+			get_viewport().set_input_as_handled()
 		return
 
 	# Rotate

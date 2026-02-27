@@ -34,6 +34,11 @@ var _drag_source_pos: Vector2i = Vector2i.ZERO
 var _drag_source_loot_index: int = -1
 var _drag_rotation: int = 0
 
+# Consumable use state
+var _target_selection_popup: PopupPanel = null
+var _pending_consumable: ItemData = null
+var _pending_consumable_index: int = -1
+
 
 func _ready() -> void:
 	_bg.color = UIColors.BG_LOOT
@@ -54,6 +59,7 @@ func _ready() -> void:
 	_loot_pool.item_hovered.connect(_on_loot_item_hovered)
 	_loot_pool.item_exited.connect(_on_item_hover_exited)
 	_loot_pool.background_clicked.connect(_on_loot_background_clicked)
+	_loot_pool.item_use_requested.connect(_on_loot_item_use_requested)
 
 	# Wire grid panel signals
 	_grid_panel.cell_clicked.connect(_on_grid_cell_clicked)
@@ -126,6 +132,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 		return
+
+	# Idle state — ESC exits the loot screen (with validation)
+	if event.is_action_pressed("escape"):
+		_on_continue()
+		get_viewport().set_input_as_handled()
 
 
 func _process(_delta: float) -> void:
@@ -543,3 +554,115 @@ func _on_continue() -> void:
 		SceneManager.pop_scene({"from_battle": true})
 	else:
 		SceneManager.pop_scene()
+
+
+# === Consumable Use (target selection popup) ===
+
+func _on_loot_item_use_requested(item: ItemData, index: int) -> void:
+	if not item.use_skill:
+		return
+	_pending_consumable = item
+	_pending_consumable_index = index
+	_show_target_selection_popup()
+
+
+func _show_target_selection_popup() -> void:
+	if not _target_selection_popup:
+		_target_selection_popup = PopupPanel.new()
+		add_child(_target_selection_popup)
+		_target_selection_popup.popup_hide.connect(_on_target_popup_hidden)
+
+	for child in _target_selection_popup.get_children():
+		child.queue_free()
+
+	var vbox: VBoxContainer = VBoxContainer.new()
+	_target_selection_popup.add_child(vbox)
+
+	var title: Label = Label.new()
+	title.text = "Select Target"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+
+	vbox.add_child(HSeparator.new())
+
+	if not GameManager.party:
+		return
+
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
+	var roster_ids: Array = GameManager.party.roster.keys()
+	for i in range(roster_ids.size()):
+		var char_id: String = roster_ids[i]
+		var char_data: CharacterData = GameManager.party.roster[char_id]
+		if not char_data:
+			continue
+
+		var current_hp: int = GameManager.party.get_current_hp(char_id)
+		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
+		var current_mp: int = GameManager.party.get_current_mp(char_id)
+		var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
+
+		var btn: Button = Button.new()
+		btn.custom_minimum_size = Vector2(250, 40)
+		btn.text = "%s (HP: %d/%d, MP: %d/%d)" % [char_data.display_name, current_hp, max_hp, current_mp, max_mp]
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		if current_hp <= 0:
+			btn.disabled = true
+			btn.text += " [DEAD]"
+		btn.pressed.connect(_on_target_selected.bind(char_id))
+		vbox.add_child(btn)
+
+	var cancel_btn: Button = Button.new()
+	cancel_btn.text = "Cancel"
+	cancel_btn.pressed.connect(_target_selection_popup.hide)
+	vbox.add_child(cancel_btn)
+
+	_target_selection_popup.popup_centered()
+
+
+func _on_target_selected(character_id: String) -> void:
+	var item: ItemData = _pending_consumable
+	var index: int = _pending_consumable_index
+
+	_target_selection_popup.hide()
+
+	if not item or not item.use_skill:
+		return
+
+	if not GameManager.party:
+		return
+
+	var skill: SkillData = item.use_skill
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
+	var target_max_hp: int = GameManager.party.get_max_hp(character_id, tree)
+
+	var heal: int = DamageCalculator.calculate_healing(
+		skill.heal_amount,
+		skill.heal_percent,
+		target_max_hp
+	)
+
+	GameManager.party.heal_character(character_id, heal, 0, tree)
+
+	# Remove consumed item from loot pool
+	if index >= 0 and index < _loot_items.size():
+		_loot_items.remove_at(index)
+
+		# Update tracking indices
+		_inventory_item_indices.erase(index)
+		var keys_to_update: Array = []
+		for idx in _inventory_item_indices.keys():
+			if idx > index:
+				keys_to_update.append(idx)
+		for idx in keys_to_update:
+			_inventory_item_indices[idx - 1] = true
+			_inventory_item_indices.erase(idx)
+
+		_refresh_loot_pool()
+		_update_loot_count()
+
+	DebugLogger.log_info("Used %s on %s, healed %d HP" % [item.display_name, character_id, heal], "Loot")
+
+
+func _on_target_popup_hidden() -> void:
+	_pending_consumable = null
+	_pending_consumable_index = -1
