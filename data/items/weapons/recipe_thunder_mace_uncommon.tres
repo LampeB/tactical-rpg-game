@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_5n3p1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_k7tfc"]
+
+[resource]
+script = ExtResource("1_5n3p1")
+id = "recipe_thunder_mace_uncommon"
+display_name = "Fine Blueprint: Thunder Mace"
+description = "Plans for a mace that channels lightning. Bring this to a blacksmith."
+item_type = 5
+rarity = 1
+shape = ExtResource("2_k7tfc")
+base_price = 125

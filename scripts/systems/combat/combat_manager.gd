@@ -22,6 +22,7 @@ var current_entity: CombatEntity = null
 var is_combat_active: bool = false
 var round_number: int = 0
 var gold_earned: int = 0  ## Set on victory for the scene to read
+var player_fled: bool = false  ## True when the player chose to flee (not a defeat)
 
 
 func start_combat(
@@ -381,6 +382,7 @@ func execute_flee() -> bool:
 		return false
 	log_message.emit("Fled from battle!", Color(0.8, 0.8, 0.8))
 	is_combat_active = false
+	player_fled = true
 	combat_finished.emit(false)
 	return true
 

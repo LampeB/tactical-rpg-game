@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_un6bq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_vfihc"]
+
+[resource]
+script = ExtResource("1_un6bq")
+id = "recipe_vampiric_axe_uncommon"
+display_name = "Fine Blueprint: Vampiric Axe"
+description = "Rare schematics for an axe that drains life from foes. Bring this to a blacksmith."
+item_type = 5
+rarity = 1
+shape = ExtResource("2_vfihc")
+base_price = 234

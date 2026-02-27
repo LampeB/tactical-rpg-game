@@ -17,7 +17,6 @@ enum DragSource { NONE, PLAYER_GRID, STASH, CRAFT_SLOT, CRAFT_OUTPUT }
 const RESULT_SZ := 50   ## Canvas size for the shape+icon display in the result info row
 
 @onready var _title_label: Label          = $VBox/TopBar/TitleLabel
-@onready var _gold_label: Label           = $VBox/TopBar/GoldLabel
 @onready var _close_btn: Button           = $VBox/BottomBar/CloseButton
 @onready var _icon_list: VBoxContainer    = $VBox/Content/LeftHalf/IconScroll/IconList
 @onready var _craft_detail: VBoxContainer = $VBox/Content/LeftHalf/CraftScroll/CraftDetail
@@ -32,6 +31,10 @@ var _selected_recipe: CraftingRecipeData  = null
 
 ## Ingredient slots for the selected recipe
 var _slot_nodes: Array[CraftingSlot] = []
+
+## Tracks where each slot item came from so it can be returned on recipe change or close.
+## Key = slot_index (int). Value = {source: DragSource, char_id, pos, rot} or {source: STASH}
+var _slot_origins: Dictionary = {}
 
 ## Crafted item waiting to be dragged to inventory
 var _output_item: ItemData  = null
@@ -77,8 +80,6 @@ func _ready() -> void:
 	_drag_preview.visible = false
 	_item_tooltip.visible = false
 
-	EventBus.gold_changed.connect(_update_gold_label)
-	_update_gold_label(GameManager.gold)
 
 
 func receive_data(data: Dictionary) -> void:
@@ -260,22 +261,11 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	if not recipe:
 		return
 
-	# Return any items currently assigned to slots back to the stash
-	for slot in _slot_nodes:
-		if slot.assigned_item:
-			GameManager.party.add_to_stash(slot.assigned_item)
-	if not _slot_nodes.is_empty():
-		EventBus.stash_changed.emit()
-		_refresh_stash()
-
-	# Return output item (crafted but not yet picked up) to the stash
-	if _output_item:
-		GameManager.party.add_to_stash(_output_item)
-		EventBus.stash_changed.emit()
-		_refresh_stash()
+	_return_all_slot_items()
 
 	_selected_recipe = recipe
 	_slot_nodes.clear()
+	_slot_origins.clear()
 	_output_item = null
 	_output_zone = null
 	_clear_craft_detail()
@@ -308,6 +298,8 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 			var slot := CraftingSlot.new()
 			slot.setup(slot_idx, ingredient)
 			slot.clicked.connect(_on_slot_clicked)
+			slot.mouse_entered.connect(_on_slot_mouse_entered.bind(slot_idx))
+			slot.mouse_exited.connect(func() -> void: _item_tooltip.hide_tooltip())
 			slots_hbox.add_child(slot)
 			_slot_nodes.append(slot)
 			slot_idx += 1
@@ -331,14 +323,6 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	var bottom_row := HBoxContainer.new()
 	bottom_row.add_theme_constant_override("separation", 12)
 	_craft_detail.add_child(bottom_row)
-
-	if recipe.gold_cost > 0:
-		var cost_lbl := Label.new()
-		cost_lbl.text = "Cost: %dg" % recipe.gold_cost
-		cost_lbl.add_theme_font_size_override("font_size", 15)
-		cost_lbl.add_theme_color_override("font_color",
-			Color(1.0, 0.84, 0.0) if GameManager.gold >= recipe.gold_cost else Color(1.0, 0.3, 0.3))
-		bottom_row.add_child(cost_lbl)
 
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -532,6 +516,14 @@ func _on_slot_clicked(slot_idx: int) -> void:
 		return
 	_drag_source_slot_index = slot_idx
 	_start_drag_from_slot(slot_idx)
+
+
+func _on_slot_mouse_entered(slot_idx: int) -> void:
+	if _drag_state != DragState.IDLE:
+		return
+	var slot := _slot_nodes[slot_idx]
+	if slot.assigned_item:
+		_item_tooltip.show_for_item(slot.assigned_item, null, null, get_global_mouse_position())
 
 
 func _highlight_valid_slots(item: ItemData) -> void:
@@ -736,11 +728,29 @@ func _complete_drop_on_slot(slot_idx: int) -> void:
 		_cancel_drag()
 		return
 
-	# Return previously assigned item to stash
+	# Return previously assigned item to its origin before overwriting
 	if slot.assigned_item:
-		GameManager.party.add_to_stash(slot.assigned_item)
-		EventBus.stash_changed.emit()
-		_refresh_stash()
+		_return_slot_item_to_origin(slot_idx, slot.assigned_item)
+
+	# Record where this incoming item came from
+	match _drag_source:
+		DragSource.PLAYER_GRID:
+			_slot_origins[slot_idx] = {
+				"source": DragSource.PLAYER_GRID,
+				"char_id": _current_character_id,
+				"pos": _drag_source_player_pos,
+				"rot": _drag_source_player_rot
+			}
+		DragSource.CRAFT_SLOT:
+			# Carry over the origin from the source slot
+			if _slot_origins.has(_drag_source_slot_index):
+				_slot_origins[slot_idx] = _slot_origins[_drag_source_slot_index].duplicate()
+				if slot_idx != _drag_source_slot_index:
+					_slot_origins.erase(_drag_source_slot_index)
+			else:
+				_slot_origins[slot_idx] = {"source": DragSource.STASH}
+		_:
+			_slot_origins[slot_idx] = {"source": DragSource.STASH}
 
 	slot.assign(_dragged_item)
 	_end_drag()
@@ -834,8 +844,7 @@ func _end_drag() -> void:
 func _update_craft_button() -> void:
 	var btn := _craft_detail.find_child("CraftButton", true, false) as Button
 	if btn:
-		btn.disabled = not _all_slots_filled() or \
-			(_selected_recipe != null and GameManager.gold < _selected_recipe.gold_cost)
+		btn.disabled = not _all_slots_filled()
 
 
 func _all_slots_filled() -> bool:
@@ -854,10 +863,7 @@ func _all_slots_filled() -> bool:
 func _on_craft_pressed() -> void:
 	if not _selected_recipe or not _all_slots_filled():
 		return
-	if GameManager.gold < _selected_recipe.gold_cost:
-		return
 
-	GameManager.spend_gold(_selected_recipe.gold_cost)
 	_consume_ingredients_from_slots()
 
 	var result_item := ItemDatabase.get_item(_selected_recipe.result_item_id)
@@ -916,8 +922,6 @@ func _item_matches(item: ItemData, ingredient: CraftingIngredient) -> bool:
 
 
 func _can_craft(recipe: CraftingRecipeData) -> bool:
-	if GameManager.gold < recipe.gold_cost:
-		return false
 	var pool: Array[ItemData] = []
 	for item in GameManager.party.stash:
 		pool.append(item)
@@ -943,16 +947,49 @@ func _can_craft(recipe: CraftingRecipeData) -> bool:
 #  UI Helpers
 # ════════════════════════════════════════════════════════════════════════════
 
+## Returns all items currently in slots (and uncollected output) to their origins.
+func _return_all_slot_items() -> void:
+	for i in range(_slot_nodes.size()):
+		var slot := _slot_nodes[i]
+		if slot.assigned_item:
+			_return_slot_item_to_origin(i, slot.assigned_item)
+	if _output_item:
+		GameManager.party.add_to_stash(_output_item)
+		EventBus.stash_changed.emit()
+		_refresh_stash()
+		_output_item = null
+
+
+## Returns a single slot item to where it originally came from.
+## Falls back to stash if the original grid position is now occupied.
+func _return_slot_item_to_origin(slot_idx: int, item: ItemData) -> void:
+	var returned := false
+	if _slot_origins.has(slot_idx):
+		var origin: Dictionary = _slot_origins[slot_idx]
+		if origin.get("source") == DragSource.PLAYER_GRID:
+			var char_id: String = origin.get("char_id", "")
+			var pos: Vector2i = origin.get("pos", Vector2i.ZERO)
+			var rot: int = origin.get("rot", 0)
+			var inv: GridInventory = _player_grid_inventories.get(char_id)
+			if inv and inv.can_place(item, pos, rot):
+				inv.place_item(item, pos, rot)
+				EventBus.inventory_changed.emit(char_id)
+				_player_grid_panel.refresh()
+				returned = true
+		_slot_origins.erase(slot_idx)
+	if not returned:
+		GameManager.party.add_to_stash(item)
+		EventBus.stash_changed.emit()
+		_refresh_stash()
+
+
 func _refresh_stash() -> void:
 	if GameManager.party:
 		_stash_panel.refresh(GameManager.party.stash)
 
 
-func _update_gold_label(gold: int) -> void:
-	_gold_label.text = "%d g" % gold
-
-
 func _on_close() -> void:
 	if _drag_state == DragState.DRAGGING:
 		_cancel_drag()
+	_return_all_slot_items()
 	SceneManager.pop_scene()

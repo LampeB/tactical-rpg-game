@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_71uyd"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_culig"]
+
+[resource]
+script = ExtResource("1_71uyd")
+id = "recipe_frostbow_rare"
+display_name = "Superior Blueprint: Frostbow"
+description = "Instructions for a bow enchanted with ice magic. Bring this to a blacksmith."
+item_type = 5
+rarity = 2
+shape = ExtResource("2_culig")
+base_price = 163

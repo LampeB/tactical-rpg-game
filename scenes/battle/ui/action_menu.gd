@@ -44,8 +44,6 @@ var _flee_dialog: ConfirmationDialog = null
 
 func _ready() -> void:
 	_attack_btn.pressed.connect(_on_attack)
-	_attack_btn.mouse_entered.connect(_on_attack_hovered)
-	_attack_btn.mouse_exited.connect(_on_attack_unhovered)
 	_defend_btn.pressed.connect(_on_defend)
 	_skills_btn.pressed.connect(_on_skills_open)
 	_items_btn.pressed.connect(_on_items_open)
@@ -56,7 +54,10 @@ func _ready() -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
+	# AttackDetails stays visible=true so it always reserves layout space;
+	# use modulate to show/hide it without causing size shifts.
+	_attack_details.visible = true
+	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 
@@ -86,12 +87,17 @@ func _cap_panel_heights() -> void:
 
 func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 	_current_entity = entity
+	_attack_btn.disabled = false
+	_defend_btn.disabled = false
+	_skills_btn.disabled = false
+	_items_btn.disabled = false
+	_flee_btn.disabled = false
 	_main_buttons.visible = true
 	_skill_list_scroll.visible = false
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 	_flee_btn.disabled = not can_flee
@@ -122,9 +128,27 @@ func hide_menu() -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
+
+
+func show_disabled() -> void:
+	## Show menu with all buttons greyed out — used during enemy turns and animations.
+	_skill_list_scroll.visible = false
+	_item_list_scroll.visible = false
+	_skill_details.visible = false
+	_item_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
+	_target_prompt.visible = false
+	_confirm_bar.visible = false
+	_main_buttons.visible = true
+	_attack_btn.disabled = true
+	_defend_btn.disabled = true
+	_skills_btn.disabled = true
+	_items_btn.disabled = true
+	_flee_btn.disabled = true
+	visible = true
 
 
 # === Main Actions ===
@@ -134,9 +158,9 @@ func _on_attack() -> void:
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
 	_confirm_bar.visible = false
-	_target_prompt.visible = true
+	_build_attack_details()
+	_attack_details.modulate = Color.WHITE
 	action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 
 
@@ -160,7 +184,7 @@ func _on_skills_open() -> void:
 	else:
 		_item_list_scroll.visible = false
 		_item_details.visible = false
-		_attack_details.visible = false
+		_attack_details.modulate = Color.TRANSPARENT
 		_target_prompt.visible = false
 		_confirm_bar.visible = false
 		_skill_list_scroll.visible = true
@@ -175,7 +199,7 @@ func _on_items_open() -> void:
 	else:
 		_skill_list_scroll.visible = false
 		_skill_details.visible = false
-		_attack_details.visible = false
+		_attack_details.modulate = Color.TRANSPARENT
 		_target_prompt.visible = false
 		_confirm_bar.visible = false
 		_item_list_scroll.visible = true
@@ -207,7 +231,7 @@ func _show_confirm(text: String, action: int, skill: SkillData, target_type: int
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 	_confirm_bar.visible = true
 
@@ -228,7 +252,7 @@ func _on_cancel() -> void:
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
 	_item_details.visible = false
-	_attack_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 
 
@@ -350,16 +374,7 @@ func _on_item_unhovered() -> void:
 	_item_details.visible = false
 
 
-# === Attack Details (hover) ===
-
-func _on_attack_hovered() -> void:
-	_build_attack_details()
-	_attack_details.visible = true
-
-
-func _on_attack_unhovered() -> void:
-	_attack_details.visible = false
-
+# === Attack Details ===
 
 func _build_attack_details() -> void:
 	if not _current_entity:

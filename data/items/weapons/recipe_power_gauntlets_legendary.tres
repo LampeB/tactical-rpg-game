@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_p6tew"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_qvry0"]
+
+[resource]
+script = ExtResource("1_p6tew")
+id = "recipe_power_gauntlets_legendary"
+display_name = "Legendary Blueprint: Power Gauntlets"
+description = "Forging plans for gauntlets that amplify striking force. Bring this to a blacksmith."
+item_type = 5
+rarity = 4
+shape = ExtResource("2_qvry0")
+base_price = 288

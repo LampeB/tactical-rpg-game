@@ -37,15 +37,8 @@ layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="VBox/TopBar"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "Forge"
-
-[node name="GoldLabel" type="Label" parent="VBox/TopBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(1, 0.84, 0, 1)
-text = "0 g"
 
 [node name="Content" type="HBoxContainer" parent="VBox"]
 layout_mode = 2

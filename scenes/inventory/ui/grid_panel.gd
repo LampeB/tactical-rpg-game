@@ -12,6 +12,7 @@ var _grid_inventory: GridInventory
 var _cells: Dictionary = {}  ## Vector2i -> GridCell node
 var _item_visuals: Dictionary = {}  ## PlacedItem -> TextureRect
 var _star_overlays: Array = []  ## Star labels for modifier connections
+var _hover_reach_cells: Array[Vector2i] = []  ## Cells temporarily set to MODIFIER_REACH on hover
 var _last_hovered_cell: Vector2i = Vector2i(-1, -1)
 var _last_purchasable_cell: Vector2i = Vector2i(-1, -1)  ## Tracks highlighted buyable cell.
 
@@ -111,6 +112,7 @@ func clear_placement_preview() -> void:
 
 func highlight_modifier_connections(placed: GridInventory.PlacedItem) -> void:
 	_clear_star_overlays()
+	_clear_hover_reach_cells()
 	if not _grid_inventory or not placed:
 		return
 	if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
@@ -123,7 +125,15 @@ func highlight_modifier_connections(placed: GridInventory.PlacedItem) -> void:
 			if best != Vector2i(-999, -999):
 				_add_star_at_cell(best)
 	elif placed.item_data.item_type == Enums.ItemType.MODIFIER:
-		# Hovering a gem: one star per weapon, on the weapon cell reached by this gem
+		# Hovering a gem: show rotated reach cells + one star per weapon connected
+		var placed_cells: Array[Vector2i] = placed.get_occupied_cells()
+		var reach_pattern: Array[Vector2i] = placed.item_data.get_reach_cells(placed.rotation)
+		for mc in placed_cells:
+			for offset in reach_pattern:
+				var target: Vector2i = mc + offset
+				if _cells.has(target) and not placed_cells.has(target):
+					_cells[target].set_state(_cells[target].CellState.MODIFIER_REACH)
+					_hover_reach_cells.append(target)
 		var tools: Array = _grid_inventory.get_tools_affected_by(placed)
 		for j in range(tools.size()):
 			var tool_item: GridInventory.PlacedItem = tools[j]
@@ -135,6 +145,23 @@ func highlight_modifier_connections(placed: GridInventory.PlacedItem) -> void:
 
 func clear_highlights() -> void:
 	_clear_star_overlays()
+	_clear_hover_reach_cells()
+
+
+func _clear_hover_reach_cells() -> void:
+	for cell_pos in _hover_reach_cells:
+		if _cells.has(cell_pos) and _grid_inventory:
+			var cell_node: Control = _cells[cell_pos]
+			if not _grid_inventory.grid_template.is_cell_active(cell_pos):
+				cell_node.set_state(cell_node.CellState.INACTIVE)
+			elif _grid_inventory.get_item_at(cell_pos) != null:
+				var item_there: GridInventory.PlacedItem = _grid_inventory.get_item_at(cell_pos)
+				var rarity_color: Color = Constants.RARITY_COLORS.get(item_there.item_data.rarity, Color.WHITE)
+				cell_node.set_state(cell_node.CellState.OCCUPIED)
+				cell_node.set_rarity_tint(rarity_color)
+			else:
+				cell_node.set_state(cell_node.CellState.EMPTY)
+	_hover_reach_cells.clear()
 
 
 func _pick_best_reaching_cell(modifier: GridInventory.PlacedItem, target_cells: Array[Vector2i]) -> Vector2i:

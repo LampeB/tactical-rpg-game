@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_qkcry"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_m7ic0"]
+
+[resource]
+script = ExtResource("1_qkcry")
+id = "recipe_arcane_staff_unique"
+display_name = "Mythic Blueprint: Arcane Staff"
+description = "Instructions for channeling mystic energies through a staff. Bring this to a blacksmith."
+item_type = 5
+rarity = 5
+shape = ExtResource("2_m7ic0")
+base_price = 432
