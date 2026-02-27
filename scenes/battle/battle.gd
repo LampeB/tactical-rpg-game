@@ -827,10 +827,7 @@ func _save_player_vitals(victory: bool = false) -> void:
 		if entity.character_data:
 			var char_id: String = entity.character_data.id
 			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
-			# On victory, revive KO'd characters at 1 HP so they're ready for the next fight
 			var saved_hp: int = entity.current_hp
-			if victory and entity.is_dead:
-				saved_hp = 1
 			GameManager.party.set_current_hp(char_id, saved_hp, tree)
 			GameManager.party.set_current_mp(char_id, entity.current_mp, tree)
 			DebugLogger.log_info("Saved vitals for %s: HP %d/%d, MP %d/%d%s" % [
@@ -839,7 +836,7 @@ func _save_player_vitals(victory: bool = false) -> void:
 				entity.max_hp,
 				entity.current_mp,
 				entity.max_mp,
-				" (revived)" if victory and entity.is_dead else "",
+				" (DEAD)" if entity.is_dead else "",
 			], "Battle")
 
 
