@@ -16,6 +16,8 @@ const BASE_CRITICAL_DAMAGE := 1.5   ## 150% crit damage multiplier
 const MAX_CRITICAL_RATE := 0.95     ## 95% cap (always 5% chance to not crit)
 const LUCK_CRIT_SCALING := 0.001   ## Each luck point = +0.1% crit rate
 const DEFEND_DAMAGE_REDUCTION := 0.5 ## 50% damage reduction when defending
+const TURN_TIME_BASE := 100.0       ## ATB turn time divisor (time_increment = BASE / speed)
+const ENEMY_SKILL_CHANCE := 0.6     ## 60% chance for enemy AI to use a skill vs basic attack
 
 # === TIER SCALING ===
 const TIER_BASE_POWER := [5, 8, 13, 21, 35, 50]

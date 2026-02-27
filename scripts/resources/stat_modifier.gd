@@ -26,9 +26,8 @@ static func get_stat_display_name(s: Enums.Stat) -> String:
 
 func get_description() -> String:
 	var stat_name: String = StatModifier.get_stat_display_name(stat)
+	var prefix := "+" if value >= 0 else ""
 	if modifier_type == Enums.ModifierType.FLAT:
-		var sign := "+" if value >= 0 else ""
-		return "%s%d %s" % [sign, int(value), stat_name]
+		return "%s%d %s" % [prefix, int(value), stat_name]
 	else:
-		var sign := "+" if value >= 0 else ""
-		return "%s%d%% %s" % [sign, int(value), stat_name]
+		return "%s%d%% %s" % [prefix, int(value), stat_name]

@@ -3,7 +3,6 @@ extends "res://scenes/passive_tree/ui/tree_view.gd"
 ## to add node dragging, creation, deletion, and visual connection editing.
 
 signal node_created(position: Vector2)
-signal node_deleted(node_id: String)
 signal node_moved(node_id: String, new_position: Vector2)
 signal connection_toggled(from_id: String, to_id: String)
 

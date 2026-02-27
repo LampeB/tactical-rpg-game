@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_tswpw"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_fcfvq"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/staff_uncommon.png" id="4"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="5_fbolt"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6_ishard"]
 
-[sub_resource type="Resource" id="Resource_kkp08"]
+[sub_resource type="Resource" id="Resource_34h3s"]
 script = ExtResource("2")
 stat = 6
 value = 7.0
@@ -22,7 +24,7 @@ category = 3
 rarity = 1
 hand_slots_required = 2
 shape = ExtResource("3")
-stat_modifiers = [SubResource("Resource_kkp08")]
+stat_modifiers = Array[ExtResource("2")]([SubResource("Resource_34h3s")])
 magical_power = 5
-granted_skills = [ExtResource("5_fbolt"), ExtResource("6_ishard")]
+granted_skills = Array[ExtResource("2_fcfvq")]([ExtResource("5_fbolt"), ExtResource("6_ishard")])
 base_price = 80

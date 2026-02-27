@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/items/bow_rare.png" id="1_eie4u"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_yl72l"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_1yusg"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="2_enhjp"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_yl72l"]
 [ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="4_1yusg"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_dkjok"]
 
-[sub_resource type="Resource" id="Resource_mtmqn"]
+[sub_resource type="Resource" id="Resource_dkjok"]
 script = ExtResource("5_dkjok")
 stat = 6
 value = 14.0
@@ -21,7 +23,7 @@ category = 2
 rarity = 4
 hand_slots_required = 2
 shape = ExtResource("4_1yusg")
-stat_modifiers = [SubResource("Resource_mtmqn")]
+stat_modifiers = Array[ExtResource("5_dkjok")]([SubResource("Resource_dkjok")])
 base_power = 11
 innate_status_effect = ExtResource("2_enhjp")
 innate_status_effect_chance = 0.35

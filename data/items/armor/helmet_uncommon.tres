@@ -1,16 +1,18 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="1_3crhy"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_egep8"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_bvx7c"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_d437c"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_egep8"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_bvx7c"]
 
-[sub_resource type="Resource" id="Resource_3crhy"]
+[sub_resource type="Resource" id="Resource_mnpgm"]
 script = ExtResource("4_bvx7c")
 stat = 5
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_d437c"]
+[sub_resource type="Resource" id="Resource_kga8c"]
 script = ExtResource("4_bvx7c")
 stat = 7
 value = 3.0
@@ -25,5 +27,5 @@ item_type = 1
 category = 7
 rarity = 1
 shape = ExtResource("3_egep8")
-stat_modifiers = [SubResource("Resource_3crhy"), SubResource("Resource_d437c")]
+stat_modifiers = Array[ExtResource("4_bvx7c")]([SubResource("Resource_mnpgm"), SubResource("Resource_kga8c")])
 base_price = 62

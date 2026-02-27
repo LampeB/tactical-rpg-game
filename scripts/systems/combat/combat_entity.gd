@@ -12,8 +12,8 @@ var grid_inventory: GridInventory  ## Equipment bonuses (player only)
 var tool_modifier_states: Dictionary = {}  ## PlacedItem -> ToolModifierState (cached)
 
 # Passive skill tree bonuses (player only)
-var passive_stat_modifiers: Array = []  ## of StatModifier
-var passive_special_effects: Array = [] ## of String (effect IDs)
+var passive_stat_modifiers: Array[StatModifier] = []
+var passive_special_effects: Array[String] = []
 
 # Runtime combat state
 var current_hp: int = 0
@@ -28,7 +28,7 @@ var is_dead: bool = false
 var status_effects: Array = []
 
 # Gem-based status effects: Array of StatusEffect (Burn, Poisoned, Chilled, Shocked)
-var active_gem_status_effects: Array = []  ## of StatusEffect
+var active_gem_status_effects: Array[StatusEffect] = []
 
 # Skill cooldowns: skill_id -> turns remaining
 var cooldowns: Dictionary = {}
@@ -51,8 +51,8 @@ static func from_character(
 	entity.grid_inventory = inv
 
 	# Store passive bonuses
-	entity.passive_stat_modifiers = passive_bonuses.get("stat_modifiers", [])
-	entity.passive_special_effects = passive_bonuses.get("special_effects", [])
+	entity.passive_stat_modifiers.assign(passive_bonuses.get("stat_modifiers", []))
+	entity.passive_special_effects.assign(passive_bonuses.get("special_effects", []))
 
 	# Get equipment stats and tool modifier states
 	var computed: Dictionary = inv.get_computed_stats() if inv else {"stats": {}, "tool_states": {}}
@@ -132,25 +132,25 @@ func get_effective_stat(stat: Enums.Stat) -> float:
 			base *= (1.0 + pct_bonus / 100.0)
 
 	# Status effect modifiers
-	for effect in status_effects:
-		var data: StatusEffectData = effect.data
-		for mod in data.stat_modifiers:
-			if mod is StatModifier and mod.stat == stat:
-				if mod.modifier_type == Enums.ModifierType.FLAT:
-					base += mod.value * effect.stacks
-				elif mod.modifier_type == Enums.ModifierType.PERCENT:
-					base *= (1.0 + mod.value / 100.0 * effect.stacks)
+	for se in status_effects:
+		var se_data: StatusEffectData = se.data
+		for se_mod in se_data.stat_modifiers:
+			if se_mod is StatModifier and se_mod.stat == stat:
+				if se_mod.modifier_type == Enums.ModifierType.FLAT:
+					base += se_mod.value * se.stacks
+				elif se_mod.modifier_type == Enums.ModifierType.PERCENT:
+					base *= (1.0 + se_mod.value / 100.0 * se.stacks)
 
 	# Speed multiplier from status effects
 	if stat == Enums.Stat.SPEED:
-		for effect in status_effects:
-			var data: StatusEffectData = effect.data
-			if data.speed_multiplier != 1.0:
-				base *= data.speed_multiplier
+		for spd_effect in status_effects:
+			var spd_data: StatusEffectData = spd_effect.data
+			if spd_data.speed_multiplier != 1.0:
+				base *= spd_data.speed_multiplier
 
 	# Gem-based status effect modifiers (Chilled reduces speed)
-	for i in range(active_gem_status_effects.size()):
-		var gem_effect: StatusEffect = active_gem_status_effects[i]
+	for gi in range(active_gem_status_effects.size()):
+		var gem_effect: StatusEffect = active_gem_status_effects[gi]
 		if gem_effect.stat_modifier and gem_effect.stat_modifier.stat == stat:
 			if gem_effect.stat_modifier.modifier_type == Enums.ModifierType.FLAT:
 				base += gem_effect.stat_modifier.value
@@ -167,28 +167,29 @@ func has_passive_effect(effect_id: String) -> bool:
 func get_available_skills() -> Array:
 	var skills: Array = []
 	if is_player and character_data:
-		for skill in character_data.innate_skills:
-			if skill is SkillData:
-				skills.append(skill)
+		for innate_skill in character_data.innate_skills:
+			if innate_skill is SkillData:
+				skills.append(innate_skill)
 		# Skills granted by equipped items
 		if grid_inventory:
-			for i in range(grid_inventory.get_all_placed_items().size()):
-				var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
-				for skill in placed.item_data.granted_skills:
-					if skill is SkillData and skill not in skills:
-						skills.append(skill)
+			var placed_items: Array = grid_inventory.get_all_placed_items()
+			for pi in range(placed_items.size()):
+				var placed: GridInventory.PlacedItem = placed_items[pi]
+				for equip_skill in placed.item_data.granted_skills:
+					if equip_skill is SkillData and equip_skill not in skills:
+						skills.append(equip_skill)
 		# Conditional skills from tool modifier states
 		var tool_states_keys: Array = tool_modifier_states.keys()
-		for i in range(tool_states_keys.size()):
-			var tool_state: ToolModifierState = tool_modifier_states[tool_states_keys[i]]
-			for j in range(tool_state.conditional_skills.size()):
-				var skill: SkillData = tool_state.conditional_skills[j]
-				if skill is SkillData and skill not in skills:
-					skills.append(skill)
+		for ti in range(tool_states_keys.size()):
+			var tool_state: ToolModifierState = tool_modifier_states[tool_states_keys[ti]]
+			for ci in range(tool_state.conditional_skills.size()):
+				var cond_skill: SkillData = tool_state.conditional_skills[ci]
+				if cond_skill is SkillData and cond_skill not in skills:
+					skills.append(cond_skill)
 	elif not is_player and enemy_data:
-		for skill in enemy_data.skills:
-			if skill is SkillData:
-				skills.append(skill)
+		for enemy_skill in enemy_data.skills:
+			if enemy_skill is SkillData:
+				skills.append(enemy_skill)
 	return skills
 
 
@@ -206,8 +207,9 @@ func get_primary_tool_modifier_state() -> ToolModifierState:
 	if not is_player or not grid_inventory:
 		return null
 
-	for i in range(grid_inventory.get_all_placed_items().size()):
-		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 			return tool_modifier_states.get(placed, null)
 
@@ -219,8 +221,9 @@ func get_total_weapon_physical_power() -> int:
 	if not is_player or not grid_inventory:
 		return 0
 	var total: int = 0
-	for i in range(grid_inventory.get_all_placed_items().size()):
-		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 			total += placed.item_data.base_power
 	return total
@@ -231,8 +234,9 @@ func get_total_weapon_magical_power() -> int:
 	if not is_player or not grid_inventory:
 		return 0
 	var total: int = 0
-	for i in range(grid_inventory.get_all_placed_items().size()):
-		var placed: GridInventory.PlacedItem = grid_inventory.get_all_placed_items()[i]
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
 		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 			total += placed.item_data.magical_power
 	return total

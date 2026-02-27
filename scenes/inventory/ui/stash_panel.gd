@@ -134,7 +134,7 @@ func _update_count_label(visible_count: int, total_count: int = -1) -> void:
 func _on_filter_toggled(button_pressed: bool, item_type: Enums.ItemType) -> void:
 	if not button_pressed:
 		# Don't allow turning off the last active filter - just reactivate it
-		var active_count = 0
+		var active_count: int = 0
 		for type in _filter_active:
 			if _filter_active[type]:
 				active_count += 1

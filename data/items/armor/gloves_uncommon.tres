@@ -1,16 +1,18 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="1_c0q54"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_yckbd"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_5sksy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_ulawu"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_yckbd"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_ulawu"]
 
-[sub_resource type="Resource" id="Resource_c0q54"]
+[sub_resource type="Resource" id="Resource_8o1yh"]
 script = ExtResource("4_ulawu")
 stat = 4
 value = 3.0
 
-[sub_resource type="Resource" id="Resource_5sksy"]
+[sub_resource type="Resource" id="Resource_stwgl"]
 script = ExtResource("4_ulawu")
 stat = 7
 value = 1.0
@@ -26,5 +28,5 @@ category = 9
 rarity = 1
 armor_slot = 9
 shape = ExtResource("3_yckbd")
-stat_modifiers = [SubResource("Resource_c0q54"), SubResource("Resource_5sksy")]
+stat_modifiers = Array[ExtResource("4_ulawu")]([SubResource("Resource_8o1yh"), SubResource("Resource_stwgl")])
 base_price = 47

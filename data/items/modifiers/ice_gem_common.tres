@@ -2,45 +2,46 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_de21f"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7"]
 
-[sub_resource type="Resource" id="Resource_goqar"]
+[sub_resource type="Resource" id="Resource_ookmh"]
 script = ExtResource("2")
 stat = 6
 value = 8.0
 
-[sub_resource type="Resource" id="Resource_de21f"]
-script = ExtResource("3")
-stat_bonuses = [SubResource("Resource_goqar")]
-status_effect = ExtResource("7")
-status_effect_chance = 0.2
-
-[sub_resource type="Resource" id="Resource_ookmh"]
-script = ExtResource("2")
-stat = 6
-value = 11.0
-
 [sub_resource type="Resource" id="Resource_rxole"]
 script = ExtResource("3")
-target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_ookmh")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_ookmh")])
 status_effect = ExtResource("7")
-status_effect_chance = 0.25
-granted_skills = [ExtResource("6")]
+status_effect_chance = 0.2
 
 [sub_resource type="Resource" id="Resource_41d0b"]
 script = ExtResource("2")
 stat = 6
-value = 8.0
+value = 11.0
 
 [sub_resource type="Resource" id="Resource_ndanj"]
 script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_41d0b")])
+status_effect = ExtResource("7")
+status_effect_chance = 0.25
+granted_skills = Array[ExtResource("2_de21f")]([ExtResource("6")])
+
+[sub_resource type="Resource" id="Resource_6uk2o"]
+script = ExtResource("2")
+stat = 6
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_p05gy"]
+script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_41d0b")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_6uk2o")])
 status_effect = ExtResource("7")
 status_effect_chance = 0.2
 
@@ -52,5 +53,5 @@ description = "A crystalline frost gem. Adds ice damage and chill chance to weap
 icon = ExtResource("5")
 item_type = 2
 shape = ExtResource("4")
-conditional_modifier_rules = [SubResource("Resource_de21f"), SubResource("Resource_rxole"), SubResource("Resource_ndanj")]
+conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_rxole"), SubResource("Resource_ndanj"), SubResource("Resource_p05gy")])
 base_price = 30

@@ -401,6 +401,7 @@ func _get_item_directory(item: ItemData) -> String:
 
 func _save_single_item(item: ItemData) -> bool:
 	var dir_path: String = _get_item_directory(item)
+	@warning_ignore("return_value_discarded")
 	DirAccess.make_dir_recursive_absolute(dir_path)
 	# Remove stale files in other type directories (e.g. after type change)
 	var all_dirs: Array = [
@@ -413,6 +414,7 @@ func _save_single_item(item: ItemData) -> bool:
 	var file_name: String = item.id + ".tres"
 	for d in all_dirs:
 		if d != dir_path and FileAccess.file_exists(d + file_name):
+			@warning_ignore("return_value_discarded")
 			DirAccess.remove_absolute(d + file_name)
 
 	# Ensure shape references the external .tres file so it's saved as ext_resource
@@ -623,11 +625,11 @@ func _create_all_variants(source: ItemData, family: String) -> void:
 	for r in range(rarity_count):
 		if existing_rarities.has(r):
 			continue
-		var scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
+		var stat_scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
 		var new_id: String = family + RARITY_SUFFIXES[r]
 		if _items.has(new_id):
 			continue
-		var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, scale)
+		var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, stat_scale)
 		_items[new_id] = new_item
 		_dirty_ids[new_id] = true
 		_save_single_item(new_item)
@@ -667,12 +669,12 @@ static func _get_scaled_name(base_name: String, rarity: int) -> String:
 func _prefill_all_variants() -> int:
 	# Group items by family
 	var families: Dictionary = {}  # "type_family" -> Array[ItemData]
-	for item in _items.values():
-		var family: String = _get_family(item.id)
-		var key: String = "%d_%s" % [item.item_type, family]
+	for src_item in _items.values():
+		var family: String = _get_family(src_item.id)
+		var key: String = "%d_%s" % [src_item.item_type, family]
 		if not families.has(key):
 			families[key] = []
-		families[key].append(item)
+		families[key].append(src_item)
 
 	var rarity_count: int = Enums.Rarity.keys().size()
 	var created: int = 0
@@ -683,17 +685,17 @@ func _prefill_all_variants() -> int:
 
 		# Collect existing rarities
 		var existing_rarities: Dictionary = {}
-		for item in family_items:
-			existing_rarities[item.rarity] = true
+		for fi in family_items:
+			existing_rarities[fi.rarity] = true
 
 		if existing_rarities.size() >= rarity_count:
 			continue
 
 		# Find base (lowest rarity) to scale from
 		var base_item: ItemData = family_items[0]
-		for item in family_items:
-			if item.rarity < base_item.rarity:
-				base_item = item
+		for fi in family_items:
+			if fi.rarity < base_item.rarity:
+				base_item = fi
 
 		var family_name: String = _get_family(base_item.id)
 		var base_mult: float = ItemUpgradeSystem.get_rarity_stat_multiplier(base_item.rarity)
@@ -701,11 +703,11 @@ func _prefill_all_variants() -> int:
 		for r in range(rarity_count):
 			if existing_rarities.has(r):
 				continue
-			var scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
+			var stat_scale: float = ItemUpgradeSystem.get_rarity_stat_multiplier(r) / base_mult
 			var new_id: String = family_name + RARITY_SUFFIXES[r]
 			if _items.has(new_id):
 				continue
-			var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, scale)
+			var new_item: ItemData = _create_scaled_variant(base_item, new_id, r, stat_scale)
 			_items[new_id] = new_item
 			_dirty_ids[new_id] = true
 			created += 1
@@ -848,6 +850,7 @@ func _build_identity_section(item: ItemData) -> void:
 
 # === Classification ===
 
+@warning_ignore("confusable_local_declaration")
 func _build_classification_section(item: ItemData) -> void:
 	_add_section_header("Classification")
 
@@ -862,7 +865,7 @@ func _build_classification_section(item: ItemData) -> void:
 		type_btn.add_item(type_keys[i].capitalize().replace("_", " "), i)
 	type_btn.selected = item.item_type
 	type_btn.item_selected.connect(func(idx: int) -> void:
-		item.item_type = idx
+		item.item_type = idx as Enums.ItemType
 		_dirty_ids[item.id] = true
 		_build_property_panel(item)
 	)
@@ -893,7 +896,7 @@ func _build_classification_section(item: ItemData) -> void:
 				cat_btn.selected = j
 				break
 		cat_btn.item_selected.connect(func(idx: int) -> void:
-			item.category = cat_btn.get_item_id(idx)
+			item.category = cat_btn.get_item_id(idx) as Enums.EquipmentCategory
 			_dirty_ids[item.id] = true
 		)
 		cat_row.add_child(cat_btn)
@@ -910,7 +913,7 @@ func _build_classification_section(item: ItemData) -> void:
 		rar_btn.add_item(rar_keys[i].capitalize(), i)
 	rar_btn.selected = item.rarity
 	rar_btn.item_selected.connect(func(idx: int) -> void:
-		item.rarity = idx
+		item.rarity = idx as Enums.Rarity
 		_dirty_ids[item.id] = true
 		_rebuild_item_list()
 	)
@@ -961,7 +964,7 @@ func _build_equipment_section(item: ItemData) -> void:
 				armor_btn.selected = j
 				break
 		armor_btn.item_selected.connect(func(idx: int) -> void:
-			item.armor_slot = armor_btn.get_item_id(idx)
+			item.armor_slot = armor_btn.get_item_id(idx) as Enums.EquipmentCategory
 			_dirty_ids[item.id] = true
 		)
 		armor_row.add_child(armor_btn)
@@ -1195,6 +1198,7 @@ func _create_shape_cell_editor(item: ItemData, shape: ItemShape) -> Control:
 
 
 func _save_shape(shape: ItemShape) -> void:
+	@warning_ignore("return_value_discarded")
 	DirAccess.make_dir_recursive_absolute("res://data/shapes/")
 	var path := "res://data/shapes/" + shape.id + ".tres"
 	var err := ResourceSaver.save(shape, path)
@@ -1259,7 +1263,7 @@ func _add_stat_modifier_row(item: ItemData, array: Array, mod: StatModifier, reb
 	stat_btn.selected = mod.stat
 	stat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_btn.item_selected.connect(func(idx: int) -> void:
-		mod.stat = idx
+		mod.stat = idx as Enums.Stat
 		_dirty_ids[item.id] = true
 	)
 	top_row.add_child(stat_btn)
@@ -1280,7 +1284,7 @@ func _add_stat_modifier_row(item: ItemData, array: Array, mod: StatModifier, reb
 	type_btn.add_item("Percent", 1)
 	type_btn.selected = mod.modifier_type
 	type_btn.item_selected.connect(func(idx: int) -> void:
-		mod.modifier_type = idx
+		mod.modifier_type = idx as Enums.ModifierType
 		_dirty_ids[item.id] = true
 	)
 	bottom_row.add_child(type_btn)
@@ -1303,6 +1307,7 @@ func _add_stat_modifier_row(item: ItemData, array: Array, mod: StatModifier, reb
 
 # === Combat ===
 
+@warning_ignore("confusable_local_declaration")
 func _build_combat_section(item: ItemData) -> void:
 	_add_section_header("Combat")
 
@@ -1462,6 +1467,7 @@ func _build_combat_section(item: ItemData) -> void:
 
 # === Modifier ===
 
+@warning_ignore("confusable_local_declaration")
 func _build_modifier_section(item: ItemData) -> void:
 	if item.item_type != Enums.ItemType.MODIFIER:
 		return
@@ -1533,13 +1539,14 @@ func _build_modifier_section(item: ItemData) -> void:
 func _create_reach_pattern_editor(item: ItemData) -> Control:
 	var grid_size: int = 7
 	var cell_size: int = 24
+	@warning_ignore("integer_division")
 	var center: int = grid_size / 2  # 3 for 7x7
 	var container := Control.new()
 	container.custom_minimum_size = Vector2(grid_size * cell_size + 2, grid_size * cell_size + 2)
 
 	var active_offsets: Dictionary = {}
-	for offset in item.modifier_reach_pattern:
-		active_offsets[offset] = true
+	for existing_offset in item.modifier_reach_pattern:
+		active_offsets[existing_offset] = true
 
 	for gy in range(grid_size):
 		for gx in range(grid_size):
@@ -1580,6 +1587,7 @@ func _create_reach_pattern_editor(item: ItemData) -> Control:
 	return container
 
 
+@warning_ignore("confusable_local_declaration")
 func _build_conditional_rule(item: ItemData, rule: ConditionalModifierRule, index: int) -> void:
 	var rule_container := VBoxContainer.new()
 	rule_container.add_theme_constant_override("separation", 2)
@@ -1592,7 +1600,7 @@ func _build_conditional_rule(item: ItemData, rule: ConditionalModifierRule, inde
 		wtype_btn.add_item(wtype_keys[k].capitalize(), k)
 	wtype_btn.selected = rule.target_weapon_type
 	wtype_btn.item_selected.connect(func(idx: int) -> void:
-		rule.target_weapon_type = idx
+		rule.target_weapon_type = idx as Enums.WeaponType
 		_dirty_ids[item.id] = true
 	)
 	header.add_child(wtype_btn)
@@ -1621,7 +1629,7 @@ func _build_conditional_rule(item: ItemData, rule: ConditionalModifierRule, inde
 		stat_btn.selected = mod.stat
 		stat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		stat_btn.item_selected.connect(func(idx: int) -> void:
-			mod.stat = idx
+			mod.stat = idx as Enums.Stat
 			_dirty_ids[item.id] = true
 		)
 		top.add_child(stat_btn)
@@ -1640,7 +1648,7 @@ func _build_conditional_rule(item: ItemData, rule: ConditionalModifierRule, inde
 		type_btn.add_item("Percent", 1)
 		type_btn.selected = mod.modifier_type
 		type_btn.item_selected.connect(func(idx: int) -> void:
-			mod.modifier_type = idx
+			mod.modifier_type = idx as Enums.ModifierType
 			_dirty_ids[item.id] = true
 		)
 		bot.add_child(type_btn)

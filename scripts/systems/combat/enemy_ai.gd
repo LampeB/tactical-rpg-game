@@ -26,8 +26,7 @@ static func choose_action(
 		if enemy.can_use_skill(skill):
 			usable_skills.append(skill)
 
-	# 60% chance to use a skill if available, 40% basic attack
-	if not usable_skills.is_empty() and randf() < 0.6:
+	if not usable_skills.is_empty() and randf() < Constants.ENEMY_SKILL_CHANCE:
 		var skill: SkillData = usable_skills[randi() % usable_skills.size()]
 		var targets: Array = _select_targets(skill.target_type, enemy, alive_targets)
 		return {"action": Enums.CombatAction.SKILL, "skill": skill, "targets": targets}

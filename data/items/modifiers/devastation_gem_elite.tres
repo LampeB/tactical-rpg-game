@@ -2,40 +2,41 @@
 
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_n41af"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_lsosu"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_qnlbl"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_elite.png" id="3_qnlbl"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_ta40o"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_0n0k7"]
 
-[sub_resource type="Resource" id="Resource_n41af"]
-script = ExtResource("2_lsosu")
-stat = 9
-value = 42.0
-
-[sub_resource type="Resource" id="Resource_lsosu"]
-script = ExtResource("1_n41af")
-stat_bonuses = [SubResource("Resource_n41af")]
-status_effect_chance = 0.25384615384615383
-
-[sub_resource type="Resource" id="Resource_qnlbl"]
-script = ExtResource("2_lsosu")
-stat = 9
-value = 42.0
-
 [sub_resource type="Resource" id="Resource_ta40o"]
-script = ExtResource("1_n41af")
-target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_qnlbl")]
-status_effect_chance = 0.25384615384615383
+script = ExtResource("2_lsosu")
+stat = 9
+value = 42.0
 
 [sub_resource type="Resource" id="Resource_0n0k7"]
+script = ExtResource("1_n41af")
+stat_bonuses = Array[ExtResource("2_lsosu")]([SubResource("Resource_ta40o")])
+status_effect_chance = 0.25384615384615383
+
+[sub_resource type="Resource" id="Resource_keh6d"]
 script = ExtResource("2_lsosu")
 stat = 9
 value = 42.0
 
-[sub_resource type="Resource" id="Resource_keh6d"]
+[sub_resource type="Resource" id="Resource_01bqy"]
+script = ExtResource("1_n41af")
+target_weapon_type = 1
+stat_bonuses = Array[ExtResource("2_lsosu")]([SubResource("Resource_keh6d")])
+status_effect_chance = 0.25384615384615383
+
+[sub_resource type="Resource" id="Resource_2x3sb"]
+script = ExtResource("2_lsosu")
+stat = 9
+value = 42.0
+
+[sub_resource type="Resource" id="Resource_eh14r"]
 script = ExtResource("1_n41af")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_0n0k7")]
+stat_bonuses = Array[ExtResource("2_lsosu")]([SubResource("Resource_2x3sb")])
 status_effect_chance = 0.25384615384615383
 
 [resource]
@@ -47,5 +48,5 @@ icon = ExtResource("3_qnlbl")
 item_type = 2
 rarity = 3
 shape = ExtResource("5_0n0k7")
-conditional_modifier_rules = [SubResource("Resource_lsosu"), SubResource("Resource_ta40o"), SubResource("Resource_keh6d")]
+conditional_modifier_rules = Array[ExtResource("1_n41af")]([SubResource("Resource_0n0k7"), SubResource("Resource_01bqy"), SubResource("Resource_eh14r")])
 base_price = 91

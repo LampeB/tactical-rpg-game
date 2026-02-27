@@ -2,33 +2,34 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_hnbk6"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/precisionGem_common.png" id="5"]
 
-[sub_resource type="Resource" id="Resource_xpx0b"]
+[sub_resource type="Resource" id="Resource_vv23g"]
 script = ExtResource("2")
 stat = 8
 value = 5.0
 
-[sub_resource type="Resource" id="Resource_hnbk6"]
+[sub_resource type="Resource" id="Resource_vpfkx"]
 script = ExtResource("2")
 stat = 9
 value = 10.0
 
-[sub_resource type="Resource" id="Resource_vv23g"]
-script = ExtResource("3")
-stat_bonuses = [SubResource("Resource_xpx0b"), SubResource("Resource_hnbk6")]
-
-[sub_resource type="Resource" id="Resource_vpfkx"]
-script = ExtResource("3")
-target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_xpx0b"), SubResource("Resource_hnbk6")]
-
 [sub_resource type="Resource" id="Resource_oikqi"]
 script = ExtResource("3")
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_vv23g"), SubResource("Resource_vpfkx")])
+
+[sub_resource type="Resource" id="Resource_qwcu5"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_vv23g"), SubResource("Resource_vpfkx")])
+
+[sub_resource type="Resource" id="Resource_706in"]
+script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_xpx0b"), SubResource("Resource_hnbk6")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_vv23g"), SubResource("Resource_vpfkx")])
 
 [resource]
 script = ExtResource("1")
@@ -38,5 +39,5 @@ description = "A crystalline gem that sharpens focus. Adds +5% crit rate and +10
 icon = ExtResource("5")
 item_type = 2
 shape = ExtResource("4")
-conditional_modifier_rules = [SubResource("Resource_vv23g"), SubResource("Resource_vpfkx"), SubResource("Resource_oikqi")]
+conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_oikqi"), SubResource("Resource_qwcu5"), SubResource("Resource_706in")])
 base_price = 40

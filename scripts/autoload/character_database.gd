@@ -6,11 +6,11 @@ var _characters: Dictionary = {}  # id -> CharacterData
 
 const CHARACTER_DIR := "res://data/characters/"
 
-func _ready():
+func _ready() -> void:
 	_load_all_characters()
 	DebugLogger.log_info("Loaded %d characters" % _characters.size(), "CharacterDatabase")
 
-func _load_all_characters():
+func _load_all_characters() -> void:
 	var dir := DirAccess.open(CHARACTER_DIR)
 	if not dir:
 		DebugLogger.log_warn("Character directory not found: %s" % CHARACTER_DIR, "CharacterDatabase")
@@ -31,7 +31,7 @@ func _load_all_characters():
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-func _register_character(character: CharacterData):
+func _register_character(character: CharacterData) -> void:
 	if _characters.has(character.id):
 		DebugLogger.log_warn("Duplicate character ID: %s" % character.id, "CharacterDatabase")
 	_characters[character.id] = character

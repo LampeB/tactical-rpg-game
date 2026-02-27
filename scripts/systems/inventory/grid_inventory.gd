@@ -305,12 +305,12 @@ func get_computed_stats() -> Dictionary:
 	var tool_states: Dictionary = get_all_tool_modifier_states()
 	for placed_key in tool_states:
 		var state: ToolModifierState = tool_states[placed_key]
-		for stat in state.aggregate_stats:
-			var val: float = state.aggregate_stats[stat]
-			flat_bonuses[stat] = flat_bonuses.get(stat, 0.0) + val
+		for cond_stat in state.aggregate_stats:
+			var val: float = state.aggregate_stats[cond_stat]
+			flat_bonuses[cond_stat] = flat_bonuses.get(cond_stat, 0.0) + val
 			# Recompute this stat's final value
-			var pct_val: float = pct_bonuses.get(stat, 0.0)
-			stats[stat] = flat_bonuses.get(stat, 0.0) * (1.0 + pct_val / 100.0)
+			var cond_pct: float = pct_bonuses.get(cond_stat, 0.0)
+			stats[cond_stat] = flat_bonuses.get(cond_stat, 0.0) * (1.0 + cond_pct / 100.0)
 
 	return {
 		"stats": stats,

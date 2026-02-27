@@ -34,7 +34,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 	_rarity_label.add_theme_color_override("font_color", rarity_color)
 
 	# Type (with hand requirement for weapons)
-	var type_text := _get_type_text(item.item_type)
+	var type_text := Enums.get_item_type_name(item.item_type)
 	if item.item_type == Enums.ItemType.ACTIVE_TOOL and item.hand_slots_required > 0:
 		type_text += "  ·  %s" % ("1 Hand" if item.hand_slots_required == 1 else "2 Hands")
 	_type_label.text = type_text
@@ -84,23 +84,23 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 			_modifier_section.visible = true
 			for i in range(item.conditional_modifier_rules.size()):
 				var rule: ConditionalModifierRule = item.conditional_modifier_rules[i]
-				var weapon_type_name: String = _get_weapon_type_name(rule.target_weapon_type)
+				var weapon_type_name: String = Enums.get_weapon_type_name(rule.target_weapon_type)
 				_add_header_label("When near %s:" % weapon_type_name, Color(0.8, 0.8, 1.0))
 
 				# Stat bonuses
 				for j in range(rule.stat_bonuses.size()):
-					var mod: StatModifier = rule.stat_bonuses[j]
-					_add_modifier_label("  " + mod.get_description(), Color(1.0, 0.9, 0.3))
+					var bonus_mod: StatModifier = rule.stat_bonuses[j]
+					_add_modifier_label("  " + bonus_mod.get_description(), Color(1.0, 0.9, 0.3))
 
-					# Status effect
+				# Status effect
 				if rule.status_effect:
-					var effect_name: String = _get_status_effect_name(rule.status_effect.effect_type)
+					var effect_name: String = Enums.get_status_effect_name(rule.status_effect.effect_type)
 					var chance_pct: int = int(rule.status_effect_chance * 100)
 					_add_modifier_label("  %s (%d%% chance)" % [effect_name, chance_pct], Color(1.0, 0.7, 0.3))
 
 				# Granted skills
-				for j in range(rule.granted_skills.size()):
-					var skill: SkillData = rule.granted_skills[j]
+				for gs in range(rule.granted_skills.size()):
+					var skill: SkillData = rule.granted_skills[gs]
 					_add_modifier_label("  Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
 
 	elif item.item_type == Enums.ItemType.ACTIVE_TOOL:
@@ -114,7 +114,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 			_modifier_section.visible = true
 			if has_gem_effects:
 				_add_header_label("Innate:", Color(0.6, 0.85, 1.0))
-			var effect_name: String = _get_status_effect_name(item.innate_status_effect.effect_type)
+			var effect_name: String = Enums.get_status_effect_name(item.innate_status_effect.effect_type)
 			var chance_pct: int = int(item.innate_status_effect_chance * 100)
 			var indent: String = "  " if has_gem_effects else ""
 			_add_modifier_label("%s%s: %d%%  ·  +%d stack (+%d on crit)" % [indent, effect_name, chance_pct, item.innate_status_stacks, item.innate_crit_status_stacks], Color(1.0, 0.7, 0.3))
@@ -126,8 +126,8 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 				_add_header_label("From gems:", Color(1.0, 0.9, 0.3))
 
 			# Unconditional stat bonuses from each gem
-			for i in range(modifiers.size()):
-				var gem_placed: GridInventory.PlacedItem = modifiers[i]
+			for gi in range(modifiers.size()):
+				var gem_placed: GridInventory.PlacedItem = modifiers[gi]
 				for gem_mod in gem_placed.item_data.modifier_bonuses:
 					if gem_mod is StatModifier:
 						var indent: String = "  " if has_innate else ""
@@ -140,21 +140,21 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 				for mod_entry in state.active_modifiers:
 					var rule: ConditionalModifierRule = mod_entry.get("rule")
 					if rule and rule.status_effect:
-						var effect_name: String = _get_status_effect_name(rule.status_effect.effect_type)
+						var effect_name: String = Enums.get_status_effect_name(rule.status_effect.effect_type)
 						var chance_pct: int = int(rule.status_effect_chance * 100)
 						_add_modifier_label("%s%s: %d%%  ·  +%d stack (+%d on crit)" % [indent, effect_name, chance_pct, rule.status_stacks, rule.status_crit_stacks], Color(1.0, 0.7, 0.3))
 
 				# Aggregate conditional stats
 				var stat_keys: Array = state.aggregate_stats.keys()
-				for i in range(stat_keys.size()):
-					var stat: Enums.Stat = stat_keys[i]
+				for si in range(stat_keys.size()):
+					var stat: Enums.Stat = stat_keys[si]
 					var value: float = state.aggregate_stats[stat]
-					var sign: String = "+" if value >= 0 else ""
-					_add_modifier_label("%s%s%d %s" % [indent, sign, int(value), _get_stat_name(stat)], Color(1.0, 0.9, 0.3))
+					var prefix: String = "+" if value >= 0 else ""
+					_add_modifier_label("%s%s%d %s" % [indent, prefix, int(value), Enums.get_stat_name(stat)], Color(1.0, 0.9, 0.3))
 
 				# Conditional skills
-				for i in range(state.conditional_skills.size()):
-					var skill: SkillData = state.conditional_skills[i]
+				for sk in range(state.conditional_skills.size()):
+					var skill: SkillData = state.conditional_skills[sk]
 					_add_modifier_label("%sGrants: %s" % [indent, skill.display_name], Color(0.6, 1.0, 0.6))
 
 	# Description
@@ -203,16 +203,6 @@ func _position_at(screen_pos: Vector2) -> void:
 	global_position = pos
 
 
-func _get_type_text(item_type: Enums.ItemType) -> String:
-	match item_type:
-		Enums.ItemType.ACTIVE_TOOL: return "Active Tool"
-		Enums.ItemType.PASSIVE_GEAR: return "Passive Gear"
-		Enums.ItemType.MODIFIER: return "Modifier"
-		Enums.ItemType.CONSUMABLE: return "Consumable"
-		Enums.ItemType.MATERIAL: return "Material"
-	return ""
-
-
 func _clear_container(container: VBoxContainer) -> void:
 	for child in container.get_children():
 		child.queue_free()
@@ -234,57 +224,3 @@ func _add_modifier_label(text: String, color: Color) -> void:
 	_modifier_list.add_child(label)
 
 
-func _get_category_name(category: Enums.EquipmentCategory) -> String:
-	match category:
-		Enums.EquipmentCategory.SWORD: return "Sword"
-		Enums.EquipmentCategory.MACE: return "Mace"
-		Enums.EquipmentCategory.BOW: return "Bow"
-		Enums.EquipmentCategory.STAFF: return "Staff"
-		Enums.EquipmentCategory.DAGGER: return "Dagger"
-		Enums.EquipmentCategory.SHIELD: return "Shield"
-		Enums.EquipmentCategory.HELMET: return "Helmet"
-		Enums.EquipmentCategory.CHESTPLATE: return "Chestplate"
-		Enums.EquipmentCategory.BOOTS: return "Boots"
-		Enums.EquipmentCategory.RING: return "Ring"
-	return "Unknown"
-
-
-func _get_damage_type_name(damage_type: Enums.DamageType) -> String:
-	match damage_type:
-		Enums.DamageType.PHYSICAL: return "Physical"
-		Enums.DamageType.MAGICAL: return "Magical"
-	return "Unknown"
-
-
-func _get_stat_name(stat: Enums.Stat) -> String:
-	match stat:
-		Enums.Stat.MAX_HP: return "Max HP"
-		Enums.Stat.MAX_MP: return "Max MP"
-		Enums.Stat.PHYSICAL_ATTACK: return "Phys Atk"
-		Enums.Stat.PHYSICAL_DEFENSE: return "Phys Def"
-		Enums.Stat.MAGICAL_ATTACK: return "Mag Atk"
-		Enums.Stat.MAGICAL_DEFENSE: return "Magical Def"
-		Enums.Stat.SPEED: return "Speed"
-		Enums.Stat.LUCK: return "Luck"
-		Enums.Stat.CRITICAL_RATE: return "Crit Rate"
-		Enums.Stat.CRITICAL_DAMAGE: return "Crit Dmg"
-		Enums.Stat.PHYSICAL_SCALING: return "Phys Scaling"
-		Enums.Stat.MAGICAL_SCALING: return "Mag Scaling"
-	return "Unknown"
-
-
-func _get_status_effect_name(effect_type: Enums.StatusEffectType) -> String:
-	match effect_type:
-		Enums.StatusEffectType.BURN: return "Burn"
-		Enums.StatusEffectType.POISONED: return "Poisoned"
-		Enums.StatusEffectType.CHILLED: return "Chilled"
-		Enums.StatusEffectType.SHOCKED: return "Shocked"
-	return "Unknown"
-
-
-func _get_weapon_type_name(weapon_type: Enums.WeaponType) -> String:
-	match weapon_type:
-		Enums.WeaponType.MELEE: return "Melee Weapons"
-		Enums.WeaponType.RANGED: return "Ranged Weapons"
-		Enums.WeaponType.MAGIC: return "Magic Weapons"
-	return "Unknown"

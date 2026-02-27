@@ -140,8 +140,7 @@ func _ready() -> void:
 
 	# Placement hint label — always in the tree to avoid layout reflow
 	_placement_hint_label = Label.new()
-	_placement_hint_label.add_theme_font_size_override("font_size", 13)
-	_placement_hint_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	UIThemes.style_label(_placement_hint_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_DAMAGE)
 	_placement_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_placement_hint_label.custom_minimum_size.y = 18
 	_placement_hint_label.text = ""
@@ -273,26 +272,25 @@ func _update_skills_list(char_data: CharacterData, inv: GridInventory) -> void:
 	_clear_children(_skills_list)
 
 	# Innate skills
-	for i in range(char_data.innate_skills.size()):
-		var skill = char_data.innate_skills[i]
+	for si in range(char_data.innate_skills.size()):
+		var skill: SkillData = char_data.innate_skills[si]
 		if skill is SkillData:
 			var label: Label = Label.new()
 			label.text = "• %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-			label.add_theme_font_size_override("font_size", 14)
+			label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
 			_skills_list.add_child(label)
 
 	# Skills from equipment
 	if inv:
-		for i in range(inv.get_all_placed_items().size()):
-			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[i]
+		for pi in range(inv.get_all_placed_items().size()):
+			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[pi]
 			if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-				for j in range(placed.item_data.granted_skills.size()):
-					var skill = placed.item_data.granted_skills[j]
-					if skill is SkillData:
+				for gi in range(placed.item_data.granted_skills.size()):
+					var equip_skill = placed.item_data.granted_skills[gi]
+					if equip_skill is SkillData:
 						var label: Label = Label.new()
-						label.text = "• %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-						label.add_theme_font_size_override("font_size", 14)
-						label.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
+						label.text = "• %s (MP: %d)" % [equip_skill.display_name, equip_skill.mp_cost]
+						UIThemes.style_label(label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
 						_skills_list.add_child(label)
 
 
@@ -312,23 +310,23 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 		header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 		var h_stat: Label = _make_cell("Stat", 1.0)
-		h_stat.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+		h_stat.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 		header.add_child(h_stat)
 
 		var h_base: Label = _make_cell("Base", 0.6)
-		h_base.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+		h_base.add_theme_color_override("font_color", Constants.COLOR_TEXT_SECONDARY)
 		header.add_child(h_base)
 
 		var h_equip: Label = _make_cell("Equip", 0.6)
-		h_equip.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0, 1))
+		h_equip.add_theme_color_override("font_color", Constants.COLOR_TEXT_EMPHASIS)
 		header.add_child(h_equip)
 
 		var h_passive: Label = _make_cell("Passives", 0.6)
-		h_passive.add_theme_color_override("font_color", Color(0.2, 0.8, 0.3, 1))
+		h_passive.add_theme_color_override("font_color", Constants.COLOR_TEXT_SUCCESS)
 		header.add_child(h_passive)
 
 		var h_total: Label = _make_cell("Total", 0.6)
-		h_total.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5, 1))
+		h_total.add_theme_color_override("font_color", Constants.COLOR_TEXT_IMPORTANT)
 		header.add_child(h_total)
 
 		_stat_rows.add_child(header)
@@ -372,7 +370,7 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 			var equip_bonus_text: String = _format_bonus(equip, is_pct_stat)
 			var equip_label: Label = _make_cell(equip_bonus_text, 0.6)
 			if equip > 0:
-				equip_label.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
+				equip_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_EMPHASIS)
 			row.add_child(equip_label)
 
 			var pass_val: float = passive.flat + passive.pct
@@ -395,16 +393,14 @@ func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bo
 			var name_label: Label = Label.new()
 			name_label.text = stat_name
 			name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			name_label.add_theme_font_size_override("font_size", 14)
-			name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_PRIMARY)
+			UIThemes.style_label(name_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_PRIMARY)
 			row.add_child(name_label)
 
 			var eff_text: String = "%.0f" % effective
 			var val_label: Label = Label.new()
 			val_label.text = eff_text
 			val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			val_label.add_theme_font_size_override("font_size", 14)
-			val_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_IMPORTANT)
+			UIThemes.style_label(val_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_IMPORTANT)
 			row.add_child(val_label)
 
 		_stat_rows.add_child(row)
@@ -443,8 +439,7 @@ func _update_right_panel(character_id: String, tree: PassiveTreeData) -> void:
 		# Node name label
 		var name_label: Label = Label.new()
 		name_label.text = node.display_name
-		name_label.add_theme_font_size_override("font_size", 16)
-		name_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 1))
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_DETAIL, Constants.COLOR_TEXT_HEADER)
 		_passives_list.add_child(name_label)
 
 		# Stat bonuses
@@ -459,16 +454,14 @@ func _update_right_panel(character_id: String, tree: PassiveTreeData) -> void:
 
 			var bonus_label: Label = Label.new()
 			bonus_label.text = "• %s" % value_str
-			bonus_label.add_theme_font_size_override("font_size", 14)
-			bonus_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SUCCESS)
+			UIThemes.style_label(bonus_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SUCCESS)
 			_passives_list.add_child(bonus_label)
 
 		# Special effect
 		if not node.special_effect_id.is_empty():
 			var effect_label: Label = Label.new()
 			effect_label.text = "• %s" % PassiveEffects.get_description(node.special_effect_id)
-			effect_label.add_theme_font_size_override("font_size", 14)
-			effect_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_EMPHASIS)
+			UIThemes.style_label(effect_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
 			_passives_list.add_child(effect_label)
 
 
@@ -641,7 +634,7 @@ func _show_target_selection_popup() -> void:
 		child.queue_free()
 
 	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
+	UIThemes.set_separation(vbox, 8)
 	_target_selection_popup.add_child(vbox)
 
 	var title: Label = Label.new()
@@ -989,7 +982,7 @@ func _make_cell(text: String, stretch: float) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_stretch_ratio = stretch
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
 	return label
 
 

@@ -18,7 +18,7 @@ extends Resource
 
 @export_group("Combat")
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
-@export var skills: Array = [] ## of SkillData
+@export var skills: Array[SkillData] = []
 ## Gold rewarded on defeat.
 @export var gold_reward: int = 10
 

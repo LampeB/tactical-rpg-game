@@ -14,15 +14,15 @@ const ITEM_DIRS: Array[String] = [
 	"res://data/items/blueprints/",
 ]
 
-func _ready():
+func _ready() -> void:
 	_load_all_items()
 	DebugLogger.log_info("Loaded %d items" % _items.size(), "ItemDatabase")
 
-func _load_all_items():
+func _load_all_items() -> void:
 	for dir_path in ITEM_DIRS:
 		_load_items_from_directory(dir_path)
 
-func _load_items_from_directory(dir_path: String):
+func _load_items_from_directory(dir_path: String) -> void:
 	var dir := DirAccess.open(dir_path)
 	if not dir:
 		DebugLogger.log_warn("Item directory not found: %s" % dir_path, "ItemDatabase")
@@ -47,7 +47,7 @@ func _load_items_from_directory(dir_path: String):
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-func _register_item(item: ItemData):
+func _register_item(item: ItemData) -> void:
 	if _items.has(item.id):
 		DebugLogger.log_warn("Duplicate item ID: %s" % item.id, "ItemDatabase")
 	_items[item.id] = item
@@ -84,14 +84,14 @@ func get_items_by_rarity(rarity: Enums.Rarity) -> Array:
 func has_item(id: String) -> bool:
 	return _items.has(id)
 
-func reload():
+func reload() -> void:
 	_items.clear()
 	_items_by_type.clear()
 	_items_by_rarity.clear()
 	_bust_sub_resource_cache()
 	_load_all_items()
-	_refresh_party_items()
 	DebugLogger.log_info("Reloaded %d items" % _items.size(), "ItemDatabase")
+	EventBus.item_database_reloaded.emit()
 
 
 ## Force-reload all sub-resources that items reference as ext_resources.
@@ -114,72 +114,3 @@ func _bust_sub_resource_cache() -> void:
 				ResourceLoader.load(dir_path + file_name, "", ResourceLoader.CACHE_MODE_REPLACE)
 			file_name = dir.get_next()
 		dir.list_dir_end()
-
-
-## After reloading items from disk, update all live item references held by the party
-## (stash + grid inventories) so they reflect the latest data.
-func _refresh_party_items() -> void:
-	if not GameManager.is_game_started or not GameManager.party:
-		return
-	var party = GameManager.party
-
-	# Refresh stash items
-	for i in range(party.stash.size()):
-		var old_item: ItemData = party.stash[i]
-		var fresh: ItemData = _items.get(old_item.id)
-		if fresh:
-			if old_item.rarity == fresh.rarity:
-				party.stash[i] = fresh
-			else:
-				# Upgraded item — just update the shape reference
-				old_item.shape = fresh.shape
-
-	# Refresh grid inventory items — rebuild cell maps with updated references
-	var displaced_items: Array = []
-	var char_ids: Array = party.grid_inventories.keys()
-	for ci in range(char_ids.size()):
-		var char_id: String = char_ids[ci]
-		var grid: GridInventory = party.grid_inventories[char_id]
-		# Snapshot current placements
-		var placements: Array = []
-		for pi in range(grid.placed_items.size()):
-			var placed: GridInventory.PlacedItem = grid.placed_items[pi]
-			placements.append({
-				"id": placed.item_data.id,
-				"rarity": placed.item_data.rarity,
-				"pos": placed.grid_position,
-				"rot": placed.rotation,
-				"old_item": placed.item_data,
-			})
-		# Clear and re-place with fresh references
-		grid.clear()
-		for pi in range(placements.size()):
-			var entry: Dictionary = placements[pi]
-			var fresh: ItemData = _items.get(entry.id)
-			var item_to_place: ItemData
-			if fresh and entry.rarity == fresh.rarity:
-				item_to_place = fresh
-			elif fresh:
-				# Upgraded — use old item but update its shape
-				entry.old_item.shape = fresh.shape
-				item_to_place = entry.old_item
-			else:
-				item_to_place = entry.old_item
-			# Guard against null/empty shapes — send to stash instead of crashing
-			if not item_to_place.shape or item_to_place.shape.cells.is_empty():
-				DebugLogger.log_warn("Item %s has no shape — moved to stash" % item_to_place.id, "ItemDatabase")
-				displaced_items.append(item_to_place)
-				continue
-			var placed = grid.place_item(item_to_place, entry.pos, entry.rot)
-			if not placed:
-				DebugLogger.log_warn("Item %s no longer fits at (%d,%d) on %s — moved to stash" % [
-					item_to_place.id, entry.pos.x, entry.pos.y, char_id
-				], "ItemDatabase")
-				displaced_items.append(item_to_place)
-
-	# Add all displaced items to stash
-	for item in displaced_items:
-		party.stash.append(item)
-	if not displaced_items.is_empty():
-		DebugLogger.log_info("Moved %d displaced items to stash after reload" % displaced_items.size(), "ItemDatabase")
-		EventBus.stash_changed.emit()

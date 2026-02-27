@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_1guri"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="1_tq014"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_hyqba"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_t1efx"]
 [ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3_1guri"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_t1efx"]
 
-[sub_resource type="Resource" id="Resource_tq014"]
+[sub_resource type="Resource" id="Resource_o260m"]
 script = ExtResource("4_t1efx")
 stat = 4
 value = 3.0
@@ -20,6 +22,6 @@ category = 4
 hand_slots_required = 1
 armor_slot = 4
 shape = ExtResource("3_1guri")
-stat_modifiers = [SubResource("Resource_tq014")]
+stat_modifiers = Array[ExtResource("4_t1efx")]([SubResource("Resource_o260m")])
 base_power = 3
 base_price = 37

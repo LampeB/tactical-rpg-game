@@ -250,7 +250,7 @@ func _on_merchant_cell_hovered(grid_pos: Vector2i) -> void:
 
 	var placed: GridInventory.PlacedItem = _merchant_inv.get_item_at(grid_pos)
 	if placed:
-		var price := _buy_price(placed.item_data)
+		var price := ShopSystem.get_buy_price(placed.item_data, _shop_data)
 		_set_hover_info("%s  —  %dg" % [placed.item_data.display_name, price],
 			Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE))
 		_item_tooltip.show_for_item(placed.item_data, null, null,
@@ -349,7 +349,7 @@ func _start_drag_from_merchant(placed: GridInventory.PlacedItem) -> void:
 	_merchant_grid_panel.refresh()
 	_item_tooltip.hide_tooltip()
 
-	var price := _buy_price(_dragged_item)
+	var price := ShopSystem.get_buy_price(_dragged_item, _shop_data)
 	_set_hover_info("Buying: %s  —  %dg" % [_dragged_item.display_name, price],
 		Color(1.0, 0.84, 0.0))
 	_drag_preview.setup(_dragged_item, _drag_rotation)
@@ -419,7 +419,7 @@ func _start_drag_from_sold_panel(index: int) -> void:
 func _complete_buy_to_player_grid(grid_pos: Vector2i, inv: GridInventory) -> void:
 	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
 		return
-	var price := _buy_price(_dragged_item)
+	var price := ShopSystem.get_buy_price(_dragged_item, _shop_data)
 	if not GameManager.spend_gold(price):
 		_flash_gold_label()
 		return
@@ -456,7 +456,7 @@ func _complete_buyback_to_player_grid(grid_pos: Vector2i, inv: GridInventory) ->
 func _complete_buy_to_stash() -> void:
 	var price: int
 	match _drag_source:
-		DragSource.MERCHANT:   price = _buy_price(_dragged_item)
+		DragSource.MERCHANT:   price = ShopSystem.get_buy_price(_dragged_item, _shop_data)
 		DragSource.SOLD_PANEL: price = _drag_source_sold_price
 		_: return
 	if not GameManager.spend_gold(price):
@@ -654,14 +654,7 @@ func _on_buyback(index: int) -> void:
 func _sell_price_for(item: ItemData) -> int:
 	if _purchase_prices.has(item):
 		return _purchase_prices[item]  # full refund for items bought this session
-	return roundi(item.base_price * _shop_data.sell_multiplier)
-
-
-func _buy_price(item: ItemData) -> int:
-	if not _shop_data:
-		return item.base_price
-	var base: int = _shop_data.price_overrides.get(item.id, item.base_price)
-	return roundi(base * _shop_data.buy_multiplier)
+	return ShopSystem.get_sell_price(item, _shop_data)
 
 
 func _set_hover_info(text: String, color: Color) -> void:

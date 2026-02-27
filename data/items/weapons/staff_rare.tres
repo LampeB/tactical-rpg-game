@@ -1,13 +1,15 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_7ar62"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="1_uiahd"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_l6gbq"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_o0fnv"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/staff_common.png" id="3_7ar62"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_o0fnv"]
 [ext_resource type="Resource" path="res://data/shapes/shape_custom_212525.tres" id="5_uiahd"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="6_mxsln"]
 
-[sub_resource type="Resource" id="Resource_uiahd"]
+[sub_resource type="Resource" id="Resource_qnkmp"]
 script = ExtResource("6_mxsln")
 stat = 6
 value = 10.0
@@ -22,7 +24,7 @@ category = 3
 rarity = 2
 hand_slots_required = 2
 shape = ExtResource("5_uiahd")
-stat_modifiers = [SubResource("Resource_uiahd")]
+stat_modifiers = Array[ExtResource("6_mxsln")]([SubResource("Resource_qnkmp")])
 magical_power = 7
-granted_skills = [ExtResource("1_uiahd"), ExtResource("2_l6gbq")]
+granted_skills = Array[ExtResource("2_o0fnv")]([ExtResource("1_uiahd"), ExtResource("2_l6gbq")])
 base_price = 112

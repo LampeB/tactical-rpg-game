@@ -171,3 +171,87 @@ enum PricingType {
 	DYNAMIC,
 	NEGOTIABLE,
 }
+
+
+# === DISPLAY NAME HELPERS ===
+
+static func get_item_type_name(itype: ItemType) -> String:
+	match itype:
+		ItemType.ACTIVE_TOOL: return "Active Tool"
+		ItemType.PASSIVE_GEAR: return "Passive Gear"
+		ItemType.MODIFIER: return "Modifier"
+		ItemType.CONSUMABLE: return "Consumable"
+		ItemType.MATERIAL: return "Material"
+		ItemType.BLUEPRINT: return "Blueprint"
+	return ""
+
+
+static func get_item_type_short_name(itype: ItemType) -> String:
+	match itype:
+		ItemType.ACTIVE_TOOL: return "Tool"
+		ItemType.PASSIVE_GEAR: return "Gear"
+		ItemType.MODIFIER: return "Gem"
+		ItemType.CONSUMABLE: return "Consumable"
+		ItemType.MATERIAL: return "Material"
+		ItemType.BLUEPRINT: return "Blueprint"
+	return ""
+
+
+static func get_equipment_category_name(category: EquipmentCategory) -> String:
+	match category:
+		EquipmentCategory.SWORD: return "Sword"
+		EquipmentCategory.MACE: return "Mace"
+		EquipmentCategory.BOW: return "Bow"
+		EquipmentCategory.STAFF: return "Staff"
+		EquipmentCategory.DAGGER: return "Dagger"
+		EquipmentCategory.SHIELD: return "Shield"
+		EquipmentCategory.AXE: return "Axe"
+		EquipmentCategory.HELMET: return "Helmet"
+		EquipmentCategory.CHESTPLATE: return "Chestplate"
+		EquipmentCategory.GLOVES: return "Gloves"
+		EquipmentCategory.LEGS: return "Legs"
+		EquipmentCategory.BOOTS: return "Boots"
+		EquipmentCategory.NECKLACE: return "Necklace"
+		EquipmentCategory.RING: return "Ring"
+	return "Unknown"
+
+
+static func get_damage_type_name(dtype: DamageType) -> String:
+	match dtype:
+		DamageType.PHYSICAL: return "Physical"
+		DamageType.MAGICAL: return "Magical"
+	return "Unknown"
+
+
+static func get_stat_name(stat: Stat) -> String:
+	match stat:
+		Stat.MAX_HP: return "Max HP"
+		Stat.MAX_MP: return "Max MP"
+		Stat.PHYSICAL_ATTACK: return "Phys Atk"
+		Stat.PHYSICAL_DEFENSE: return "Phys Def"
+		Stat.MAGICAL_ATTACK: return "Mag Atk"
+		Stat.MAGICAL_DEFENSE: return "Magical Def"
+		Stat.SPEED: return "Speed"
+		Stat.LUCK: return "Luck"
+		Stat.CRITICAL_RATE: return "Crit Rate"
+		Stat.CRITICAL_DAMAGE: return "Crit Dmg"
+		Stat.PHYSICAL_SCALING: return "Phys Scaling"
+		Stat.MAGICAL_SCALING: return "Mag Scaling"
+	return "Unknown"
+
+
+static func get_status_effect_name(effect_type: StatusEffectType) -> String:
+	match effect_type:
+		StatusEffectType.BURN: return "Burn"
+		StatusEffectType.POISONED: return "Poisoned"
+		StatusEffectType.CHILLED: return "Chilled"
+		StatusEffectType.SHOCKED: return "Shocked"
+	return "Unknown"
+
+
+static func get_weapon_type_name(wtype: WeaponType) -> String:
+	match wtype:
+		WeaponType.MELEE: return "Melee Weapons"
+		WeaponType.RANGED: return "Ranged Weapons"
+		WeaponType.MAGIC: return "Magic Weapons"
+	return "Unknown"

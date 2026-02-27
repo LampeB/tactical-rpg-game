@@ -72,15 +72,13 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 		_show_modifier_reach_preview(shape_cells, grid_pos, item_data, rotation)
 
 	# Check if this modifier would affect any tools
-	var would_modify_tools: bool = false
+	var affected_tools: Array = []
 	if can_place and item_data.item_type == Enums.ItemType.MODIFIER:
-		# Create temporary PlacedItem to check what tools would be affected
 		var temp_placed: GridInventory.PlacedItem = GridInventory.PlacedItem.new()
 		temp_placed.item_data = item_data
 		temp_placed.grid_position = grid_pos
 		temp_placed.rotation = rotation
-		var affected_tools: Array = _grid_inventory.get_tools_affected_by(temp_placed)
-		would_modify_tools = not affected_tools.is_empty()
+		affected_tools = _grid_inventory.get_tools_affected_by(temp_placed)
 
 	# Show valid/invalid drop on grid cells
 	for cell_offset in shape_cells:
@@ -92,12 +90,7 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 				_cells[target].set_state(_cells[target].CellState.INVALID_DROP)
 
 	# Highlight the tools that would be affected by this modifier
-	if would_modify_tools and can_place:
-		var temp_placed: GridInventory.PlacedItem = GridInventory.PlacedItem.new()
-		temp_placed.item_data = item_data
-		temp_placed.grid_position = grid_pos
-		temp_placed.rotation = rotation
-		var affected_tools: Array = _grid_inventory.get_tools_affected_by(temp_placed)
+	if not affected_tools.is_empty() and can_place:
 		for i in range(affected_tools.size()):
 			var tool: GridInventory.PlacedItem = affected_tools[i]
 			var tool_cells: Array[Vector2i] = tool.get_occupied_cells()
@@ -439,8 +432,8 @@ func _show_modifier_reach_preview(shape_cells: Array[Vector2i], grid_pos: Vector
 	for cell in affected_cells:
 		if _cells.has(cell):
 			var is_occupied_by_item: bool = false
-			for cell_offset in shape_cells:
-				if grid_pos + cell_offset == cell:
+			for check_offset in shape_cells:
+				if grid_pos + check_offset == cell:
 					is_occupied_by_item = true
 					break
 			if not is_occupied_by_item:

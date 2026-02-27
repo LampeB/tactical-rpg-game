@@ -2,45 +2,46 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_p1j02"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_common.png" id="5"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="6"]
 [ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7"]
 
-[sub_resource type="Resource" id="Resource_ytg8n"]
+[sub_resource type="Resource" id="Resource_vyeao"]
 script = ExtResource("2")
 stat = 6
 value = 13.0
 
-[sub_resource type="Resource" id="Resource_p1j02"]
-script = ExtResource("3")
-stat_bonuses = [SubResource("Resource_ytg8n")]
-status_effect = ExtResource("7")
-status_effect_chance = 0.2
-
-[sub_resource type="Resource" id="Resource_vyeao"]
-script = ExtResource("2")
-stat = 6
-value = 17.0
-
 [sub_resource type="Resource" id="Resource_t3kkp"]
 script = ExtResource("3")
-target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_vyeao")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_vyeao")])
 status_effect = ExtResource("7")
-status_effect_chance = 0.25
-granted_skills = [ExtResource("6")]
+status_effect_chance = 0.2
 
 [sub_resource type="Resource" id="Resource_dpdxc"]
 script = ExtResource("2")
 stat = 6
-value = 13.0
+value = 17.0
 
 [sub_resource type="Resource" id="Resource_yoie5"]
 script = ExtResource("3")
+target_weapon_type = 2
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_dpdxc")])
+status_effect = ExtResource("7")
+status_effect_chance = 0.25
+granted_skills = Array[ExtResource("2_p1j02")]([ExtResource("6")])
+
+[sub_resource type="Resource" id="Resource_55ffh"]
+script = ExtResource("2")
+stat = 6
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_1yd7e"]
+script = ExtResource("3")
 target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_dpdxc")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_55ffh")])
 status_effect = ExtResource("7")
 status_effect_chance = 0.2
 
@@ -54,5 +55,5 @@ item_type = 2
 rarity = 1
 shape = ExtResource("4")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, 0)])
-conditional_modifier_rules = [SubResource("Resource_p1j02"), SubResource("Resource_t3kkp"), SubResource("Resource_yoie5")]
+conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_t3kkp"), SubResource("Resource_yoie5"), SubResource("Resource_1yd7e")])
 base_price = 60

@@ -52,7 +52,7 @@ func add_to_roster(character: CharacterData) -> bool:
 		squad_changed.emit()
 	return true
 
-func remove_from_roster(character_id: String):
+func remove_from_roster(character_id: String) -> void:
 	roster.erase(character_id)
 	squad.erase(character_id)
 	grid_inventories.erase(character_id)
@@ -83,7 +83,7 @@ func get_or_init_backpack_state(character: CharacterData) -> Dictionary:
 	backpack_states[character.id] = state
 	return state
 
-func set_squad(member_ids: Array[String]):
+func set_squad(member_ids: Array[String]) -> void:
 	squad = member_ids.slice(0, Constants.MAX_SQUAD_SIZE)
 	squad_changed.emit()
 
@@ -101,7 +101,7 @@ func add_to_stash(item: ItemData) -> bool:
 	stash_changed.emit()
 	return true
 
-func remove_from_stash(item: ItemData):
+func remove_from_stash(item: ItemData) -> void:
 	var idx := stash.find(item)
 	if idx >= 0:
 		stash.remove_at(idx)
@@ -209,8 +209,6 @@ func heal_character(character_id: String, hp_amount: int, mp_amount: int, tree: 
 
 	var current_hp: int = get_current_hp(character_id)
 	var current_mp: int = get_current_mp(character_id)
-	var max_hp: int = get_max_hp(character_id, tree)
-	var max_mp: int = get_max_mp(character_id, tree)
 
 	set_current_hp(character_id, current_hp + hp_amount, tree)
 	set_current_mp(character_id, current_mp + mp_amount, tree)
@@ -247,6 +245,62 @@ func get_max_hp(character_id: String, tree: PassiveTreeData = null) -> int:
 					hp_pct += mod.value
 
 	return int(hp_flat * (1.0 + hp_pct / 100.0))
+
+
+## Returns display names for the current squad members.
+func get_squad_display_names() -> Array[String]:
+	var names: Array[String] = []
+	for char_id: String in squad:
+		var char_data: CharacterData = roster.get(char_id)
+		if char_data:
+			names.append(char_data.display_name)
+	return names
+
+
+## Count all Spatial Runes available in the entire party (all inventories + stash).
+func count_runes() -> int:
+	var count := 0
+	for char_id: String in grid_inventories:
+		var inv: GridInventory = grid_inventories[char_id]
+		for placed in inv.placed_items:
+			if placed.item_data.id == Constants.SPATIAL_RUNE_ITEM_ID:
+				count += 1
+	for item in stash:
+		if item.id == Constants.SPATIAL_RUNE_ITEM_ID:
+			count += 1
+	return count
+
+
+## Consume `count` Spatial Runes from the party pool (inventories first, then stash).
+## Returns false (and consumes nothing) if fewer than `count` runes are available.
+func consume_runes(count: int) -> bool:
+	if count_runes() < count:
+		return false
+
+	var remaining := count
+
+	for char_id: String in grid_inventories:
+		if remaining <= 0:
+			break
+		var inv: GridInventory = grid_inventories[char_id]
+		var to_remove: Array = []
+		for placed in inv.placed_items:
+			if remaining <= 0:
+				break
+			if placed.item_data.id == Constants.SPATIAL_RUNE_ITEM_ID:
+				to_remove.append(placed)
+				remaining -= 1
+		for placed in to_remove:
+			inv.remove_item(placed)
+
+	var i := stash.size() - 1
+	while i >= 0 and remaining > 0:
+		if stash[i].id == Constants.SPATIAL_RUNE_ITEM_ID:
+			stash.remove_at(i)
+			remaining -= 1
+		i -= 1
+
+	return true
 
 
 ## Get computed max MP (base + equipment + passives).

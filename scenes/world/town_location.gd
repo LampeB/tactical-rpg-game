@@ -1,11 +1,11 @@
 extends Area2D
 
-func _ready():
+func _ready() -> void:
 	collision_layer = 4
 	collision_mask = 0
 
-func try_enter():
-	var npcs = [
+func try_enter() -> void:
+	var npcs: Array[String] = [
 		"Blacksmith - Weapon upgrades",
 		"Merchant - Buy and sell items",
 		"Innkeeper - Rest and save",

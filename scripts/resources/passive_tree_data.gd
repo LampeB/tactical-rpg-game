@@ -3,7 +3,7 @@ extends Resource
 ## Defines the unified passive skill tree shared by all characters.
 
 @export var display_name: String = "" ## e.g. "Skill Tree"
-@export var nodes: Array = [] ## of PassiveNodeData
+@export var nodes: Array[PassiveNodeData] = []
 
 
 func get_node_by_id(node_id: String) -> PassiveNodeData:

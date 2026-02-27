@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_hjig4"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_m8nrn"]
 [ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/bow_rare.png" id="4"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="5"]
 
-[sub_resource type="Resource" id="Resource_magAtk"]
+[sub_resource type="Resource" id="Resource_m673t"]
 script = ExtResource("2")
 stat = 6
 value = 8.0
@@ -21,10 +23,8 @@ category = 2
 rarity = 2
 hand_slots_required = 2
 shape = ExtResource("3")
-stat_modifiers = [SubResource("Resource_magAtk")]
+stat_modifiers = Array[ExtResource("2")]([SubResource("Resource_m673t")])
 base_power = 6
 innate_status_effect = ExtResource("5")
 innate_status_effect_chance = 0.35
-innate_status_stacks = 1
-innate_crit_status_stacks = 2
 base_price = 250

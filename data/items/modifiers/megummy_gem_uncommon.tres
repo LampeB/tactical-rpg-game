@@ -2,46 +2,47 @@
 
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_ibtas"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_no22h"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_t8tj3"]
 [ext_resource type="Resource" path="res://data/skills/explosion.tres" id="3_t8tj3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_rare.png" id="4_pbsm3"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_xge0f"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_2tbmf"]
 
-[sub_resource type="Resource" id="Resource_ibtas"]
+[sub_resource type="Resource" id="Resource_pbsm3"]
 script = ExtResource("2_no22h")
 stat = 6
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_no22h"]
+[sub_resource type="Resource" id="Resource_xge0f"]
 script = ExtResource("1_ibtas")
-stat_bonuses = [SubResource("Resource_ibtas")]
+stat_bonuses = Array[ExtResource("2_no22h")]([SubResource("Resource_pbsm3")])
 status_effect_chance = 0.1147058823529412
 force_aoe = true
 hp_cost_per_attack = 10
 
-[sub_resource type="Resource" id="Resource_t8tj3"]
+[sub_resource type="Resource" id="Resource_2tbmf"]
 script = ExtResource("2_no22h")
 stat = 6
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_pbsm3"]
+[sub_resource type="Resource" id="Resource_3v2po"]
 script = ExtResource("1_ibtas")
 target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_t8tj3")]
+stat_bonuses = Array[ExtResource("2_no22h")]([SubResource("Resource_2tbmf")])
 status_effect_chance = 0.1147058823529412
 force_aoe = true
 
-[sub_resource type="Resource" id="Resource_xge0f"]
+[sub_resource type="Resource" id="Resource_tiy17"]
 script = ExtResource("2_no22h")
 stat = 6
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_2tbmf"]
+[sub_resource type="Resource" id="Resource_606ql"]
 script = ExtResource("1_ibtas")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_xge0f")]
+stat_bonuses = Array[ExtResource("2_no22h")]([SubResource("Resource_tiy17")])
 status_effect_chance = 0.1147058823529412
-granted_skills = [ExtResource("3_t8tj3")]
+granted_skills = Array[ExtResource("2_t8tj3")]([ExtResource("3_t8tj3")])
 force_aoe = true
 
 [resource]
@@ -54,5 +55,5 @@ item_type = 2
 rarity = 1
 shape = ExtResource("6_2tbmf")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
-conditional_modifier_rules = [SubResource("Resource_no22h"), SubResource("Resource_pbsm3"), SubResource("Resource_2tbmf")]
+conditional_modifier_rules = Array[ExtResource("1_ibtas")]([SubResource("Resource_xge0f"), SubResource("Resource_3v2po"), SubResource("Resource_606ql")])
 base_price = 73
