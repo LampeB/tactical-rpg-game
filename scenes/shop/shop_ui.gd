@@ -96,10 +96,9 @@ func _ready() -> void:
 
 func receive_data(data: Dictionary) -> void:
 	var shop_id: String = data.get("shop_id", "")
-	var path := "res://data/shops/%s.tres" % shop_id
-	_shop_data = load(path) as ShopData
+	_shop_data = ShopDatabase.get_shop(shop_id)
 	if not _shop_data:
-		DebugLogger.log_warn("ShopUI: shop not found: %s" % path, "Shop")
+		DebugLogger.log_warn("ShopUI: shop not found: %s" % shop_id, "Shop")
 		SceneManager.pop_scene()
 		return
 
@@ -171,6 +170,9 @@ func _process(_delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if _drag_state != DragState.DRAGGING:
+		if event.is_action_pressed("escape"):
+			_on_close()
+			get_viewport().set_input_as_handled()
 		return
 
 	# Rotate

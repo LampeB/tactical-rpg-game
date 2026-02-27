@@ -250,5 +250,11 @@ func _on_delete_slot(slot_index: int) -> void:
 	_build_slots()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("escape"):
+		_on_close()
+		get_viewport().set_input_as_handled()
+
+
 func _on_close() -> void:
 	SceneManager.pop_scene()

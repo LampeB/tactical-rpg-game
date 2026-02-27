@@ -13,10 +13,12 @@ extends Node2D
 const BATTLE_COOLDOWN_TIME: float = 3.0  ## Seconds of immunity after battle
 const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
 const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
+const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
 
 var _message_timer: float = 0.0
 var _current_message: String = ""
 var _pause_menu_instance: Control = null
+var _party_hud: HBoxContainer = null
 
 
 func _ready() -> void:
@@ -53,6 +55,11 @@ func _ready() -> void:
 		_message_label.visible = false
 		$UI/HUD.add_child(_message_label)
 
+	# Party HUD (character cards: portrait, HP, MP)
+	_party_hud = HBoxContainer.new()
+	_party_hud.set_script(_PARTY_HUD_SCRIPT)
+	$UI/HUD.add_child(_party_hud)
+
 	# Auto-save on entry
 	GameManager.current_location_name = "Overworld"
 	SaveManager.auto_save()
@@ -83,7 +90,10 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("escape"):
-		_toggle_pause_menu()
+		if _fast_travel_menu.visible:
+			_fast_travel_menu._on_cancel()
+		else:
+			_toggle_pause_menu()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("fast_travel"):
 		_open_fast_travel_menu()
@@ -97,6 +107,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func receive_data(data: Dictionary) -> void:
 	## Called by SceneManager after returning from another scene.
+	# Refresh party HUD (HP/MP may have changed in battle, shop, dialogue, etc.)
+	if _party_hud:
+		_party_hud.rebuild()
+
 	if data.get("from_battle", false):
 		# Push player away from any nearby enemies to prevent immediate re-engagement
 		_push_player_from_enemies()

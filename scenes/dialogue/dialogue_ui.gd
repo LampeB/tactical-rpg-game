@@ -19,6 +19,7 @@ var _typewriter_pos: int = 0
 var _typewriter_timer: Timer = null
 var _waiting_for_input: bool = false
 var _choices_visible: bool = false
+var _resurrect_popup: AcceptDialog = null
 
 
 func _ready() -> void:
@@ -121,6 +122,12 @@ func _skip_typewriter() -> void:
 # === Input ===
 
 func _input(event: InputEvent) -> void:
+	# ESC ends dialogue immediately
+	if event.is_action_pressed("escape"):
+		get_viewport().set_input_as_handled()
+		_end_dialogue()
+		return
+
 	var is_key_advance: bool = event.is_action_pressed("interact") or \
 		(event is InputEventKey and event.keycode == KEY_SPACE and event.pressed)
 	var is_click: bool = event is InputEventMouseButton and \
@@ -185,7 +192,13 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 		GameManager.set_flag(choice.set_flag, choice.set_flag_value)
 
 	# Check specific actions FIRST before falling back on next_conversation_id.
-	if choice.action == "unlock_backpack_tier":
+	if choice.action == "heal_party":
+		_do_heal_party()
+		return
+	elif choice.action == "resurrect_party":
+		_do_resurrect_party()
+		return
+	elif choice.action == "unlock_backpack_tier":
 		GameManager.unlock_next_tier_via_weaver()
 		_end_dialogue()
 	elif choice.action.begins_with("open_shop:"):
@@ -211,3 +224,108 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 func _end_dialogue() -> void:
 	EventBus.dialogue_ended.emit(_npc.id)
 	SceneManager.pop_scene()
+
+
+# === Doctor actions ===
+
+func _do_heal_party() -> void:
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
+	var healed := 0
+	for char_id: String in GameManager.party.roster.keys():
+		var cur_hp: int = GameManager.party.get_current_hp(char_id)
+		if cur_hp <= 0:
+			continue  # Dead — heal doesn't revive
+		var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
+		var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
+		GameManager.party.set_current_hp(char_id, max_hp, tree)
+		GameManager.party.set_current_mp(char_id, max_mp, tree)
+		healed += 1
+	DebugLogger.log_info("Doctor healed %d characters" % healed, "Dialogue")
+	# Overwrite conversation state so the next advance ends the dialogue cleanly.
+	_conversation = DialogueConversation.new()
+	_conversation.lines = ["Your wounds have been tended. Go in peace."]
+	_line_index = 0
+	_clear_choices()
+	_show_next_line()
+
+
+func _do_resurrect_party() -> void:
+	var dead_ids: Array[String] = _get_dead_character_ids()
+	if dead_ids.is_empty():
+		_conversation = DialogueConversation.new()
+		_conversation.lines = ["All of your companions are alive and well. No resurrection needed."]
+		_line_index = 0
+		_clear_choices()
+		_show_next_line()
+		return
+
+	_show_resurrect_popup(dead_ids)
+
+
+func _get_dead_character_ids() -> Array[String]:
+	var dead: Array[String] = []
+	for char_id: String in GameManager.party.roster.keys():
+		if GameManager.party.get_current_hp(char_id) <= 0:
+			dead.append(char_id)
+	return dead
+
+
+func _show_resurrect_popup(dead_ids: Array[String]) -> void:
+	if _resurrect_popup and is_instance_valid(_resurrect_popup):
+		_resurrect_popup.queue_free()
+
+	_resurrect_popup = AcceptDialog.new()
+	_resurrect_popup.title = "Resurrect — 1 Gold each"
+	_resurrect_popup.dialog_hide_on_ok = false
+	_resurrect_popup.get_ok_button().text = "Done"
+	_resurrect_popup.get_ok_button().pressed.connect(_on_resurrect_done)
+
+	var vbox := VBoxContainer.new()
+	for char_id: String in dead_ids:
+		var char_data: CharacterData = GameManager.party.roster.get(char_id)
+		if not char_data:
+			continue
+		var btn := Button.new()
+		btn.text = "%s (1 Gold)" % char_data.display_name
+		btn.pressed.connect(_on_resurrect_target.bind(char_id, btn))
+		vbox.add_child(btn)
+
+	var gold_label := Label.new()
+	gold_label.name = "GoldLabel"
+	gold_label.text = "Gold: %d" % GameManager.gold
+	vbox.add_child(gold_label)
+
+	_resurrect_popup.add_child(vbox)
+	add_child(_resurrect_popup)
+	_resurrect_popup.popup_centered(Vector2i(300, 0))
+
+
+func _on_resurrect_target(char_id: String, btn: Button) -> void:
+	if not GameManager.spend_gold(1):
+		EventBus.show_message.emit("Not enough gold!")
+		return
+
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
+	var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
+	var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
+	GameManager.party.set_current_hp(char_id, max_hp, tree)
+	GameManager.party.set_current_mp(char_id, max_mp, tree)
+
+	var char_data: CharacterData = GameManager.party.roster.get(char_id)
+	var char_name: String = char_data.display_name if char_data else char_id
+	DebugLogger.log_info("Doctor resurrected %s for 1 gold" % char_name, "Dialogue")
+
+	btn.disabled = true
+	btn.text = "%s — Revived!" % char_name
+
+	# Update gold display
+	var gold_label: Label = _resurrect_popup.find_child("GoldLabel", true, false)
+	if gold_label:
+		gold_label.text = "Gold: %d" % GameManager.gold
+
+
+func _on_resurrect_done() -> void:
+	if _resurrect_popup and is_instance_valid(_resurrect_popup):
+		_resurrect_popup.queue_free()
+		_resurrect_popup = null
+	_end_dialogue()

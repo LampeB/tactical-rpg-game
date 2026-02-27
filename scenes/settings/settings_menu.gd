@@ -116,5 +116,11 @@ func _on_reset_all_pressed() -> void:
 	_populate_keybinds()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not _waiting_for_input and event.is_action_pressed("escape"):
+		_on_back_pressed()
+		get_viewport().set_input_as_handled()
+
+
 func _on_back_pressed() -> void:
 	SceneManager.pop_scene()

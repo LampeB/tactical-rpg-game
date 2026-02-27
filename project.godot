@@ -29,6 +29,7 @@ SceneManager="*res://scripts/autoload/scene_manager.gd"
 InputManager="*res://scripts/autoload/input_manager.gd"
 UIColors="*res://scripts/autoload/ui_colors.gd"
 NpcDatabase="*res://scripts/autoload/npc_database.gd"
+ShopDatabase="*res://scripts/autoload/shop_database.gd"
 
 [display]
 

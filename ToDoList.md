@@ -32,6 +32,15 @@
 - [x] Settings menu with keyboard rebinding
 - [x] In-game skill tree editor
 - [x] In-game item editor
+- [x] NPC & dialogue system (NpcData, dialogue tree, dialogue UI, NPC markers)
+- [x] NpcDatabase autoload
+- [x] Shop system (ShopData, shop UI, shopkeeper NPC integration)
+- [x] Item crafting system (blacksmith, recipes, blueprints, crafting UI)
+- [x] Multiple save slots with ring buffer history and auto-save (save system v5)
+- [x] Pause menu (canvas overlay on overworld)
+- [x] Backpack tier upgrade system (6 tiers per character, custom shapes, Weaver NPC)
+- [x] Dead characters persist death across battles (no auto-revive on victory)
+- [x] Full GDScript warning cleanup (~50+ warnings fixed: type annotations, return types, etc.)
 
 ---
 
@@ -41,12 +50,17 @@
 - [x] KO'd characters still play their animations / act during battle
 - [x] Tooltip doesn't disappear correctly when leaving items in the blacksmith interface
 - [x] Item editor has no fields to edit innate status effect modifiers (poison, chill, etc.)
+- [x] Runtime errors: typed array assignment from Variant (combat_entity, combat_manager)
+- [x] Cascading parse error from misaligned indentation in item_tooltip.gd
 
 ---
 
 ## General Tasks
 
 ### UI & Polish
+- [ ] Loot screen "Use" button should show target selection popup (same as inventory right-click potion use)
+- [ ] Persistent party character cards on overworld HUD (portrait, HP, MP)
+- [ ] ESC should leave current interface/screen (except during battles)
 - [ ] Stash sorting and filtering: primary + secondary sort order (e.g. by type then by rarity → all weapons sorted by rarity, then all armor sorted by rarity, etc.); available sort keys: alphabetical, item type, rarity; also support filtering by type
 - [ ] Unified screen/menu presentation — rework all menus and screens to follow a single consistent pattern (no mix of floating overlays and full-screen panels; decide on one approach and apply it everywhere)
 - [ ] Make it possible to use sprites for every UI element
@@ -70,9 +84,10 @@
 - [ ] Expand weapon variety (multiple tiers per type: iron → steel → mythril → legendary)
 - [ ] Design unique legendary items with special effects
 - [ ] Balance item stats across all tiers
-- [ ] Item crafting system — combine items to create new ones, recipes in a database, crafting UI
+- [x] Item crafting system — combine items to create new ones, recipes in a database, crafting UI
 - [ ] Remove gold cost from blacksmith recipes (crafting cost should be ingredients only, no gold)
 - [ ] Inventory grid size upgrades: use a dedicated resource (not gold, not an inventory item) tracked globally like gold — earned through gameplay and spent to unlock additional grid cells
+- [ ] Item merging by superposing on inventory grid — combine same-family items to upgrade rarity tier
 - [ ] Loot screen item merging — allow combining two identical items (same family, adjacent rarity) to upgrade them to the next rarity tier directly on the post-battle loot screen
 
 ### Combat
@@ -116,7 +131,7 @@
 - [ ] Initial languages: English + French (at minimum); structure to make adding more languages straightforward
 
 ### Quality of Life
-- [ ] Multiple save slots (5-10) with metadata (playtime, location, party level)
+- [x] Multiple save slots (5-10) with metadata (playtime, location, party level)
 - [ ] Item sorting and filtering in inventory
 - [ ] Equipment comparison tooltips
 - [ ] Batch sell items
@@ -129,19 +144,19 @@
 ## Map Editor Prerequisites (implement before map editor)
 
 ### NPCs & Dialogue System
-- [ ] `NpcData` resource — id, display_name, portrait, dialogue_tree, role (merchant/quest_giver/generic)
-- [ ] Dialogue tree data structure — nodes with text, choices, conditions, outcomes
-- [ ] Dialogue UI scene — portrait, text box, choice buttons, typewriter effect
-- [ ] `Npc` scene (Area2D) — placed on maps, triggers dialogue on interact
-- [ ] NpcDatabase autoload — scans `data/npcs/` for .tres files
+- [x] `NpcData` resource — id, display_name, portrait, dialogue_tree, role (merchant/quest_giver/craftsman/generic)
+- [x] Dialogue tree data structure — nodes with text, choices, conditions, outcomes
+- [x] Dialogue UI scene — portrait, text box, choice buttons, typewriter effect
+- [x] `Npc` scene (Area2D) — placed on maps, triggers dialogue on interact
+- [x] NpcDatabase autoload — scans `data/npcs/` for .tres files
 - [ ] In-game NPC/dialogue editor (optional, or hand-edit .tres)
 
 ### Shop System
-- [ ] `ShopData` resource — id, display_name, inventory (Array[ItemData]), pricing rules, restock behavior
-- [ ] Shop UI scene — buy/sell panels, item grid, gold display, confirmation
-- [ ] Shopkeeper NPC integration — NPC with role=merchant opens shop UI
+- [x] `ShopData` resource — id, display_name, inventory (Array[ItemData]), pricing rules, restock behavior
+- [x] Shop UI scene — buy/sell panels, item grid, gold display, confirmation
+- [x] Shopkeeper NPC integration — NPC with role=merchant opens shop UI
 - [ ] ShopDatabase autoload — scans `data/shops/` for .tres files
-- [ ] Connect to existing inventory system (GridInventory) for player items
+- [x] Connect to existing inventory system (GridInventory) for player items
 
 ### Quest System
 - [ ] `QuestData` resource — id, title, description, objectives (Array[QuestObjective]), rewards, prerequisite quests
