@@ -53,3 +53,9 @@ func get_all_npcs() -> Array:
 
 func has_npc(id: String) -> bool:
 	return _npcs.has(id)
+
+
+func reload() -> void:
+	_npcs.clear()
+	_load_all_npcs()
+	DebugLogger.log_info("Reloaded %d NPCs" % _npcs.size(), "NpcDatabase")

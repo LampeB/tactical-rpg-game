@@ -12,6 +12,7 @@ func _ready() -> void:
 	$VBoxContainer/SquadButton.pressed.connect(_on_squad_pressed)
 	$VBoxContainer/TreeEditorButton.pressed.connect(_on_tree_editor_pressed)
 	$VBoxContainer/ItemEditorButton.pressed.connect(_on_item_editor_pressed)
+	$VBoxContainer/NpcEditorButton.pressed.connect(_on_npc_editor_pressed)
 	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 	_confirm_dialog.confirmed.connect(_start_new_game)
@@ -74,6 +75,10 @@ func _on_tree_editor_pressed() -> void:
 
 func _on_item_editor_pressed() -> void:
 	SceneManager.push_scene("res://scenes/item_editor/item_editor.tscn")
+
+
+func _on_npc_editor_pressed() -> void:
+	SceneManager.push_scene("res://scenes/npc_editor/npc_editor.tscn")
 
 
 func _on_settings_pressed() -> void:
