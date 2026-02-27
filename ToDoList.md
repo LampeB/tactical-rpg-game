@@ -91,9 +91,9 @@
 - [ ] Inventory grid size upgrades: use a dedicated resource (not gold, not an inventory item) tracked globally like gold — earned through gameplay and spent to unlock additional grid cells
 - [ ] Item merging by superposing on inventory grid — combine same-family items to upgrade rarity tier
 - [ ] Loot screen item merging — allow combining two identical items (same family, adjacent rarity) to upgrade them to the next rarity tier directly on the post-battle loot screen
-- [ ] Items not picked up from the loot panel are lost once the screen is closed (no auto-stash)
-- [ ] Replace loot screen items list with inventory grids — place items one by one from highest rarity to lowest; items that can't be placed are discarded
-- [ ] Loot grid shapes depend on the encounter (different encounters yield different-shaped loot grids)
+- [x] Items not picked up from the loot panel are lost once the screen is closed (no auto-stash)
+- [x] Replace loot screen items list with inventory grids — place items one by one from highest rarity to lowest; items that can't be placed are discarded
+- [x] Loot grid shapes depend on the encounter (different encounters yield different-shaped loot grids)
 
 ### Combat
 - [ ] Implement defend action (damage reduction via shield/defense stats)
@@ -103,6 +103,7 @@
 - [ ] Restrict roaming enemies from entering town/NPC areas — define exclusion zones (per LocationData or a new repel_radius) that enemies cannot pathfind into, so players feel safe near towns
 
 ### World & Progression
+- [ ] Party management NPC/location — add or remove party members (recruit, dismiss, swap roster)
 - [ ] Add mechanic to block parts of the map if conditions aren't met
 - [ ] Expand passive skill tree (PoE-style, 1000-1500 nodes, characters start at different positions)
 - [ ] Replace fixed per-node gold cost in skill tree with a formula based on total nodes already unlocked (cost scales up the more nodes a character has)
@@ -154,7 +155,7 @@
 - [x] Dialogue UI scene — portrait, text box, choice buttons, typewriter effect
 - [x] `Npc` scene (Area2D) — placed on maps, triggers dialogue on interact
 - [x] NpcDatabase autoload — scans `data/npcs/` for .tres files
-- [ ] In-game NPC/dialogue editor (optional, or hand-edit .tres)
+- [x] In-game NPC/dialogue editor
 
 ### Shop System
 - [x] `ShopData` resource — id, display_name, inventory (Array[ItemData]), pricing rules, restock behavior
@@ -162,6 +163,8 @@
 - [x] Shopkeeper NPC integration — NPC with role=merchant opens shop UI
 - [x] ShopDatabase autoload — scans `data/shops/` for .tres files (created but unused; shop_ui loads directly)
 - [x] Connect to existing inventory system (GridInventory) for player items
+- [ ] In-game shop editor — create/manage shops, define inventory and pricing
+- [ ] Permanently remove items from shop stock when bought by the player
 
 ### Quest System
 - [ ] `QuestData` resource — id, title, description, objectives (Array[QuestObjective]), rewards, prerequisite quests
