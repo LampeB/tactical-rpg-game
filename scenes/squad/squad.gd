@@ -9,19 +9,19 @@ extends Control
 var _card_buttons: Dictionary = {}  ## character_id -> Button
 
 
-func _ready():
+func _ready() -> void:
 	_bg.color = UIColors.BG_SQUAD
 	$VBox/TopBar/BackButton.pressed.connect(_on_back)
 	_refresh()
 	DebugLogger.log_info("Squad scene ready", "Squad")
 
 
-func _unhandled_input(event: InputEvent):
+func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("escape"):
 		_on_back()
 
 
-func _refresh():
+func _refresh() -> void:
 	_clear_list(_squad_list)
 	_clear_list(_bench_list)
 	_card_buttons.clear()
@@ -106,7 +106,7 @@ func _create_card(char_data: CharacterData, in_squad: bool) -> PanelContainer:
 	return panel
 
 
-func _on_add_to_squad(char_id: String):
+func _on_add_to_squad(char_id: String) -> void:
 	var party: Party = GameManager.party
 	if not party:
 		return
@@ -121,7 +121,7 @@ func _on_add_to_squad(char_id: String):
 	_refresh()
 
 
-func _on_remove_from_squad(char_id: String):
+func _on_remove_from_squad(char_id: String) -> void:
 	var party: Party = GameManager.party
 	if not party:
 		return
@@ -134,10 +134,10 @@ func _on_remove_from_squad(char_id: String):
 	_refresh()
 
 
-func _clear_list(list: VBoxContainer):
+func _clear_list(list: VBoxContainer) -> void:
 	for child in list.get_children():
 		child.queue_free()
 
 
-func _on_back():
+func _on_back() -> void:
 	SceneManager.pop_scene()

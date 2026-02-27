@@ -26,7 +26,7 @@ extends Resource
 
 @export_group("Stats")
 ## Direct stat bonuses this item provides when equipped.
-@export var stat_modifiers: Array = [] ## of StatModifier
+@export var stat_modifiers: Array[StatModifier] = []
 
 @export_group("Combat")
 ## Base physical damage for active tools.
@@ -34,7 +34,7 @@ extends Resource
 ## Base magical damage for active tools.
 @export var magical_power: int = 0
 ## Skills granted by this item when equipped.
-@export var granted_skills: Array = [] ## of SkillData
+@export var granted_skills: Array[SkillData] = []
 
 @export_group("Modifier")
 ## For gems: how many cells away the modifier reaches (Manhattan distance fallback).
@@ -42,9 +42,9 @@ extends Resource
 ## For gems: custom reach pattern as cell offsets. If non-empty, overrides modifier_reach.
 @export var modifier_reach_pattern: Array[Vector2i] = []
 ## For gems: stat bonuses applied to adjacent active tools.
-@export var modifier_bonuses: Array = [] ## of StatModifier
+@export var modifier_bonuses: Array[StatModifier] = []
 ## For gems: context-sensitive effects based on neighboring item categories.
-@export var conditional_modifier_rules: Array = [] ## of ConditionalModifierRule
+@export var conditional_modifier_rules: Array[ConditionalModifierRule] = []
 
 @export_group("Innate Effects")
 ## Built-in status effect proc on hit (no gem required). Overridden by any gem on the weapon.

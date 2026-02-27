@@ -2,28 +2,29 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_fh0s8"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_uncommon.png" id="5"]
 
-[sub_resource type="Resource" id="Resource_6x78b"]
+[sub_resource type="Resource" id="Resource_w2hlh"]
 script = ExtResource("2")
 stat = 6
 value = 3.0
 
-[sub_resource type="Resource" id="Resource_fh0s8"]
-script = ExtResource("3")
-stat_bonuses = [SubResource("Resource_6x78b")]
-
-[sub_resource type="Resource" id="Resource_w2hlh"]
-script = ExtResource("3")
-target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_6x78b")]
-
 [sub_resource type="Resource" id="Resource_83m3o"]
 script = ExtResource("3")
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_w2hlh")])
+
+[sub_resource type="Resource" id="Resource_3b8lb"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_w2hlh")])
+
+[sub_resource type="Resource" id="Resource_1qran"]
+script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_6x78b")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_w2hlh")])
 
 [resource]
 script = ExtResource("1")
@@ -33,5 +34,5 @@ description = "A gem that creates cascading energy waves. [Future: Chains attack
 icon = ExtResource("5")
 item_type = 2
 shape = ExtResource("4")
-conditional_modifier_rules = [SubResource("Resource_fh0s8"), SubResource("Resource_w2hlh"), SubResource("Resource_83m3o")]
+conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_83m3o"), SubResource("Resource_3b8lb"), SubResource("Resource_1qran")])
 base_price = 60

@@ -75,7 +75,7 @@ func _create_keybind_row(action_name: String) -> HBoxContainer:
 	return row
 
 
-func _on_rebind_pressed(action_name: String, key_label: Label) -> void:
+func _on_rebind_pressed(action_name: String, _key_label: Label) -> void:
 	_current_action = action_name
 	_waiting_for_input = true
 

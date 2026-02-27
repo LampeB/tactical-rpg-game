@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_rgiii"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_vqo1n"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hs80f"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_cu3p7"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_jxndy"]
+
+[resource]
+script = ExtResource("4_cu3p7")
+id = "recipe_flameblade"
+display_name = "Blueprint: Flameblade"
+description = "Forging instructions for a fire-infused blade. Bring this to a blacksmith."
+item_type = 5
+shape = ExtResource("5_jxndy")
+base_price = 80

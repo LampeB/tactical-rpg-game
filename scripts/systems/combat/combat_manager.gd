@@ -13,10 +13,10 @@ signal entity_died(entity: CombatEntity)
 signal log_message(text: String, color: Color)
 
 var encounter: EncounterData
-var all_entities: Array = []  ## of CombatEntity
-var player_entities: Array = []  ## of CombatEntity
-var enemy_entities: Array = []  ## of CombatEntity
-var turn_order: Array = []  ## of CombatEntity (sorted by speed)
+var all_entities: Array[CombatEntity] = []
+var player_entities: Array[CombatEntity] = []
+var enemy_entities: Array[CombatEntity] = []
+var turn_order: Array[CombatEntity] = []
 var current_turn_index: int = -1
 var current_entity: CombatEntity = null
 var is_combat_active: bool = false
@@ -31,8 +31,8 @@ func start_combat(
 	enemy_list: Array,
 ) -> void:
 	encounter = encounter_data
-	player_entities = party_entities.duplicate()
-	enemy_entities = enemy_list.duplicate()
+	player_entities.assign(party_entities)
+	enemy_entities.assign(enemy_list)
 	all_entities.clear()
 	all_entities.append_array(player_entities)
 	all_entities.append_array(enemy_entities)
@@ -71,7 +71,7 @@ func _build_turn_order() -> void:
 					entity.time_until_turn = 0.0
 				else:
 					# Random initial offset (0-50% of normal turn time) for variety
-					entity.time_until_turn = randf_range(0.0, 50.0 / speed)
+					entity.time_until_turn = randf_range(0.0, Constants.TURN_TIME_BASE / 2.0 / speed)
 
 	# Build initial turn order (just for logging)
 	turn_order.clear()
@@ -87,83 +87,85 @@ func _build_turn_order() -> void:
 
 
 func advance_turn() -> void:
-	if not is_combat_active:
+	# Loop instead of recursion to prevent stack overflow when skipping many entities
+	while is_combat_active:
+		# Find entity with lowest time_until_turn (who goes next)
+		var next_entity: CombatEntity = null
+		var min_time: float = INF
+		for i in range(all_entities.size()):
+			var entity: CombatEntity = all_entities[i]
+			if not entity.is_dead and entity.time_until_turn < min_time:
+				min_time = entity.time_until_turn
+				next_entity = entity
+
+		if not next_entity:
+			log_message.emit("[TURN] No more entities can act!", Color(0.6, 0.6, 0.6))
+			return
+
+		current_entity = next_entity
+
+		# Increment turn counter every ~10 actions for round tracking
+		current_turn_index += 1
+		if current_turn_index % 10 == 0:
+			round_number += 1
+
+		log_message.emit("[TURN] %s's turn (time=%.1f, HP:%d/%d)" % [current_entity.entity_name, current_entity.time_until_turn, current_entity.current_hp, current_entity.max_hp], Color(0.6, 0.6, 0.6))
+
+		# Skip dead entities
+		if current_entity.is_dead:
+			log_message.emit("[TURN] %s is dead, skipping" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
+			continue
+
+		# Tick status effects at turn start
+		if not current_entity.status_effects.is_empty():
+			log_message.emit("[STATUS] Ticking %d status(es) on %s" % [current_entity.status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
+		_tick_statuses(current_entity)
+
+		# Tick gem-based status effects (Burn, Poisoned, Chilled, Shocked)
+		if not current_entity.active_gem_status_effects.is_empty():
+			log_message.emit("[GEM STATUS] Ticking %d gem effect(s) on %s" % [current_entity.active_gem_status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
+			current_entity.process_gem_status_effects()
+
+		# Check if entity died from status tick
+		if current_entity.is_dead:
+			log_message.emit("[TURN] %s died from status effects" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
+			entity_died.emit(current_entity)
+			_check_combat_end()
+			continue
+
+		# Clear defending flag (lasts one round)
+		if current_entity.is_defending:
+			log_message.emit("[TURN] %s defend stance cleared" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
+		current_entity.is_defending = false
+
+		# Tick cooldowns
+		current_entity.tick_cooldowns()
+
+		# Check if entity can act (stun, etc.)
+		if not current_entity.can_act():
+			log_message.emit("%s is unable to act!" % current_entity.entity_name, Color(1.0, 0.6, 0.2))
+			_increment_turn_time(current_entity)
+			continue
+
+		# Check Shocked status — chance to skip turn entirely
+		var shocked_effect: StatusEffect = current_entity.get_gem_status_effect(Enums.StatusEffectType.SHOCKED)
+		if shocked_effect and shocked_effect.skip_turn_chance > 0.0:
+			if randf() < shocked_effect.skip_turn_chance:
+				log_message.emit("%s is paralyzed by shock and can't move!" % current_entity.entity_name, Color(1.0, 0.6, 0.2))
+				_increment_turn_time(current_entity)
+				continue
+
+		log_message.emit("[TURN] Emitting turn_ready for %s (is_player=%s)" % [current_entity.entity_name, str(current_entity.is_player)], Color(0.6, 0.6, 0.6))
+		turn_ready.emit(current_entity)
 		return
-
-	# Find entity with lowest time_until_turn (who goes next)
-	var next_entity: CombatEntity = null
-	var min_time: float = INF
-	for i in range(all_entities.size()):
-		var entity: CombatEntity = all_entities[i]
-		if not entity.is_dead and entity.time_until_turn < min_time:
-			min_time = entity.time_until_turn
-			next_entity = entity
-
-	if not next_entity:
-		log_message.emit("[TURN] No more entities can act!", Color(0.6, 0.6, 0.6))
-		return
-
-	current_entity = next_entity
-
-	# Increment turn counter every ~10 actions for round tracking
-	current_turn_index += 1
-	if current_turn_index % 10 == 0:
-		round_number += 1
-
-	log_message.emit("[TURN] %s's turn (time=%.1f, HP:%d/%d)" % [current_entity.entity_name, current_entity.time_until_turn, current_entity.current_hp, current_entity.max_hp], Color(0.6, 0.6, 0.6))
-
-	# Skip dead entities
-	if current_entity.is_dead:
-		log_message.emit("[TURN] %s is dead, skipping" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
-		advance_turn()
-		return
-
-	# Tick status effects at turn start
-	if not current_entity.status_effects.is_empty():
-		log_message.emit("[STATUS] Ticking %d status(es) on %s" % [current_entity.status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
-	_tick_statuses(current_entity)
-
-	# Tick gem-based status effects (Burn, Poisoned, Chilled, Shocked)
-	if not current_entity.active_gem_status_effects.is_empty():
-		log_message.emit("[GEM STATUS] Ticking %d gem effect(s) on %s" % [current_entity.active_gem_status_effects.size(), current_entity.entity_name], Color(0.6, 0.6, 0.6))
-		current_entity.process_gem_status_effects()
-
-	# Check if entity died from status tick
-	if current_entity.is_dead:
-		log_message.emit("[TURN] %s died from status effects" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
-		entity_died.emit(current_entity)
-		_check_combat_end()
-		if is_combat_active:
-			advance_turn()
-		return
-
-	# Clear defending flag (lasts one round)
-	if current_entity.is_defending:
-		log_message.emit("[TURN] %s defend stance cleared" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
-	current_entity.is_defending = false
-
-	# Tick cooldowns
-	current_entity.tick_cooldowns()
-
-	# Check if entity can act (stun, etc.)
-	if not current_entity.can_act():
-		log_message.emit("%s is unable to act!" % current_entity.entity_name, Color(1.0, 0.6, 0.2))
-		_increment_turn_time(current_entity)  # Still increment time even if stunned
-		if is_combat_active:
-			advance_turn()
-		return
-
-	log_message.emit("[TURN] Emitting turn_ready for %s (is_player=%s)" % [current_entity.entity_name, str(current_entity.is_player)], Color(0.6, 0.6, 0.6))
-	turn_ready.emit(current_entity)
 
 
 func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 	log_message.emit("[ACTION] %s → Attack → %s (target HP:%d/%d, defending:%s)" % [source.entity_name, target.entity_name, target.current_hp, target.max_hp, str(target.is_defending)], Color(0.6, 0.6, 0.6))
 
-	# Increment source's turn timer (acts AFTER the action completes)
 	_increment_turn_time(source)
 
-	# Evasion check — target dodges the attack entirely
+	# Evasion check
 	if target.has_passive_effect(PassiveEffects.EVASION):
 		if randf() < PassiveEffects.EVASION_CHANCE:
 			log_message.emit("%s dodges %s's attack!" % [target.entity_name, source.entity_name], Color(0.4, 0.9, 1.0))
@@ -175,6 +177,7 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 			action_resolved.emit(dodge_result)
 			return dodge_result
 
+	# Calculate and apply primary damage
 	var result: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
 	log_message.emit("[DAMAGE] Calculated: %d, crit: %s" % [result.amount, str(result.is_crit)], Color(0.6, 0.6, 0.6))
 	var target_was_alive: bool = not target.is_dead
@@ -190,80 +193,16 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 		Color(1.0, 0.3, 0.3) if result.is_crit else Color.WHITE,
 	)
 
-	# MeGummy AoE — splash damage to all other enemies
-	var splash_results: Array = []
-	if source.is_player and source.has_force_aoe():
-		log_message.emit("[AOE] %s has force_aoe — splashing to all enemies!" % source.entity_name, Color(1.0, 0.6, 0.2))
-		var splash_targets: Array = get_alive_enemies()
-		for s_i in range(splash_targets.size()):
-			var splash_target: CombatEntity = splash_targets[s_i]
-			if splash_target == target or splash_target.is_dead:
-				continue
-			var splash_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, splash_target)
-			var splash_actual: int = splash_target.take_damage(splash_dmg.amount)
-			log_message.emit(
-				"  Explosive splash hits %s for %d damage!" % [splash_target.entity_name, splash_actual],
-				Color(1.0, 0.6, 0.2),
-			)
-			splash_results.append({"target": splash_target, "damage": splash_actual, "is_crit": splash_dmg.is_crit})
-			if splash_target.is_dead:
-				log_message.emit("%s has been defeated!" % splash_target.entity_name, Color(1.0, 0.5, 0.5))
-				entity_died.emit(splash_target)
-	result["splash_results"] = splash_results
-
-	# Gem/innate status effects — roll each proc independently
-	if actual > 0 and source.is_player and target_was_alive:
-		var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
-		if modifier_state:
-			for proc in modifier_state.status_procs:
-				if randf() < proc.chance:
-					var stacks: int = proc.crit_stacks if result.is_crit else proc.stacks
-					var status_template: StatusEffect = _get_status_effect_template(proc.type)
-					if status_template:
-						target.apply_gem_status_effect(status_template, stacks)
-						var effect_name: String = Enums.StatusEffectType.keys()[proc.type]
-						var crit_tag: String = " (CRIT — %d stacks)" % stacks if result.is_crit else " (+%d stack)" % stacks
-						log_message.emit("%s is afflicted with %s%s" % [target.entity_name, effect_name, crit_tag], Color(1.0, 0.6, 0.2))
-
-	# Gem HP cost per attack (e.g. MeGummy)
-	if source.is_player and not source.is_dead:
-		var modifier_state_cost: ToolModifierState = source.get_primary_tool_modifier_state()
-		if modifier_state_cost and modifier_state_cost.hp_cost_per_attack > 0:
-			var hp_lost: int = source.take_damage(modifier_state_cost.hp_cost_per_attack)
-			if hp_lost > 0:
-				log_message.emit("%s suffers %d HP from unstable gem!" % [source.entity_name, hp_lost], Color(0.9, 0.3, 0.6))
-				result["self_damage"] = hp_lost
-				if source.is_dead:
-					log_message.emit("%s has been defeated by their own gem!" % source.entity_name, Color(1.0, 0.5, 0.5))
-					entity_died.emit(source)
-
-	# Lifesteal — heal attacker for % of damage dealt
-	if actual > 0 and not source.is_dead:
-		var lifesteal_pct: float = 0.0
-		if source.has_passive_effect(PassiveEffects.LIFESTEAL_10):
-			lifesteal_pct = 0.10
-		elif source.has_passive_effect(PassiveEffects.LIFESTEAL_5):
-			lifesteal_pct = 0.05
-		if lifesteal_pct > 0.0:
-			var heal_amount: int = maxi(int(float(actual) * lifesteal_pct), 1)
-			var healed: int = source.heal(heal_amount)
-			if healed > 0:
-				log_message.emit("%s drains %d HP!" % [source.entity_name, healed], Color(0.6, 1.0, 0.6))
-	
-	# Thorns — reflect flat damage back to attacker
-	if actual > 0 and target.has_passive_effect(PassiveEffects.THORNS) and not target.is_dead and not source.is_dead:
-		var thorn_dmg: int = source.take_damage(PassiveEffects.THORNS_DAMAGE)
-		if thorn_dmg > 0:
-			log_message.emit("%s takes %d thorn damage!" % [source.entity_name, thorn_dmg], Color(0.8, 0.5, 0.2))
-			if source.is_dead:
-				log_message.emit("%s has been defeated by thorns!" % source.entity_name, Color(1.0, 0.5, 0.5))
-				entity_died.emit(source)
+	# Secondary effects
+	result["splash_results"] = _apply_aoe_splash(source, target)
+	_apply_status_procs(source, target, result, actual, target_was_alive)
+	_apply_post_attack_effects(source, target, result, actual)
 
 	if target.is_dead:
 		log_message.emit("%s has been defeated!" % target.entity_name, Color(1.0, 0.5, 0.5))
 		entity_died.emit(target)
 
-	# Counter-attack — 15% chance to strike back
+	# Counter-attack
 	if actual > 0 and target.has_passive_effect(PassiveEffects.COUNTER_ATTACK) and not target.is_dead and not source.is_dead:
 		if randf() < PassiveEffects.COUNTER_CHANCE:
 			var counter_result: Dictionary = DamageCalculator.calculate_basic_attack(target, source)
@@ -276,6 +215,87 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 	action_resolved.emit(result)
 	_check_combat_end()
 	return result
+
+
+func _apply_aoe_splash(source: CombatEntity, primary_target: CombatEntity) -> Array:
+	## Splash damage to all other enemies when source has force_aoe.
+	var splash_results: Array = []
+	if not source.is_player or not source.has_force_aoe():
+		return splash_results
+
+	log_message.emit("[AOE] %s has force_aoe — splashing to all enemies!" % source.entity_name, Color(1.0, 0.6, 0.2))
+	var splash_targets: Array = get_alive_enemies()
+	for s_i in range(splash_targets.size()):
+		var splash_target: CombatEntity = splash_targets[s_i]
+		if splash_target == primary_target or splash_target.is_dead:
+			continue
+		var splash_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, splash_target)
+		var splash_actual: int = splash_target.take_damage(splash_dmg.amount)
+		log_message.emit(
+			"  Explosive splash hits %s for %d damage!" % [splash_target.entity_name, splash_actual],
+			Color(1.0, 0.6, 0.2),
+		)
+		splash_results.append({"target": splash_target, "damage": splash_actual, "is_crit": splash_dmg.is_crit})
+		if splash_target.is_dead:
+			log_message.emit("%s has been defeated!" % splash_target.entity_name, Color(1.0, 0.5, 0.5))
+			entity_died.emit(splash_target)
+	return splash_results
+
+
+func _apply_status_procs(source: CombatEntity, target: CombatEntity, result: Dictionary, actual: int, target_was_alive: bool) -> void:
+	## Roll gem/innate status effect procs on the target.
+	if actual <= 0 or not source.is_player or not target_was_alive:
+		return
+	var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
+	if not modifier_state:
+		return
+	for proc in modifier_state.status_procs:
+		if randf() < proc.chance:
+			var stacks: int = proc.crit_stacks if result.is_crit else proc.stacks
+			var status_template: StatusEffect = _get_status_effect_template(proc.type)
+			if status_template:
+				target.apply_gem_status_effect(status_template, stacks)
+				var effect_name: String = Enums.get_status_effect_name(proc.type)
+				var crit_tag: String = " (CRIT — %d stacks)" % stacks if result.is_crit else " (+%d stack)" % stacks
+				log_message.emit("%s is afflicted with %s%s" % [target.entity_name, effect_name, crit_tag], Color(1.0, 0.6, 0.2))
+
+
+func _apply_post_attack_effects(source: CombatEntity, target: CombatEntity, result: Dictionary, actual: int) -> void:
+	## Apply HP cost, lifesteal, and thorns after an attack lands.
+
+	# Gem HP cost per attack (e.g. MeGummy)
+	if source.is_player and not source.is_dead:
+		var modifier_state: ToolModifierState = source.get_primary_tool_modifier_state()
+		if modifier_state and modifier_state.hp_cost_per_attack > 0:
+			var hp_lost: int = source.take_damage(modifier_state.hp_cost_per_attack)
+			if hp_lost > 0:
+				log_message.emit("%s suffers %d HP from unstable gem!" % [source.entity_name, hp_lost], Color(0.9, 0.3, 0.6))
+				result["self_damage"] = hp_lost
+				if source.is_dead:
+					log_message.emit("%s has been defeated by their own gem!" % source.entity_name, Color(1.0, 0.5, 0.5))
+					entity_died.emit(source)
+
+	# Lifesteal
+	if actual > 0 and not source.is_dead:
+		var lifesteal_pct: float = 0.0
+		if source.has_passive_effect(PassiveEffects.LIFESTEAL_10):
+			lifesteal_pct = 0.10
+		elif source.has_passive_effect(PassiveEffects.LIFESTEAL_5):
+			lifesteal_pct = 0.05
+		if lifesteal_pct > 0.0:
+			var heal_amount: int = maxi(int(float(actual) * lifesteal_pct), 1)
+			var healed: int = source.heal(heal_amount)
+			if healed > 0:
+				log_message.emit("%s drains %d HP!" % [source.entity_name, healed], Color(0.6, 1.0, 0.6))
+
+	# Thorns
+	if actual > 0 and target.has_passive_effect(PassiveEffects.THORNS) and not target.is_dead and not source.is_dead:
+		var thorn_dmg: int = source.take_damage(PassiveEffects.THORNS_DAMAGE)
+		if thorn_dmg > 0:
+			log_message.emit("%s takes %d thorn damage!" % [source.entity_name, thorn_dmg], Color(0.8, 0.5, 0.2))
+			if source.is_dead:
+				log_message.emit("%s has been defeated by thorns!" % source.entity_name, Color(1.0, 0.5, 0.5))
+				entity_died.emit(source)
 
 
 func execute_defend(source: CombatEntity) -> Dictionary:
@@ -446,7 +466,7 @@ func _simulate_future_turns(count: int) -> Array:
 
 		# Increment this entity's time for next turn
 		var speed: float = next_entity.get_effective_stat(Enums.Stat.SPEED)
-		var time_increment: float = 100.0 / max(speed, 1.0)
+		var time_increment: float = Constants.TURN_TIME_BASE / max(speed, 1.0)
 		entity_times[next_entity] = entity_times[next_entity] + time_increment
 
 	return future_order
@@ -458,7 +478,7 @@ func _increment_turn_time(entity: CombatEntity) -> void:
 	## Increments an entity's turn timer based on their speed.
 	## Called AFTER an action executes, not before.
 	var speed: float = entity.get_effective_stat(Enums.Stat.SPEED)
-	var time_increment: float = 100.0 / max(speed, 1.0)
+	var time_increment: float = Constants.TURN_TIME_BASE / max(speed, 1.0)
 	entity.time_until_turn += time_increment
 
 
@@ -494,10 +514,10 @@ func _tick_statuses(entity: CombatEntity) -> void:
 	# Remove expired effects (iterate in reverse to keep indices valid)
 	for e_i in range(expired.size()):
 		var idx: int = expired[e_i]
-		var data: StatusEffectData = entity.status_effects[idx].data
+		var expired_data: StatusEffectData = entity.status_effects[idx].data
 		entity.status_effects.remove_at(idx)
 		log_message.emit(
-			"%s's %s has worn off." % [entity.entity_name, data.display_name],
+			"%s's %s has worn off." % [entity.entity_name, expired_data.display_name],
 			Color(1.0, 0.6, 0.2),
 		)
 

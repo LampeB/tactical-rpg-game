@@ -113,7 +113,7 @@ func _on_node_deleted(node_id: String) -> void:
 	DebugLogger.log_info("Deleted node: %s" % node_id, "TreeEditor")
 
 
-func _on_node_moved(node_id: String, new_position: Vector2) -> void:
+func _on_node_moved(node_id: String, _new_position: Vector2) -> void:
 	# Refresh property panel position display
 	if _selected_node_id == node_id:
 		var node: PassiveNodeData = _tree_data.get_node_by_id(node_id)
@@ -373,7 +373,7 @@ func _build_property_panel(node: PassiveNodeData) -> void:
 	_property_vbox.add_child(delete_btn)
 
 
-func _add_modifier_row(node: PassiveNodeData, mod: StatModifier, index: int) -> void:
+func _add_modifier_row(node: PassiveNodeData, mod: StatModifier, _index: int) -> void:
 	var row: VBoxContainer = VBoxContainer.new()
 	row.add_theme_constant_override("separation", 2)
 
@@ -387,7 +387,7 @@ func _add_modifier_row(node: PassiveNodeData, mod: StatModifier, index: int) -> 
 	stat_btn.selected = mod.stat
 	stat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_btn.item_selected.connect(func(idx: int) -> void:
-		mod.stat = idx
+		mod.stat = idx as Enums.Stat
 		_editor_view.queue_redraw()
 	)
 	top_row.add_child(stat_btn)
@@ -411,7 +411,7 @@ func _add_modifier_row(node: PassiveNodeData, mod: StatModifier, index: int) -> 
 	type_btn.add_item("Percent", 1)
 	type_btn.selected = mod.modifier_type
 	type_btn.item_selected.connect(func(idx: int) -> void:
-		mod.modifier_type = idx
+		mod.modifier_type = idx as Enums.ModifierType
 		_editor_view.queue_redraw()
 	)
 	bottom_row.add_child(type_btn)

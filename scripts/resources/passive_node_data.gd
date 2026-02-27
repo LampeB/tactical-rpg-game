@@ -10,7 +10,7 @@ extends Resource
 
 @export_group("Bonuses")
 ## Stat bonuses applied when this node is unlocked (reuses StatModifier).
-@export var stat_modifiers: Array = [] ## of StatModifier
+@export var stat_modifiers: Array[StatModifier] = []
 ## Special combat effect granted by this node (e.g. "lifesteal_5", "counter_attack").
 @export var special_effect_id: String = ""
 

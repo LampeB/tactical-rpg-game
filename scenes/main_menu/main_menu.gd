@@ -16,7 +16,7 @@ func _ready() -> void:
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 	_confirm_dialog.confirmed.connect(_start_new_game)
 
-	var title = $VBoxContainer/Title
+	var title: Label = $VBoxContainer/Title
 	title.add_theme_font_size_override("font_size", Constants.FONT_SIZE_MENU_TITLE)
 
 	_update_button_states()

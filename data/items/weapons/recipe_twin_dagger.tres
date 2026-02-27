@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_er47m"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_s637g"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_k83k4"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_b6lsp"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_403eu"]
+
+[resource]
+script = ExtResource("4_b6lsp")
+id = "recipe_twin_dagger"
+display_name = "Blueprint: Twin Dagger"
+description = "Detailed forging instructions for a twin dagger. Bring this to a blacksmith to learn the recipe."
+item_type = 5
+shape = ExtResource("5_403eu")
+base_price = 100

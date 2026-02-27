@@ -101,9 +101,9 @@ static func get_purchasable_cells(character: CharacterData, state: Dictionary) -
 		var cell: Vector2i = layout[i]
 		# Skip already purchased cells.
 		var already_bought := false
-		for p in purchased:
-			var pv: Vector2i = p if p is Vector2i else Vector2i(int(p[0]), int(p[1]))
-			if pv == cell:
+		for bought in purchased:
+			var bought_v: Vector2i = bought if bought is Vector2i else Vector2i(int(bought[0]), int(bought[1]))
+			if bought_v == cell:
 				already_bought = true
 				break
 		if already_bought:
@@ -207,7 +207,6 @@ static func unlock_next_tier(
 	grid_inventory: GridInventory
 ) -> Array:
 	var next_tier: int = state.get("tier", 0) + 1
-	var next_config: BackpackTierConfig = character.backpack_tiers[next_tier]
 
 	var snapshot: Array = []
 	for placed in grid_inventory.placed_items:
@@ -226,49 +225,3 @@ static func unlock_next_tier(
 			displaced.append(entry.item)
 
 	return displaced
-
-
-## Count all Spatial Runes available in the entire party (all inventories + stash).
-static func count_party_runes(party: Party) -> int:
-	var count := 0
-	for char_id: String in party.grid_inventories:
-		var inv: GridInventory = party.grid_inventories[char_id]
-		for placed in inv.placed_items:
-			if placed.item_data.id == Constants.SPATIAL_RUNE_ITEM_ID:
-				count += 1
-	for item in party.stash:
-		if item.id == Constants.SPATIAL_RUNE_ITEM_ID:
-			count += 1
-	return count
-
-
-## Consume `count` Spatial Runes from the party pool (inventories first, then stash).
-## Returns false (and consumes nothing) if fewer than `count` runes are available.
-static func consume_party_runes(party: Party, count: int) -> bool:
-	if count_party_runes(party) < count:
-		return false
-
-	var remaining := count
-
-	for char_id: String in party.grid_inventories:
-		if remaining <= 0:
-			break
-		var inv: GridInventory = party.grid_inventories[char_id]
-		var to_remove: Array = []
-		for placed in inv.placed_items:
-			if remaining <= 0:
-				break
-			if placed.item_data.id == Constants.SPATIAL_RUNE_ITEM_ID:
-				to_remove.append(placed)
-				remaining -= 1
-		for placed in to_remove:
-			inv.remove_item(placed)
-
-	var i := party.stash.size() - 1
-	while i >= 0 and remaining > 0:
-		if party.stash[i].id == Constants.SPATIAL_RUNE_ITEM_ID:
-			party.stash.remove_at(i)
-			remaining -= 1
-		i -= 1
-
-	return true

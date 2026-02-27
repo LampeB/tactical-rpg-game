@@ -28,7 +28,7 @@ extends Resource
 
 @export_group("Effects")
 ## Status effects applied on hit.
-@export var applied_statuses: Array = [] ## of StatusEffectData
+@export var applied_statuses: Array[StatusEffectData] = []
 ## Healing amount (flat).
 @export var heal_amount: int = 0
 ## Healing as percentage of max HP.

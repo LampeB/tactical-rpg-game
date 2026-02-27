@@ -100,9 +100,9 @@ static func _roll_weighted(entries: Array, roll_count: int) -> Array:
 	var items: Array = []
 
 	var total_weight: float = 0.0
-	for i in range(entries.size()):
-		var entry: LootEntry = entries[i]
-		total_weight += entry.weight
+	for wi in range(entries.size()):
+		var w_entry: LootEntry = entries[wi]
+		total_weight += w_entry.weight
 
 	if total_weight <= 0.0:
 		return items

@@ -2,28 +2,29 @@
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_3yp30"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_elite.png" id="5"]
 
-[sub_resource type="Resource" id="Resource_ehsw8"]
+[sub_resource type="Resource" id="Resource_um3ed"]
 script = ExtResource("2")
 stat = 9
 value = 25.0
 
-[sub_resource type="Resource" id="Resource_3yp30"]
-script = ExtResource("3")
-stat_bonuses = [SubResource("Resource_ehsw8")]
-
-[sub_resource type="Resource" id="Resource_um3ed"]
-script = ExtResource("3")
-target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_ehsw8")]
-
 [sub_resource type="Resource" id="Resource_n5l3s"]
 script = ExtResource("3")
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_um3ed")])
+
+[sub_resource type="Resource" id="Resource_yhjyq"]
+script = ExtResource("3")
+target_weapon_type = 1
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_um3ed")])
+
+[sub_resource type="Resource" id="Resource_3grec"]
+script = ExtResource("3")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_ehsw8")]
+stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_um3ed")])
 
 [resource]
 script = ExtResource("1")
@@ -34,5 +35,5 @@ icon = ExtResource("5")
 item_type = 2
 rarity = 1
 shape = ExtResource("4")
-conditional_modifier_rules = [SubResource("Resource_3yp30"), SubResource("Resource_um3ed"), SubResource("Resource_n5l3s")]
+conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_n5l3s"), SubResource("Resource_yhjyq"), SubResource("Resource_3grec")])
 base_price = 45

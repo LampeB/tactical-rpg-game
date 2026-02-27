@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="1_qkpa7"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_tgbqj"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_6emh8"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_htw05"]
 [ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="3_tgbqj"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_htw05"]
 
-[sub_resource type="Resource" id="Resource_qkpa7"]
+[sub_resource type="Resource" id="Resource_bw5hs"]
 script = ExtResource("4_htw05")
 stat = 4
 value = 9.0
@@ -20,6 +22,6 @@ category = 2
 rarity = 3
 hand_slots_required = 2
 shape = ExtResource("3_tgbqj")
-stat_modifiers = [SubResource("Resource_qkpa7")]
+stat_modifiers = Array[ExtResource("4_htw05")]([SubResource("Resource_bw5hs")])
 base_power = 9
 base_price = 119

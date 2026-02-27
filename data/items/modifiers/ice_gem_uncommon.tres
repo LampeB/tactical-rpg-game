@@ -2,45 +2,46 @@
 
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_ao06p"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_5efg7"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_37ib7"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="3_37ib7"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="4_2f58d"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5_rfoof"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="6_0ccjh"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="7_jb64k"]
 
-[sub_resource type="Resource" id="Resource_ao06p"]
+[sub_resource type="Resource" id="Resource_2f58d"]
 script = ExtResource("2_5efg7")
 stat = 6
 value = 10.0
 
-[sub_resource type="Resource" id="Resource_5efg7"]
+[sub_resource type="Resource" id="Resource_rfoof"]
 script = ExtResource("1_ao06p")
-stat_bonuses = [SubResource("Resource_ao06p")]
+stat_bonuses = Array[ExtResource("2_5efg7")]([SubResource("Resource_2f58d")])
 status_effect = ExtResource("3_37ib7")
 status_effect_chance = 0.26
 
-[sub_resource type="Resource" id="Resource_37ib7"]
+[sub_resource type="Resource" id="Resource_0ccjh"]
 script = ExtResource("2_5efg7")
 stat = 6
 value = 14.0
 
-[sub_resource type="Resource" id="Resource_2f58d"]
+[sub_resource type="Resource" id="Resource_jb64k"]
 script = ExtResource("1_ao06p")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_37ib7")]
+stat_bonuses = Array[ExtResource("2_5efg7")]([SubResource("Resource_0ccjh")])
 status_effect = ExtResource("3_37ib7")
 status_effect_chance = 0.325
-granted_skills = [ExtResource("4_2f58d")]
+granted_skills = Array[ExtResource("2_37ib7")]([ExtResource("4_2f58d")])
 
-[sub_resource type="Resource" id="Resource_rfoof"]
+[sub_resource type="Resource" id="Resource_5bjh2"]
 script = ExtResource("2_5efg7")
 stat = 6
 value = 10.0
 
-[sub_resource type="Resource" id="Resource_0ccjh"]
+[sub_resource type="Resource" id="Resource_rsi2c"]
 script = ExtResource("1_ao06p")
 target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_rfoof")]
+stat_bonuses = Array[ExtResource("2_5efg7")]([SubResource("Resource_5bjh2")])
 status_effect = ExtResource("3_37ib7")
 status_effect_chance = 0.26
 
@@ -53,5 +54,5 @@ icon = ExtResource("5_rfoof")
 item_type = 2
 rarity = 1
 shape = ExtResource("7_jb64k")
-conditional_modifier_rules = [SubResource("Resource_5efg7"), SubResource("Resource_2f58d"), SubResource("Resource_0ccjh")]
+conditional_modifier_rules = Array[ExtResource("1_ao06p")]([SubResource("Resource_rfoof"), SubResource("Resource_jb64k"), SubResource("Resource_rsi2c")])
 base_price = 47

@@ -10,7 +10,7 @@ var _is_transitioning: bool = false
 # Pending navigation request (queued if called during a transition)
 var _pending_request: Dictionary = {}  ## {type, path, data}
 
-func _ready():
+func _ready() -> void:
 	# Create a persistent overlay for fade transitions
 	_transition_overlay = ColorRect.new()
 	_transition_overlay.color = Color.BLACK
@@ -26,7 +26,7 @@ func _ready():
 	DebugLogger.log_info("SceneManager ready", "SceneManager")
 
 ## Push a new scene onto the stack (keeps history for back navigation).
-func push_scene(scene_path: String, data: Dictionary = {}):
+func push_scene(scene_path: String, data: Dictionary = {}) -> void:
 	if _is_transitioning:
 		DebugLogger.log_warn("Transition in progress — queuing push: %s" % scene_path, "SceneManager")
 		_pending_request = {"type": "push", "path": scene_path, "data": data}
@@ -38,7 +38,7 @@ func push_scene(scene_path: String, data: Dictionary = {}):
 	_change_scene(scene_path, data)
 
 ## Replace the current scene (no history — can't go back).
-func replace_scene(scene_path: String, data: Dictionary = {}):
+func replace_scene(scene_path: String, data: Dictionary = {}) -> void:
 	if _is_transitioning:
 		DebugLogger.log_warn("Transition in progress — queuing replace: %s" % scene_path, "SceneManager")
 		_pending_request = {"type": "replace", "path": scene_path, "data": data}
@@ -46,7 +46,7 @@ func replace_scene(scene_path: String, data: Dictionary = {}):
 	_change_scene(scene_path, data)
 
 ## Go back to the previous scene in the stack.
-func pop_scene(data: Dictionary = {}):
+func pop_scene(data: Dictionary = {}) -> void:
 	if _is_transitioning:
 		DebugLogger.log_warn("Transition in progress — queuing pop", "SceneManager")
 		_pending_request = {"type": "pop", "data": data}
@@ -58,13 +58,13 @@ func pop_scene(data: Dictionary = {}):
 	_change_scene(previous, data)
 
 ## Clear the entire scene stack.
-func clear_stack():
+func clear_stack() -> void:
 	_scene_stack.clear()
 
 func can_go_back() -> bool:
 	return not _scene_stack.is_empty()
 
-func _change_scene(scene_path: String, data: Dictionary):
+func _change_scene(scene_path: String, data: Dictionary) -> void:
 	_is_transitioning = true
 	DebugLogger.log_scene_change(scene_path.get_file().get_basename())
 
@@ -103,7 +103,7 @@ func _change_scene(scene_path: String, data: Dictionary):
 	_flush_pending()
 
 
-func _flush_pending():
+func _flush_pending() -> void:
 	if _pending_request.is_empty():
 		return
 	var req: Dictionary = _pending_request

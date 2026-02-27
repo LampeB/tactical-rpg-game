@@ -1,47 +1,48 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_b2mya"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_rslmg"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_uos2x"]
 [ext_resource type="Resource" path="res://data/skills/explosion.tres" id="3_rslmg"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_rare.png" id="4_o7ac7"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_jpyc3"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_myk83"]
 
-[sub_resource type="Resource" id="Resource_b2mya"]
+[sub_resource type="Resource" id="Resource_o7ac7"]
 script = ExtResource("2_uos2x")
 stat = 6
 value = 14.0
 
-[sub_resource type="Resource" id="Resource_uos2x"]
+[sub_resource type="Resource" id="Resource_jpyc3"]
 script = ExtResource("1_b2mya")
-stat_bonuses = [SubResource("Resource_b2mya")]
+stat_bonuses = Array[ExtResource("2_uos2x")]([SubResource("Resource_o7ac7")])
 status_effect_chance = 0.2647058823529412
 force_aoe = true
 hp_cost_per_attack = 10
 
-[sub_resource type="Resource" id="Resource_rslmg"]
+[sub_resource type="Resource" id="Resource_myk83"]
 script = ExtResource("2_uos2x")
 stat = 6
 value = 14.0
 
-[sub_resource type="Resource" id="Resource_o7ac7"]
+[sub_resource type="Resource" id="Resource_m3qmh"]
 script = ExtResource("1_b2mya")
 target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_rslmg")]
+stat_bonuses = Array[ExtResource("2_uos2x")]([SubResource("Resource_myk83")])
 status_effect_chance = 0.2647058823529412
 force_aoe = true
 
-[sub_resource type="Resource" id="Resource_jpyc3"]
+[sub_resource type="Resource" id="Resource_2pk66"]
 script = ExtResource("2_uos2x")
 stat = 6
 value = 14.0
 
-[sub_resource type="Resource" id="Resource_myk83"]
+[sub_resource type="Resource" id="Resource_e750g"]
 script = ExtResource("1_b2mya")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_jpyc3")]
+stat_bonuses = Array[ExtResource("2_uos2x")]([SubResource("Resource_2pk66")])
 status_effect_chance = 0.2647058823529412
-granted_skills = [ExtResource("3_rslmg")]
+granted_skills = Array[ExtResource("2_rslmg")]([ExtResource("3_rslmg")])
 force_aoe = true
 
 [resource]
@@ -54,5 +55,5 @@ item_type = 2
 rarity = 4
 shape = ExtResource("6_myk83")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
-conditional_modifier_rules = [SubResource("Resource_uos2x"), SubResource("Resource_o7ac7"), SubResource("Resource_myk83")]
+conditional_modifier_rules = Array[ExtResource("1_b2mya")]([SubResource("Resource_jpyc3"), SubResource("Resource_m3qmh"), SubResource("Resource_e750g")])
 base_price = 169

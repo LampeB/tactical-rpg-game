@@ -1,9 +1,12 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_bqo6j"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_btr5d"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_uncommon.png" id="3"]
 [ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="4"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_wg3gh"]
 
 [resource]
 script = ExtResource("1")
@@ -18,6 +21,4 @@ shape = ExtResource("2")
 base_power = 5
 innate_status_effect = ExtResource("4")
 innate_status_effect_chance = 0.5
-innate_status_stacks = 1
-innate_crit_status_stacks = 2
 base_price = 180

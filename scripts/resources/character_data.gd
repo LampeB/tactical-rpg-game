@@ -33,7 +33,7 @@ extends Resource
 
 @export_group("Skills")
 ## Innate skills (not from items).
-@export var innate_skills: Array = [] ## of SkillData
+@export var innate_skills: Array[SkillData] = []
 
 func get_base_stat(stat: Enums.Stat) -> int:
 	match stat:

@@ -1,7 +1,10 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_8d5qi"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_dg4us"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_7hi6j"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_avoxm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3cyxy"]
 
 [resource]
 script = ExtResource("1_8d5qi")

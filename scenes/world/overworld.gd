@@ -68,7 +68,7 @@ func _ready() -> void:
 	_enable_enemy_detection()
 
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	# Camera follows player
 	_camera.global_position = _player.global_position
 
@@ -230,18 +230,18 @@ func _push_player_from_enemies() -> void:
 func _apply_battle_cooldown() -> void:
 	## Disables battle triggers on all enemies for a short period.
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("roaming_enemies")
-	for i in range(enemies.size()):
-		var enemy: Node = enemies[i]
-		if enemy.has_method("disable_battles_temporarily"):
-			enemy.disable_battles_temporarily()
+	for ei in range(enemies.size()):
+		var e: Node = enemies[ei]
+		if e.has_method("disable_battles_temporarily"):
+			e.disable_battles_temporarily()
 
 	# Re-enable after cooldown
 	await get_tree().create_timer(BATTLE_COOLDOWN_TIME).timeout
 
-	for i in range(enemies.size()):
-		var enemy: Node = enemies[i]
-		if enemy and is_instance_valid(enemy) and "_can_trigger_battle" in enemy:
-			enemy._can_trigger_battle = true
+	for ri in range(enemies.size()):
+		var re: Node = enemies[ri]
+		if re and is_instance_valid(re) and "_can_trigger_battle" in re:
+			re._can_trigger_battle = true
 
 	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")
 

@@ -149,7 +149,7 @@ func _start_battle() -> void:
 	var enemy_entities: Array = []
 	DebugLogger.log_info("Building %d enemy entities" % _encounter_data.enemies.size(), "Battle")
 	for i in range(_encounter_data.enemies.size()):
-		var e_data = _encounter_data.enemies[i]
+		var e_data: EnemyData = _encounter_data.enemies[i]
 		if e_data:
 			var entity: CombatEntity = CombatEntity.from_enemy(e_data)
 			# Disambiguate duplicate enemy names
@@ -227,10 +227,10 @@ func _add_entity_bar(entity: CombatEntity, container: Container) -> void:
 
 
 func _build_entity_bars(players: Array, enemies: Array) -> void:
-	for child in _enemy_list.get_children():
-		child.queue_free()
-	for child in _party_list.get_children():
-		child.queue_free()
+	for c in _enemy_list.get_children():
+		c.queue_free()
+	for c in _party_list.get_children():
+		c.queue_free()
 	_entity_bars.clear()
 
 	for i in range(enemies.size()):
@@ -270,11 +270,11 @@ func _build_entity_sprites(players: Array, enemies: Array) -> void:
 			child.queue_free()
 	_entity_sprites.clear()
 
-	for i in range(players.size()):
-		_add_entity_sprite(players[i], i, true)
+	for pi in range(players.size()):
+		_add_entity_sprite(players[pi], pi, true)
 
-	for i in range(enemies.size()):
-		_add_entity_sprite(enemies[i], i, false)
+	for ei in range(enemies.size()):
+		_add_entity_sprite(enemies[ei], ei, false)
 
 
 func _refresh_all_ui() -> void:
@@ -292,15 +292,15 @@ func _refresh_all_ui() -> void:
 		_round_label.text = "Round %d" % (_combat_manager.round_number + 1)
 
 		# Highlight current entity's bar
-		for i in range(keys.size()):
-			var entity: CombatEntity = keys[i]
-			var bar: PanelContainer = _entity_bars[entity]
-			if entity == _combat_manager.current_entity and entity.is_player:
-				bar.highlight_active_turn()
-			elif entity == _combat_manager.current_entity:
-				bar.highlight(true)
+		for hi in range(keys.size()):
+			var hl_entity: CombatEntity = keys[hi]
+			var hl_bar: PanelContainer = _entity_bars[hl_entity]
+			if hl_entity == _combat_manager.current_entity and hl_entity.is_player:
+				hl_bar.highlight_active_turn()
+			elif hl_entity == _combat_manager.current_entity:
+				hl_bar.highlight(true)
 			else:
-				bar.highlight(false)
+				hl_bar.highlight(false)
 
 
 # === Combat Manager Callbacks ===
@@ -579,12 +579,12 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 
 	var targets: Array = _get_targets_for_hover(hovered_entity)
 	if targets.is_empty():
-		var bar: PanelContainer = _entity_bars.get(hovered_entity)
-		if bar:
-			bar.set_highlight(bar.HighlightType.INVALID)
-		var sprite: Node2D = _entity_sprites.get(hovered_entity)
-		if sprite:
-			sprite.set_highlight(false)
+		var hover_bar: PanelContainer = _entity_bars.get(hovered_entity)
+		if hover_bar:
+			hover_bar.set_highlight(hover_bar.HighlightType.INVALID)
+		var hover_sprite: Node2D = _entity_sprites.get(hovered_entity)
+		if hover_sprite:
+			hover_sprite.set_highlight(false)
 		return
 
 	for i in range(targets.size()):
@@ -696,23 +696,28 @@ func _execute_player_action(targets: Array) -> void:
 
 # === Animation Helpers ===
 
+func _play_hurt_animation_for(target: CombatEntity, dmg: int) -> void:
+	## Play hurt animation on a single target if it took damage.
+	if dmg <= 0:
+		DebugLogger.log_info("Anim: %s took 0 damage, skipping hurt anim" % target.entity_name, "BattleAnim")
+		return
+	var sprite: Node2D = _entity_sprites.get(target)
+	if sprite and not target.is_dead:
+		DebugLogger.log_info("Anim: %s -> play_hurt (dmg=%d, pos=%s)" % [target.entity_name, dmg, str(sprite.position)], "BattleAnim")
+		sprite.play_hurt_animation()
+		await sprite.animation_finished
+		DebugLogger.log_info("Anim: %s -> hurt finished" % target.entity_name, "BattleAnim")
+	elif not sprite:
+		DebugLogger.log_warn("Anim: no sprite found for hurt target %s" % target.entity_name, "BattleAnim")
+
+
 func _play_target_reactions(targets: Array, result: Dictionary) -> void:
 	## Play hurt animation on single-target attack results.
 	if targets.is_empty():
 		return
 	var target: CombatEntity = targets[0]
 	var dmg: int = result.get("damage", result.get("actual_damage", 0))
-	if dmg > 0:
-		var sprite: Node2D = _entity_sprites.get(target)
-		if sprite and not target.is_dead:
-			DebugLogger.log_info("Anim: %s -> play_hurt (dmg=%d, pos=%s)" % [target.entity_name, dmg, str(sprite.position)], "BattleAnim")
-			sprite.play_hurt_animation()
-			await sprite.animation_finished
-			DebugLogger.log_info("Anim: %s -> hurt finished" % target.entity_name, "BattleAnim")
-		elif not sprite:
-			DebugLogger.log_warn("Anim: no sprite found for hurt target %s" % target.entity_name, "BattleAnim")
-	else:
-		DebugLogger.log_info("Anim: %s took 0 damage, skipping hurt anim" % target.entity_name, "BattleAnim")
+	await _play_hurt_animation_for(target, dmg)
 
 
 func _play_target_reactions_from_results(result: Dictionary) -> void:
@@ -723,13 +728,7 @@ func _play_target_reactions_from_results(result: Dictionary) -> void:
 		var target_result: Dictionary = target_results[i]
 		var target: CombatEntity = target_result.target
 		var dmg: int = target_result.get("damage", target_result.get("actual_damage", 0))
-		if dmg > 0:
-			var sprite: Node2D = _entity_sprites.get(target)
-			if sprite and not target.is_dead:
-				DebugLogger.log_info("Anim: %s -> play_hurt [%d/%d] (dmg=%d)" % [target.entity_name, i + 1, target_results.size(), dmg], "BattleAnim")
-				sprite.play_hurt_animation()
-				await sprite.animation_finished
-				DebugLogger.log_info("Anim: %s -> hurt finished [%d/%d]" % [target.entity_name, i + 1, target_results.size()], "BattleAnim")
+		await _play_hurt_animation_for(target, dmg)
 
 
 # === Enemy Turn ===

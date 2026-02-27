@@ -9,6 +9,7 @@ var is_game_started: bool = false
 var current_location_name: String = "Overworld"
 
 func _ready() -> void:
+	EventBus.item_database_reloaded.connect(_on_item_database_reloaded)
 	DebugLogger.log_info("GameManager ready", "GameManager")
 
 func new_game() -> void:
@@ -97,6 +98,17 @@ func new_game() -> void:
 	SaveManager.start_playtime_tracking()
 	DebugLogger.log_info("New game started — Gold: %d, Roster: %d, Stash: %d" % [gold, party.roster.size(), party.get_stash_size()], "GameManager")
 
+## Restore game state from a save. Called by SaveManager during deserialization.
+## Keeps all direct property writes in one place instead of scattered in SaveManager.
+func restore_game_state(new_party: Party, new_gold: int, new_flags: Dictionary, location: String) -> void:
+	party = new_party
+	gold = new_gold
+	story_flags = new_flags
+	current_location_name = location
+	is_game_started = true
+	EventBus.gold_changed.emit(gold)
+
+
 func add_gold(amount: int) -> void:
 	gold += amount
 	EventBus.gold_changed.emit(gold)
@@ -159,7 +171,7 @@ func unlock_next_tier_via_weaver() -> bool:
 	# Use the first character as the cost reference (all share the same tier).
 	var first_char: CharacterData = characters[0]
 	var first_state := party.get_or_init_backpack_state(first_char)
-	var total_runes := BackpackUpgradeSystem.count_party_runes(party)
+	var total_runes := party.count_runes()
 	var check := BackpackUpgradeSystem.can_unlock_next_tier(first_char, first_state, gold, total_runes)
 
 	if not check.ok:
@@ -168,7 +180,7 @@ func unlock_next_tier_via_weaver() -> bool:
 
 	# Deduct resources (one payment for the whole party).
 	spend_gold(check.cost_gold)
-	BackpackUpgradeSystem.consume_party_runes(party, check.cost_runes)
+	party.consume_runes(check.cost_runes)
 
 	# Unlock for every character; displaced items go to stash.
 	for character in characters:
@@ -183,6 +195,67 @@ func unlock_next_tier_via_weaver() -> bool:
 	return true
 
 
+## Called when ItemDatabase reloads — refresh all live item references held by the party.
+func _on_item_database_reloaded() -> void:
+	if not is_game_started or not party:
+		return
+
+	# Refresh stash items
+	for i in range(party.stash.size()):
+		var old_item: ItemData = party.stash[i]
+		var fresh: ItemData = ItemDatabase.get_item(old_item.id)
+		if fresh:
+			if old_item.rarity == fresh.rarity:
+				party.stash[i] = fresh
+			else:
+				old_item.shape = fresh.shape
+
+	# Refresh grid inventory items — rebuild cell maps with updated references
+	var displaced_items: Array = []
+	var char_ids: Array = party.grid_inventories.keys()
+	for ci in range(char_ids.size()):
+		var char_id: String = char_ids[ci]
+		var grid: GridInventory = party.grid_inventories[char_id]
+		var placements: Array = []
+		for pi in range(grid.placed_items.size()):
+			var placed: GridInventory.PlacedItem = grid.placed_items[pi]
+			placements.append({
+				"id": placed.item_data.id,
+				"rarity": placed.item_data.rarity,
+				"pos": placed.grid_position,
+				"rot": placed.rotation,
+				"old_item": placed.item_data,
+			})
+		grid.clear()
+		for pi in range(placements.size()):
+			var entry: Dictionary = placements[pi]
+			var fresh: ItemData = ItemDatabase.get_item(entry.id)
+			var item_to_place: ItemData
+			if fresh and entry.rarity == fresh.rarity:
+				item_to_place = fresh
+			elif fresh:
+				entry.old_item.shape = fresh.shape
+				item_to_place = entry.old_item
+			else:
+				item_to_place = entry.old_item
+			if not item_to_place.shape or item_to_place.shape.cells.is_empty():
+				DebugLogger.log_warn("Item %s has no shape — moved to stash" % item_to_place.id, "GameManager")
+				displaced_items.append(item_to_place)
+				continue
+			var placed: GridInventory.PlacedItem = grid.place_item(item_to_place, entry.pos, entry.rot)
+			if not placed:
+				DebugLogger.log_warn("Item %s no longer fits at (%d,%d) on %s — moved to stash" % [
+					item_to_place.id, entry.pos.x, entry.pos.y, char_id
+				], "GameManager")
+				displaced_items.append(item_to_place)
+
+	for item in displaced_items:
+		party.stash.append(item)
+	if not displaced_items.is_empty():
+		DebugLogger.log_info("Moved %d displaced items to stash after reload" % displaced_items.size(), "GameManager")
+		EventBus.stash_changed.emit()
+
+
 ## Returns true if the next tier can be unlocked (enough gold + runes in party pool).
 func can_unlock_tier_any() -> bool:
 	var characters: Array = party.get_full_roster()
@@ -190,6 +263,6 @@ func can_unlock_tier_any() -> bool:
 		return false
 	var first_char: CharacterData = characters[0]
 	var first_state := party.get_or_init_backpack_state(first_char)
-	var total_runes := BackpackUpgradeSystem.count_party_runes(party)
+	var total_runes := party.count_runes()
 	var check := BackpackUpgradeSystem.can_unlock_next_tier(first_char, first_state, gold, total_runes)
 	return check.ok

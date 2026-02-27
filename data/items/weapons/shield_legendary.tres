@@ -1,17 +1,19 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="1_u1ayc"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_wxuw7"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="2_f42dq"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_yqi1s"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_wxuw7"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="4_yqi1s"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_j5ge4"]
 
-[sub_resource type="Resource" id="Resource_u1ayc"]
+[sub_resource type="Resource" id="Resource_j5ge4"]
 script = ExtResource("5_j5ge4")
 stat = 5
 value = 30.0
 
-[sub_resource type="Resource" id="Resource_f42dq"]
+[sub_resource type="Resource" id="Resource_6u6sk"]
 script = ExtResource("5_j5ge4")
 stat = 7
 value = 18.0
@@ -26,6 +28,6 @@ category = 5
 rarity = 4
 hand_slots_required = 1
 shape = ExtResource("4_yqi1s")
-stat_modifiers = [SubResource("Resource_u1ayc"), SubResource("Resource_f42dq")]
-granted_skills = [ExtResource("1_u1ayc")]
+stat_modifiers = Array[ExtResource("5_j5ge4")]([SubResource("Resource_j5ge4"), SubResource("Resource_6u6sk")])
+granted_skills = Array[ExtResource("2_yqi1s")]([ExtResource("1_u1ayc")])
 base_price = 144

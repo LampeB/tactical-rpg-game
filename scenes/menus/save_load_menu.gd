@@ -47,14 +47,11 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_bottom", 8)
+	UIThemes.set_margins(margin, 12, 12, 8, 8)
 	card.add_child(margin)
 
 	var inner_vbox := VBoxContainer.new()
-	inner_vbox.add_theme_constant_override("separation", 6)
+	UIThemes.set_separation(inner_vbox, 6)
 	margin.add_child(inner_vbox)
 
 	var history_count: int = meta.get("history_count", 0)
@@ -67,7 +64,7 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 
 	var slot_label := Label.new()
 	slot_label.text = label_text
-	slot_label.add_theme_font_size_override("font_size", 16)
+	UIThemes.style_label(slot_label, Constants.FONT_SIZE_DETAIL, Constants.COLOR_TEXT_HEADER)
 	slot_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(slot_label)
 
@@ -75,7 +72,7 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 	if not is_auto and has_data:
 		var del_btn := Button.new()
 		del_btn.text = "Delete"
-		del_btn.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+		del_btn.add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
 		del_btn.pressed.connect(_on_delete_slot.bind(slot_index))
 		header.add_child(del_btn)
 
@@ -83,39 +80,34 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 	if has_data and not entries.is_empty():
 		var newest: Dictionary = entries[0]
 		var info_row := HBoxContainer.new()
-		info_row.add_theme_constant_override("separation", 16)
+		UIThemes.set_separation(info_row, 16)
 		inner_vbox.add_child(info_row)
 
 		var ts_label := Label.new()
 		ts_label.text = _format_timestamp(newest.get("timestamp", ""))
-		ts_label.add_theme_font_size_override("font_size", 13)
-		ts_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+		UIThemes.style_label(ts_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
 		info_row.add_child(ts_label)
 
 		var pt_label := Label.new()
 		pt_label.text = _format_playtime(newest.get("playtime_seconds", 0.0))
-		pt_label.add_theme_font_size_override("font_size", 13)
-		pt_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+		UIThemes.style_label(pt_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
 		info_row.add_child(pt_label)
 
 		var gold_label := Label.new()
 		gold_label.text = "%dg" % int(newest.get("gold", 0))
-		gold_label.add_theme_font_size_override("font_size", 13)
-		gold_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0))
+		UIThemes.style_label(gold_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_CRIT)
 		info_row.add_child(gold_label)
 
 		var squad: Array = newest.get("squad_names", [])
 		if not squad.is_empty():
 			var squad_label := Label.new()
 			squad_label.text = "  |  " + ", ".join(squad)
-			squad_label.add_theme_font_size_override("font_size", 13)
-			squad_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+			UIThemes.style_label(squad_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
 			info_row.add_child(squad_label)
 
 		var location_label := Label.new()
 		location_label.text = newest.get("location", "Overworld")
-		location_label.add_theme_font_size_override("font_size", 13)
-		location_label.add_theme_color_override("font_color", Color(0.7, 0.85, 0.7))
+		UIThemes.style_label(location_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SKILL)
 		location_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		location_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		info_row.add_child(location_label)
@@ -123,13 +115,12 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 	elif not has_data:
 		var empty_label := Label.new()
 		empty_label.text = "Empty"
-		empty_label.add_theme_font_size_override("font_size", 13)
-		empty_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		UIThemes.style_label(empty_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_FADED)
 		inner_vbox.add_child(empty_label)
 
 	# --- Action row ---
 	var action_row := HBoxContainer.new()
-	action_row.add_theme_constant_override("separation", 8)
+	UIThemes.set_separation(action_row, 8)
 	inner_vbox.add_child(action_row)
 
 	if _mode == "save":
@@ -155,11 +146,11 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 
 		var hist_btn := Button.new()
 		hist_btn.text = "▼ %d older" % (history_count - 1)
-		hist_btn.add_theme_font_size_override("font_size", 12)
+		hist_btn.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
 
 		# History panel (collapsed by default)
 		var hist_panel := VBoxContainer.new()
-		hist_panel.add_theme_constant_override("separation", 4)
+		UIThemes.set_separation(hist_panel, 4)
 		hist_panel.visible = false
 		inner_vbox.add_child(hist_panel)
 
@@ -179,30 +170,27 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 
 func _build_history_row(entry: Dictionary, history_index: int, slot_index: int, is_auto: bool) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
+	UIThemes.set_separation(row, 12)
 
 	var ts := Label.new()
 	ts.text = _format_timestamp(entry.get("timestamp", ""))
-	ts.add_theme_font_size_override("font_size", 12)
-	ts.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
+	UIThemes.style_label(ts, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
 	row.add_child(ts)
 
 	var pt := Label.new()
 	pt.text = _format_playtime(entry.get("playtime_seconds", 0.0))
-	pt.add_theme_font_size_override("font_size", 12)
-	pt.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
+	UIThemes.style_label(pt, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
 	row.add_child(pt)
 
 	var gold := Label.new()
 	gold.text = "%dg" % int(entry.get("gold", 0))
-	gold.add_theme_font_size_override("font_size", 12)
-	gold.add_theme_color_override("font_color", Color(0.9, 0.75, 0.0))
+	UIThemes.style_label(gold, Constants.FONT_SIZE_TINY, Constants.COLOR_CRIT)
 	gold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(gold)
 
 	var btn := Button.new()
 	btn.text = "Load"
-	btn.add_theme_font_size_override("font_size", 12)
+	btn.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
 	btn.pressed.connect(_on_load_slot.bind(slot_index, is_auto, history_index))
 	row.add_child(btn)
 
@@ -230,6 +218,7 @@ func _format_timestamp(ts: String) -> String:
 
 func _format_playtime(seconds: float) -> String:
 	var total_minutes := int(seconds / 60.0)
+	@warning_ignore("integer_division")
 	var hours := total_minutes / 60
 	var minutes := total_minutes % 60
 	if hours > 0:

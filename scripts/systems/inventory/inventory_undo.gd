@@ -32,6 +32,7 @@ func can_undo() -> bool:
 func _push(action: UndoAction) -> void:
 	_stack.append(action)
 	if _stack.size() > MAX_UNDO:
+		@warning_ignore("return_value_discarded")
 		_stack.pop_front()
 
 

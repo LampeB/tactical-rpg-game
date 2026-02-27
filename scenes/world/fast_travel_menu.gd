@@ -46,7 +46,7 @@ func open_menu(all_locations: Array[LocationData]) -> void:
 	visible = true
 
 
-func _on_item_selected(index: int) -> void:
+func _on_item_selected(_index: int) -> void:
 	_confirm_btn.disabled = false
 
 

@@ -87,8 +87,8 @@ func _update_jewelry_slots() -> void:
 
 	# Create 5 ring slots per hand (left and right)
 	for hand in range(2):
-		var container = _left_rings_container if hand == 0 else _right_rings_container
-		var start_idx = hand * 5
+		var container: VBoxContainer = _left_rings_container if hand == 0 else _right_rings_container
+		var start_idx: int = hand * 5
 
 		for i in range(5):
 			var ring_container := CenterContainer.new()
@@ -99,7 +99,7 @@ func _update_jewelry_slots() -> void:
 			# Make it circular
 			var style := StyleBoxFlat.new()
 			# Color filled rings based on total count (first N rings are filled)
-			var global_idx = start_idx + i
+			var global_idx: int = start_idx + i
 			style.bg_color = Color(0.8, 0.6, 0.2) if global_idx < ring_count else Color(0.3, 0.3, 0.3)
 			style.corner_radius_top_left = 7
 			style.corner_radius_top_right = 7
@@ -121,7 +121,7 @@ func _set_slot_filled(slot: Control, filled: bool) -> void:
 			new_style.bg_color = Color(0.2, 0.8, 0.3) if filled else Color(0.3, 0.3, 0.3)
 
 			# Necklace is circular (radius 19), armor slots are square (radius 6)
-			var radius = 19 if slot == _necklace_indicator else 6
+			var radius: int = 19 if slot == _necklace_indicator else 6
 			new_style.corner_radius_top_left = radius
 			new_style.corner_radius_top_right = radius
 			new_style.corner_radius_bottom_left = radius

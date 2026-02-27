@@ -22,7 +22,7 @@ extends Resource
 @export var tick_damage: int = 0
 @export var tick_damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
 ## Stat modifications while active.
-@export var stat_modifiers: Array = [] ## of StatModifier
+@export var stat_modifiers: Array[StatModifier] = []
 ## Speed multiplier (for freeze/slow/haste). 1.0 = normal.
 @export var speed_multiplier: float = 1.0
 ## Damage taken multiplier (for vulnerability/resistance). 1.0 = normal.

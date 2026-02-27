@@ -6,7 +6,7 @@ extends Resource
 @export var display_name: String = ""
 
 ## Enemy groups — each entry is an EnemyData (can repeat for multiples).
-@export var enemies: Array = [] ## of EnemyData
+@export var enemies: Array[EnemyData] = []
 
 ## Whether this encounter can be fled from.
 @export var can_flee: bool = true

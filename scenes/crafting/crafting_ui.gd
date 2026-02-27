@@ -111,17 +111,17 @@ func _build_icon_list() -> void:
 	# Sort: craftable first, then not-craftable (truly locked recipes hidden)
 	var craftable: Array = []
 	var not_craftable: Array = []
-	for recipe in _station.recipes:
-		if not _is_recipe_unlocked(recipe):
+	for r in _station.recipes:
+		if not CraftingSystem.is_recipe_unlocked(r, GameManager.story_flags):
 			continue
-		if _can_craft(recipe):
-			craftable.append(recipe)
+		if CraftingSystem.can_craft(r, GameManager.party):
+			craftable.append(r)
 		else:
-			not_craftable.append(recipe)
+			not_craftable.append(r)
 
 	var first_card: PanelContainer = null
-	for recipe in craftable + not_craftable:
-		var card := _build_icon_card(recipe)
+	for sorted_recipe in craftable + not_craftable:
+		var card := _build_icon_card(sorted_recipe)
 		_icon_list.add_child(card)
 		if first_card == null:
 			first_card = card
@@ -130,16 +130,16 @@ func _build_icon_list() -> void:
 	if first_card:
 		var reselected := false
 		if _selected_recipe:
-			for child in _icon_list.get_children():
-				if child.get_meta("recipe_id", "") == _selected_recipe.id:
+			for card_node in _icon_list.get_children():
+				if card_node.get_meta("recipe_id", "") == _selected_recipe.id:
 					_select_recipe(_selected_recipe)
 					reselected = true
 					break
 		if not reselected:
 			var first_unlocked: CraftingRecipeData = null
-			for recipe in _station.recipes:
-				if _is_recipe_unlocked(recipe):
-					first_unlocked = recipe
+			for avail_recipe in _station.recipes:
+				if CraftingSystem.is_recipe_unlocked(avail_recipe, GameManager.story_flags):
+					first_unlocked = avail_recipe
 					break
 			_select_recipe(first_unlocked)
 	else:
@@ -147,7 +147,7 @@ func _build_icon_list() -> void:
 
 
 func _build_icon_card(recipe: CraftingRecipeData) -> PanelContainer:
-	var is_craftable := _can_craft(recipe)
+	var is_craftable := CraftingSystem.can_craft(recipe, GameManager.party)
 	var is_selected  := _selected_recipe != null and _selected_recipe.id == recipe.id
 	var result_item  := ItemDatabase.get_item(recipe.result_item_id)
 
@@ -217,7 +217,7 @@ func _refresh_icon_list_styles() -> void:
 		var recipe_id: String = child.get_meta("recipe_id", "")
 		var is_selected := _selected_recipe != null and _selected_recipe.id == recipe_id
 		var recipe: CraftingRecipeData = _find_recipe_by_id(recipe_id)
-		var is_craftable := recipe != null and _can_craft(recipe)
+		var is_craftable := recipe != null and CraftingSystem.can_craft(recipe, GameManager.party)
 		var style := child.get_theme_stylebox("panel") as StyleBoxFlat
 		if not style:
 			continue
@@ -274,8 +274,7 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	if not recipe.description.is_empty():
 		var desc := Label.new()
 		desc.text = recipe.description
-		desc.add_theme_font_size_override("font_size", 13)
-		desc.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		UIThemes.style_label(desc, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_craft_detail.add_child(desc)
 		_craft_detail.add_child(HSeparator.new())
@@ -283,12 +282,11 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	# Ingredient slots
 	var ingr_lbl := Label.new()
 	ingr_lbl.text = "Ingredients:"
-	ingr_lbl.add_theme_font_size_override("font_size", 14)
-	ingr_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
+	UIThemes.style_label(ingr_lbl, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
 	_craft_detail.add_child(ingr_lbl)
 
 	var slots_hbox := HBoxContainer.new()
-	slots_hbox.add_theme_constant_override("separation", 10)
+	UIThemes.set_separation(slots_hbox, 10)
 	slots_hbox.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_craft_detail.add_child(slots_hbox)
 
@@ -309,8 +307,7 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	# Result info
 	var result_lbl := Label.new()
 	result_lbl.text = "Creates:"
-	result_lbl.add_theme_font_size_override("font_size", 14)
-	result_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
+	UIThemes.style_label(result_lbl, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
 	_craft_detail.add_child(result_lbl)
 
 	var result_item := ItemDatabase.get_item(recipe.result_item_id)
@@ -321,7 +318,7 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 
 	# Gold cost + Craft button
 	var bottom_row := HBoxContainer.new()
-	bottom_row.add_theme_constant_override("separation", 12)
+	UIThemes.set_separation(bottom_row, 12)
 	_craft_detail.add_child(bottom_row)
 
 	var spacer := Control.new()
@@ -355,7 +352,7 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 
 func _build_result_info(item: ItemData) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
+	UIThemes.set_separation(row, 12)
 
 	# Shape + icon display centered in RESULT_SZ × RESULT_SZ box
 	var center := CenterContainer.new()
@@ -378,24 +375,21 @@ func _build_result_info(item: ItemData) -> HBoxContainer:
 
 	var name_lbl := Label.new()
 	name_lbl.text = item.display_name
-	name_lbl.add_theme_font_size_override("font_size", 16)
 	var name_col: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
-	name_lbl.add_theme_color_override("font_color", name_col)
+	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_DETAIL, name_col)
 	info.add_child(name_lbl)
 
 	var rarity_name: String = Constants.RARITY_NAMES.get(item.rarity, "Common")
 	var rarity_lbl := Label.new()
 	rarity_lbl.text = rarity_name
-	rarity_lbl.add_theme_font_size_override("font_size", 12)
 	var rarity_col: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
-	rarity_lbl.add_theme_color_override("font_color", rarity_col)
+	UIThemes.style_label(rarity_lbl, Constants.FONT_SIZE_TINY, rarity_col)
 	info.add_child(rarity_lbl)
 
 	if not item.description.is_empty():
 		var desc := Label.new()
 		desc.text = item.description
-		desc.add_theme_font_size_override("font_size", 11)
-		desc.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
+		UIThemes.style_label(desc, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info.add_child(desc)
 
@@ -467,24 +461,20 @@ func _refresh_output_zone() -> void:
 	_output_zone.add_theme_stylebox_override("panel", style)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left",   10)
-	margin.add_theme_constant_override("margin_right",  10)
-	margin.add_theme_constant_override("margin_top",    8)
-	margin.add_theme_constant_override("margin_bottom", 8)
+	UIThemes.set_margins(margin, 10, 10, 8, 8)
 	_output_zone.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
+	UIThemes.set_separation(vbox, 6)
 	margin.add_child(vbox)
 
 	var title := Label.new()
 	title.text = "✓ Crafted — click to drag to inventory or stash"
-	title.add_theme_font_size_override("font_size", 12)
-	title.add_theme_color_override("font_color", Color(0.4, 0.9, 0.5))
+	UIThemes.style_label(title, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SUCCESS)
 	vbox.add_child(title)
 
 	var item_row := HBoxContainer.new()
-	item_row.add_theme_constant_override("separation", 10)
+	UIThemes.set_separation(item_row, 10)
 	vbox.add_child(item_row)
 
 	if _output_item.icon:
@@ -496,9 +486,8 @@ func _refresh_output_zone() -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = _output_item.display_name
-	name_lbl.add_theme_font_size_override("font_size", 14)
 	var out_col: Color = Constants.RARITY_COLORS.get(_output_item.rarity, Color.WHITE)
-	name_lbl.add_theme_color_override("font_color", out_col)
+	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_SMALL, out_col)
 	name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	item_row.add_child(name_lbl)
 
@@ -528,7 +517,7 @@ func _on_slot_mouse_entered(slot_idx: int) -> void:
 
 func _highlight_valid_slots(item: ItemData) -> void:
 	for slot in _slot_nodes:
-		if not slot.assigned_item and _item_matches(item, slot.ingredient):
+		if not slot.assigned_item and CraftingSystem.item_matches(item, slot.ingredient):
 			slot.set_highlight(Color(0.3, 1.0, 0.3))
 		else:
 			slot.clear_highlight()
@@ -724,7 +713,7 @@ func _start_drag_from_output() -> void:
 
 func _complete_drop_on_slot(slot_idx: int) -> void:
 	var slot := _slot_nodes[slot_idx]
-	if not _item_matches(_dragged_item, slot.ingredient):
+	if not CraftingSystem.item_matches(_dragged_item, slot.ingredient):
 		_cancel_drag()
 		return
 
@@ -864,7 +853,18 @@ func _on_craft_pressed() -> void:
 	if not _selected_recipe or not _all_slots_filled():
 		return
 
-	_consume_ingredients_from_slots()
+	var slot_items: Array[ItemData] = []
+	for slot in _slot_nodes:
+		if slot.assigned_item:
+			slot_items.append(slot.assigned_item)
+	var changed_chars: Array[String] = CraftingSystem.consume_ingredients(slot_items, GameManager.party)
+	for char_id in changed_chars:
+		EventBus.inventory_changed.emit(char_id)
+	for slot in _slot_nodes:
+		slot.clear()
+	EventBus.stash_changed.emit()
+	_refresh_stash()
+	_player_grid_panel.refresh()
 
 	var result_item := ItemDatabase.get_item(_selected_recipe.result_item_id)
 	if result_item:
@@ -875,72 +875,6 @@ func _on_craft_pressed() -> void:
 		DebugLogger.log_info("Crafted: %s" % result_item.display_name, "Crafting")
 	else:
 		DebugLogger.log_warn("Craft result not found: %s" % _selected_recipe.result_item_id, "Crafting")
-
-
-func _consume_ingredients_from_slots() -> void:
-	for slot in _slot_nodes:
-		if not slot.assigned_item:
-			continue
-		var item    := slot.assigned_item
-		var removed := false
-
-		for stash_item in GameManager.party.stash:
-			if is_same(stash_item, item):
-				GameManager.party.remove_from_stash(item)
-				removed = true
-				break
-
-		if not removed:
-			for char_id in GameManager.party.grid_inventories:
-				if removed:
-					break
-				var grid: GridInventory = GameManager.party.grid_inventories[char_id]
-				for placed in grid.placed_items:
-					if is_same(placed.item_data, item):
-						grid.remove_item(placed)
-						EventBus.inventory_changed.emit(char_id)
-						removed = true
-						break
-
-		slot.clear()
-
-	_refresh_stash()
-	_player_grid_panel.refresh()
-
-
-# ════════════════════════════════════════════════════════════════════════════
-#  Crafting Logic Helpers
-# ════════════════════════════════════════════════════════════════════════════
-
-func _is_recipe_unlocked(recipe: CraftingRecipeData) -> bool:
-	return recipe.unlock_flag.is_empty() or GameManager.get_flag(recipe.unlock_flag) == true
-
-
-func _item_matches(item: ItemData, ingredient: CraftingIngredient) -> bool:
-	return item.id.begins_with(ingredient.item_family) \
-		and int(item.rarity) >= int(ingredient.min_rarity)
-
-
-func _can_craft(recipe: CraftingRecipeData) -> bool:
-	var pool: Array[ItemData] = []
-	for item in GameManager.party.stash:
-		pool.append(item)
-	for char_id in GameManager.party.grid_inventories:
-		var grid: GridInventory = GameManager.party.grid_inventories[char_id]
-		for placed in grid.placed_items:
-			pool.append(placed.item_data)
-	for ingredient in recipe.ingredients:
-		var matched  := 0
-		var remaining: Array[ItemData] = []
-		for item in pool:
-			if matched < ingredient.quantity and _item_matches(item, ingredient):
-				matched += 1
-			else:
-				remaining.append(item)
-		pool = remaining
-		if matched < ingredient.quantity:
-			return false
-	return true
 
 
 # ════════════════════════════════════════════════════════════════════════════

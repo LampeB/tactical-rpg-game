@@ -14,6 +14,7 @@ var _is_tracking_playtime: bool = false
 
 
 func _ready() -> void:
+	@warning_ignore("return_value_discarded")
 	DirAccess.make_dir_recursive_absolute(SAVES_DIR)
 	_migrate_legacy_save()
 	DebugLogger.log_info("SaveManager ready", "SaveManager")
@@ -159,6 +160,7 @@ func _save_path(dir: String, index: int) -> String:
 # === Core Save/Load ===
 
 func _save_to_dir(dir: String, max_history: int) -> bool:
+	@warning_ignore("return_value_discarded")
 	DirAccess.make_dir_recursive_absolute(dir)
 
 	var meta := _read_meta(dir)
@@ -172,12 +174,7 @@ func _save_to_dir(dir: String, max_history: int) -> bool:
 		return false
 
 	# Build and prepend metadata entry
-	var squad_names: Array = []
-	if GameManager.party:
-		for char_id in GameManager.party.squad:
-			var char_data: CharacterData = GameManager.party.roster.get(char_id)
-			if char_data:
-				squad_names.append(char_data.display_name)
+	var squad_names: Array[String] = GameManager.party.get_squad_display_names() if GameManager.party else []
 
 	var entry := {
 		"save_index": new_index,
@@ -296,6 +293,7 @@ func _migrate_legacy_save() -> void:
 		return
 
 	var slot_dir := _slot_dir(0)
+	@warning_ignore("return_value_discarded")
 	DirAccess.make_dir_recursive_absolute(slot_dir)
 
 	if not _write_json(_save_path(slot_dir, 0), data):
@@ -303,7 +301,6 @@ func _migrate_legacy_save() -> void:
 
 	# Build metadata from legacy save data
 	var squad_names: Array = []
-	var roster_ids: Array = data.get("roster", [])
 	var squad_ids: Array = data.get("squad", [])
 	for sid in squad_ids:
 		var char_data: CharacterData = CharacterDatabase.get_character(str(sid))
@@ -323,6 +320,7 @@ func _migrate_legacy_save() -> void:
 		}]
 	}
 	_write_meta(slot_dir, meta)
+	@warning_ignore("return_value_discarded")
 	DirAccess.remove_absolute(LEGACY_SAVE_PATH)
 	DebugLogger.log_info("Migration complete — old save.json removed", "SaveManager")
 
@@ -399,14 +397,27 @@ func _serialize_backpack_states(states: Dictionary) -> Dictionary:
 # === Deserialization ===
 
 func _deserialize(data: Dictionary) -> void:
-	GameManager.gold = int(data.get("gold", 0))
-	GameManager.story_flags = data.get("story_flags", {})
-	GameManager.is_game_started = true
-	GameManager.current_location_name = data.get("location", "Overworld")
 	_playtime_accumulator = data.get("playtime_seconds", 0.0)
 
+	var party := _build_party(data)
+
+	# Restore top-level state via GameManager's public API (no direct property writes)
+	var flags: Dictionary = data.get("story_flags", {})
+	var location: String = data.get("location", "Overworld")
+	GameManager.restore_game_state(party, int(data.get("gold", 0)), flags, location)
+
+	# Restore overworld position and step count via setter API
+	var pos_data: Dictionary = data.get("overworld_position", {})
+	var overworld_pos := Vector2(pos_data.get("x", 0.0), pos_data.get("y", 0.0))
+	GameManager.set_flag("overworld_position", overworld_pos)
+
+	var step_count: int = data.get("player_step_count", 0)
+	GameManager.set_flag("player_step_count", step_count)
+
+
+## Reconstruct a Party from save data. Pure data transformation — no side effects.
+func _build_party(data: Dictionary) -> Party:
 	var party := Party.new()
-	GameManager.party = party
 
 	# Backpack states must be restored BEFORE add_to_roster so the correct grid
 	# template is used when each character's GridInventory is created.
@@ -507,20 +518,13 @@ func _deserialize(data: Dictionary) -> void:
 			"current_mp": int(vitals.get("current_mp", 0))
 		}
 
-	var pos_data: Dictionary = data.get("overworld_position", {})
-	var overworld_pos := Vector2(pos_data.get("x", 0.0), pos_data.get("y", 0.0))
-	GameManager.set_flag("overworld_position", overworld_pos)
-
-	var step_count: int = data.get("player_step_count", 0)
-	GameManager.set_flag("player_step_count", step_count)
-
 	for char_id: String in party.roster:
 		if not party.character_vitals.has(char_id):
 			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 			party.initialize_vitals(char_id, tree)
 			DebugLogger.log_info("Initialized vitals for character without saved data: %s" % char_id, "SaveManager")
 
-	EventBus.gold_changed.emit(GameManager.gold)
+	return party
 
 
 # === Validation ===

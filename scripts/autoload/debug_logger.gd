@@ -2,12 +2,12 @@ extends Node
 ## Autoload singleton that captures errors and logs to a file
 ## Claude Code can read this file to debug issues
 
-const LOG_PATH = "res://debug_log.txt"
-const MAX_LINES = 200
+const LOG_PATH: String = "res://debug_log.txt"
+const MAX_LINES: int = 200
 
 var log_lines: Array[String] = []
 
-func _ready():
+func _ready() -> void:
 	# Clear log on startup
 	log_lines.clear()
 	_write("=== Game Started: %s ===" % Time.get_datetime_string_from_system())
@@ -15,38 +15,38 @@ func _ready():
 	_write("Viewport: %s" % get_viewport().get_visible_rect().size)
 	_write("")
 
-func _notification(what):
+func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_write("=== Game Closed: %s ===" % Time.get_datetime_string_from_system())
 		_flush()
 
-func log_info(message: String, source: String = ""):
-	var prefix = "[INFO]"
+func log_info(message: String, source: String = "") -> void:
+	var prefix: String = "[INFO]"
 	if source:
 		prefix += " [%s]" % source
 	_write("%s %s" % [prefix, message])
 
-func log_warn(message: String, source: String = ""):
-	var prefix = "[WARN]"
+func log_warn(message: String, source: String = "") -> void:
+	var prefix: String = "[WARN]"
 	if source:
 		prefix += " [%s]" % source
 	_write("%s %s" % [prefix, message])
 	push_warning(message)
 
-func log_error(message: String, source: String = ""):
-	var prefix = "[ERROR]"
+func log_error(message: String, source: String = "") -> void:
+	var prefix: String = "[ERROR]"
 	if source:
 		prefix += " [%s]" % source
 	_write("%s %s" % [prefix, message])
 	push_error(message)
 
-func log_scene_change(scene_name: String):
+func log_scene_change(scene_name: String) -> void:
 	_write("")
 	_write(">>> Scene changed to: %s" % scene_name)
 
-func _write(text: String):
-	var timestamp = Time.get_time_string_from_system()
-	var line = "[%s] %s" % [timestamp, text] if text and not text.begins_with("=") else text
+func _write(text: String) -> void:
+	var timestamp: String = Time.get_time_string_from_system()
+	var line: String = "[%s] %s" % [timestamp, text] if text and not text.begins_with("=") else text
 	log_lines.append(line)
 
 	# Keep log from growing too large
@@ -56,8 +56,8 @@ func _write(text: String):
 	# Write to file immediately so Claude can read it
 	_flush()
 
-func _flush():
-	var file = FileAccess.open(LOG_PATH, FileAccess.WRITE)
+func _flush() -> void:
+	var file: FileAccess = FileAccess.open(LOG_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string("\n".join(log_lines))
 		file.close()

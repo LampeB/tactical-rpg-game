@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_anbfv"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="1_ibov8"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_fn7bn"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_goswk"]
 [ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3_anbfv"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_goswk"]
 
-[sub_resource type="Resource" id="Resource_ibov8"]
+[sub_resource type="Resource" id="Resource_n1siy"]
 script = ExtResource("4_goswk")
 stat = 4
 value = 5.0
@@ -20,6 +22,6 @@ category = 4
 rarity = 2
 hand_slots_required = 1
 shape = ExtResource("3_anbfv")
-stat_modifiers = [SubResource("Resource_ibov8")]
+stat_modifiers = Array[ExtResource("4_goswk")]([SubResource("Resource_n1siy")])
 base_power = 5
 base_price = 63

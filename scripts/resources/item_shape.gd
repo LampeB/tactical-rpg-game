@@ -30,16 +30,16 @@ func get_rotated_cells(rotations: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = cells.duplicate()
 	for i in range(rotations % rotation_states):
 		var rotated: Array[Vector2i] = []
-		for cell in result:
-			rotated.append(Vector2i(-cell.y, cell.x))
+		for c in result:
+			rotated.append(Vector2i(-c.y, c.x))
 		# Normalize so all coords are non-negative
 		var min_x := 0
 		var min_y := 0
-		for cell in rotated:
-			min_x = mini(min_x, cell.x)
-			min_y = mini(min_y, cell.y)
+		for rc in rotated:
+			min_x = mini(min_x, rc.x)
+			min_y = mini(min_y, rc.y)
 		var normalized: Array[Vector2i] = []
-		for cell in rotated:
-			normalized.append(Vector2i(cell.x - min_x, cell.y - min_y))
+		for nc in rotated:
+			normalized.append(Vector2i(nc.x - min_x, nc.y - min_y))
 		result = normalized
 	return result

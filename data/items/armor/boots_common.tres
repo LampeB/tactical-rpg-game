@@ -1,16 +1,18 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_w7gcu"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_tdfo2"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="4"]
 
-[sub_resource type="Resource" id="Resource_dnbxr"]
+[sub_resource type="Resource" id="Resource_o7yyh"]
 script = ExtResource("2")
 stat = 2
 value = 3.0
 
-[sub_resource type="Resource" id="Resource_isbae"]
+[sub_resource type="Resource" id="Resource_nskwi"]
 script = ExtResource("2")
 stat = 7
 value = 2.0
@@ -25,5 +27,5 @@ item_type = 1
 category = 11
 armor_slot = 11
 shape = ExtResource("3")
-stat_modifiers = [SubResource("Resource_dnbxr"), SubResource("Resource_isbae")]
+stat_modifiers = Array[ExtResource("2")]([SubResource("Resource_o7yyh"), SubResource("Resource_nskwi")])
 base_price = 35

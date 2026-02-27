@@ -1,11 +1,13 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="1_0l4s7"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_yjepm"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_gg0et"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_v6osw"]
 [ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="3_yjepm"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_v6osw"]
 
-[sub_resource type="Resource" id="Resource_0l4s7"]
+[sub_resource type="Resource" id="Resource_ov5bi"]
 script = ExtResource("4_v6osw")
 stat = 4
 value = 14.0
@@ -20,6 +22,6 @@ category = 6
 rarity = 2
 hand_slots_required = 2
 shape = ExtResource("3_yjepm")
-stat_modifiers = [SubResource("Resource_0l4s7")]
+stat_modifiers = Array[ExtResource("4_v6osw")]([SubResource("Resource_ov5bi")])
 base_power = 14
 base_price = 143

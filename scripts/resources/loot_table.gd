@@ -5,10 +5,10 @@ extends Resource
 @export var id: String = ""
 
 ## Each entry: { item: ItemData, weight: float, min_count: int, max_count: int }
-@export var entries: Array = [] ## of LootEntry
+@export var entries: Array[LootEntry] = []
 
 ## How many rolls to make on this table.
 @export var roll_count: int = 1
 
 ## Guaranteed drops (always included regardless of rolls).
-@export var guaranteed_drops: Array = [] ## of ItemData
+@export var guaranteed_drops: Array[ItemData] = []

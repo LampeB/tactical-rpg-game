@@ -7,7 +7,7 @@ var _tree: PassiveTreeData = null
 const TREE_PATH := "res://data/passive_trees/tree_unified.tres"
 
 
-func _ready():
+func _ready() -> void:
 	_tree = load(TREE_PATH) as PassiveTreeData
 	if _tree:
 		DebugLogger.log_info("Loaded unified passive tree (%d nodes)" % _tree.nodes.size(), "PassiveTreeDB")

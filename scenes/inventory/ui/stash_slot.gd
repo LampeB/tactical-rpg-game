@@ -21,7 +21,7 @@ func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 	$HBox/NameLabel.text = item.display_name
 	var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
 	$HBox/NameLabel.add_theme_color_override("font_color", rarity_color)
-	$HBox/TypeLabel.text = _get_type_text(item.item_type)
+	$HBox/TypeLabel.text = Enums.get_item_type_short_name(item.item_type)
 
 	# Tint returnable items amber
 	if _is_returnable:
@@ -42,17 +42,6 @@ func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 		_use_button.custom_minimum_size = Vector2(60, 0)
 		_use_button.pressed.connect(_on_use_button_pressed)
 		$HBox.add_child(_use_button)
-
-
-func _get_type_text(item_type: Enums.ItemType) -> String:
-	match item_type:
-		Enums.ItemType.ACTIVE_TOOL: return "Tool"
-		Enums.ItemType.PASSIVE_GEAR: return "Gear"
-		Enums.ItemType.MODIFIER: return "Gem"
-		Enums.ItemType.CONSUMABLE: return "Consumable"
-		Enums.ItemType.MATERIAL: return "Material"
-		Enums.ItemType.BLUEPRINT: return "Blueprint"
-	return ""
 
 
 func _gui_input(event: InputEvent) -> void:

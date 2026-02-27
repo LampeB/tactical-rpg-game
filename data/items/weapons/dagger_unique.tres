@@ -1,17 +1,19 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
 [ext_resource type="Resource" path="res://data/skills/backstab.tres" id="1_f37np"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_rfcsn"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_dqw7p"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="2_f3qpe"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="3_rfcsn"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="4_dqw7p"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="5_20rqb"]
 
-[sub_resource type="Resource" id="Resource_f37np"]
+[sub_resource type="Resource" id="Resource_20rqb"]
 script = ExtResource("5_20rqb")
 stat = 4
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_f3qpe"]
+[sub_resource type="Resource" id="Resource_24f3o"]
 script = ExtResource("5_20rqb")
 stat = 2
 value = 12.0
@@ -26,7 +28,7 @@ category = 4
 rarity = 5
 hand_slots_required = 1
 shape = ExtResource("4_dqw7p")
-stat_modifiers = [SubResource("Resource_f37np"), SubResource("Resource_f3qpe")]
+stat_modifiers = Array[ExtResource("5_20rqb")]([SubResource("Resource_20rqb"), SubResource("Resource_24f3o")])
 base_power = 16
-granted_skills = [ExtResource("1_f37np")]
+granted_skills = Array[ExtResource("2_dqw7p")]([ExtResource("1_f37np")])
 base_price = 192

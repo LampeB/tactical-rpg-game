@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_x3v6h"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_btl84"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_wmhsd"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_qtc5g"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_j2ufv"]
+
+[resource]
+script = ExtResource("4_qtc5g")
+id = "recipe_swift_treads"
+display_name = "Blueprint: Swift Treads"
+description = "Cobbling plans for speed-enchanted footwear. Bring this to a blacksmith."
+item_type = 5
+shape = ExtResource("5_j2ufv")
+base_price = 50

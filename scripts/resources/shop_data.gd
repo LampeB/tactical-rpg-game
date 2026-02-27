@@ -8,7 +8,7 @@ extends Resource
 @export var pricing_type: Enums.PricingType = Enums.PricingType.FIXED
 
 ## Items available for purchase.
-@export var stock: Array = [] ## of ItemData
+@export var stock: Array[ItemData] = []
 
 ## Price override per item (by item ID). If not set, uses item's base_price.
 @export var price_overrides: Dictionary = {}

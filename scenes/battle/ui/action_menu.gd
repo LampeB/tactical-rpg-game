@@ -211,7 +211,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 	action_chosen.emit(Enums.CombatAction.SKILL, skill, skill.target_type, null)
 
 
-func _on_item_selected(item: ItemData, placed: GridInventory.PlacedItem) -> void:
+func _on_item_selected(item: ItemData, _placed: GridInventory.PlacedItem) -> void:
 	var skill: SkillData = item.use_skill
 	if not skill:
 		return
@@ -405,7 +405,7 @@ func _build_attack_details() -> void:
 		if state.force_aoe:
 			effects.append("AoE (hits all enemies)")
 		for proc in state.status_procs:
-			var effect_name: String = Enums.StatusEffectType.keys()[proc.type]
+			var effect_name: String = Enums.get_status_effect_name(proc.type)
 			effects.append("%s (%.0f%%)" % [effect_name, proc.chance * 100.0])
 		for j in range(state.active_modifiers.size()):
 			var mod_info: Dictionary = state.active_modifiers[j]

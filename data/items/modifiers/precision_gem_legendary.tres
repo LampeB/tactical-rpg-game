@@ -2,24 +2,10 @@
 
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_nsbbd"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_l6qkt"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_nlmyd"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/precisionGem_common.png" id="3_nlmyd"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_q5x5h"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_smgvb"]
-
-[sub_resource type="Resource" id="Resource_nsbbd"]
-script = ExtResource("2_l6qkt")
-stat = 8
-value = 15.0
-
-[sub_resource type="Resource" id="Resource_l6qkt"]
-script = ExtResource("2_l6qkt")
-stat = 9
-value = 30.0
-
-[sub_resource type="Resource" id="Resource_nlmyd"]
-script = ExtResource("1_nsbbd")
-stat_bonuses = [SubResource("Resource_nsbbd"), SubResource("Resource_l6qkt")]
-status_effect_chance = 0.45
 
 [sub_resource type="Resource" id="Resource_q5x5h"]
 script = ExtResource("2_l6qkt")
@@ -33,8 +19,7 @@ value = 30.0
 
 [sub_resource type="Resource" id="Resource_p46m6"]
 script = ExtResource("1_nsbbd")
-target_weapon_type = 1
-stat_bonuses = [SubResource("Resource_q5x5h"), SubResource("Resource_smgvb")]
+stat_bonuses = Array[ExtResource("2_l6qkt")]([SubResource("Resource_q5x5h"), SubResource("Resource_smgvb")])
 status_effect_chance = 0.45
 
 [sub_resource type="Resource" id="Resource_tueg0"]
@@ -49,8 +34,24 @@ value = 30.0
 
 [sub_resource type="Resource" id="Resource_kh3kk"]
 script = ExtResource("1_nsbbd")
+target_weapon_type = 1
+stat_bonuses = Array[ExtResource("2_l6qkt")]([SubResource("Resource_tueg0"), SubResource("Resource_y72l6")])
+status_effect_chance = 0.45
+
+[sub_resource type="Resource" id="Resource_3n2il"]
+script = ExtResource("2_l6qkt")
+stat = 8
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_2b7dl"]
+script = ExtResource("2_l6qkt")
+stat = 9
+value = 30.0
+
+[sub_resource type="Resource" id="Resource_lt3on"]
+script = ExtResource("1_nsbbd")
 target_weapon_type = 2
-stat_bonuses = [SubResource("Resource_tueg0"), SubResource("Resource_y72l6")]
+stat_bonuses = Array[ExtResource("2_l6qkt")]([SubResource("Resource_3n2il"), SubResource("Resource_2b7dl")])
 status_effect_chance = 0.45
 
 [resource]
@@ -62,5 +63,5 @@ icon = ExtResource("3_nlmyd")
 item_type = 2
 rarity = 4
 shape = ExtResource("5_smgvb")
-conditional_modifier_rules = [SubResource("Resource_nlmyd"), SubResource("Resource_p46m6"), SubResource("Resource_kh3kk")]
+conditional_modifier_rules = Array[ExtResource("1_nsbbd")]([SubResource("Resource_p46m6"), SubResource("Resource_kh3kk"), SubResource("Resource_lt3on")])
 base_price = 144
