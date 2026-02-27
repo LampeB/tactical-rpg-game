@@ -6,6 +6,7 @@ extends RefCounted
 var grid_template: GridTemplate
 var placed_items: Array = []  ## of PlacedItem
 var _cell_map: Dictionary = {}  ## Vector2i -> PlacedItem
+var skip_equipment_checks: bool = false  ## Set true for loot grids (no slot restrictions)
 
 
 func _init(template: GridTemplate) -> void:
@@ -18,6 +19,9 @@ func can_place(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> bool:
 	var cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
 	if not _are_cells_valid(cells):
 		return false
+
+	if skip_equipment_checks:
+		return true
 
 	# Check equipment slot restrictions
 	if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
@@ -55,21 +59,22 @@ func get_placement_failure_reason(item_data: ItemData, grid_pos: Vector2i, rotat
 		if _cell_map.has(cell):
 			var blocking: PlacedItem = _cell_map[cell]
 			return "Blocked by %s at (%d, %d)" % [blocking.item_data.display_name, cell.x, cell.y]
-	if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
-		var available_slots: int = get_available_hand_slots()
-		var used_slots: int = get_used_hand_slots()
-		if used_slots + item_data.hand_slots_required > available_slots:
-			return "Need %d hand slots, only %d available" % [item_data.hand_slots_required, available_slots - used_slots]
-	if item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
-		if item_data.armor_slot == Enums.EquipmentCategory.RING:
-			if _count_equipped_by_slot(Enums.EquipmentCategory.RING) >= 10:
-				return "Max rings equipped"
-		elif item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
-			if _count_equipped_by_slot(Enums.EquipmentCategory.NECKLACE) >= 1:
-				return "Necklace slot occupied"
-		else:
-			if get_equipped_armor_slots().has(item_data.armor_slot):
-				return "Armor slot already occupied"
+	if not skip_equipment_checks:
+		if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
+			var available_slots: int = get_available_hand_slots()
+			var used_slots: int = get_used_hand_slots()
+			if used_slots + item_data.hand_slots_required > available_slots:
+				return "Need %d hand slots, only %d available" % [item_data.hand_slots_required, available_slots - used_slots]
+		if item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
+			if item_data.armor_slot == Enums.EquipmentCategory.RING:
+				if _count_equipped_by_slot(Enums.EquipmentCategory.RING) >= 10:
+					return "Max rings equipped"
+			elif item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
+				if _count_equipped_by_slot(Enums.EquipmentCategory.NECKLACE) >= 1:
+					return "Necklace slot occupied"
+			else:
+				if get_equipped_armor_slots().has(item_data.armor_slot):
+					return "Armor slot already occupied"
 	return ""
 
 

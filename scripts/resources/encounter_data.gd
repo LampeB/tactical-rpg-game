@@ -16,3 +16,6 @@ extends Resource
 
 ## Override loot table (if set, used instead of per-enemy loot).
 @export var override_loot_table: LootTable
+
+## Grid template for the loot screen. If null, uses a default rectangular grid.
+@export var loot_grid_template: GridTemplate
