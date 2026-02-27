@@ -511,6 +511,7 @@ func _build_party(data: Dictionary) -> Party:
 		party.unlocked_passives[char_id] = typed_ids
 
 	var vitals_data: Dictionary = data.get("character_vitals", {})
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	for char_id: String in vitals_data:
 		var vitals: Dictionary = vitals_data[char_id]
 		party.character_vitals[char_id] = {
@@ -518,9 +519,28 @@ func _build_party(data: Dictionary) -> Party:
 			"current_mp": int(vitals.get("current_mp", 0))
 		}
 
+	# Re-clamp loaded vitals against correct max (equipment-aware) to fix stale saves.
+	# If alive and HP equals base max (pre-fix ceiling), top up to equipment-aware max.
+	for char_id: String in vitals_data:
+		if party.character_vitals.has(char_id) and party.roster.has(char_id):
+			var loaded_hp: int = party.character_vitals[char_id].get("current_hp", 0)
+			var loaded_mp: int = party.character_vitals[char_id].get("current_mp", 0)
+			var max_hp: int = party.get_max_hp(char_id, tree)
+			var max_mp: int = party.get_max_mp(char_id, tree)
+			var base_hp: int = (party.roster[char_id] as CharacterData).max_hp
+			var base_mp: int = (party.roster[char_id] as CharacterData).max_mp
+			# If HP was at the old buggy ceiling (base stat), treat as full health
+			if loaded_hp > 0 and loaded_hp == base_hp and max_hp > base_hp:
+				party.character_vitals[char_id]["current_hp"] = max_hp
+			else:
+				party.character_vitals[char_id]["current_hp"] = clampi(loaded_hp, 0, max_hp)
+			if loaded_mp == base_mp and max_mp > base_mp:
+				party.character_vitals[char_id]["current_mp"] = max_mp
+			else:
+				party.character_vitals[char_id]["current_mp"] = clampi(loaded_mp, 0, max_mp)
+
 	for char_id: String in party.roster:
 		if not party.character_vitals.has(char_id):
-			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 			party.initialize_vitals(char_id, tree)
 			DebugLogger.log_info("Initialized vitals for character without saved data: %s" % char_id, "SaveManager")
 

@@ -96,9 +96,10 @@ func _ready() -> void:
 
 func receive_data(data: Dictionary) -> void:
 	var shop_id: String = data.get("shop_id", "")
-	_shop_data = ShopDatabase.get_shop(shop_id)
+	var shop_path := "res://data/shops/%s.tres" % shop_id
+	_shop_data = load(shop_path) as ShopData
 	if not _shop_data:
-		DebugLogger.log_warn("ShopUI: shop not found: %s" % shop_id, "Shop")
+		DebugLogger.log_warn("ShopUI: shop not found: %s" % shop_path, "Shop")
 		SceneManager.pop_scene()
 		return
 
@@ -161,6 +162,9 @@ func _process(_delta: float) -> void:
 	if _drag_source in [DragSource.PLAYER_GRID, DragSource.STASH]:
 		var over_sold := _sold_panel.get_global_rect().has_point(get_global_mouse_position())
 		_sold_panel.modulate = Color(0.6, 1.2, 0.6, 1.0) if over_sold else Color.WHITE
+	# Highlight upgradeable items on player grid and stash
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -215,11 +219,13 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 
-		# Stash drag dropped back onto stash → cancel
-		if _drag_source == DragSource.STASH and _stash_panel.is_mouse_over():
-			_cancel_drag()
-			get_viewport().set_input_as_handled()
-			return
+		# Stash or player grid drag dropped onto stash — let through to slot
+		# click handler so upgrade checks can fire. Only cancel if not on a slot.
+		if _drag_source in [DragSource.STASH, DragSource.PLAYER_GRID] and _stash_panel.is_mouse_over():
+			# Don't consume — let the click reach stash slots for upgrade checks.
+			# If no slot is hit, stash_panel._gui_input emits background_clicked
+			# which we don't handle while dragging, so the drag persists (harmless).
+			pass
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -330,9 +336,23 @@ func _on_player_hover_exited() -> void:
 
 func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 	if _drag_state == DragState.DRAGGING:
+		# Check for stash-on-stash upgrade
+		if ItemUpgradeSystem.can_upgrade(_dragged_item, item):
+			_perform_stash_upgrade(item, index)
+			return
 		_cancel_drag()
 		return
 	_start_drag_from_stash(item, index)
+
+
+func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
+	GameManager.party.stash.remove_at(target_index)
+	GameManager.party.add_to_stash(upgraded_item)
+	_end_drag()
+	_refresh_stash()
+	EventBus.stash_changed.emit()
+	DebugLogger.log_info("SHOP STASH UPGRADE! → %s" % upgraded_item.display_name, "Shop")
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -511,6 +531,12 @@ func _complete_sell() -> void:
 
 ## STASH → player grid (free move, no gold)
 func _complete_move_stash_to_grid(grid_pos: Vector2i, inv: GridInventory) -> void:
+	# Check for item upgrade
+	var target: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+	if target and ItemUpgradeSystem.can_upgrade(_dragged_item, target.item_data):
+		_perform_player_grid_upgrade(inv, target)
+		return
+
 	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
 		return
 	inv.place_item(_dragged_item, grid_pos, _drag_rotation)
@@ -521,12 +547,34 @@ func _complete_move_stash_to_grid(grid_pos: Vector2i, inv: GridInventory) -> voi
 
 ## PLAYER_GRID → PLAYER_GRID (reposition)
 func _complete_move_within_grid(grid_pos: Vector2i, inv: GridInventory) -> void:
+	# Check for item upgrade
+	var target: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+	if target and ItemUpgradeSystem.can_upgrade(_dragged_item, target.item_data):
+		_perform_player_grid_upgrade(inv, target)
+		return
+
 	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
 		return
 	inv.place_item(_dragged_item, grid_pos, _drag_rotation)
 	EventBus.inventory_changed.emit(_current_character_id)
 	_player_grid_panel.refresh()
 	_end_drag()
+
+
+func _perform_player_grid_upgrade(inv: GridInventory, target_placed: GridInventory.PlacedItem) -> void:
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_placed.item_data)
+	var target_pos: Vector2i = target_placed.grid_position
+	var target_rot: int = target_placed.rotation
+	inv.remove_item(target_placed)
+	var new_placed: GridInventory.PlacedItem = inv.place_item(upgraded_item, target_pos, target_rot)
+	_end_drag()
+	if new_placed:
+		_player_grid_panel.refresh()
+		EventBus.inventory_changed.emit(_current_character_id)
+		if _drag_source == DragSource.STASH:
+			EventBus.stash_changed.emit()
+			_refresh_stash()
+		DebugLogger.log_info("SHOP UPGRADE! → %s" % upgraded_item.display_name, "Shop")
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -576,6 +624,7 @@ func _end_drag() -> void:
 	_drag_preview.hide_preview()
 	_merchant_grid_panel.clear_placement_preview()
 	_player_grid_panel.clear_placement_preview()
+	_stash_panel.clear_upgradeable_highlights()
 
 
 # ════════════════════════════════════════════════════════════════════════════

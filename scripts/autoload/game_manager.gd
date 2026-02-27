@@ -10,7 +10,23 @@ var current_location_name: String = "Overworld"
 
 func _ready() -> void:
 	EventBus.item_database_reloaded.connect(_on_item_database_reloaded)
+	EventBus.inventory_changed.connect(_on_inventory_changed)
 	DebugLogger.log_info("GameManager ready", "GameManager")
+
+
+func _on_inventory_changed(character_id: String) -> void:
+	## Re-clamp vitals when equipment changes so current HP/MP never exceeds new max.
+	## If the character was at full HP before the change, top them up to the new max.
+	if not party or not party.character_vitals.has(character_id):
+		return
+	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
+	var old_hp: int = party.get_current_hp(character_id)
+	var old_mp: int = party.get_current_mp(character_id)
+	var new_max_hp: int = party.get_max_hp(character_id, tree)
+	var new_max_mp: int = party.get_max_mp(character_id, tree)
+	# Clamp down (removed equipment) or keep current
+	party.character_vitals[character_id]["current_hp"] = clampi(old_hp, 0, new_max_hp)
+	party.character_vitals[character_id]["current_mp"] = clampi(old_mp, 0, new_max_mp)
 
 func new_game() -> void:
 	party = Party.new()
