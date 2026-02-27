@@ -12,6 +12,9 @@ Thumbs.db
 # Vendor asset packs (not used in game)
 temp_sprites/
 
+# MCP config (contains API keys)
+.mcp.json
+
 # Old root-level directories (not used)
 /src/
 /sprites/
