@@ -372,6 +372,7 @@ func _on_combat_finished(victory: bool) -> void:
 				"loot": loot,
 				"gold": _combat_manager.gold_earned,
 				"source": "battle",
+				"loot_grid_template": _encounter_data.loot_grid_template,
 			}
 			SceneManager.replace_scene("res://scenes/loot/loot.tscn", loot_data)
 		else:

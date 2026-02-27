@@ -1,11 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/loot/loot.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://c5chartabs01" path="res://scenes/inventory/ui/character_tabs.tscn" id="2_tabs"]
 [ext_resource type="PackedScene" uid="uid://c5gridpanl001" path="res://scenes/inventory/ui/grid_panel.tscn" id="3_grid"]
 [ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="5_drag"]
 [ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="6_tooltip"]
-[ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="7_stash"]
 
 [node name="Loot" type="Control"]
 layout_mode = 3
@@ -52,16 +51,34 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
-[node name="LootPool" parent="VBox/Content" instance=ExtResource("7_stash")]
-custom_minimum_size = Vector2(280, 0)
+[node name="LootSide" type="VBoxContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
+size_flags_stretch_ratio = 1.2
+theme_override_constants/separation = 8
+
+[node name="LootLabel" type="Label" parent="VBox/Content/LootSide"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Loot"
+
+[node name="LootGridCentering" type="CenterContainer" parent="VBox/Content/LootSide"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LootGridPanel" parent="VBox/Content/LootSide/LootGridCentering" instance=ExtResource("3_grid")]
+
+[node name="LootInfoLabel" type="Label" parent="VBox/Content/LootSide"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+horizontal_alignment = 1
+text = ""
 
 [node name="GridSide" type="VBoxContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
+size_flags_stretch_ratio = 1.5
 theme_override_constants/separation = 8
 
 [node name="CharacterTabs" parent="VBox/Content/GridSide" instance=ExtResource("2_tabs")]
@@ -75,10 +92,6 @@ size_flags_vertical = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
-
-[node name="SendToStashButton" type="Button" parent="VBox/BottomBar"]
-layout_mode = 2
-text = "Send All to Stash"
 
 [node name="Spacer" type="Control" parent="VBox/BottomBar"]
 layout_mode = 2
