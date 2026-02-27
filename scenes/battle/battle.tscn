@@ -160,11 +160,6 @@ theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 text = "Select a target..."
 
-[node name="CancelButton" type="Button" parent="MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt"]
-layout_mode = 2
-custom_minimum_size = Vector2(100, 0)
-text = "Cancel"
-
 [node name="BottomRow" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 16

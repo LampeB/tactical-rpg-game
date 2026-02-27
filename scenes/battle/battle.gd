@@ -38,7 +38,6 @@ const ENEMY_OFFSETS: Array[Vector2] = [
 @onready var _party_list: HBoxContainer = $MainLayout/BattleField/FieldLayout/PartyCards/PartyList
 @onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
 @onready var _target_prompt_label: Label = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/Label
-@onready var _target_cancel_btn: Button = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/CancelButton
 @onready var _action_menu: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/ActionMenu
 @onready var _log_toggle: Button = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/LogToggle
 @onready var _battle_log: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/BattleLog
@@ -83,7 +82,6 @@ func _ready() -> void:
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_target_prompt.visible = false
-	_target_cancel_btn.pressed.connect(_cancel_target_selection)
 	_log_toggle.toggled.connect(_on_log_toggle)
 	_battle_log.visible = false
 	DebugLogger.log_info("Battle scene ready", "Battle")
@@ -311,6 +309,9 @@ func _on_turn_ready(entity: CombatEntity) -> void:
 	_refresh_all_ui()
 
 	if entity.is_player:
+		if entity.is_dead:
+			_combat_manager.advance_turn()
+			return
 		_state = BattleState.PLAYER_ACTION
 		DebugLogger.log_info("State -> PLAYER_ACTION: %s (HP:%d/%d MP:%d/%d)" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp], "Battle")
 		var skills: Array = entity.get_available_skills()
@@ -320,7 +321,7 @@ func _on_turn_ready(entity: CombatEntity) -> void:
 	else:
 		_state = BattleState.ENEMY_ACTION
 		DebugLogger.log_info("State -> ENEMY_ACTION: %s (HP:%d/%d)" % [entity.entity_name, entity.current_hp, entity.max_hp], "Battle")
-		_action_menu.hide_menu()
+		_action_menu.show_disabled()
 		await get_tree().create_timer(ACTION_DELAY).timeout
 		_execute_enemy_turn(entity)
 
@@ -353,8 +354,8 @@ func _on_combat_finished(victory: bool) -> void:
 	_action_menu.hide_menu()
 	_target_prompt.visible = false
 
-	# Save player HP/MP back to persistent vitals
-	_save_player_vitals()
+	# Save player HP/MP back to persistent vitals (revive KO'd chars at 1 HP on victory)
+	_save_player_vitals(victory)
 
 	if victory:
 		_state = BattleState.VICTORY
@@ -376,14 +377,18 @@ func _on_combat_finished(victory: bool) -> void:
 		else:
 			DebugLogger.log_info("No loot generated, returning to previous scene", "Battle")
 			SceneManager.pop_scene({"from_battle": true})
+	elif _combat_manager.player_fled:
+		DebugLogger.log_info("Player fled — returning to overworld", "Battle")
+		EventBus.combat_ended.emit(false)
+		SceneManager.pop_scene({"from_battle": true})
 	else:
 		_state = BattleState.DEFEAT
 		_title.text = "Defeat..."
 		DebugLogger.log_info("State -> DEFEAT", "Battle")
 		EventBus.combat_ended.emit(false)
 		await get_tree().create_timer(DEFEAT_DELAY).timeout
-		DebugLogger.log_info("Returning to previous scene after defeat", "Battle")
-		SceneManager.pop_scene({"from_battle": true})
+		DebugLogger.log_info("Showing defeat screen", "Battle")
+		_show_defeat_screen()
 
 
 func _on_entity_died(entity: CombatEntity) -> void:
@@ -430,6 +435,12 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 # === Player Input ===
 
 func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
+	# If already selecting a target, cancel that first then handle the new action
+	if _state == BattleState.TARGET_SELECT:
+		_clear_target_highlights()
+		_clear_pending_action()
+		_state = BattleState.PLAYER_ACTION
+		_target_prompt.visible = false
 	if _state != BattleState.PLAYER_ACTION:
 		DebugLogger.log_warn("Action chosen but state is %s, ignoring" % BattleState.keys()[_state], "Battle")
 		return
@@ -440,12 +451,12 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 
 	match action_type:
 		Enums.CombatAction.DEFEND:
-			_action_menu.hide_menu()
+			_action_menu.show_disabled()
 			_combat_manager.execute_defend(_combat_manager.current_entity)
 			_advance_after_action()
 
 		Enums.CombatAction.FLEE:
-			_action_menu.hide_menu()
+			_action_menu.show_disabled()
 			_combat_manager.execute_flee()
 
 		Enums.CombatAction.ATTACK:
@@ -474,29 +485,19 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 
 func _enter_target_selection() -> void:
 	_state = BattleState.TARGET_SELECT
-	_target_prompt.visible = true
 
-	var skill_name: String = _pending_skill.display_name if _pending_skill else "action"
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
-			_target_prompt_label.text = "%s - Select an enemy" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single enemy)", "Battle")
 		Enums.TargetType.SINGLE_ALLY:
-			_target_prompt_label.text = "%s - Select an ally" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (single ally)", "Battle")
 		Enums.TargetType.SELF:
-			_target_prompt_label.text = "%s - Click to use on yourself" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (self)", "Battle")
 		Enums.TargetType.ALL_ENEMIES:
-			var count: int = _combat_manager.get_alive_enemies().size()
-			_target_prompt_label.text = "%s - Targets all enemies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all enemies)", "Battle")
 		Enums.TargetType.ALL_ALLIES:
-			var count: int = _combat_manager.get_alive_players().size()
-			_target_prompt_label.text = "%s - Targets all allies (%d)" % [skill_name, count]
 			DebugLogger.log_info("State -> TARGET_SELECT (all allies)", "Battle")
 		_:
-			_target_prompt_label.text = "%s - Select a target" % skill_name
 			DebugLogger.log_info("State -> TARGET_SELECT (unknown)", "Battle")
 
 
@@ -632,7 +633,7 @@ func _cancel_target_selection() -> void:
 func _execute_player_action(targets: Array) -> void:
 	_clear_target_highlights()
 	_target_prompt.visible = false
-	_action_menu.hide_menu()
+	_action_menu.show_disabled()
 	_state = BattleState.ANIMATING
 	var target_names: String = ", ".join(targets.map(func(t: CombatEntity) -> String: return t.entity_name))
 	DebugLogger.log_info("State -> ANIMATING: executing player action on [%s]" % target_names, "Battle")
@@ -818,7 +819,7 @@ func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 	_spawn_popup_at_entity(target, amount, popup_type)
 
 
-func _save_player_vitals() -> void:
+func _save_player_vitals(victory: bool = false) -> void:
 	if not _combat_manager or not GameManager.party:
 		return
 
@@ -827,15 +828,89 @@ func _save_player_vitals() -> void:
 		if entity.character_data:
 			var char_id: String = entity.character_data.id
 			var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
-			GameManager.party.set_current_hp(char_id, entity.current_hp, tree)
+			# On victory, revive KO'd characters at 1 HP so they're ready for the next fight
+			var saved_hp: int = entity.current_hp
+			if victory and entity.is_dead:
+				saved_hp = 1
+			GameManager.party.set_current_hp(char_id, saved_hp, tree)
 			GameManager.party.set_current_mp(char_id, entity.current_mp, tree)
-			DebugLogger.log_info("Saved vitals for %s: HP %d/%d, MP %d/%d" % [
+			DebugLogger.log_info("Saved vitals for %s: HP %d/%d, MP %d/%d%s" % [
 				entity.entity_name,
-				entity.current_hp,
+				saved_hp,
 				entity.max_hp,
 				entity.current_mp,
-				entity.max_mp
+				entity.max_mp,
+				" (revived)" if victory and entity.is_dead else "",
 			], "Battle")
+
+
+func _show_defeat_screen() -> void:
+	## Shows a fullscreen overlay with Main Menu / Load Save / Quit buttons.
+	var canvas := CanvasLayer.new()
+	canvas.layer = 20
+	add_child(canvas)
+
+	var blocker := ColorRect.new()
+	blocker.color = Color(0.0, 0.0, 0.0, 0.75)
+	blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	blocker.set_anchors_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(blocker)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(center)
+
+	var panel := PanelContainer.new()
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 48)
+	margin.add_theme_constant_override("margin_right", 48)
+	margin.add_theme_constant_override("margin_top", 36)
+	margin.add_theme_constant_override("margin_bottom", 36)
+	panel.add_child(margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+	vbox.custom_minimum_size = Vector2(280, 0)
+	margin.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "Defeat"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	vbox.add_child(title_lbl)
+
+	var sub_lbl := Label.new()
+	sub_lbl.text = "Your party has fallen."
+	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub_lbl.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+	vbox.add_child(sub_lbl)
+
+	vbox.add_child(HSeparator.new())
+
+	var main_menu_btn := Button.new()
+	main_menu_btn.text = "Main Menu"
+	main_menu_btn.pressed.connect(func() -> void:
+		SceneManager.clear_stack()
+		SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
+	)
+	vbox.add_child(main_menu_btn)
+
+	var load_btn := Button.new()
+	load_btn.text = "Load Save"
+	load_btn.disabled = not SaveManager.has_any_save()
+	load_btn.pressed.connect(func() -> void:
+		SceneManager.clear_stack()
+		SceneManager.replace_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "load"})
+	)
+	vbox.add_child(load_btn)
+
+	var quit_btn := Button.new()
+	quit_btn.text = "Quit Game"
+	quit_btn.pressed.connect(func() -> void: get_tree().quit())
+	vbox.add_child(quit_btn)
 
 
 func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums.PopupType) -> void:

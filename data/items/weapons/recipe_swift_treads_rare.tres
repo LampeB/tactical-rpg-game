@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ohim6"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_x27to"]
+
+[resource]
+script = ExtResource("1_ohim6")
+id = "recipe_swift_treads_rare"
+display_name = "Superior Blueprint: Swift Treads"
+description = "Cobbling plans for speed-enchanted footwear. Bring this to a blacksmith."
+item_type = 5
+rarity = 2
+shape = ExtResource("2_x27to")
+base_price = 102

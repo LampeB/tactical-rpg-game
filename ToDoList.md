@@ -37,10 +37,10 @@
 
 ## Bugs to Fix
 
-- [ ] Rotating an item does not rotate its reach shape (gem conditional modifier reach pattern doesn't rotate with the item)
-- [ ] KO'd characters still play their animations / act during battle
-- [ ] Tooltip doesn't disappear correctly when leaving items in the blacksmith interface
-- [ ] Item editor has no fields to edit innate status effect modifiers (poison, chill, etc.)
+- [x] Rotating an item does not rotate its reach shape — hover now shows rotated reach cells
+- [x] KO'd characters still play their animations / act during battle
+- [x] Tooltip doesn't disappear correctly when leaving items in the blacksmith interface
+- [x] Item editor has no fields to edit innate status effect modifiers (poison, chill, etc.)
 
 ---
 
@@ -55,6 +55,8 @@
 - [ ] Skill visual effects / particles
 - [ ] Hover tooltip on skills in the stats screen (show skill details on mouseover)
 - [ ] Show number of hands required on weapon card
+- [ ] Reduce tooltip size and anchor it to a fixed area of the screen instead of floating at cursor position
+- [ ] Add status effect proc roll results to the battle log (e.g. "Fire Gem rolled 18% vs 20% — no burn" / "rolled 8% vs 20% — BURN applied!")
 
 ### Items & Equipment
 - [ ] Create armor items with subtypes per slot — each slot has 3–4 weight classes with different stat profiles:
@@ -71,12 +73,14 @@
 - [ ] Item crafting system — combine items to create new ones, recipes in a database, crafting UI
 - [ ] Remove gold cost from blacksmith recipes (crafting cost should be ingredients only, no gold)
 - [ ] Inventory grid size upgrades: use a dedicated resource (not gold, not an inventory item) tracked globally like gold — earned through gameplay and spent to unlock additional grid cells
+- [ ] Loot screen item merging — allow combining two identical items (same family, adjacent rarity) to upgrade them to the next rarity tier directly on the post-battle loot screen
 
 ### Combat
 - [ ] Implement defend action (damage reduction via shield/defense stats)
 - [ ] Create enemy variety (15-20 types with unique skills/behaviors, bosses)
 - [ ] In-game enemy editor — debug/dev tool for enemy definitions
 - [ ] Overworld encounter balancing (enemy count, spawn positions)
+- [ ] Restrict roaming enemies from entering town/NPC areas — define exclusion zones (per LocationData or a new repel_radius) that enemies cannot pathfind into, so players feel safe near towns
 
 ### World & Progression
 - [ ] Add mechanic to block parts of the map if conditions aren't met

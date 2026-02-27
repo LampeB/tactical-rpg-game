@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_c4o54"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_mlkie"]
+
+[resource]
+script = ExtResource("1_c4o54")
+id = "recipe_venom_dagger_uncommon"
+display_name = "Fine Blueprint: Venom Dagger"
+description = "Instructions for coating a blade with concentrated poison. Bring this to a blacksmith."
+item_type = 5
+rarity = 1
+shape = ExtResource("2_mlkie")
+base_price = 94

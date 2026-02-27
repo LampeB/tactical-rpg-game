@@ -85,6 +85,11 @@ static func from_character(
 	entity.current_hp = starting_hp if starting_hp >= 0 else entity.max_hp
 	entity.current_mp = starting_mp if starting_mp >= 0 else entity.max_mp
 
+	# A character entering battle with 0 HP is considered already dead
+	if entity.current_hp <= 0:
+		entity.current_hp = 0
+		entity.is_dead = true
+
 	return entity
 
 

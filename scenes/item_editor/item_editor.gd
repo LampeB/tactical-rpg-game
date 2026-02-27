@@ -1382,6 +1382,83 @@ func _build_combat_section(item: ItemData) -> void:
 	)
 	_property_vbox.add_child(add_skill_btn)
 
+	# Innate status effect fields
+	_add_separator()
+	_add_label_row("Innate Status Effect (on hit):")
+
+	var innate_status_row := HBoxContainer.new()
+	var innate_status_label := Label.new()
+	innate_status_label.text = "Effect:"
+	innate_status_row.add_child(innate_status_label)
+	var innate_status_btn := OptionButton.new()
+	innate_status_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	innate_status_btn.add_item("(none)", 0)
+	var selected_innate_idx: int = 0
+	for j in range(_status_effects.size()):
+		var se: StatusEffect = _status_effects[j]
+		innate_status_btn.add_item(Enums.StatusEffectType.keys()[se.effect_type].capitalize(), j + 1)
+		if item.innate_status_effect and item.innate_status_effect.effect_type == se.effect_type:
+			selected_innate_idx = j + 1
+	innate_status_btn.selected = selected_innate_idx
+	innate_status_btn.item_selected.connect(func(idx: int) -> void:
+		if idx == 0:
+			item.innate_status_effect = null
+		else:
+			item.innate_status_effect = _status_effects[idx - 1]
+		_dirty_ids[item.id] = true
+	)
+	innate_status_row.add_child(innate_status_btn)
+	_property_vbox.add_child(innate_status_row)
+
+	var innate_chance_row := HBoxContainer.new()
+	var innate_chance_label := Label.new()
+	innate_chance_label.text = "Chance (0-1):"
+	innate_chance_row.add_child(innate_chance_label)
+	var innate_chance_spin := SpinBox.new()
+	innate_chance_spin.min_value = 0.0
+	innate_chance_spin.max_value = 1.0
+	innate_chance_spin.step = 0.05
+	innate_chance_spin.value = item.innate_status_effect_chance
+	innate_chance_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	innate_chance_spin.value_changed.connect(func(val: float) -> void:
+		item.innate_status_effect_chance = val
+		_dirty_ids[item.id] = true
+	)
+	innate_chance_row.add_child(innate_chance_spin)
+	_property_vbox.add_child(innate_chance_row)
+
+	var innate_stacks_row := HBoxContainer.new()
+	var innate_stacks_label := Label.new()
+	innate_stacks_label.text = "Stacks (normal):"
+	innate_stacks_row.add_child(innate_stacks_label)
+	var innate_stacks_spin := SpinBox.new()
+	innate_stacks_spin.min_value = 0
+	innate_stacks_spin.max_value = 20
+	innate_stacks_spin.value = item.innate_status_stacks
+	innate_stacks_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	innate_stacks_spin.value_changed.connect(func(val: float) -> void:
+		item.innate_status_stacks = int(val)
+		_dirty_ids[item.id] = true
+	)
+	innate_stacks_row.add_child(innate_stacks_spin)
+	_property_vbox.add_child(innate_stacks_row)
+
+	var innate_crit_row := HBoxContainer.new()
+	var innate_crit_label := Label.new()
+	innate_crit_label.text = "Stacks (crit):"
+	innate_crit_row.add_child(innate_crit_label)
+	var innate_crit_spin := SpinBox.new()
+	innate_crit_spin.min_value = 0
+	innate_crit_spin.max_value = 20
+	innate_crit_spin.value = item.innate_crit_status_stacks
+	innate_crit_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	innate_crit_spin.value_changed.connect(func(val: float) -> void:
+		item.innate_crit_status_stacks = int(val)
+		_dirty_ids[item.id] = true
+	)
+	innate_crit_row.add_child(innate_crit_spin)
+	_property_vbox.add_child(innate_crit_row)
+
 
 # === Modifier ===
 

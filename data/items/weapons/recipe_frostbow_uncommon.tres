@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rox1s"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_1x288"]
+
+[resource]
+script = ExtResource("1_rox1s")
+id = "recipe_frostbow_uncommon"
+display_name = "Fine Blueprint: Frostbow"
+description = "Instructions for a bow enchanted with ice magic. Bring this to a blacksmith."
+item_type = 5
+rarity = 1
+shape = ExtResource("2_1x288")
+base_price = 125

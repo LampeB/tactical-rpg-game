@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_6vmrl"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_f8elw"]
+
+[resource]
+script = ExtResource("1_6vmrl")
+id = "recipe_flameblade_unique"
+display_name = "Mythic Blueprint: Flameblade"
+description = "Forging instructions for a fire-infused blade. Bring this to a blacksmith."
+item_type = 5
+rarity = 5
+shape = ExtResource("2_f8elw")
+base_price = 384

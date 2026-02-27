@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1tqjx"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="2_2nc43"]
+
+[resource]
+script = ExtResource("1_1tqjx")
+id = "recipe_twin_dagger_legendary"
+display_name = "Legendary Blueprint: Twin Dagger"
+description = "Detailed forging instructions for a twin dagger. Bring this to a blacksmith to learn the recipe."
+item_type = 5
+rarity = 4
+shape = ExtResource("2_2nc43")
+base_price = 360
