@@ -58,9 +58,11 @@
 ## General Tasks
 
 ### UI & Polish
-- [ ] Loot screen "Use" button should show target selection popup (same as inventory right-click potion use)
-- [ ] Persistent party character cards on overworld HUD (portrait, HP, MP)
-- [ ] ESC should leave current interface/screen (except during battles)
+- [x] Loot screen "Use" button should show target selection popup (same as inventory right-click potion use)
+- [x] Persistent party character cards on overworld HUD (portrait, HP, MP)
+- [x] ESC should leave current interface/screen (except during battles)
+- [ ] Limit the size of the stash (enforce MAX_STASH_SLOTS cap)
+- [ ] Add a way to throw away / discard items (from stash and inventory)
 - [ ] Stash sorting and filtering: primary + secondary sort order (e.g. by type then by rarity → all weapons sorted by rarity, then all armor sorted by rarity, etc.); available sort keys: alphabetical, item type, rarity; also support filtering by type
 - [ ] Unified screen/menu presentation — rework all menus and screens to follow a single consistent pattern (no mix of floating overlays and full-screen panels; decide on one approach and apply it everywhere)
 - [ ] Make it possible to use sprites for every UI element
@@ -89,6 +91,9 @@
 - [ ] Inventory grid size upgrades: use a dedicated resource (not gold, not an inventory item) tracked globally like gold — earned through gameplay and spent to unlock additional grid cells
 - [ ] Item merging by superposing on inventory grid — combine same-family items to upgrade rarity tier
 - [ ] Loot screen item merging — allow combining two identical items (same family, adjacent rarity) to upgrade them to the next rarity tier directly on the post-battle loot screen
+- [ ] Items not picked up from the loot panel are lost once the screen is closed (no auto-stash)
+- [ ] Replace loot screen items list with inventory grids — place items one by one from highest rarity to lowest; items that can't be placed are discarded
+- [ ] Loot grid shapes depend on the encounter (different encounters yield different-shaped loot grids)
 
 ### Combat
 - [ ] Implement defend action (damage reduction via shield/defense stats)
@@ -155,7 +160,7 @@
 - [x] `ShopData` resource — id, display_name, inventory (Array[ItemData]), pricing rules, restock behavior
 - [x] Shop UI scene — buy/sell panels, item grid, gold display, confirmation
 - [x] Shopkeeper NPC integration — NPC with role=merchant opens shop UI
-- [ ] ShopDatabase autoload — scans `data/shops/` for .tres files
+- [x] ShopDatabase autoload — scans `data/shops/` for .tres files (created but unused; shop_ui loads directly)
 - [x] Connect to existing inventory system (GridInventory) for player items
 
 ### Quest System
