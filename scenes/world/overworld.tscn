@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/shared/environment_3d.tscn" id="10_env"]
 [ext_resource type="Script" path="res://scripts/systems/camera/orbit_camera.gd" id="11_cam"]
 [ext_resource type="PackedScene" path="res://scenes/world/npc_marker.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://scenes/world/chest_marker.tscn" id="19"]
 
 [sub_resource type="BoxShape3D" id="player_collision"]
 size = Vector3(0.8, 1.8, 0.8)
@@ -102,6 +103,12 @@ npc_id = "weaver"
 [node name="Doctor" parent="." instance=ExtResource("18")]
 position = Vector3(13, 0, 10)
 npc_id = "doctor"
+
+[node name="Chests" type="Node3D" parent="."]
+
+[node name="TestChest" parent="Chests" instance=ExtResource("19")]
+position = Vector3(22, 0, 15)
+chest_id = "test_chest_wooden"
 
 [node name="UI" type="CanvasLayer" parent="."]
 
