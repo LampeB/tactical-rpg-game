@@ -38,11 +38,25 @@ func _physics_process(delta: float) -> void:
 
 	var input_x := Input.get_axis("move_left", "move_right")
 	var input_z := Input.get_axis("move_up", "move_down")
-	var input_vector := Vector3(input_x, 0.0, input_z)
+	var raw_input := Vector3(input_x, 0.0, input_z)
 
-	if input_vector.length() > 0:
-		input_vector = input_vector.normalized()
-		velocity = input_vector * SPEED
+	if raw_input.length() > 0:
+		raw_input = raw_input.normalized()
+		# Transform input relative to camera orientation so "forward" follows the camera
+		var cam := get_viewport().get_camera_3d()
+		var input_vector: Vector3
+		if cam:
+			var cam_forward := -cam.global_transform.basis.z
+			cam_forward.y = 0.0
+			cam_forward = cam_forward.normalized()
+			var cam_right := cam.global_transform.basis.x
+			cam_right.y = 0.0
+			cam_right = cam_right.normalized()
+			input_vector = cam_right * raw_input.x - cam_forward * raw_input.z
+		else:
+			input_vector = raw_input
+		input_vector.y = 0.0
+		velocity = input_vector.normalized() * SPEED
 		_update_model_direction(input_vector)
 	else:
 		velocity = Vector3.ZERO
