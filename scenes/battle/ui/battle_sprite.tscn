@@ -2,17 +2,5 @@
 
 [ext_resource type="Script" path="res://scenes/battle/ui/battle_sprite.gd" id="1_script"]
 
-[sub_resource type="RectangleShape2D" id="1"]
-size = Vector2(96, 96)
-
-[node name="BattleSprite" type="Node2D"]
+[node name="BattleSprite" type="Node3D"]
 script = ExtResource("1_script")
-
-[node name="Sprite" type="Sprite2D" parent="."]
-scale = Vector2(2, 2)
-
-[node name="ClickArea" type="Area2D" parent="."]
-input_pickable = true
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea"]
-shape = SubResource("1")

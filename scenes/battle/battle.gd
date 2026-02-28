@@ -1,6 +1,6 @@
 extends Control
 ## Battle scene orchestrator. Manages combat flow, UI updates, and player input.
-## Battlefield uses a SubViewport with Node2D sprites for future camera/animation support.
+## Battlefield uses a SubViewport with Node3D CSG models for 3D rendering.
 
 enum BattleState { INIT, PLAYER_ACTION, TARGET_SELECT, ENEMY_ACTION, ANIMATING, VICTORY, DEFEAT }
 
@@ -15,18 +15,18 @@ const BATTLE_START_DELAY: float = 0.5  ## Delay before first turn
 const VICTORY_DELAY: float = 1.5  ## Pause before victory screen
 const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 
-# Battle positions relative to SubViewport center (computed at runtime)
-const PLAYER_OFFSETS: Array[Vector2] = [
-	Vector2(-300, -30),
-	Vector2(-350, 40),
-	Vector2(-240, 50),
-	Vector2(-400, -10),
+# Battle positions in 3D world space
+const PLAYER_POSITIONS: Array[Vector3] = [
+	Vector3(-3.0, 0, 0.0),
+	Vector3(-4.0, 0, 1.0),
+	Vector3(-3.5, 0, -1.0),
+	Vector3(-5.0, 0, 0.5),
 ]
-const ENEMY_OFFSETS: Array[Vector2] = [
-	Vector2(300, -30),
-	Vector2(350, 40),
-	Vector2(240, 50),
-	Vector2(400, -10),
+const ENEMY_POSITIONS: Array[Vector3] = [
+	Vector3(3.0, 0, 0.0),
+	Vector3(4.0, 0, 1.0),
+	Vector3(3.5, 0, -1.0),
+	Vector3(5.0, 0, 0.5),
 ]
 
 # --- Child references (UI overlay) ---
@@ -46,8 +46,8 @@ const ENEMY_OFFSETS: Array[Vector2] = [
 # --- Battlefield (SubViewport) references ---
 @onready var _battle_viewport: SubViewportContainer = $MainLayout/BattleField/FieldLayout/BattleViewport
 @onready var _sub_viewport: SubViewport = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport
-@onready var _battle_world: Node2D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld
-@onready var _battle_camera: Camera2D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld/BattleCamera
+@onready var _battle_world: Node3D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld
+@onready var _battle_camera: Camera3D = $MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld/BattleCamera
 
 # --- State ---
 var _encounter_data: EncounterData
@@ -56,7 +56,7 @@ var _state: BattleState = BattleState.INIT
 
 # Entity -> UI mappings
 var _entity_bars: Dictionary = {}  ## CombatEntity -> EntityStatusBar node
-var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite (Node2D)
+var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite (Node3D)
 var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 
 # Target selection
@@ -186,12 +186,34 @@ func _letter(index: int) -> String:
 
 
 func _sync_viewport_size() -> void:
-	## Position camera to show the full viewport.
-	## anchor_mode = FIXED_TOP_LEFT (0), so position (0,0) shows the entire SubViewport.
-	var vp_size: Vector2 = Vector2(_sub_viewport.size)
-	DebugLogger.log_info("Syncing viewport: size=%s" % str(vp_size), "BattleView")
-	_battle_camera.position = Vector2.ZERO
-	DebugLogger.log_info("  Camera positioned at %s" % str(_battle_camera.position), "BattleView")
+	## Set up 3D battle camera and lighting.
+	_sub_viewport.physics_object_picking = true
+
+	# Position camera for a slightly elevated view of the battlefield
+	_battle_camera.position = Vector3(0, 3, 6)
+	_battle_camera.look_at(Vector3(0, 0.5, 0))
+	_battle_camera.fov = 40.0
+	DebugLogger.log_info("Battle camera at %s, fov=%.0f" % [str(_battle_camera.position), _battle_camera.fov], "BattleView")
+
+	# Add directional light (once)
+	if not _battle_world.has_node("BattleLight"):
+		var light := DirectionalLight3D.new()
+		light.name = "BattleLight"
+		light.rotation_degrees = Vector3(-45, 30, 0)
+		light.light_energy = 1.0
+		light.shadow_enabled = false
+		_battle_world.add_child(light)
+
+	# Add environment with ambient light (once)
+	if not _battle_world.has_node("BattleEnv"):
+		var env := Environment.new()
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = Color(0.4, 0.4, 0.5)
+		env.ambient_light_energy = 0.8
+		var world_env := WorldEnvironment.new()
+		world_env.name = "BattleEnv"
+		world_env.environment = env
+		_battle_world.add_child(world_env)
 
 
 # === Camera Stubs (for future use) ===
@@ -202,7 +224,7 @@ func _shake_camera(_intensity: float = 5.0, _duration: float = 0.3) -> void:
 	pass
 
 
-func _pan_camera_to(_target: Vector2, _duration: float = 0.5) -> void:
+func _pan_camera_to(_target: Vector3, _duration: float = 0.5) -> void:
 	## Stub: will smoothly pan camera to a position.
 	DebugLogger.log_info("Camera pan (stub): target=%s duration=%.1f" % [str(_target), _duration], "BattleView")
 	pass
@@ -241,17 +263,15 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 
 
 func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) -> void:
-	var sprite: Node2D = BattleSpriteScene.instantiate()
+	var sprite: Node3D = BattleSpriteScene.instantiate()
 	_battle_world.add_child(sprite)
 
-	# Position at battle slot
-	var viewport_center: Vector2 = Vector2(_sub_viewport.size) / 2.0
-	var offsets: Array[Vector2] = PLAYER_OFFSETS if is_player else ENEMY_OFFSETS
-	var offset: Vector2 = offsets[slot_index % offsets.size()]
-	sprite.position = viewport_center + offset
+	# Position at battle slot in 3D world space
+	var positions: Array[Vector3] = PLAYER_POSITIONS if is_player else ENEMY_POSITIONS
+	sprite.position = positions[slot_index % positions.size()]
 
 	var side: String = "player" if is_player else "enemy"
-	DebugLogger.log_info("Sprite placed: %s [%s slot %d] at %s (center=%s + offset=%s)" % [entity.entity_name, side, slot_index, str(sprite.position), str(viewport_center), str(offset)], "BattleView")
+	DebugLogger.log_info("Sprite placed: %s [%s slot %d] at %s" % [entity.entity_name, side, slot_index, str(sprite.position)], "BattleView")
 
 	sprite.setup(entity)
 
@@ -264,10 +284,11 @@ func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) 
 
 
 func _build_entity_sprites(players: Array, enemies: Array) -> void:
-	# Clear existing sprites from battle world
-	for child in _battle_world.get_children():
-		if child is Node2D and child != _battle_camera:
-			child.queue_free()
+	# Clear existing battle sprites
+	for entity_key in _entity_sprites:
+		var old_sprite: Node3D = _entity_sprites[entity_key]
+		if is_instance_valid(old_sprite):
+			old_sprite.queue_free()
 	_entity_sprites.clear()
 
 	for pi in range(players.size()):
@@ -396,7 +417,7 @@ func _on_entity_died(entity: CombatEntity) -> void:
 	DebugLogger.log_info("Entity died: %s (is_player: %s)" % [entity.entity_name, str(entity.is_player)], "Battle")
 
 	# Play death animation and wait for it
-	var sprite: Node2D = _entity_sprites.get(entity)
+	var sprite: Node3D = _entity_sprites.get(entity)
 	if sprite:
 		DebugLogger.log_info("Anim: %s -> play_death (pos=%s)" % [entity.entity_name, str(sprite.position)], "BattleAnim")
 		sprite.play_death_animation()
@@ -423,7 +444,7 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 	_spawn_popup_at_entity(entity, damage, Enums.PopupType.DAMAGE)
 
 	# Play hurt animation for status tick
-	var sprite: Node2D = _entity_sprites.get(entity)
+	var sprite: Node3D = _entity_sprites.get(entity)
 	if sprite:
 		DebugLogger.log_info("Anim: %s -> play_hurt (status tick: %s, dmg=%d)" % [entity.entity_name, status_name, damage], "BattleAnim")
 		sprite.play_hurt_animation()
@@ -583,7 +604,7 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 		var hover_bar: PanelContainer = _entity_bars.get(hovered_entity)
 		if hover_bar:
 			hover_bar.set_highlight(hover_bar.HighlightType.INVALID)
-		var hover_sprite: Node2D = _entity_sprites.get(hovered_entity)
+		var hover_sprite: Node3D = _entity_sprites.get(hovered_entity)
 		if hover_sprite:
 			hover_sprite.set_highlight(false)
 		return
@@ -597,7 +618,7 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 			else:
 				bar.set_highlight(bar.HighlightType.SECONDARY)
 
-		var sprite: Node2D = _entity_sprites.get(target)
+		var sprite: Node3D = _entity_sprites.get(target)
 		if sprite:
 			sprite.set_highlight(target == hovered_entity)
 
@@ -609,7 +630,7 @@ func _clear_target_highlights() -> void:
 		var bar: PanelContainer = _entity_bars[entity]
 		bar.set_highlight(bar.HighlightType.NONE)
 
-		var sprite: Node2D = _entity_sprites.get(entity)
+		var sprite: Node3D = _entity_sprites.get(entity)
 		if sprite:
 			sprite.set_highlight(false)
 
@@ -642,7 +663,7 @@ func _execute_player_action(targets: Array) -> void:
 	var source: CombatEntity = _combat_manager.current_entity
 
 	# Step 1: Play attacker animation and wait
-	var attacker_sprite: Node2D = _entity_sprites.get(source)
+	var attacker_sprite: Node3D = _entity_sprites.get(source)
 	if attacker_sprite:
 		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [source.entity_name, str(attacker_sprite.position)], "BattleAnim")
 		attacker_sprite.play_attack_animation()
@@ -702,7 +723,7 @@ func _play_hurt_animation_for(target: CombatEntity, dmg: int) -> void:
 	if dmg <= 0:
 		DebugLogger.log_info("Anim: %s took 0 damage, skipping hurt anim" % target.entity_name, "BattleAnim")
 		return
-	var sprite: Node2D = _entity_sprites.get(target)
+	var sprite: Node3D = _entity_sprites.get(target)
 	if sprite and not target.is_dead:
 		DebugLogger.log_info("Anim: %s -> play_hurt (dmg=%d, pos=%s)" % [target.entity_name, dmg, str(sprite.position)], "BattleAnim")
 		sprite.play_hurt_animation()
@@ -749,7 +770,7 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	DebugLogger.log_info("Enemy AI chose: %s, skill: %s, targets: [%s]" % [action_name, skill_name, target_names], "Battle")
 
 	# Step 1: Play enemy attack animation
-	var enemy_sprite: Node2D = _entity_sprites.get(entity)
+	var enemy_sprite: Node3D = _entity_sprites.get(entity)
 	if enemy_sprite:
 		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
 		enemy_sprite.play_attack_animation()

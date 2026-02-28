@@ -1,5 +1,5 @@
-extends Node2D
-## Displays a sprite for a combat entity on the battlefield.
+extends Node3D
+## Displays a 3D CSG model for a combat entity on the battlefield.
 ## Supports awaitable animations for sequenced combat flow.
 
 signal animation_finished
@@ -8,42 +8,50 @@ signal mouse_entered_sprite(entity: CombatEntity)
 signal mouse_exited_sprite(entity: CombatEntity)
 
 var _entity: CombatEntity
-
-@onready var _sprite: Sprite2D = $Sprite
-@onready var _click_area: Area2D = $ClickArea
+var _model: Node3D = null
+var _click_area: Area3D = null
 
 
 func setup(entity: CombatEntity) -> void:
 	_entity = entity
 
-	# Load sprite texture
+	# Build CSG model
 	if entity.is_player and entity.character_data:
-		_sprite.texture = entity.character_data.portrait
-		_sprite.flip_h = false
+		_model = CSGCharacterFactory.create_from_character(entity.character_data)
 	elif not entity.is_player and entity.enemy_data:
-		_sprite.texture = entity.enemy_data.sprite
-		_sprite.flip_h = true
+		_model = CSGCharacterFactory.create_from_enemy(entity.enemy_data)
+	else:
+		_model = CSGCharacterFactory.create_humanoid(Constants.CHARACTER_DEFAULT_COLOR)
 
-	# Scale sprite to fit
-	if _sprite.texture:
-		var tex_size: Vector2 = _sprite.texture.get_size()
-		var target_size: float = 96.0
-		var scale_factor: float = target_size / max(tex_size.x, tex_size.y)
-		_sprite.scale = Vector2(scale_factor, scale_factor)
+	add_child(_model)
 
-	# Set up collision shape to match sprite size
-	var shape: RectangleShape2D = RectangleShape2D.new()
-	shape.size = Vector2(96, 96)
-	$ClickArea/CollisionShape2D.shape = shape
+	# Face enemies toward players
+	if not entity.is_player:
+		_model.rotation.y = PI
+
+	# Build click detection area
+	_build_click_area()
 
 
-func _ready() -> void:
+func _build_click_area() -> void:
+	_click_area = Area3D.new()
+	_click_area.name = "ClickArea"
+	_click_area.input_ray_pickable = true
+	add_child(_click_area)
+
+	var col_shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.0, 2.0, 1.0)
+	col_shape.shape = box
+	col_shape.position = Vector3(0, 1.0, 0)
+	_click_area.add_child(col_shape)
+
 	_click_area.input_event.connect(_on_area_input_event)
 	_click_area.mouse_entered.connect(_on_area_mouse_entered)
 	_click_area.mouse_exited.connect(_on_area_mouse_exited)
 
 
-func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+func _on_area_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	if _entity and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		clicked.emit(_entity)
 
@@ -58,39 +66,60 @@ func _on_area_mouse_exited() -> void:
 		mouse_exited_sprite.emit(_entity)
 
 
+# === Material Helpers ===
+
+func _set_emission(color: Color, energy: float) -> void:
+	if not _model:
+		return
+	for child in _model.get_children():
+		if child is CSGShape3D and child.material is StandardMaterial3D:
+			var mat: StandardMaterial3D = child.material as StandardMaterial3D
+			if energy > 0:
+				mat.emission_enabled = true
+				mat.emission = color
+				mat.emission_energy_multiplier = energy
+			else:
+				mat.emission_enabled = false
+
+
 # === Awaitable Animations ===
 
 func play_attack_animation() -> void:
-	## Quick forward lunge. Await this to wait for completion.
+	## Quick forward lunge on the X axis.
 	var tween := create_tween()
-	var offset: float = 20.0 if _entity.is_player else -20.0
-	tween.tween_property(_sprite, "position:x", _sprite.position.x + offset, 0.15)
-	tween.tween_property(_sprite, "position:x", _sprite.position.x, 0.15)
-	tween.tween_callback(func(): animation_finished.emit())
+	var lunge_dir: float = 1.0 if _entity.is_player else -1.0
+	tween.tween_property(self, "position:x", position.x + lunge_dir, 0.15)
+	tween.tween_property(self, "position:x", position.x, 0.15)
+	tween.tween_callback(func() -> void: animation_finished.emit())
 
 
 func play_hurt_animation() -> void:
-	## Flash red and shake. Await this to wait for completion.
+	## Flash red emission and shake.
+	_set_emission(Color(1.0, 0.3, 0.3), 0.5)
+
 	var tween := create_tween()
-	tween.tween_property(_sprite, "modulate", Color(1.5, 0.5, 0.5, 1.0), 0.1)
-	tween.tween_property(_sprite, "modulate", Color.WHITE, 0.1)
-
-	var shake_tween := create_tween()
-	shake_tween.tween_property(_sprite, "position:x", _sprite.position.x + 5, 0.05)
-	shake_tween.tween_property(_sprite, "position:x", _sprite.position.x - 5, 0.05)
-	shake_tween.tween_property(_sprite, "position:x", _sprite.position.x, 0.05)
-
-	# Wait for the longer tween (color flash = 0.2s)
-	tween.tween_callback(func(): animation_finished.emit())
+	var base_x: float = position.x
+	tween.tween_property(self, "position:x", base_x + 0.2, 0.05)
+	tween.tween_property(self, "position:x", base_x - 0.2, 0.05)
+	tween.tween_property(self, "position:x", base_x, 0.05)
+	tween.tween_callback(func() -> void:
+		_set_emission(Color.BLACK, 0.0)
+		animation_finished.emit()
+	)
 
 
 func play_death_animation() -> void:
-	## Fade out and fall. Await this to wait for completion.
+	## Sink into ground and fade out.
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(_sprite, "modulate:a", 0.0, 0.5)
-	tween.tween_property(_sprite, "position:y", _sprite.position.y + 20, 0.5)
-	tween.chain().tween_callback(func(): animation_finished.emit())
+	tween.tween_property(self, "position:y", position.y - 0.5, 0.5)
+	if _model:
+		for child in _model.get_children():
+			if child is CSGShape3D and child.material is StandardMaterial3D:
+				var mat: StandardMaterial3D = child.material as StandardMaterial3D
+				mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				tween.tween_property(mat, "albedo_color:a", 0.0, 0.5)
+	tween.chain().tween_callback(func() -> void: animation_finished.emit())
 
 
 func play_cast_animation() -> void:
@@ -105,10 +134,10 @@ func play_idle_animation() -> void:
 
 func set_highlight(active: bool) -> void:
 	if active:
-		_sprite.modulate = Color(1.3, 1.3, 1.3, 1.0)
+		_set_emission(Color(1, 1, 1), 0.3)
 	else:
-		_sprite.modulate = Color.WHITE
+		_set_emission(Color.BLACK, 0.0)
 
 
-func get_global_center() -> Vector2:
-	return _sprite.global_position
+func get_global_center() -> Vector3:
+	return global_position + Vector3(0, 1.0, 0)
