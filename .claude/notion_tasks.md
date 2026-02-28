@@ -108,6 +108,7 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
 | Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
