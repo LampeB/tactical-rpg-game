@@ -1,9 +1,9 @@
-extends Node2D
-## Main overworld scene controller.
+extends Node3D
+## Main overworld scene controller (3D version).
 
-@onready var _player: CharacterBody2D = $Player
-@onready var _location_markers: Node2D = $LocationMarkers
-@onready var _camera: Camera2D = $Camera2D
+@onready var _player: CharacterBody3D = $Player
+@onready var _location_markers: Node3D = $LocationMarkers
+@onready var _orbit_camera: OrbitCamera = $OrbitCamera
 @onready var _ui: CanvasLayer = $UI
 @onready var _fast_travel_menu: PanelContainer = $UI/FastTravelMenu
 @onready var _hud_gold_label: Label = $UI/HUD/GoldLabel
@@ -22,13 +22,14 @@ var _party_hud: HBoxContainer = null
 
 
 func _ready() -> void:
-	_camera.make_current()
+	# Camera setup — follow the player
+	_orbit_camera.set_follow_target(_player)
 
 	# Restore player position from save if returning
 	if GameManager.party:
-		var saved_pos: Vector2 = GameManager.get_flag("overworld_position", Vector2.ZERO)
+		var saved_pos: Vector3 = _get_saved_position()
 		DebugLogger.log_info("Saved position: %s" % saved_pos, "Overworld")
-		if saved_pos != Vector2.ZERO:
+		if saved_pos != Vector3.ZERO:
 			_player.global_position = saved_pos
 			DebugLogger.log_info("Restored player to: %s" % saved_pos, "Overworld")
 
@@ -47,7 +48,7 @@ func _ready() -> void:
 		_message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_message_label.set_anchors_preset(Control.PRESET_CENTER)
-		_message_label.position = Vector2(0, -200)  # Above center
+		_message_label.position = Vector2(0, -200)
 		_message_label.add_theme_font_size_override("font_size", 24)
 		_message_label.add_theme_color_override("font_color", Color.YELLOW)
 		_message_label.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -65,19 +66,11 @@ func _ready() -> void:
 	SaveManager.auto_save()
 	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
 
-	# Set camera to follow player
-	_camera.position_smoothing_enabled = false
-	_camera.global_position = _player.global_position
-	await get_tree().process_frame
-	_camera.position_smoothing_enabled = true
+	# Snap camera to player immediately, then allow smooth follow
+	_orbit_camera.global_position = _player.global_position
 
 	# Enable enemy detection after scene is fully loaded and player is positioned
 	_enable_enemy_detection()
-
-
-func _physics_process(_delta: float) -> void:
-	# Camera follows player
-	_camera.global_position = _player.global_position
 
 
 func _process(delta: float) -> void:
@@ -124,12 +117,23 @@ func receive_data(data: Dictionary) -> void:
 		_apply_battle_cooldown()
 
 
+func _get_saved_position() -> Vector3:
+	## Reads saved position, handling both old Vector2 and new Vector3 formats.
+	var saved: Variant = GameManager.get_flag("overworld_position", Vector3.ZERO)
+	if saved is Vector3:
+		return saved
+	if saved is Vector2:
+		# Legacy 2D position — convert using pixel scale
+		return Vector3(saved.x / Constants.PIXEL_TO_WORLD, 0.0, saved.y / Constants.PIXEL_TO_WORLD)
+	return Vector3.ZERO
+
+
 func _update_hud_gold(gold: int) -> void:
 	_hud_gold_label.text = "Gold: %d" % gold
 
 
-func _on_location_prompt(visible: bool, location_name: String) -> void:
-	if visible:
+func _on_location_prompt(prompt_visible: bool, location_name: String) -> void:
+	if prompt_visible:
 		_hud_location_label.text = "[E] Enter: %s" % location_name
 	else:
 		_hud_location_label.text = ""
@@ -138,7 +142,7 @@ func _on_location_prompt(visible: bool, location_name: String) -> void:
 func _show_message(message: String) -> void:
 	## Displays a temporary message to the player.
 	if not _message_label:
-		DebugLogger.log_warning("No message label to display: %s" % message, "Overworld")
+		DebugLogger.log_warn("No message label to display: %s" % message, "Overworld")
 		return
 
 	_current_message = message
@@ -209,30 +213,29 @@ func _enable_enemy_detection() -> void:
 
 func _push_player_from_enemies() -> void:
 	## Moves player away from any nearby enemies to prevent immediate re-engagement after battle.
-	const SAFE_DISTANCE: float = 80.0  # Minimum distance from enemies
-	const PUSH_DISTANCE: float = 100.0  # How far to push player
-
 	var enemies: Array[Node] = get_tree().get_nodes_in_group("roaming_enemies")
-	var player_pos: Vector2 = _player.global_position
+	var player_pos: Vector3 = _player.global_position
 	var closest_enemy: Node = null
 	var closest_distance: float = INF
 
 	# Find closest enemy
 	for i in range(enemies.size()):
 		var enemy: Node = enemies[i]
-		if enemy and is_instance_valid(enemy) and enemy is Node2D:
+		if enemy and is_instance_valid(enemy) and enemy is Node3D:
 			var distance: float = player_pos.distance_to(enemy.global_position)
 			if distance < closest_distance:
 				closest_distance = distance
 				closest_enemy = enemy
 
 	# If player is too close to an enemy, push them away
-	if closest_enemy and closest_distance < SAFE_DISTANCE:
-		var push_direction: Vector2 = (player_pos - closest_enemy.global_position).normalized()
+	if closest_enemy and closest_distance < Constants.SAFE_DISTANCE:
+		var push_direction: Vector3 = (player_pos - closest_enemy.global_position).normalized()
+		push_direction.y = 0.0  # Keep on ground plane
 		if push_direction.length() < 0.1:  # Handle case where positions are identical
-			push_direction = Vector2(1, 0)  # Default push to the right
+			push_direction = Vector3.RIGHT  # Default push to the right
 
-		var new_position: Vector2 = closest_enemy.global_position + (push_direction * PUSH_DISTANCE)
+		var new_position: Vector3 = closest_enemy.global_position + (push_direction.normalized() * Constants.PUSH_DISTANCE)
+		new_position.y = 0.0
 		_player.global_position = new_position
 
 		# Update saved position

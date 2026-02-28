@@ -1,40 +1,25 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/world/roaming_enemy.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/goblin.png" id="2"]
 
-[sub_resource type="RectangleShape2D" id="enemy_collision"]
-size = Vector2(28, 28)
+[sub_resource type="BoxShape3D" id="body_collision"]
+size = Vector3(0.6, 1.2, 0.6)
 
-[sub_resource type="CircleShape2D" id="detection_collision"]
-radius = 40.0
+[sub_resource type="SphereShape3D" id="detection_sphere"]
+radius = 1.5
 
-[node name="RoamingEnemy" type="CharacterBody2D"]
+[node name="RoamingEnemy" type="CharacterBody3D"]
 collision_layer = 0
 collision_mask = 1
 script = ExtResource("1")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture_filter = 0
-texture = ExtResource("2")
-offset = Vector2(0, -8)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+shape = SubResource("body_collision")
 
-[node name="Label" type="Label" parent="."]
-offset_left = -10.0
-offset_top = -8.0
-offset_right = 10.0
-offset_bottom = 8.0
-theme_override_font_sizes/font_size = 12
-text = "E"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("enemy_collision")
-
-[node name="DetectionArea" type="Area2D" parent="."]
+[node name="DetectionArea" type="Area3D" parent="."]
 collision_layer = 0
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
-shape = SubResource("detection_collision")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+shape = SubResource("detection_sphere")
