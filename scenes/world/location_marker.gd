@@ -127,7 +127,7 @@ func _interact_cave() -> void:
 	var flags_to_clear: Array = []
 
 	for flag in GameManager.story_flags.keys():
-		if flag.begins_with("defeated_enemy_") or flag.begins_with("quest_"):
+		if flag.begins_with("defeated_enemy_") or flag.begins_with("quest_") or flag.begins_with("shop_"):
 			flags_to_clear.append(flag)
 
 	for flag in flags_to_clear:
@@ -136,7 +136,7 @@ func _interact_cave() -> void:
 	DebugLogger.log_info("Cave cleared %d flags (enemies + quests)" % flags_to_clear.size(), "LocationMarker")
 	SaveManager.auto_save()
 
-	var message := "Cave reset: %d flags cleared. Enemies respawn, quests reset." % flags_to_clear.size()
+	var message := "Cave reset: %d flags cleared. Enemies, quests, shops reset." % flags_to_clear.size()
 	EventBus.show_message.emit(message)
 
 

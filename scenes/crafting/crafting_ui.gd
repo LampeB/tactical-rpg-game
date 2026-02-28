@@ -5,7 +5,7 @@ extends Control
 ##   - Icon list (narrow 72 px column): one square icon card per recipe.
 ##     Blue border = selected, green = craftable, grey = missing ingredients.
 ##   - Craft detail (expanding): ingredient slots ([icon|shape] each),
-##     result info ([icon|shape] + labels), gold cost, Craft button, output zone.
+##     result info ([icon|shape] + labels), Craft button, output zone.
 ##
 ## RIGHT SIDE (PlayerSide):
 ##   - Character tabs + grid panel + stash — drag items FROM here to ingredient slots.

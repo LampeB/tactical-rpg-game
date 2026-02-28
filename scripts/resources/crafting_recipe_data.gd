@@ -8,5 +8,4 @@ extends Resource
 @export var description: String = ""
 @export var ingredients: Array[CraftingIngredient] = []
 @export var result_item_id: String = ""
-@export var gold_cost: int = 0
 @export var unlock_flag: String = ""  ## Empty = always known. Non-empty = requires this flag to be set.

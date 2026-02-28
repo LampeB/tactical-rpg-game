@@ -124,8 +124,37 @@ func _setup_merchant_grid() -> void:
 	tpl.width  = MERCHANT_GRID_WIDTH
 	tpl.height = MERCHANT_GRID_HEIGHT
 	_merchant_inv = GridInventory.new(tpl)
-	for item in _shop_data.stock:
-		_try_place_merchant(item.duplicate())
+	_merchant_inv.skip_equipment_checks = true
+
+	# Collect unpurchased items with their stock index
+	var pending: Array = []
+	DebugLogger.log_info("ShopUI: stock has %d items" % _shop_data.stock.size(), "Shop")
+	for i in range(_shop_data.stock.size()):
+		var stock_item: ItemData = _shop_data.stock[i]
+		if stock_item == null:
+			DebugLogger.log_warn("ShopUI: stock[%d] is NULL" % i, "Shop")
+			continue
+		DebugLogger.log_info("ShopUI: stock[%d] = %s (id=%s)" % [i, stock_item.display_name, stock_item.id], "Shop")
+		if _is_slot_purchased(i):
+			DebugLogger.log_info("ShopUI:   -> skipped (purchased)", "Shop")
+			continue
+		pending.append(i)
+
+	# Sort largest items first for better bin-packing
+	pending.sort_custom(func(a: int, b: int) -> bool:
+		var sa: ItemData = _shop_data.stock[a]
+		var sb: ItemData = _shop_data.stock[b]
+		var ca: int = sa.shape.cells.size() if sa.shape else 1
+		var cb: int = sb.shape.cells.size() if sb.shape else 1
+		return ca > cb)
+
+	for i in pending:
+		var item: ItemData = _shop_data.stock[i]
+		var placed_item := item.duplicate()
+		placed_item.set_meta("shop_slot_index", i)
+		if not _try_place_merchant(placed_item):
+			DebugLogger.log_warn("ShopUI: could not place '%s' (cells=%d)" % [item.display_name, item.shape.cells.size() if item.shape else 1], "Shop")
+	DebugLogger.log_info("ShopUI: placed %d items in merchant grid" % _merchant_inv.placed_items.size(), "Shop")
 	_merchant_grid_panel.setup(_merchant_inv)
 
 
@@ -446,6 +475,7 @@ func _complete_buy_to_player_grid(grid_pos: Vector2i, inv: GridInventory) -> voi
 		_flash_gold_label()
 		return
 	_purchase_prices[_dragged_item] = price
+	_mark_item_purchased(_dragged_item)
 	inv.place_item(_dragged_item, grid_pos, _drag_rotation)
 	EventBus.inventory_changed.emit(_current_character_id)
 	_player_grid_panel.refresh()
@@ -487,6 +517,7 @@ func _complete_buy_to_stash() -> void:
 		return
 	if _drag_source == DragSource.MERCHANT:
 		_purchase_prices[_dragged_item] = price
+		_mark_item_purchased(_dragged_item)
 	var item_name := _dragged_item.display_name
 	GameManager.party.add_to_stash(_dragged_item)
 	EventBus.stash_changed.emit()
@@ -506,6 +537,7 @@ func _complete_sell() -> void:
 	var sell_price := _sell_price_for(_dragged_item)
 	if was_merchant_item:
 		_purchase_prices.erase(_dragged_item)
+		_unmark_item_purchased(_dragged_item)
 
 	var item_name := _dragged_item.display_name
 	GameManager.add_gold(sell_price)
@@ -726,6 +758,23 @@ func _refresh_stash() -> void:
 
 func _update_gold_label() -> void:
 	_gold_label.text = "%d g" % GameManager.gold
+
+
+func _slot_flag(slot_index: int) -> String:
+	return "shop_%s_slot_%d" % [_shop_data.id, slot_index]
+
+func _is_slot_purchased(slot_index: int) -> bool:
+	return GameManager.get_flag(_slot_flag(slot_index))
+
+func _mark_item_purchased(item: ItemData) -> void:
+	if item.has_meta("shop_slot_index"):
+		var idx: int = item.get_meta("shop_slot_index")
+		GameManager.set_flag(_slot_flag(idx), true)
+
+func _unmark_item_purchased(item: ItemData) -> void:
+	if item.has_meta("shop_slot_index"):
+		var idx: int = item.get_meta("shop_slot_index")
+		GameManager.set_flag(_slot_flag(idx), false)
 
 
 func _on_close() -> void:

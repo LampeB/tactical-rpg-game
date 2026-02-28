@@ -24,7 +24,6 @@ display_name = "Composite Bow"
 description = "A bow reinforced with a staff's magical core. Hits harder and farther."
 ingredients = [SubResource("ingr_bow"), SubResource("ingr_staff")]
 result_item_id = "bow_uncommon"
-gold_cost = 150
 unlock_flag = ""
 
 ; === Twin Dagger (blueprint required) ===
@@ -47,7 +46,6 @@ display_name = "Twin Dagger"
 description = "Two blades fused with an axe edge — fast strikes with brutal cleaving power."
 ingredients = [SubResource("ingr_dagger_rare"), SubResource("ingr_axe_common")]
 result_item_id = "dagger_elite"
-gold_cost = 300
 unlock_flag = "recipe_twin_dagger"
 
 ; === Flameblade ===
@@ -70,7 +68,6 @@ display_name = "Flameblade"
 description = "A sword whose edge has been fused with fire magic. Burns what it cuts."
 ingredients = [SubResource("ingr_sword_uncommon"), SubResource("ingr_fire_gem")]
 result_item_id = "sword_rare"
-gold_cost = 200
 unlock_flag = "recipe_flameblade"
 
 ; === Frostbow ===
@@ -93,7 +90,6 @@ display_name = "Frostbow"
 description = "A bow strung with ice-enchanted thread. Arrows chill on impact."
 ingredients = [SubResource("ingr_bow_uncommon"), SubResource("ingr_ice_gem")]
 result_item_id = "bow_frostbow"
-gold_cost = 200
 unlock_flag = ""
 
 ; === Thunder Mace ===
@@ -116,7 +112,6 @@ display_name = "Thunder Mace"
 description = "Every blow crackles with stored lightning. Those who survive describe the smell of ozone."
 ingredients = [SubResource("ingr_mace_uncommon"), SubResource("ingr_thunder_gem")]
 result_item_id = "mace_rare"
-gold_cost = 200
 unlock_flag = ""
 
 ; === Venom Dagger ===
@@ -139,7 +134,6 @@ display_name = "Venom Dagger"
 description = "A blade coated in concentrated poison. A small cut is all it takes."
 ingredients = [SubResource("ingr_dagger_common"), SubResource("ingr_poison_gem")]
 result_item_id = "dagger_snake_fang"
-gold_cost = 120
 unlock_flag = ""
 
 ; === Vampiric Axe ===
@@ -162,7 +156,6 @@ display_name = "Vampiric Axe"
 description = "A heavy axe bound with blood magic. Each wound feeds the wielder."
 ingredients = [SubResource("ingr_axe_rare"), SubResource("ingr_vampiric_gem")]
 result_item_id = "axe_elite"
-gold_cost = 400
 unlock_flag = "recipe_vampiric_axe"
 
 ; === Arcane Staff ===
@@ -185,7 +178,6 @@ display_name = "Arcane Staff"
 description = "A staff woven with mystic energy. Spells cast through it resonate further."
 ingredients = [SubResource("ingr_staff_uncommon"), SubResource("ingr_mystic_gem")]
 result_item_id = "staff_rare"
-gold_cost = 250
 unlock_flag = "recipe_arcane_staff"
 
 ; === Swift Treads ===
@@ -208,7 +200,6 @@ display_name = "Swift Treads"
 description = "Boots sewn with speed-enchanted thread. You'll always move first."
 ingredients = [SubResource("ingr_boots"), SubResource("ingr_swift_gem")]
 result_item_id = "boots_uncommon"
-gold_cost = 100
 unlock_flag = ""
 
 ; === Power Gauntlets ===
@@ -231,7 +222,6 @@ display_name = "Power Gauntlets"
 description = "Reinforced gloves bound with raw strength magic. Hits harder, grips tighter."
 ingredients = [SubResource("ingr_gloves_uncommon"), SubResource("ingr_power_gem")]
 result_item_id = "gloves_rare"
-gold_cost = 200
 unlock_flag = "recipe_power_gauntlets"
 
 [resource]
