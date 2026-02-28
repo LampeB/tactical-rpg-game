@@ -31,6 +31,12 @@ extends Resource
 ## Node IDs in the unified skill tree where this character can start unlocking.
 @export var starting_passive_nodes: Array[String] = []
 
+@export_group("3D Model")
+## Custom 3D model scene. Null = CSG placeholder from CSGCharacterFactory.
+@export var model_scene: PackedScene
+## Scale multiplier for the 3D model.
+@export var model_scale: float = 1.0
+
 @export_group("Skills")
 ## Innate skills (not from items).
 @export var innate_skills: Array[SkillData] = []

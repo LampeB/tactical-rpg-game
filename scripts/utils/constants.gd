@@ -36,6 +36,26 @@ const PLAYER_SPEED := 200.0         ## Pixels per second
 const INTERACTION_RANGE := 48.0     ## Pixels
 const CAMERA_SMOOTH_SPEED := 5.0
 
+# === 3D CAMERA ===
+const CAMERA_ORBIT_SPEED := 0.3			## Degrees per pixel of mouse movement
+const CAMERA_ZOOM_SPEED := 2.0			## Units per scroll tick
+const CAMERA_MIN_DISTANCE := 8.0
+const CAMERA_MAX_DISTANCE := 40.0
+const CAMERA_DEFAULT_DISTANCE := 20.0
+const CAMERA_DEFAULT_PITCH := -45.0		## Degrees (isometric-ish default)
+const CAMERA_DEFAULT_YAW := 0.0
+const CAMERA_SMOOTH_WEIGHT := 10.0
+const CAMERA_PITCH_MIN := -80.0			## Prevent flipping under ground
+const CAMERA_PITCH_MAX := 10.0
+
+# === 3D CHARACTER COLORS ===
+const CHARACTER_CLASS_COLORS := {
+	"Warrior": Color(0.2, 0.4, 0.8),		# Blue steel
+	"Mage": Color(0.6, 0.2, 0.8),			# Purple
+	"Rogue": Color(0.2, 0.6, 0.3),			# Green
+}
+const CHARACTER_DEFAULT_COLOR := Color(0.5, 0.5, 0.5)
+
 # === COLORS (for rarity display) ===
 const RARITY_COLORS := {
 	Enums.Rarity.COMMON: Color.WHITE,

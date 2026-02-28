@@ -16,6 +16,14 @@ extends Resource
 @export var magical_attack: int = 5
 @export var magical_defense: int = 5
 
+@export_group("3D Model")
+## Custom 3D model scene. Null = CSG placeholder from CSGCharacterFactory.
+@export var model_scene: PackedScene
+## Scale multiplier for the 3D model.
+@export var model_scale: float = 1.0
+## CSG placeholder tint color.
+@export var model_color: Color = Color(0.8, 0.2, 0.2)
+
 @export_group("Combat")
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
 @export var skills: Array[SkillData] = []
