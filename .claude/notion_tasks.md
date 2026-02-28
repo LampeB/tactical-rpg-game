@@ -13,6 +13,11 @@
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
 | Permanently remove items from shop stock when bought | 3147700f-d0fb-8195-9b19-fd4024d1ae34 |
+
+### Done
+| Name | Notion ID |
+|---|---|
+| Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
 | Quest EventBus integration (quest signals) | 3147700f-d0fb-81ec-8e9e-c87c73daa4e3 |
 | Quest log UI (active/completed quests, tracking, rewards) | 3147700f-d0fb-81e1-b662-c547118990b5 |
 | Quest marker visuals (icons above NPCs/locations) | 3147700f-d0fb-81e2-a100-da43c582626a |
@@ -20,11 +25,6 @@
 | QuestData resource (id, title, objectives, rewards, prerequisites) | 3147700f-d0fb-81af-9407-d357a359aec7 |
 | QuestManager autoload (track quests, check objectives, award rewards) | 3147700f-d0fb-8192-861e-f99e647a1be0 |
 | QuestObjective resource (kill, collect, talk_to, reach_location) | 3147700f-d0fb-81f2-b001-f59a8b365536 |
-
-### Done
-| Name | Notion ID |
-|---|---|
-| Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
 | Chest scene (Area3D, interact to open, animation) | 3147700f-d0fb-8155-a5c0-f76b87605bde |
 | ChestData resource (id, loot_table, opened_flag, visual_type) | 3147700f-d0fb-816b-95d8-e0901308d9b7 |
 | Connect chests to LootTable/LootGenerator systems | 3147700f-d0fb-81a2-88ae-e79c214e2564 |

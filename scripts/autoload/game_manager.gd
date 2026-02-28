@@ -145,6 +145,14 @@ func get_flag(flag: String, default: Variant = false) -> Variant:
 func has_flag(flag: String) -> bool:
 	return story_flags.has(flag)
 
+
+func is_quest_done(quest_id: String) -> bool:
+	return get_flag("quest_%s_completed" % quest_id, false)
+
+
+func is_quest_active(quest_id: String) -> bool:
+	return get_flag("quest_%s_accepted" % quest_id, false) and not is_quest_done(quest_id)
+
 ## Purchase a specific backpack cell chosen by the player for a given character.
 ## Called directly from the inventory UI when the player clicks a grayed-out cell.
 ## Returns true if the purchase succeeded.

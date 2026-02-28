@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
@@ -20,15 +20,60 @@ script = ExtResource("3")
 text = "Farewell."
 action = "end"
 
+[sub_resource type="Resource" id="choice_accept_quest"]
+script = ExtResource("3")
+text = "I'll get them for you."
+action = "accept_quest:doctors_supplies"
+
+[sub_resource type="Resource" id="choice_decline_quest"]
+script = ExtResource("3")
+text = "Not right now."
+action = "end"
+
+[sub_resource type="Resource" id="choice_complete_quest"]
+script = ExtResource("3")
+text = "Here are your supplies."
+action = "complete_quest:doctors_supplies"
+
+[sub_resource type="Resource" id="choice_not_yet"]
+script = ExtResource("3")
+text = "Not yet, still working on it."
+action = "end"
+
+[sub_resource type="Resource" id="conv_quest_complete"]
+script = ExtResource("2")
+id = "quest_turn_in"
+condition_flag = "quest_doctors_supplies_obj_0"
+condition_value = 1
+lines = ["You have the supplies from Aldric? Wonderful!", "These will keep my patients in good health. Thank you, traveler — here is your payment."]
+choices = [SubResource("choice_complete_quest")]
+
+[sub_resource type="Resource" id="conv_quest_active"]
+script = ExtResource("2")
+id = "quest_active"
+condition_flag = "quest_doctors_supplies_accepted"
+condition_value = true
+lines = ["Have you spoken to Aldric yet? I really need those supplies.", "His forge is nearby — you can't miss it."]
+choices = [SubResource("choice_heal"), SubResource("choice_not_yet")]
+
+[sub_resource type="Resource" id="conv_quest_done"]
+script = ExtResource("2")
+id = "quest_done"
+condition_flag = "quest_doctors_supplies_completed"
+condition_value = true
+lines = ["Thanks to you, my patients are well cared for. You have my gratitude, traveler.", "Is there anything else I can do for you?"]
+choices = [SubResource("choice_heal"), SubResource("choice_resurrect"), SubResource("choice_bye")]
+
 [sub_resource type="Resource" id="conv_greeting"]
 script = ExtResource("2")
 id = "greeting"
-lines = ["Welcome, traveler. I am Doctor Maris — healer of wounds and mender of broken spirits.", "I can tend to your party's injuries free of charge, or bring back those who have fallen... for a modest fee."]
-choices = [SubResource("choice_heal"), SubResource("choice_resurrect"), SubResource("choice_bye")]
+lines = ["Welcome, traveler. I am Doctor Maris — healer of wounds and mender of broken spirits.", "I could use a favor, actually. I'm running low on medical supplies. Aldric the Blacksmith prepared a package for me, but I can't leave my patients.", "Could you pick it up from him?"]
+choices = [SubResource("choice_accept_quest"), SubResource("choice_decline_quest"), SubResource("choice_heal"), SubResource("choice_bye")]
 
 [resource]
 script = ExtResource("1")
 id = "doctor"
 display_name = "Doctor Maris"
 sprite = ExtResource("4")
-conversations = [SubResource("conv_greeting")]
+role = 2
+conversations = [SubResource("conv_quest_done"), SubResource("conv_quest_complete"), SubResource("conv_quest_active"), SubResource("conv_greeting")]

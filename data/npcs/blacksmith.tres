@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
@@ -20,6 +20,19 @@ script = ExtResource("3")
 text = "Goodbye"
 action = "end"
 
+[sub_resource type="Resource" id="choice_take_supplies"]
+script = ExtResource("3")
+text = "Thanks, I'll bring them to her."
+action = "end"
+
+[sub_resource type="Resource" id="conv_quest_handoff"]
+script = ExtResource("2")
+id = "quest_handoff"
+condition_flag = "quest_doctors_supplies_obj_0"
+condition_value = 0
+lines = ["Ah, you're here for Maris's supplies? I had them ready.", "Here you go — bandages, salves, and a few tinctures. Handle them with care!", "Tell the good Doctor she owes me a remedy for my sore back, ha!"]
+choices = [SubResource("choice_take_supplies"), SubResource("choice_craft")]
+
 [sub_resource type="Resource" id="conv_greeting"]
 script = ExtResource("2")
 id = "greeting"
@@ -39,4 +52,4 @@ display_name = "Aldric the Blacksmith"
 sprite = ExtResource("4")
 role = 3
 crafting_station_id = "blacksmith"
-conversations = [SubResource("conv_greeting"), SubResource("conv_crafting")]
+conversations = [SubResource("conv_quest_handoff"), SubResource("conv_greeting"), SubResource("conv_crafting")]

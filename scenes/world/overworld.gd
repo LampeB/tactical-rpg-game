@@ -129,6 +129,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_save_current_position()
 		SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("open_quest_log"):
+		_save_current_position()
+		SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
+		get_viewport().set_input_as_handled()
 
 
 func receive_data(data: Dictionary) -> void:
@@ -309,6 +313,7 @@ func _toggle_pause_menu() -> void:
 	_pause_menu_instance.resume_requested.connect(_toggle_pause_menu)
 	_pause_menu_instance.save_requested.connect(_open_save_screen)
 	_pause_menu_instance.load_requested.connect(_open_load_screen)
+	_pause_menu_instance.quest_log_requested.connect(_open_quest_log)
 	_pause_menu_instance.main_menu_requested.connect(_go_to_main_menu)
 
 
@@ -322,6 +327,12 @@ func _open_load_screen() -> void:
 	_pause_menu_instance.queue_free()
 	_pause_menu_instance = null
 	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "load"})
+
+
+func _open_quest_log() -> void:
+	_pause_menu_instance.queue_free()
+	_pause_menu_instance = null
+	SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
 
 
 func _go_to_main_menu() -> void:

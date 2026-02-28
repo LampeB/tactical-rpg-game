@@ -19,7 +19,7 @@ signal stash_changed()
 @warning_ignore("unused_signal")
 signal combat_started(encounter: Resource)
 @warning_ignore("unused_signal")
-signal combat_ended(victory: bool)
+signal combat_ended(victory: bool, defeated_enemy_ids: Array)
 
 # === PASSIVES ===
 @warning_ignore("unused_signal")
@@ -58,6 +58,18 @@ signal inventory_expanded()
 signal backpack_expanded(character_id: String, unlocked_cells: int)
 @warning_ignore("unused_signal")
 signal backpack_tier_unlocked(character_id: String, new_tier: int)
+
+# === QUESTS ===
+@warning_ignore("unused_signal")
+signal quest_accepted(quest_id: String)
+@warning_ignore("unused_signal")
+signal quest_progressed(quest_id: String, objective_index: int, current: int, target: int)
+@warning_ignore("unused_signal")
+signal quest_completed(quest_id: String)
+@warning_ignore("unused_signal")
+signal quest_failed(quest_id: String)
+@warning_ignore("unused_signal")
+signal quest_available(quest_id: String)
 
 # === DATABASE ===
 @warning_ignore("unused_signal")

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/quest_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/quest_objective.gd" id="2"]
+
+[sub_resource type="Resource" id="obj_talk_blacksmith"]
+script = ExtResource("2")
+objective_type = 2
+description = "Pick up supplies from Aldric the Blacksmith"
+target_id = "blacksmith"
+target_count = 1
+
+[resource]
+script = ExtResource("1")
+id = "doctors_supplies"
+display_name = "Doctor's Supplies"
+description = "Doctor Maris needs medical supplies from the Blacksmith. Pick them up and bring them back to her."
+objectives = [SubResource("obj_talk_blacksmith")]
+reward_gold = 30
+reward_xp = 10
+quest_giver_npc_id = "doctor"
+turn_in_npc_id = "doctor"
+is_repeatable = false

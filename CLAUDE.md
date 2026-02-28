@@ -26,6 +26,23 @@ The project has a Notion workspace synced via the **Claude AI Notion connector**
 - Scene Management & UI
 - Constants & Enums Reference
 
+### Local Task Cache — `.claude/notion_tasks.md`
+
+The Notion search API only returns ~10 results per semantic query — **it cannot list all database rows**. To work around this, a local task cache lives at `.claude/notion_tasks.md`.
+
+- **Always read `.claude/notion_tasks.md` first** when looking up tasks, picking work, or checking what exists. This is the authoritative quick-reference.
+- The file is organized by Category, then by Status (Todo / Done), with each task's Name and Notion ID.
+- The file also contains a "3D Migration" section for tasks that are categorized under other Notion categories but grouped locally for clarity.
+- **Use Notion search only when** you need task details (description, acceptance criteria, dependencies) — fetch the task page by its Notion ID from the local file.
+
+#### Keeping the local cache in sync
+
+- **When creating a new task in Notion**: Also add it to `.claude/notion_tasks.md` under the correct Category and Status section. Include the Name and Notion ID returned by the create call.
+- **When changing a task status in Notion** (e.g. Todo → In Progress → Done): Move the row to the correct Status subsection in the local file.
+- **When the user asks to commit**: After updating Notion tasks to "Done", move those rows from the "Todo" table to the "Done" table in the local file.
+- **Update the `Total tasks` and `Last updated` comments** in the file header when adding or removing tasks.
+- Keep the tables sorted alphabetically by Name within each section.
+
 ### Rules — Follow these EVERY session:
 
 #### 0. Never act without being asked
@@ -37,11 +54,12 @@ The project has a Notion workspace synced via the **Claude AI Notion connector**
 - When the user asks to commit: commit files, update Notion tasks to "Done", update affected documentation pages, and add changelog entries — all in one go.
 
 #### 1. Tasks Tracking
-- **When user asks to work on a category**: Pick a task from the Tasks DB in that category, set it to "In Progress", and start working on it.
-- **Before starting work**: Search the Tasks DB for related existing tasks. If one exists, set its status to "In Progress".
-- **When implementing a feature or fixing a bug**: If no matching task exists, create one in the Tasks DB with status "In Progress" and the appropriate Category.
-- **When the user asks to commit**: Set completed task statuses to "Done".
-- **If new TODOs are discovered** during work (e.g. a bug found, a follow-up needed): Create new tasks with status "Todo".
+- **Finding tasks**: Read `.claude/notion_tasks.md` to browse all tasks by category and status. Use the Notion ID from that file to fetch full task details from Notion when needed.
+- **When user asks to work on a category**: Read the local task file, pick a Todo task from that category, set it to "In Progress" in Notion, move it in the local file, and start working.
+- **Before starting work**: Check the local task file for related existing tasks. If one exists, set its status to "In Progress" in Notion and update the local file.
+- **When implementing a feature or fixing a bug**: If no matching task exists in the local file, create one in the Notion Tasks DB with status "In Progress" and the appropriate Category, then add it to the local file.
+- **When the user asks to commit**: Set completed task statuses to "Done" in Notion, move them to the Done section in the local file.
+- **If new TODOs are discovered** during work (e.g. a bug found, a follow-up needed): Create new tasks in Notion with status "Todo" and add them to the local file.
 
 #### 2. Documentation Updates
 - **When the user asks to commit**: Update the corresponding Notion documentation pages to reflect the changes. Only update pages whose content is actually affected.
