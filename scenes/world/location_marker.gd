@@ -123,20 +123,20 @@ func _on_mouse_exited() -> void:
 
 
 func _interact_cave() -> void:
-	## Respawns all defeated encounters for testing.
+	## Respawns all defeated encounters and resets quests for testing.
 	var flags_to_clear: Array = []
 
 	for flag in GameManager.story_flags.keys():
-		if flag.begins_with("defeated_enemy_"):
+		if flag.begins_with("defeated_enemy_") or flag.begins_with("quest_"):
 			flags_to_clear.append(flag)
 
 	for flag in flags_to_clear:
 		GameManager.story_flags.erase(flag)
 
-	DebugLogger.log_info("Cave cleared %d defeated enemy flags" % flags_to_clear.size(), "LocationMarker")
+	DebugLogger.log_info("Cave cleared %d flags (enemies + quests)" % flags_to_clear.size(), "LocationMarker")
 	SaveManager.auto_save()
 
-	var message := "Cave cleared %d defeated enemy flags. Enemies will respawn when you reload the area." % flags_to_clear.size()
+	var message := "Cave reset: %d flags cleared. Enemies respawn, quests reset." % flags_to_clear.size()
 	EventBus.show_message.emit(message)
 
 

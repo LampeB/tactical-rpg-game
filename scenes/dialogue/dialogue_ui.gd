@@ -60,7 +60,9 @@ func _find_first_valid_conversation() -> DialogueConversation:
 	for conv in _npc.conversations:
 		if conv.condition_flag.is_empty():
 			return conv
-		if GameManager.get_flag(conv.condition_flag) == conv.condition_value:
+		var flag_value: Variant = GameManager.get_flag(conv.condition_flag)
+		# Type-safe comparison to avoid bool/int mismatch errors
+		if typeof(flag_value) == typeof(conv.condition_value) and flag_value == conv.condition_value:
 			return conv
 	return null
 
@@ -211,6 +213,28 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 		var station_id := choice.action.trim_prefix("open_crafting:")
 		EventBus.dialogue_ended.emit(_npc.id)
 		SceneManager.replace_scene("res://scenes/crafting/crafting_ui.tscn", {"station_id": station_id})
+	elif choice.action.begins_with("accept_quest:"):
+		var quest_id := choice.action.trim_prefix("accept_quest:")
+		QuestManager.accept_quest(quest_id)
+		if choice.next_conversation_id.is_empty():
+			_end_dialogue()
+		else:
+			var next := _find_conversation_by_id(choice.next_conversation_id)
+			if next:
+				_show_conversation(next)
+			else:
+				_end_dialogue()
+	elif choice.action.begins_with("complete_quest:"):
+		var quest_id := choice.action.trim_prefix("complete_quest:")
+		QuestManager.complete_quest(quest_id)
+		if choice.next_conversation_id.is_empty():
+			_end_dialogue()
+		else:
+			var next := _find_conversation_by_id(choice.next_conversation_id)
+			if next:
+				_show_conversation(next)
+			else:
+				_end_dialogue()
 	elif choice.action == "end" or choice.next_conversation_id.is_empty():
 		_end_dialogue()
 	else:

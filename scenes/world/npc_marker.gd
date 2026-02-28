@@ -7,6 +7,7 @@ extends Area3D
 var _npc_data: NpcData = null
 var _player_nearby: bool = false
 var _interact_prompt: Label3D = null
+var _quest_marker: Label3D = null
 
 
 func _ready() -> void:
@@ -20,9 +21,15 @@ func _ready() -> void:
 		return
 
 	_build_visual()
+	_build_quest_marker()
 
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+
+	EventBus.quest_accepted.connect(_on_quest_state_changed)
+	EventBus.quest_completed.connect(_on_quest_state_changed)
+	EventBus.quest_progressed.connect(_on_quest_progressed)
+	EventBus.quest_available.connect(_on_quest_state_changed)
 
 
 func _build_visual() -> void:
@@ -82,3 +89,48 @@ func _start_dialogue() -> void:
 		GameManager.set_flag("overworld_position", player.global_position)
 	EventBus.dialogue_started.emit(npc_id)
 	SceneManager.push_scene("res://scenes/dialogue/dialogue_ui.tscn", {"npc_id": npc_id})
+
+
+# === Quest Marker ===
+
+func _build_quest_marker() -> void:
+	_quest_marker = Label3D.new()
+	_quest_marker.name = "QuestMarker"
+	_quest_marker.font_size = 48
+	_quest_marker.position.y = 3.2
+	_quest_marker.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_quest_marker.outline_size = 8
+	_quest_marker.visible = false
+	add_child(_quest_marker)
+	_update_quest_marker()
+
+
+func _update_quest_marker() -> void:
+	if not _quest_marker:
+		return
+
+	if QuestManager.npc_has_turn_in_quest(npc_id):
+		# Ready to turn in — yellow "?"
+		_quest_marker.text = "?"
+		_quest_marker.modulate = Color(1.0, 0.85, 0.0)
+		_quest_marker.visible = true
+	elif QuestManager.npc_has_available_quest(npc_id):
+		# Has new quest to offer — yellow "!"
+		_quest_marker.text = "!"
+		_quest_marker.modulate = Color(1.0, 0.85, 0.0)
+		_quest_marker.visible = true
+	elif QuestManager.npc_has_active_quest(npc_id):
+		# Has active quest in progress — grey "?"
+		_quest_marker.text = "?"
+		_quest_marker.modulate = Color(0.5, 0.5, 0.5)
+		_quest_marker.visible = true
+	else:
+		_quest_marker.visible = false
+
+
+func _on_quest_state_changed(_quest_id: String) -> void:
+	_update_quest_marker()
+
+
+func _on_quest_progressed(_quest_id: String, _obj_index: int, _current: int, _target: int) -> void:
+	_update_quest_marker()

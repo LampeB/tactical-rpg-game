@@ -383,7 +383,12 @@ func _on_combat_finished(victory: bool) -> void:
 		_title.text = "Victory!"
 		DebugLogger.log_info("State -> VICTORY! Gold earned: %d (bonus: %d)" % [_combat_manager.gold_earned, _encounter_data.bonus_gold], "Battle")
 		GameManager.add_gold(_combat_manager.gold_earned)
-		EventBus.combat_ended.emit(true)
+		var defeated_ids: Array = []
+		for i in range(_combat_manager.enemy_entities.size()):
+			var entity: CombatEntity = _combat_manager.enemy_entities[i]
+			if entity.enemy_data:
+				defeated_ids.append(entity.enemy_data.id)
+		EventBus.combat_ended.emit(true, defeated_ids)
 		await get_tree().create_timer(VICTORY_DELAY).timeout
 		# Generate loot and show reward screen
 		var loot: Array = LootGeneratorScript.generate_loot(_encounter_data, _combat_manager.enemy_entities)
@@ -401,13 +406,13 @@ func _on_combat_finished(victory: bool) -> void:
 			SceneManager.pop_scene({"from_battle": true})
 	elif _combat_manager.player_fled:
 		DebugLogger.log_info("Player fled — returning to overworld", "Battle")
-		EventBus.combat_ended.emit(false)
+		EventBus.combat_ended.emit(false, [])
 		SceneManager.pop_scene({"from_battle": true})
 	else:
 		_state = BattleState.DEFEAT
 		_title.text = "Defeat..."
 		DebugLogger.log_info("State -> DEFEAT", "Battle")
-		EventBus.combat_ended.emit(false)
+		EventBus.combat_ended.emit(false, [])
 		await get_tree().create_timer(DEFEAT_DELAY).timeout
 		DebugLogger.log_info("Showing defeat screen", "Battle")
 		_show_defeat_screen()
