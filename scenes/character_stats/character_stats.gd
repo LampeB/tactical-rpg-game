@@ -169,15 +169,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
-		if event is InputEventKey and event.pressed and event.keycode == KEY_R:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 			_rotate_dragged_item()
 			get_viewport().set_input_as_handled()
 			return
 		if event.is_action_pressed("escape"):
-			_cancel_drag()
-			get_viewport().set_input_as_handled()
-			return
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 			_cancel_drag()
 			get_viewport().set_input_as_handled()
 			return

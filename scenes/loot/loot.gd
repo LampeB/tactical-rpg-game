@@ -36,6 +36,8 @@ var _dragged_item: ItemData = null
 var _drag_source: DragSource = DragSource.NONE
 var _drag_source_pos: Vector2i = Vector2i.ZERO
 var _drag_rotation: int = 0
+var _drag_hover_pos: Vector2i = Vector2i(-1, -1)  ## Last grid cell hovered during drag
+var _drag_hover_panel: Control = null  ## Which grid panel is being hovered during drag
 var _dragged_was_inventory_item: bool = false  ## Whether the dragged item was from player inventory (on loot grid)
 
 # Consumable use state
@@ -162,15 +164,11 @@ func _try_place_loot(item: ItemData) -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _drag_state == DragState.DRAGGING:
-		if event is InputEventKey and event.pressed and event.keycode == KEY_R:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 			_rotate_dragged_item()
 			get_viewport().set_input_as_handled()
 			return
 		if event.is_action_pressed("escape"):
-			_cancel_drag()
-			get_viewport().set_input_as_handled()
-			return
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 			_cancel_drag()
 			get_viewport().set_input_as_handled()
 			return
@@ -226,6 +224,8 @@ func _on_loot_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 
 func _on_loot_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	if _drag_state == DragState.DRAGGING:
+		_drag_hover_pos = grid_pos
+		_drag_hover_panel = _loot_grid_panel
 		_loot_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
 		var can_place: bool = _loot_inventory.can_place(_dragged_item, grid_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
@@ -239,6 +239,8 @@ func _on_loot_grid_cell_hovered(grid_pos: Vector2i) -> void:
 
 
 func _on_item_hover_exited() -> void:
+	_drag_hover_pos = Vector2i(-1, -1)
+	_drag_hover_panel = null
 	if _drag_state == DragState.IDLE:
 		_item_tooltip.hide_tooltip()
 		_grid_panel.clear_highlights()
@@ -271,6 +273,8 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
+		_drag_hover_pos = grid_pos
+		_drag_hover_panel = _grid_panel
 		_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
 		var can_place: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
@@ -469,8 +473,13 @@ func _cancel_drag() -> void:
 func _rotate_dragged_item() -> void:
 	if not _dragged_item or not _dragged_item.shape:
 		return
-	_drag_rotation = (_drag_rotation + 1) % _dragged_item.shape.rotation_states
+	_drag_rotation = (_drag_rotation + 1) % 4
 	_drag_preview.rotate_cw()
+	if _drag_hover_pos != Vector2i(-1, -1) and _drag_hover_panel:
+		if _drag_hover_panel == _loot_grid_panel:
+			_on_loot_grid_cell_hovered(_drag_hover_pos)
+		else:
+			_on_grid_cell_hovered(_drag_hover_pos)
 
 
 func _update_drag_preview() -> void:
@@ -535,7 +544,7 @@ func _shake_loot_grid() -> void:
 func _on_continue() -> void:
 	# Block if inventory items remain on the loot grid
 	if not _inventory_items_on_loot_grid.is_empty():
-		DebugLogger.log_warning("Continue blocked: %d inventory item(s) on loot grid" % _inventory_items_on_loot_grid.size(), "Loot")
+		DebugLogger.log_warn("Continue blocked: %d inventory item(s) on loot grid" % _inventory_items_on_loot_grid.size(), "Loot")
 		_shake_loot_grid()
 		return
 

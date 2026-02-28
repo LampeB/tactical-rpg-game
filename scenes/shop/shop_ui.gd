@@ -44,6 +44,7 @@ var _drag_state: DragState  = DragState.IDLE
 var _dragged_item: ItemData = null
 var _drag_source: DragSource = DragSource.NONE
 var _drag_rotation: int      = 0
+var _drag_hover_pos: Vector2i = Vector2i(-1, -1)  ## Last grid cell hovered during drag
 
 # Per-source return info (for cancel)
 var _drag_source_merchant_pos: Vector2i = Vector2i.ZERO
@@ -179,22 +180,18 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 
-	# Rotate
-	if event is InputEventKey and event.pressed and event.keycode == KEY_R:
+	# Rotate (right-click)
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		if _dragged_item and _dragged_item.shape:
-			_drag_rotation = (_drag_rotation + 1) % _dragged_item.shape.rotation_states
+			_drag_rotation = (_drag_rotation + 1) % 4
 			_drag_preview.rotate_cw()
+			if _drag_hover_pos != Vector2i(-1, -1):
+				_on_player_cell_hovered(_drag_hover_pos)
 		get_viewport().set_input_as_handled()
 		return
 
 	# Cancel
 	if event.is_action_pressed("escape"):
-		_cancel_drag()
-		get_viewport().set_input_as_handled()
-		return
-
-	if event is InputEventMouseButton and event.pressed \
-			and event.button_index == MOUSE_BUTTON_RIGHT:
 		_cancel_drag()
 		get_viewport().set_input_as_handled()
 		return
@@ -311,12 +308,14 @@ func _on_player_cell_hovered(grid_pos: Vector2i) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
+		_drag_hover_pos = grid_pos
 		_player_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
 		_drag_preview.set_valid(inv.can_place(_dragged_item, grid_pos, _drag_rotation))
 		return
 
 	var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 	if placed:
+		_player_grid_panel.highlight_modifier_connections(placed)
 		_item_tooltip.show_for_item(placed.item_data, placed, inv,
 			get_global_mouse_position(), _sell_price_for(placed.item_data), "Sell")
 	else:
@@ -327,6 +326,7 @@ func _on_player_cell_hovered(grid_pos: Vector2i) -> void:
 func _on_player_hover_exited() -> void:
 	if _drag_state == DragState.IDLE:
 		_item_tooltip.hide_tooltip()
+	_drag_hover_pos = Vector2i(-1, -1)
 	_player_grid_panel.clear_placement_preview()
 
 
