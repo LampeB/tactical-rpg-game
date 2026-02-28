@@ -31,10 +31,16 @@ const MAX_SQUAD_SIZE := 4           ## Active party members in combat
 const MAX_ROSTER_SIZE := 12         ## Total characters in roster
 const MAX_STASH_SLOTS := 100        ## Items in shared stash
 
-# === WORLD ===
-const PLAYER_SPEED := 200.0         ## Pixels per second
-const INTERACTION_RANGE := 48.0     ## Pixels
-const CAMERA_SMOOTH_SPEED := 5.0
+# === WORLD (3D) ===
+const PIXEL_TO_WORLD := 32.0        ## 32 pixels = 1 world unit (for legacy position conversion)
+const PLAYER_SPEED := 6.0           ## World units per second
+const UNITS_PER_STEP := 0.5         ## Distance per step for encounter checks
+const INTERACTION_RANGE := 1.5      ## World units
+const ENEMY_MOVE_SPEED := 1.5       ## World units per second
+const ENEMY_PATROL_DISTANCE := 3.0  ## World units
+const ENEMY_DETECTION_RADIUS := 1.5 ## World units (sphere)
+const SAFE_DISTANCE := 2.5          ## Min distance from enemy after battle
+const PUSH_DISTANCE := 3.0          ## How far to push player from enemy
 
 # === 3D CAMERA ===
 const CAMERA_ORBIT_SPEED := 0.3			## Degrees per pixel of mouse movement

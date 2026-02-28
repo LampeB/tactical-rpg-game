@@ -2,7 +2,7 @@ extends Node
 ## Handles serialization/deserialization of game state to/from JSON.
 ## Supports 5 manual save slots + 1 auto-save slot, each with a ring-buffer history.
 
-const SAVE_VERSION := 5
+const SAVE_VERSION := 6
 const MAX_SLOTS := 5
 const MAX_HISTORY := 5
 const AUTO_HISTORY := 3
@@ -329,7 +329,7 @@ func _migrate_legacy_save() -> void:
 
 func _serialize() -> Dictionary:
 	var party: Party = GameManager.party
-	var overworld_pos: Vector2 = GameManager.get_flag("overworld_position", Vector2.ZERO)
+	var overworld_pos: Vector3 = _get_overworld_position()
 	return {
 		"version": SAVE_VERSION,
 		"save_timestamp": Time.get_datetime_string_from_system(),
@@ -343,10 +343,20 @@ func _serialize() -> Dictionary:
 		"backpack_states": _serialize_backpack_states(party.backpack_states),
 		"unlocked_passives": _serialize_passives(party.unlocked_passives),
 		"character_vitals": party.character_vitals.duplicate(true),
-		"overworld_position": {"x": overworld_pos.x, "y": overworld_pos.y},
+		"overworld_position": {"x": overworld_pos.x, "y": overworld_pos.y, "z": overworld_pos.z},
 		"player_step_count": GameManager.get_flag("player_step_count", 0),
 		"location": GameManager.current_location_name,
 	}
+
+
+func _get_overworld_position() -> Vector3:
+	## Reads the overworld position flag, handling both Vector2 (legacy) and Vector3.
+	var saved: Variant = GameManager.get_flag("overworld_position", Vector3.ZERO)
+	if saved is Vector3:
+		return saved
+	if saved is Vector2:
+		return Vector3(saved.x / Constants.PIXEL_TO_WORLD, 0.0, saved.y / Constants.PIXEL_TO_WORLD)
+	return Vector3.ZERO
 
 func _serialize_stash(stash: Array) -> Array:
 	var result: Array = []
@@ -408,7 +418,16 @@ func _deserialize(data: Dictionary) -> void:
 
 	# Restore overworld position and step count via setter API
 	var pos_data: Dictionary = data.get("overworld_position", {})
-	var overworld_pos := Vector2(pos_data.get("x", 0.0), pos_data.get("y", 0.0))
+	var save_version: int = int(data.get("version", 1))
+	var overworld_pos: Vector3
+	if save_version >= 6:
+		# Version 6+: positions are 3D world coordinates
+		overworld_pos = Vector3(pos_data.get("x", 0.0), pos_data.get("y", 0.0), pos_data.get("z", 0.0))
+	else:
+		# Version ≤5: positions are 2D pixel coordinates, convert to 3D
+		var px: float = pos_data.get("x", 0.0)
+		var py: float = pos_data.get("y", 0.0)
+		overworld_pos = Vector3(px / Constants.PIXEL_TO_WORLD, 0.0, py / Constants.PIXEL_TO_WORLD)
 	GameManager.set_flag("overworld_position", overworld_pos)
 
 	var step_count: int = data.get("player_step_count", 0)

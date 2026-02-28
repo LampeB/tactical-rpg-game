@@ -1,22 +1,21 @@
-extends CharacterBody2D
+extends CharacterBody3D
 ## Handles player movement, collision, and step counting on the overworld.
 
 signal step_taken(step_count: int)
 
-const SPEED := Constants.PLAYER_SPEED  # 200.0 pixels/sec
-const PIXELS_PER_STEP := 16.0
+const SPEED := Constants.PLAYER_SPEED
+const UNITS_PER_STEP := Constants.UNITS_PER_STEP
 
 var _step_accumulator: float = 0.0
 var _total_steps: int = 0
 var _is_input_enabled: bool = true
-var _current_location_area: Area2D = null
+var _current_location_area: Area3D = null
+var _model: Node3D = null
 
-@onready var _visual: CanvasItem = $ColorRect if has_node("ColorRect") else $Sprite2D if has_node("Sprite2D") else null
-@onready var _interaction_area: Area2D = $InteractionArea
+@onready var _interaction_area: Area3D = $InteractionArea
 
 
 func _ready() -> void:
-	# Add to player group for enemy detection
 	add_to_group("player")
 
 	# Setup collision layers
@@ -29,40 +28,41 @@ func _ready() -> void:
 	_interaction_area.area_entered.connect(_on_location_entered)
 	_interaction_area.area_exited.connect(_on_location_exited)
 
+	# Build CSG character model
+	_build_player_model()
+
 
 func _physics_process(delta: float) -> void:
 	if not _is_input_enabled:
 		return
 
-	var input_vector := Vector2.ZERO
-	input_vector.x = Input.get_axis("move_left", "move_right")
-	input_vector.y = Input.get_axis("move_up", "move_down")
-
-	# Debug: print first movement
-	if input_vector.length() > 0 and _total_steps == 0:
-		DebugLogger.log_info("Movement detected: %s" % input_vector, "Player")
+	var input_x := Input.get_axis("move_left", "move_right")
+	var input_z := Input.get_axis("move_up", "move_down")
+	var input_vector := Vector3(input_x, 0.0, input_z)
 
 	if input_vector.length() > 0:
 		input_vector = input_vector.normalized()
 		velocity = input_vector * SPEED
-		_update_sprite_direction(input_vector)
+		_update_model_direction(input_vector)
 	else:
-		velocity = Vector2.ZERO
+		velocity = Vector3.ZERO
+
+	# Apply gravity if not on floor
+	if not is_on_floor():
+		velocity.y -= 9.8 * delta
 
 	var previous_pos := global_position
 	move_and_slide()
 
-	# Debug: log position changes
-	if global_position.distance_to(previous_pos) > 0.1:
-		DebugLogger.log_info("Moved from %s to %s (delta: %s)" % [previous_pos, global_position, global_position - previous_pos], "Player")
-
 	# Step counting for random encounters
 	if velocity.length() > 0:
-		var distance := global_position.distance_to(previous_pos)
+		# Only count horizontal distance
+		var horizontal_move := Vector3(global_position.x - previous_pos.x, 0, global_position.z - previous_pos.z)
+		var distance := horizontal_move.length()
 		_step_accumulator += distance
 
-		while _step_accumulator >= PIXELS_PER_STEP:
-			_step_accumulator -= PIXELS_PER_STEP
+		while _step_accumulator >= UNITS_PER_STEP:
+			_step_accumulator -= UNITS_PER_STEP
 			_total_steps += 1
 			step_taken.emit(_total_steps)
 
@@ -73,24 +73,37 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _update_sprite_direction(direction: Vector2) -> void:
-	# Flip sprite based on horizontal movement (only works with Sprite2D)
-	if _visual and _visual is Sprite2D:
-		if direction.x < 0:
-			_visual.flip_h = true
-		elif direction.x > 0:
-			_visual.flip_h = false
-	# Could add AnimationPlayer here for walking animations
+func _build_player_model() -> void:
+	## Builds a CSG character model for the player using the first squad member.
+	if GameManager.party and not GameManager.party.squad.is_empty():
+		var char_id: String = GameManager.party.squad[0]
+		var char_data: CharacterData = GameManager.party.roster.get(char_id)
+		if char_data:
+			_model = CSGCharacterFactory.create_from_character(char_data)
+			add_child(_model)
+			return
+	# Fallback: default warrior model
+	var fallback := CharacterData.new()
+	fallback.display_name = "Player"
+	fallback.character_class = "Warrior"
+	_model = CSGCharacterFactory.create_from_character(fallback)
+	add_child(_model)
 
 
-func _on_location_entered(area: Area2D) -> void:
+func _update_model_direction(direction: Vector3) -> void:
+	## Rotates the model to face movement direction.
+	if _model and direction.length() > 0.1:
+		_model.rotation.y = atan2(-direction.x, -direction.z)
+
+
+func _on_location_entered(area: Area3D) -> void:
 	if area.has_method("get_location_data"):
 		_current_location_area = area
 		var loc_data: LocationData = area.get_location_data()
 		EventBus.location_prompt_visible.emit(true, loc_data.display_name)
 
 
-func _on_location_exited(area: Area2D) -> void:
+func _on_location_exited(area: Area3D) -> void:
 	if area == _current_location_area:
 		_current_location_area = null
 		EventBus.location_prompt_visible.emit(false, "")

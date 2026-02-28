@@ -1,5 +1,5 @@
-extends Area2D
-## Invisible zone that triggers random encounters when player walks through.
+extends Area3D
+## Invisible zone that triggers random encounters when player walks through. (3D version)
 
 @export var zone_data: EncounterZoneData
 
@@ -14,12 +14,12 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
-func _on_body_entered(body: Node2D) -> void:
+func _on_body_entered(body: Node3D) -> void:
 	if body.name == "Player":
 		_player_inside = true
 
 
-func _on_body_exited(body: Node2D) -> void:
+func _on_body_exited(body: Node3D) -> void:
 	if body.name == "Player":
 		_player_inside = false
 

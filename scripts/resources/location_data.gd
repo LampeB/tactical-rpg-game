@@ -10,7 +10,7 @@ extends Resource
 
 @export_group("Scene")
 @export_file("*.tscn") var scene_path: String = ""  ## Scene to load when entered
-@export var entrance_position: Vector2 = Vector2.ZERO  ## Where player spawns in location
+@export var entrance_position: Vector3 = Vector3.ZERO  ## Where player spawns in location
 
 @export_group("Unlocking")
 @export var unlock_flag: String = ""  ## Story flag required to access (empty = always unlocked)
