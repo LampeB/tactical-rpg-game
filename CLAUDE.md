@@ -28,14 +28,19 @@ The project has a Notion workspace synced via the **Claude AI Notion connector**
 
 ### Rules — Follow these EVERY session:
 
+#### 0. Never act without being asked
+- **Never commit files** (git add/commit) unless the user explicitly asks.
+- **Never update Notion** (tasks, docs, changelogs) unless the user explicitly asks to commit.
+- When the user asks to commit: commit files, update Notion tasks to "Done", update affected documentation pages, and add changelog entries — all in one go.
+
 #### 1. Tasks Tracking
 - **Before starting work**: Search the Tasks DB for related existing tasks. If one exists, set its status to "In Progress".
 - **When implementing a feature or fixing a bug**: If no matching task exists, create one in the Tasks DB with status "In Progress" and the appropriate Category.
-- **When finishing work**: Set the task status to "Done".
+- **When the user asks to commit**: Set completed task statuses to "Done".
 - **If new TODOs are discovered** during work (e.g. a bug found, a follow-up needed): Create new tasks with status "Todo".
 
 #### 2. Documentation Updates
-- **After modifying any game system**: Update the corresponding Notion documentation page to reflect the changes. Only update pages whose content is actually affected.
+- **When the user asks to commit**: Update the corresponding Notion documentation pages to reflect the changes. Only update pages whose content is actually affected.
 - **What to update**: Code structure changes, new properties/methods, changed formulas or constants, new resources or scenes, removed features.
 - **What NOT to update**: Minor refactors that don't change behavior, variable renames, formatting changes.
 
