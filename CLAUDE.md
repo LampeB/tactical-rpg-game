@@ -34,6 +34,7 @@ The project has a Notion workspace synced via the **Claude AI Notion connector**
 - When the user asks to commit: commit files, update Notion tasks to "Done", update affected documentation pages, and add changelog entries — all in one go.
 
 #### 1. Tasks Tracking
+- **When user asks to work on a category**: Pick a task from the Tasks DB in that category, set it to "In Progress", and start working on it.
 - **Before starting work**: Search the Tasks DB for related existing tasks. If one exists, set its status to "In Progress".
 - **When implementing a feature or fixing a bug**: If no matching task exists, create one in the Tasks DB with status "In Progress" and the appropriate Category.
 - **When the user asks to commit**: Set completed task statuses to "Done".
