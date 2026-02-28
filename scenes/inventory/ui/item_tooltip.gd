@@ -222,5 +222,3 @@ func _add_modifier_label(text: String, color: Color) -> void:
 	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
-
-

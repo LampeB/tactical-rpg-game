@@ -9,14 +9,9 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
-| Chest scene (Area2D, interact to open, animation) | 3147700f-d0fb-8155-a5c0-f76b87605bde |
-| ChestData resource (id, loot_table, opened_flag, visual_type) | 3147700f-d0fb-816b-95d8-e0901308d9b7 |
-| Connect chests to LootTable/LootGenerator systems | 3147700f-d0fb-81a2-88ae-e79c214e2564 |
 | Create town area maps (starting town, cities, villages) | 3147700f-d0fb-813e-877a-d3243e44be13 |
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
-| Loot popup UI (show acquired items after opening chest) | 3147700f-d0fb-8183-99c5-d733d508be01 |
 | Permanently remove items from shop stock when bought | 3147700f-d0fb-8195-9b19-fd4024d1ae34 |
 | Quest EventBus integration (quest signals) | 3147700f-d0fb-81ec-8e9e-c87c73daa4e3 |
 | Quest log UI (active/completed quests, tracking, rewards) | 3147700f-d0fb-81e1-b662-c547118990b5 |
@@ -29,6 +24,11 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
+| Chest scene (Area3D, interact to open, animation) | 3147700f-d0fb-8155-a5c0-f76b87605bde |
+| ChestData resource (id, loot_table, opened_flag, visual_type) | 3147700f-d0fb-816b-95d8-e0901308d9b7 |
+| Connect chests to LootTable/LootGenerator systems | 3147700f-d0fb-81a2-88ae-e79c214e2564 |
+| Loot popup UI (skip — loot screen used directly) | 3147700f-d0fb-8183-99c5-d733d508be01 |
 | Connect shop to existing inventory system (GridInventory) | 3147700f-d0fb-81fa-9503-fb18c56790eb |
 | Dialogue UI scene (portrait, text box, choices, typewriter effect) | 3147700f-d0fb-813d-8b3d-e60f4a0b60ab |
 | Dialogue tree data structure (nodes, choices, conditions, outcomes) | 3147700f-d0fb-81c5-995c-de5acb39f78a |
