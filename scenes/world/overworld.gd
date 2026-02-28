@@ -29,6 +29,19 @@ const _FLOWER_RED := preload("res://scenes/world/objects/flower_red.tscn")
 const _FLOWER_YELLOW := preload("res://scenes/world/objects/flower_yellow.tscn")
 const _GRASS := preload("res://scenes/world/objects/grass_tuft.tscn")
 
+# Terrain block types (indices match tools/generate_mesh_library.gd)
+enum Block { GRASS, DIRT, STONE, WATER, PATH, SAND, DARK_GRASS, SNOW }
+const BLOCK_COLORS = [
+	Color(0.35, 0.55, 0.25, 1.0),  # Grass
+	Color(0.45, 0.32, 0.18, 1.0),  # Dirt
+	Color(0.5, 0.5, 0.5, 1.0),     # Stone
+	Color(0.2, 0.4, 0.8, 0.7),     # Water
+	Color(0.6, 0.5, 0.35, 1.0),    # Path
+	Color(0.85, 0.77, 0.55, 1.0),  # Sand
+	Color(0.25, 0.4, 0.2, 1.0),    # DarkGrass
+	Color(0.9, 0.9, 0.95, 1.0),    # Snow
+]
+
 var _message_timer: float = 0.0
 var _current_message: String = ""
 var _pause_menu_instance: Control = null
@@ -82,6 +95,9 @@ func _ready() -> void:
 
 	# Snap camera to player immediately, then allow smooth follow
 	_orbit_camera.global_position = _player.global_position
+
+	# Build terrain grid (replaces CSG ground plane)
+	_build_terrain()
 
 	# Populate world with decorations (trees, rocks, bushes, etc.)
 	_populate_world()
@@ -313,6 +329,71 @@ func _go_to_main_menu() -> void:
 	_pause_menu_instance = null
 	SceneManager.clear_stack()
 	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
+
+
+# === Terrain ===
+
+func _build_terrain() -> void:
+	## Creates a GridMap terrain with painted zones replacing the old flat ground plane.
+	var lib := MeshLibrary.new()
+	for i in BLOCK_COLORS.size():
+		lib.create_item(i)
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(1, 1, 1)
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = BLOCK_COLORS[i]
+		if BLOCK_COLORS[i].a < 1.0:
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mesh.material = mat
+		lib.set_item_mesh(i, mesh)
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(1, 1, 1)
+		lib.set_item_shapes(i, [shape, Transform3D.IDENTITY])
+
+	var grid := GridMap.new()
+	grid.name = "Terrain"
+	grid.mesh_library = lib
+	grid.cell_size = Vector3(1, 1, 1)
+	grid.collision_layer = 1
+	grid.collision_mask = 0
+	grid.position.y = -0.5  # Top surface aligns with Y=0
+
+	for x in range(80):
+		for z in range(50):
+			grid.set_cell_item(Vector3i(x, 0, z), _get_terrain_block(x, z))
+
+	add_child(grid)
+	DebugLogger.log_info("Built GridMap terrain: 80x50 cells", "Overworld")
+
+
+func _get_terrain_block(x: int, z: int) -> int:
+	## Returns the block type for a grid cell based on world zones.
+	# Small pond in eastern wilds
+	if x >= 56 and x <= 59 and z >= 21 and z <= 24:
+		return Block.WATER
+	# Sand beach around pond
+	if x >= 55 and x <= 60 and z >= 20 and z <= 25:
+		return Block.SAND
+	# Road from town to cave (z:15-17, x:20→36)
+	if x >= 20 and x <= 36 and z >= 15 and z <= 17:
+		return Block.PATH
+	# Town main street (x:8-11)
+	if x >= 8 and x <= 11 and z >= 3 and z <= 18:
+		return Block.PATH
+	# Cave area (x:33-50, z:10-25)
+	if x >= 33 and x <= 50 and z >= 10 and z <= 25:
+		return Block.STONE
+	# Town area (x:3-20, z:3-18)
+	if x >= 3 and x <= 20 and z >= 3 and z <= 18:
+		return Block.DIRT
+	# Forest West (x:0-15, z:20-48)
+	if x <= 15 and z >= 20 and z <= 48:
+		return Block.DARK_GRASS
+	# Forest North (x:15-65, z:35-48)
+	if x >= 15 and x <= 65 and z >= 35 and z <= 48:
+		return Block.DARK_GRASS
+	# Default: open grassland
+	return Block.GRASS
 
 
 # === World Population ===
