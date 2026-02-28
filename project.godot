@@ -30,6 +30,7 @@ InputManager="*res://scripts/autoload/input_manager.gd"
 UIColors="*res://scripts/autoload/ui_colors.gd"
 NpcDatabase="*res://scripts/autoload/npc_database.gd"
 ShopDatabase="*res://scripts/autoload/shop_database.gd"
+ChestDatabase="*res://scripts/autoload/chest_database.gd"
 
 [display]
 
@@ -98,16 +99,15 @@ fast_travel={
 [layer_names]
 
 2d_physics/layer_1="world"
-2d_physics/layer_2="player"
-2d_physics/layer_3="enemies"
-2d_physics/layer_4="interactables"
 3d_physics/layer_1="world"
+2d_physics/layer_2="player"
 3d_physics/layer_2="player"
+2d_physics/layer_3="enemies"
 3d_physics/layer_3="enemies"
+2d_physics/layer_4="interactables"
 3d_physics/layer_4="interactables"
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="forward_plus"

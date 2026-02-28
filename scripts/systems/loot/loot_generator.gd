@@ -36,18 +36,20 @@ static func generate_loot(encounter: EncounterData, enemies: Array) -> Array:
 	var items: Array = []
 
 	if encounter.override_loot_table:
-		items.append_array(_roll_table(encounter.override_loot_table))
+		items.append_array(roll_table(encounter.override_loot_table))
 	else:
 		for i in range(enemies.size()):
 			var entity: CombatEntity = enemies[i]
 			if entity.enemy_data and entity.enemy_data.loot_table:
-				items.append_array(_roll_table(entity.enemy_data.loot_table))
+				items.append_array(roll_table(entity.enemy_data.loot_table))
 
 	return items
 
 
 
-static func _roll_table(table: LootTable) -> Array:
+## Roll a single loot table and return the resulting items.
+## Used by the battle system (via generate_loot) and chest system directly.
+static func roll_table(table: LootTable) -> Array:
 	var items: Array = []
 
 	# Guaranteed drops always included

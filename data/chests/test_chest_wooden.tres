@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ChestData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/chest_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_basic.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "test_chest_wooden"
+display_name = "Wooden Chest"
+description = "A simple wooden chest."
+loot_table = ExtResource("2")
+gold_reward = 25
+one_time_only = true
+visual_type = "wooden"
