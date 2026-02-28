@@ -33,6 +33,7 @@ func refresh() -> void:
 	if not _grid_inventory:
 		return
 	_last_purchasable_cell = Vector2i(-1, -1)  # Reset purchasable tracker on full refresh.
+	_last_hovered_cell = Vector2i(-1, -1)  # Force re-emit on next mouse motion (e.g. after drag start).
 	# Reset all cell states
 	for pos: Vector2i in _cells:
 		var cell_node: Control = _cells[pos]
