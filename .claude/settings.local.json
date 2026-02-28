@@ -13,7 +13,16 @@
       "Bash(python scripts/tools/create_starter_map.py:*)",
       "Bash(ls:*)",
       "Bash(python:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(xargs -I {} bash -c 'echo \"\"=== {} ===\"\" && head -50 {} | grep -E \"\"^\\\\s*\\(var|const\\)\"\" | head -10')",
+      "Bash(git check-ignore:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)",
+      "Bash(git clean:*)",
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "mcp__claude_ai_Notion__notion-update-page",
+      "mcp__claude_ai_Notion__notion-create-pages"
     ]
   }
 }

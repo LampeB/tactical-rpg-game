@@ -31,6 +31,9 @@ The project has a Notion workspace synced via the **Claude AI Notion connector**
 #### 0. Never act without being asked
 - **Never commit files** (git add/commit) unless the user explicitly asks.
 - **Never update Notion** (tasks, docs, changelogs) unless the user explicitly asks to commit.
+- **NEVER mark tasks as "Done"** on your own — only when the user explicitly asks to commit.
+- **NEVER update documentation pages or add changelog entries** on your own — only when the user explicitly asks to commit.
+- The ONLY Notion write allowed without explicit commit request is setting a task to "In Progress" when starting work.
 - When the user asks to commit: commit files, update Notion tasks to "Done", update affected documentation pages, and add changelog entries — all in one go.
 
 #### 1. Tasks Tracking
