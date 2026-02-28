@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://beh8655yipmht"]
+[gd_scene load_steps=8 format=3 uid="uid://beh8655yipmht"]
 
 [ext_resource type="Script" path="res://scenes/world/overworld.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/world/overworld_player.gd" id="2"]
@@ -20,29 +20,11 @@ size = Vector3(0.8, 1.8, 0.8)
 [sub_resource type="SphereShape3D" id="interaction_sphere"]
 radius = 1.5
 
-[sub_resource type="BoxShape3D" id="ground_collision"]
-size = Vector3(80, 0.1, 50)
-
-[sub_resource type="StandardMaterial3D" id="ground_mat"]
-albedo_color = Color(0.35, 0.55, 0.25, 1)
 
 [node name="Overworld" type="Node3D"]
 script = ExtResource("1")
 
 [node name="Environment3D" parent="." instance=ExtResource("10_env")]
-
-[node name="Ground" type="StaticBody3D" parent="."]
-collision_layer = 1
-collision_mask = 0
-
-[node name="GroundMesh" type="CSGBox3D" parent="Ground"]
-size = Vector3(80, 0.1, 50)
-position = Vector3(40, -0.05, 25)
-material = SubResource("ground_mat")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.05, 25)
-shape = SubResource("ground_collision")
 
 [node name="LocationMarkers" type="Node3D" parent="."]
 
