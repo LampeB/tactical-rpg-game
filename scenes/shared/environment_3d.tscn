@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://denv3d001"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky01"]
+sky_top_color = Color(0.4, 0.6, 0.9, 1)
+sky_horizon_color = Color(0.7, 0.8, 0.95, 1)
+ground_bottom_color = Color(0.15, 0.18, 0.12, 1)
+ground_horizon_color = Color(0.5, 0.55, 0.45, 1)
+
+[sub_resource type="Sky" id="Sky_sky01"]
+sky_material = SubResource("ProceduralSkyMaterial_sky01")
+
+[sub_resource type="Environment" id="Environment_env01"]
+background_mode = 2
+sky = SubResource("Sky_sky01")
+ambient_light_source = 2
+ambient_light_color = Color(0.3, 0.3, 0.35, 1)
+ambient_light_energy = 0.4
+ssao_enabled = true
+ssao_radius = 2.0
+ssao_intensity = 1.5
+
+[node name="Environment3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_env01")
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 10, 0)
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 1.2
+shadow_enabled = true
+directional_shadow_mode = 1
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, 0.354, -0.354, 0, 0.707, 0.707, 0.5, -0.612, 0.612, 0, 10, 0)
+light_color = Color(0.7, 0.75, 0.9, 1)
+light_energy = 0.3
+shadow_enabled = false
