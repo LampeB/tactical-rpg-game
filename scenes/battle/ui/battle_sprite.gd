@@ -10,6 +10,7 @@ signal mouse_exited_sprite(entity: CombatEntity)
 var _entity: CombatEntity
 var _model: Node3D = null
 var _click_area: Area3D = null
+var _animator: ModelAnimator = null
 
 
 func setup(entity: CombatEntity) -> void:
@@ -28,6 +29,11 @@ func setup(entity: CombatEntity) -> void:
 	# Face enemies toward players
 	if not entity.is_player:
 		_model.rotation.y = PI
+
+	# Attach idle breathing animator
+	_animator = ModelAnimator.new()
+	add_child(_animator)
+	_animator.setup(_model)
 
 	# Build click detection area
 	_build_click_area()

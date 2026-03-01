@@ -38,6 +38,11 @@ func _build_visual() -> void:
 	var model := CSGCharacterFactory.create_from_npc(_npc_data)
 	add_child(model)
 
+	# Attach idle breathing animator
+	var animator := ModelAnimator.new()
+	add_child(animator)
+	animator.setup(model)
+
 	# Collision shape for body detection
 	collision_layer = 4  # interactables
 	collision_mask = 2   # detects player body

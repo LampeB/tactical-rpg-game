@@ -12,6 +12,8 @@ var _move_timer: float = 0.0
 var _direction_change_interval: float = 2.0
 var _can_trigger_battle: bool = false  # Start disabled, enabled by overworld after safe positioning
 var _detection_enabled: bool = false
+var _model: Node3D = null
+var _animator: ModelAnimator = null
 
 @onready var _detection_area: Area3D = $DetectionArea
 
@@ -46,17 +48,26 @@ func _build_enemy_model() -> void:
 	## Creates a CSG model for this enemy using encounter data or fallback color.
 	if encounter_data and not encounter_data.enemies.is_empty():
 		var first_enemy: EnemyData = encounter_data.enemies[0]
-		var model := CSGCharacterFactory.create_from_enemy(first_enemy)
-		add_child(model)
+		_model = CSGCharacterFactory.create_from_enemy(first_enemy)
+		add_child(_model)
 	else:
-		# Fallback: simple colored box
+		# Fallback: simple colored box wrapped in Node3D
+		var root := Node3D.new()
+		root.name = "EnemyModel"
 		var body := CSGBox3D.new()
 		body.size = Vector3(0.6, 1.2, 0.6)
 		body.position.y = 0.6
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = enemy_color
 		body.material = mat
-		add_child(body)
+		root.add_child(body)
+		_model = root
+		add_child(_model)
+
+	# Attach procedural walk/idle animator
+	_animator = ModelAnimator.new()
+	add_child(_animator)
+	_animator.setup(_model)
 
 
 func _physics_process(delta: float) -> void:
@@ -72,6 +83,12 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= 9.8 * delta
 	move_and_slide()
+
+	# Update walk animation and facing direction
+	if _animator:
+		_animator.set_walking(_move_direction.length() > 0.1)
+	if _model and _move_direction.length() > 0.1:
+		_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
 
 	# Don't wander too far from start position
 	var horizontal_pos := Vector3(global_position.x, 0, global_position.z)
