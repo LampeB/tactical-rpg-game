@@ -5,6 +5,7 @@ Run: python3 tools/generate_vox_python.py
 import struct
 import os
 import math
+import json
 
 BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "voxels")
 
@@ -187,6 +188,296 @@ def humanoid(torso_color, torso_dark, leg_color, arm_color, hair_color, height=1
     voxels[(cx, eye_y, cz - 2)] = 27  # right eye
 
     return voxels
+
+
+# === Multi-part humanoid template ===
+
+def humanoid_parts(torso_color, torso_dark, leg_color, arm_color, hair_color,
+                   height=18, torso_width=6):
+    """Create separate body parts for an articulated humanoid.
+
+    Each part is a dict of (x, y, z) -> color_idx in local coordinates.
+    Returns (parts_dict, assembly_metadata).
+    """
+    scale = height / 18.0
+    hw = torso_width // 2
+
+    leg_top = int(5 * scale)
+    torso_bot = leg_top + 1
+    torso_top = int(11 * scale)
+    neck_y = torso_top + 1
+    head_bot = neck_y + 1
+    head_top = int(16 * scale)
+    arm_top = torso_top - 1  # arms are 1 shorter than torso
+
+    parts = {}
+
+    # --- Legs (local: 2 wide x leg_height x 2 deep) ---
+    for side_name in ("left_leg", "right_leg"):
+        leg = {}
+        filled_box(leg, 0, 0, 0, 1, leg_top, 1, leg_color)
+        parts[side_name] = leg
+
+    # --- Body (torso + neck, local coords) ---
+    body = {}
+    # Original torso: cx - hw//2 to cx + hw//2 (inclusive) = hw//2*2+1 voxels wide
+    body_voxel_w = hw // 2 * 2 + 1
+    filled_box(body, 0, 0, 0, body_voxel_w - 1, torso_top - torso_bot, 1, torso_color)
+    # Neck (2 voxels wide, centered within body)
+    neck_local_y = neck_y - torso_bot
+    neck_cx = (body_voxel_w - 1) // 2
+    filled_box(body, neck_cx, neck_local_y, 0, neck_cx + 1, neck_local_y, 1, 0)
+    parts["body"] = body
+
+    # --- Arms (local: 1 wide x arm_height x 2 deep) ---
+    arm_h = arm_top - torso_bot  # voxels from 0 to arm_h
+    for side_name in ("left_arm", "right_arm"):
+        arm = {}
+        filled_box(arm, 0, 0, 0, 0, arm_h, 1, arm_color)
+        parts[side_name] = arm
+
+    # --- Head (local: 4 wide x head_height x 4 deep) ---
+    head = {}
+    head_h = head_top - head_bot
+    filled_box(head, 0, 0, 0, 3, head_h, 3, 0)  # skin
+    # Hair top
+    filled_box(head, 0, head_h, 0, 3, head_h + 1, 3, hair_color)
+    # Hair back
+    filled_box(head, 0, 1, 3, 3, head_h, 3, hair_color)
+    # Eyes (front face)
+    head[(1, 1, 0)] = 27
+    head[(2, 1, 0)] = 27
+    parts["head"] = head
+
+    # --- Assembly metadata ---
+    vs = 0.1  # voxel_size
+    leg_height = (leg_top + 1) * vs
+    arm_height = (arm_h + 1) * vs
+    hip_y = round(leg_height, 3)
+    shoulder_y = round((arm_top + 1) * vs, 3)
+    neck_y_pos = round(head_bot * vs, 3)
+    leg_x = round(1 * vs, 3)  # 1 voxel offset from center
+    arm_x = round((hw // 2 + 1) * vs, 3)
+
+    assembly = {
+        "body":      {"node_name": "Body",     "pivot": [0.0, hip_y, 0.0],       "top_pivot": False},
+        "head":      {"node_name": "Head",     "pivot": [0.0, neck_y_pos, 0.0],  "top_pivot": False},
+        "left_leg":  {"node_name": "LeftLeg",  "pivot": [-leg_x, hip_y, 0.0],    "top_pivot": True},
+        "right_leg": {"node_name": "RightLeg", "pivot": [leg_x, hip_y, 0.0],     "top_pivot": True},
+        "left_arm":  {"node_name": "LeftArm",  "pivot": [-arm_x, shoulder_y, 0.0], "top_pivot": True},
+        "right_arm": {"node_name": "RightArm", "pivot": [arm_x, shoulder_y, 0.0],  "top_pivot": True},
+    }
+
+    return parts, assembly
+
+
+def add_body_customization(parts, voxels_to_add, part_name="body"):
+    """Add custom voxels to a specific body part dict."""
+    for pos, color in voxels_to_add.items():
+        parts[part_name][pos] = color
+
+
+# === Multi-part character builders ===
+
+def make_kael_parts():
+    """Warrior multi-part: blue steel armor, broad build."""
+    parts, assembly = humanoid_parts(
+        torso_color=2, torso_dark=3, leg_color=3,
+        arm_color=2, hair_color=17, height=18, torso_width=8
+    )
+    # Shoulder pads on body (body is 4 wide: 0..4, shoulder pads at edges)
+    body = parts["body"]
+    for y in range(4, 7):  # top of torso
+        body[(0, y, 0)] = 10  # left pad
+        body[(0, y, 1)] = 10
+        body[(4, y, 0)] = 10  # right pad
+        body[(4, y, 1)] = 10
+    # Belt (bottom row of body)
+    for x in range(5):
+        body[(x, 0, 0)] = 9
+    return parts, assembly
+
+
+def make_lyra_parts():
+    """Mage multi-part: purple robe, pointed hat."""
+    parts, assembly = humanoid_parts(
+        torso_color=4, torso_dark=5, leg_color=5,
+        arm_color=4, hair_color=18, height=18, torso_width=6
+    )
+    # Robe extension on legs (overwrite with robe color)
+    for side in ("left_leg", "right_leg"):
+        leg = parts[side]
+        for y in range(6):
+            for x in range(2):
+                for z in range(2):
+                    leg[(x, y, z)] = 5  # dark purple robe
+    # Pointed hat on head
+    head = parts["head"]
+    # Hat brim (wider than head)
+    for x in range(4):
+        for z in range(4):
+            head[(x, 5, z)] = 4  # purple
+    # Hat cone
+    head[(1, 6, 1)] = 4
+    head[(2, 6, 1)] = 4
+    head[(1, 6, 2)] = 4
+    head[(2, 6, 2)] = 4
+    head[(1, 7, 1)] = 4  # tip
+    return parts, assembly
+
+
+def make_vex_parts():
+    """Rogue multi-part: green hood, slim build."""
+    parts, assembly = humanoid_parts(
+        torso_color=6, torso_dark=7, leg_color=7,
+        arm_color=6, hair_color=19, height=18, torso_width=6
+    )
+    # Hood on head (overwrites hair)
+    head = parts["head"]
+    for x in range(4):
+        for z in range(4):
+            for y in range(2, 5):
+                head[(x, y, z)] = 7  # dark green hood
+    # Face opening
+    head[(1, 2, 0)] = 0  # skin
+    head[(2, 2, 0)] = 0
+    head[(1, 1, 0)] = 27  # eyes still visible
+    head[(2, 1, 0)] = 27
+    # Belt on body
+    body = parts["body"]
+    for x in range(3):
+        body[(x, 0, 0)] = 9
+    return parts, assembly
+
+
+def make_goblin_parts():
+    """Goblin multi-part: small green humanoid with big head."""
+    parts, assembly = humanoid_parts(
+        torso_color=22, torso_dark=23, leg_color=23,
+        arm_color=22, hair_color=23, height=12, torso_width=6
+    )
+    # Override head to be bigger (5 wide x 4 tall x 4 deep)
+    head = {}
+    filled_box(head, 0, 0, 0, 4, 3, 3, 22)
+    # Pointy ears
+    head[(0, 1, 1)] = 22  # extra width for ears
+    head[(5, 1, 1)] = 22
+    # Eyes
+    head[(1, 1, 0)] = 26  # white
+    head[(3, 1, 0)] = 26
+    parts["head"] = head
+    return parts, assembly
+
+
+def make_minotaur_parts():
+    """Minotaur multi-part: large brown humanoid with horns."""
+    parts, assembly = humanoid_parts(
+        torso_color=24, torso_dark=25, leg_color=25,
+        arm_color=24, hair_color=19, height=25, torso_width=10
+    )
+    # Horns on head
+    head = parts["head"]
+    # Existing head is 4 wide, add horn voxels above and to sides
+    head_h = max(k[1] for k in head.keys())
+    for dy in range(3):
+        head[(0, head_h + dy, 1)] = 38  # left horn
+        head[(3, head_h + dy, 1)] = 38  # right horn
+    head[(0, head_h + 2, 0)] = 38  # horn tip curves
+    head[(3, head_h + 2, 0)] = 38
+    # Snout (front of head)
+    head[(1, 1, 0)] = 24  # override eyes with snout
+    head[(2, 1, 0)] = 24
+    return parts, assembly
+
+
+def make_merchant_parts():
+    """Merchant multi-part: brown leather with apron."""
+    parts, assembly = humanoid_parts(
+        torso_color=8, torso_dark=9, leg_color=9,
+        arm_color=8, hair_color=17, height=18, torso_width=7
+    )
+    # Apron on body front
+    body = parts["body"]
+    for y in range(5):
+        body[(1, y, 0)] = 9
+        body[(2, y, 0)] = 9
+    return parts, assembly
+
+
+def make_blacksmith_parts():
+    """Blacksmith multi-part: grey metal, muscular."""
+    parts, assembly = humanoid_parts(
+        torso_color=10, torso_dark=11, leg_color=9,
+        arm_color=8, hair_color=19, height=18, torso_width=8
+    )
+    # Apron on body
+    body = parts["body"]
+    for y in range(4):
+        body[(1, y, 0)] = 11
+        body[(2, y, 0)] = 11
+        body[(3, y, 0)] = 11
+    return parts, assembly
+
+
+def make_weaver_parts():
+    """Weaver multi-part: teal robes, hooded."""
+    parts, assembly = humanoid_parts(
+        torso_color=12, torso_dark=13, leg_color=13,
+        arm_color=12, hair_color=19, height=18, torso_width=6
+    )
+    # Robe on legs
+    for side in ("left_leg", "right_leg"):
+        leg = parts[side]
+        for y in range(6):
+            for x in range(2):
+                for z in range(2):
+                    leg[(x, y, z)] = 13
+    # Hood on head
+    head = parts["head"]
+    for x in range(4):
+        for z in range(4):
+            for y in range(2, 5):
+                head[(x, y, z)] = 13
+    head[(1, 2, 0)] = 0  # face
+    head[(2, 2, 0)] = 0
+    head[(1, 1, 0)] = 27
+    head[(2, 1, 0)] = 27
+    return parts, assembly
+
+
+def make_doctor_parts():
+    """Doctor multi-part: white cloth with red cross."""
+    parts, assembly = humanoid_parts(
+        torso_color=14, torso_dark=14, leg_color=14,
+        arm_color=14, hair_color=17, height=18, torso_width=6
+    )
+    # Red cross on body front
+    body = parts["body"]
+    body[(1, 2, 0)] = 15  # center
+    body[(0, 2, 0)] = 15  # left
+    body[(2, 2, 0)] = 15  # right (if wide enough)
+    body[(1, 3, 0)] = 15  # top
+    body[(1, 1, 0)] = 15  # bottom
+    return parts, assembly
+
+
+# === Multi-part .vox writer ===
+
+def write_multipart_vox(base_dir, parts, assembly, palette):
+    """Write separate .vox files for each body part + parts.json metadata."""
+    os.makedirs(base_dir, exist_ok=True)
+
+    for part_name, voxels in parts.items():
+        if not voxels:
+            continue
+        path = os.path.join(base_dir, f"{part_name}.vox")
+        write_vox(path, voxels, palette)
+
+    # Write assembly metadata
+    meta_path = os.path.join(base_dir, "parts.json")
+    with open(meta_path, 'w') as f:
+        json.dump(assembly, f, indent=2)
+    print(f"  META {meta_path}")
 
 
 # === Character Models ===
@@ -594,6 +885,7 @@ def write_vox(path, voxels, palette):
 # === Generate all models ===
 
 def main():
+    # --- Monolithic models (backward compat) ---
     models = {
         "characters": {
             "warrior": make_kael,
@@ -629,14 +921,42 @@ def main():
 
     total = 0
     for category, items in models.items():
-        print(f"\n=== {category.upper()} ===")
+        print(f"\n=== {category.upper()} (monolithic) ===")
         for name, builder in items.items():
             path = os.path.join(BASE_DIR, category, f"{name}.vox")
             voxels = builder()
             write_vox(path, voxels, PALETTE)
             total += 1
 
-    print(f"\nDone! Generated {total} .vox files.")
+    # --- Multi-part articulated models ---
+    multipart = {
+        "characters": {
+            "warrior": make_kael_parts,
+            "mage": make_lyra_parts,
+            "rogue": make_vex_parts,
+        },
+        "enemies": {
+            "goblin": make_goblin_parts,
+            "minotaur": make_minotaur_parts,
+        },
+        "npcs": {
+            "merchant": make_merchant_parts,
+            "blacksmith": make_blacksmith_parts,
+            "weaver": make_weaver_parts,
+            "doctor": make_doctor_parts,
+        },
+    }
+
+    mp_count = 0
+    for category, items in multipart.items():
+        print(f"\n=== {category.upper()} (multi-part) ===")
+        for name, builder in items.items():
+            base_dir = os.path.join(BASE_DIR, category, name)
+            parts, assembly = builder()
+            write_multipart_vox(base_dir, parts, assembly, PALETTE)
+            mp_count += 1
+
+    print(f"\nDone! Generated {total} monolithic + {mp_count} multi-part models.")
 
 
 if __name__ == "__main__":

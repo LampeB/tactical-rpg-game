@@ -74,25 +74,39 @@ func _on_area_mouse_exited() -> void:
 
 # === Material Helpers ===
 
-func _set_emission(color: Color, energy: float) -> void:
+func _get_all_materials() -> Array:
+	## Collects all StandardMaterial3D instances from the model tree.
+	## Handles both flat (CSG/single-vox) and nested (multi-part vox) structures.
+	var mats: Array = []
 	if not _model:
-		return
+		return mats
 	for child in _model.get_children():
-		var mat: StandardMaterial3D = _get_child_material(child)
+		var mat: StandardMaterial3D = _get_node_material(child)
 		if mat:
-			if energy > 0:
-				mat.emission_enabled = true
-				mat.emission = color
-				mat.emission_energy_multiplier = energy
-			else:
-				mat.emission_enabled = false
+			mats.append(mat)
+		# Check grandchildren for multi-part models (root > pivot > Mesh)
+		for grandchild in child.get_children():
+			mat = _get_node_material(grandchild)
+			if mat:
+				mats.append(mat)
+	return mats
 
 
-static func _get_child_material(child: Node) -> StandardMaterial3D:
-	if child is CSGShape3D and child.material is StandardMaterial3D:
-		return child.material as StandardMaterial3D
-	if child is MeshInstance3D:
-		var mi: MeshInstance3D = child as MeshInstance3D
+func _set_emission(color: Color, energy: float) -> void:
+	for mat in _get_all_materials():
+		if energy > 0:
+			mat.emission_enabled = true
+			mat.emission = color
+			mat.emission_energy_multiplier = energy
+		else:
+			mat.emission_enabled = false
+
+
+static func _get_node_material(node: Node) -> StandardMaterial3D:
+	if node is CSGShape3D and node.material is StandardMaterial3D:
+		return node.material as StandardMaterial3D
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node as MeshInstance3D
 		if mi.mesh and mi.mesh.get_surface_count() > 0:
 			var mat: Material = mi.mesh.surface_get_material(0)
 			if mat is StandardMaterial3D:
@@ -131,12 +145,9 @@ func play_death_animation() -> void:
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(self, "position:y", position.y - 0.5, 0.5)
-	if _model:
-		for child in _model.get_children():
-			var mat: StandardMaterial3D = _get_child_material(child)
-			if mat:
-				mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-				tween.tween_property(mat, "albedo_color:a", 0.0, 0.5)
+	for mat in _get_all_materials():
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		tween.tween_property(mat, "albedo_color:a", 0.0, 0.5)
 	tween.chain().tween_callback(func() -> void: animation_finished.emit())
 
 

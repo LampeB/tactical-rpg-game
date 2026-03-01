@@ -1,6 +1,7 @@
 class_name CSGCharacterFactory
 ## Builds simple humanoid figures from CSG primitives at runtime.
-## Used as placeholder 3D characters until MagicaVoxel models replace them.
+## Falls back to CSG when no voxel model is available.
+## Prefers multi-part articulated voxel models (with limb pivots) when present.
 
 
 ## Create a 3D model for any data resource that has model_scene/model_scale.
@@ -20,6 +21,12 @@ static func create_from_character(char_data: CharacterData) -> Node3D:
 		var model: Node3D = char_data.model_scene.instantiate()
 		model.scale = Vector3.ONE * char_data.model_scale
 		return model
+	# Try multi-part articulated voxel model (limbs + pivots)
+	var multipart := _try_load_multipart_vox("res://assets/voxels/characters/%s" % char_data.id)
+	if multipart:
+		_add_name_label(multipart, char_data.display_name, 2.0)
+		return multipart
+	# Try single-file voxel model
 	var vox_model := _try_load_vox("res://assets/voxels/characters/%s.vox" % char_data.id)
 	if vox_model:
 		_add_name_label(vox_model, char_data.display_name, 2.0)
@@ -37,6 +44,13 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 		var model: Node3D = enemy_data.model_scene.instantiate()
 		model.scale = Vector3.ONE * enemy_data.model_scale
 		return model
+	# Try multi-part articulated voxel model
+	var multipart := _try_load_multipart_vox("res://assets/voxels/enemies/%s" % enemy_data.id)
+	if multipart:
+		multipart.scale = Vector3.ONE * enemy_data.model_scale
+		_add_name_label(multipart, enemy_data.display_name, _get_model_top(multipart) + 0.3)
+		return multipart
+	# Try single-file voxel model
 	var vox_model := _try_load_vox("res://assets/voxels/enemies/%s.vox" % enemy_data.id)
 	if vox_model:
 		vox_model.scale = Vector3.ONE * enemy_data.model_scale
@@ -63,6 +77,12 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 	if npc_data.model_scene:
 		var model: Node3D = npc_data.model_scene.instantiate()
 		return model
+	# Try multi-part articulated voxel model
+	var multipart := _try_load_multipart_vox("res://assets/voxels/npcs/%s" % npc_data.id)
+	if multipart:
+		_add_name_label(multipart, npc_data.display_name, 2.0)
+		return multipart
+	# Try single-file voxel model
 	var vox_model := _try_load_vox("res://assets/voxels/npcs/%s.vox" % npc_data.id)
 	if vox_model:
 		_add_name_label(vox_model, npc_data.display_name, 2.0)
@@ -166,6 +186,63 @@ static func create_humanoid(color: Color, height: float = 1.8) -> Node3D:
 
 # --- Private helpers ---
 
+static func _try_load_multipart_vox(base_dir: String) -> Node3D:
+	## Loads an articulated multi-part voxel model from a directory.
+	## Expects per-limb .vox files and a parts.json assembly metadata file.
+	var meta_path := base_dir + "/parts.json"
+	if not FileAccess.file_exists(meta_path):
+		return null
+
+	var file := FileAccess.open(meta_path, FileAccess.READ)
+	if not file:
+		return null
+	var json_text := file.get_as_text()
+	file.close()
+
+	var json := JSON.new()
+	if json.parse(json_text) != OK:
+		push_error("CSGCharacterFactory: Failed to parse %s" % meta_path)
+		return null
+
+	var assembly: Dictionary = json.data
+	if assembly.is_empty():
+		return null
+
+	var root := Node3D.new()
+	root.name = "VoxCharacter"
+
+	for part_key in assembly:
+		var part_data: Dictionary = assembly[part_key]
+		var vox_path: String = base_dir + "/" + str(part_key) + ".vox"
+		var mesh: ArrayMesh = VoxImporter.load_vox(vox_path)
+		if not mesh:
+			continue
+
+		var node_name: String = part_data.get("node_name", part_key)
+		var pivot: Array = part_data.get("pivot", [0.0, 0.0, 0.0])
+		var top_pivot: bool = part_data.get("top_pivot", false)
+
+		# Create pivot Node3D at the joint position
+		var pivot_node := Node3D.new()
+		pivot_node.name = node_name
+		pivot_node.position = Vector3(float(pivot[0]), float(pivot[1]), float(pivot[2]))
+		root.add_child(pivot_node)
+
+		# Create mesh instance inside the pivot
+		var mesh_inst := MeshInstance3D.new()
+		mesh_inst.name = "Mesh"
+		mesh_inst.mesh = mesh
+
+		# For top-pivot parts (arms, legs), offset mesh so it hangs below the pivot
+		if top_pivot:
+			var aabb: AABB = mesh.get_aabb()
+			mesh_inst.position.y = -(aabb.position.y + aabb.size.y)
+
+		pivot_node.add_child(mesh_inst)
+
+	return root
+
+
 static func _try_load_vox(path: String) -> Node3D:
 	if not FileAccess.file_exists(path):
 		return null
@@ -240,4 +317,12 @@ static func _get_model_top(model: Node3D) -> float:
 				top += (child as CSGCylinder3D).height * 0.5
 			if top > max_y:
 				max_y = top
+		elif child is Node3D:
+			# Check grandchildren (multi-part voxel models: root > pivot > Mesh)
+			for grandchild in child.get_children():
+				if grandchild is MeshInstance3D and grandchild.mesh:
+					var aabb: AABB = grandchild.mesh.get_aabb()
+					var top: float = child.position.y + grandchild.position.y + aabb.position.y + aabb.size.y
+					if top > max_y:
+						max_y = top
 	return max_y

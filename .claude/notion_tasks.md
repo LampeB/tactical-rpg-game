@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 147 -->
+<\!-- Total tasks: 152 -->
 <\!-- Last updated: 2026-03-01 -->
 
 ## Prerequisites
@@ -52,6 +52,8 @@
 | Implement defend action (damage reduction via shield/defense) | 3147700f-d0fb-81a3-853e-dd34af44a4d4 |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
+| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
+| Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 | Restrict roaming enemies from entering town/NPC areas | 3147700f-d0fb-81af-9c68-e10347a8d3e9 |
 
 ### Done
@@ -161,8 +163,10 @@
 | In-game skill tree editor | 3147700f-d0fb-81e3-9f0b-d127387d464f |
 | Lake location debug heal (full HP/MP) | 3147700f-d0fb-81a7-acd5-d6fc7fbd5cb6 |
 | LocationData system with unlock flags and fast travel | 3147700f-d0fb-8163-9df0-efa02f183795 |
+| Multi-part voxel models (split humanoids into articulated limbs with joint pivots) | 3167700f-d0fb-814d-8751-f83f9be095ad |
 | Multiple save slots with ring buffer history and auto-save (v5) | 3147700f-d0fb-8193-8014-e7962d0b616b |
 | Passive skill tree (gold-based unlocks) | 3147700f-d0fb-8193-aa88-c621abf57896 |
+| Procedural walk/idle animations (ModelAnimator) | 3167700f-d0fb-81c4-9b93-d8fa5e1062a5 |
 | Save/load system | 3147700f-d0fb-81da-b76d-df2d3a042f5f |
 
 ## Audio
@@ -186,6 +190,7 @@
 |---|---|
 | Character development (unique abilities, recruitment through story) | 3147700f-d0fb-8117-9a63-d0229a710e9e |
 | Multiple endings based on choices | 3147700f-d0fb-810a-a46f-f7665b9547fb |
+| Cinematic animation system (cutscene keyframes, emotes, camera) | 3167700f-d0fb-8100-81ba-ca342993e653 |
 | Story mode with cutscenes (dialogue boxes, portraits, animations) | 3147700f-d0fb-81e4-ab7f-db0be244f117 |
 
 ## Gamepad
@@ -249,6 +254,9 @@
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
+| Cinematic animation system (cutscene keyframes, emotes, camera) | 3167700f-d0fb-8100-81ba-ca342993e653 |
+| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
+| Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 | Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 
 ### Done
@@ -261,6 +269,8 @@
 | Create voxel models for all game objects (characters, enemies, items, world) | 3157700f-d0fb-8109-bb44-c2759d60ceeb |
 | Free-rotating orbit camera system (Camera3D, orbit, zoom, pan) | 3157700f-d0fb-813b-8b8a-ff8a95e0b5ad |
 | MagicaVoxel import pipeline (.vox models, replace CSG placeholders) | 3157700f-d0fb-810a-88ca-d26a22f357fe |
+| Multi-part voxel models (split humanoids into articulated limbs with joint pivots) | 3167700f-d0fb-814d-8751-f83f9be095ad |
+| Procedural walk/idle animations (ModelAnimator) | 3167700f-d0fb-81c4-9b93-d8fa5e1062a5 |
 | Port battle scene to 3D (Node3D BattleWorld, Camera3D, CSG models) | 3157700f-d0fb-816a-9d4f-e013c03f2468 |
 | Port markers to 3D (location, NPC, enemy, encounter zones) | 3157700f-d0fb-81fb-adc8-f1ecc9017a4d |
 | Port overworld to 3D (Node3D, GridMap, CharacterBody3D) | 3157700f-d0fb-8103-997e-f8eba4f96720 |

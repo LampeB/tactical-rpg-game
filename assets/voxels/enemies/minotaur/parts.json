@@ -1,0 +1,56 @@
+{
+  "body": {
+    "node_name": "Body",
+    "pivot": [
+      0.0,
+      0.7,
+      0.0
+    ],
+    "top_pivot": false
+  },
+  "head": {
+    "node_name": "Head",
+    "pivot": [
+      0.0,
+      1.7,
+      0.0
+    ],
+    "top_pivot": false
+  },
+  "left_leg": {
+    "node_name": "LeftLeg",
+    "pivot": [
+      -0.1,
+      0.7,
+      0.0
+    ],
+    "top_pivot": true
+  },
+  "right_leg": {
+    "node_name": "RightLeg",
+    "pivot": [
+      0.1,
+      0.7,
+      0.0
+    ],
+    "top_pivot": true
+  },
+  "left_arm": {
+    "node_name": "LeftArm",
+    "pivot": [
+      -0.3,
+      1.5,
+      0.0
+    ],
+    "top_pivot": true
+  },
+  "right_arm": {
+    "node_name": "RightArm",
+    "pivot": [
+      0.3,
+      1.5,
+      0.0
+    ],
+    "top_pivot": true
+  }
+}
