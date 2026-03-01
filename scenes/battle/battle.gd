@@ -937,11 +937,24 @@ func _show_defeat_screen() -> void:
 
 
 func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums.PopupType) -> void:
-	if not _entity_bars.has(entity):
-		return
-
-	var bar: PanelContainer = _entity_bars[entity]
 	var popup: Label = DamagePopupScene.instantiate()
 	_popup_layer.add_child(popup)
-	popup.global_position = bar.get_global_center() + Vector2(randf_range(-20, 20), -10)
+
+	# Position above the 3D model using camera projection
+	var sprite: Node3D = _entity_sprites.get(entity)
+	if sprite and is_instance_valid(sprite) and _battle_camera:
+		# Project model center into screen space, then offset upward in 2D
+		var world_pos: Vector3 = sprite.global_position + Vector3(0, 1.0, 0)
+		var viewport_pos: Vector2 = _battle_camera.unproject_position(world_pos)
+		# With stretch=true, SubViewport auto-resizes to container so scale is 1:1
+		var screen_pos: Vector2 = viewport_pos + _battle_viewport.global_position
+		popup.global_position = screen_pos + Vector2(randf_range(-20, 20), -40)
+	elif _entity_bars.has(entity):
+		# Fallback to status bar position
+		var bar: PanelContainer = _entity_bars[entity]
+		popup.global_position = bar.get_global_center() + Vector2(randf_range(-20, 20), -10)
+	else:
+		popup.queue_free()
+		return
+
 	popup.setup(amount, popup_type)

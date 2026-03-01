@@ -464,6 +464,11 @@ func _update_right_panel(character_id: String, tree: PassiveTreeData) -> void:
 # === Grid Interaction ===
 
 func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
+	# During drag, right-click rotates the held item
+	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
+		_rotate_dragged_item()
+		return
+
 	# Right-click to use consumables
 	if button == MOUSE_BUTTON_RIGHT:
 		var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null

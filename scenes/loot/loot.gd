@@ -204,6 +204,11 @@ func _on_character_selected(character_id: String) -> void:
 # ════════════════════════════════════════════════════════════════════════════
 
 func _on_loot_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
+	# During drag, right-click rotates the held item
+	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
+		_rotate_dragged_item()
+		return
+
 	# Right-click: use consumable
 	if button == MOUSE_BUTTON_RIGHT:
 		var placed: GridInventory.PlacedItem = _loot_inventory.get_item_at(grid_pos)
@@ -252,6 +257,11 @@ func _on_item_hover_exited() -> void:
 # ════════════════════════════════════════════════════════════════════════════
 
 func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
+	# During drag, right-click rotates the held item
+	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
+		_rotate_dragged_item()
+		return
+
 	if button != MOUSE_BUTTON_LEFT:
 		return
 

@@ -7,10 +7,17 @@ signal clicked(entity: CombatEntity)
 signal mouse_entered_sprite(entity: CombatEntity)
 signal mouse_exited_sprite(entity: CombatEntity)
 
+enum AttackAnimType { LUNGE, SLASH, BASH, SHOOT, CAST }
+
 var _entity: CombatEntity
 var _model: Node3D = null
 var _click_area: Area3D = null
 var _animator: ModelAnimator = null
+
+# Cached limb references for attack animations (humanoid models only)
+var _left_arm: Node3D = null
+var _right_arm: Node3D = null
+var _has_limbs: bool = false
 
 
 func setup(entity: CombatEntity) -> void:
@@ -34,6 +41,11 @@ func setup(entity: CombatEntity) -> void:
 	_animator = ModelAnimator.new()
 	add_child(_animator)
 	_animator.setup(_model)
+
+	# Cache limb references for attack animations
+	_left_arm = _model.get_node_or_null("LeftArm")
+	_right_arm = _model.get_node_or_null("RightArm")
+	_has_limbs = _left_arm != null and _right_arm != null
 
 	# Build click detection area
 	_build_click_area()
@@ -117,12 +129,21 @@ static func _get_node_material(node: Node) -> StandardMaterial3D:
 # === Awaitable Animations ===
 
 func play_attack_animation() -> void:
-	## Quick forward lunge on the X axis.
-	var tween := create_tween()
+	## Weapon-type-specific attack animation. Falls back to lunge for non-humanoid.
+	var anim_type: AttackAnimType = _determine_attack_anim()
 	var lunge_dir: float = 1.0 if _entity.is_player else -1.0
-	tween.tween_property(self, "position:x", position.x + lunge_dir, 0.15)
-	tween.tween_property(self, "position:x", position.x, 0.15)
-	tween.tween_callback(func() -> void: animation_finished.emit())
+
+	match anim_type:
+		AttackAnimType.SLASH:
+			_play_slash_anim(lunge_dir)
+		AttackAnimType.BASH:
+			_play_bash_anim(lunge_dir)
+		AttackAnimType.SHOOT:
+			_play_shoot_anim(lunge_dir)
+		AttackAnimType.CAST:
+			_play_cast_anim()
+		_:
+			_play_lunge_anim(lunge_dir)
 
 
 func play_hurt_animation() -> void:
@@ -152,13 +173,199 @@ func play_death_animation() -> void:
 
 
 func play_cast_animation() -> void:
-	## Stub for future spell casting animation.
-	animation_finished.emit()
+	## Dedicated cast animation for skills that use magic.
+	if _has_limbs:
+		_play_cast_anim()
+	else:
+		_set_emission(Color(0.5, 0.7, 1.0), 0.6)
+		var tween := create_tween()
+		tween.tween_interval(0.2)
+		tween.tween_callback(func() -> void:
+			_set_emission(Color.BLACK, 0.0)
+			animation_finished.emit()
+		)
 
 
 func play_idle_animation() -> void:
-	## Stub for future idle/breathing animation.
+	## Stub — idle breathing handled by ModelAnimator._process().
 	animation_finished.emit()
+
+
+# === Attack Animation Helpers ===
+
+func _determine_attack_anim() -> AttackAnimType:
+	if not _has_limbs:
+		return AttackAnimType.LUNGE
+
+	if _entity.is_player and _entity.grid_inventory:
+		var placed_items: Array = _entity.grid_inventory.get_all_placed_items()
+		for i in range(placed_items.size()):
+			var placed: GridInventory.PlacedItem = placed_items[i]
+			if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+				match placed.item_data.category:
+					Enums.EquipmentCategory.SWORD, \
+					Enums.EquipmentCategory.AXE, \
+					Enums.EquipmentCategory.DAGGER:
+						return AttackAnimType.SLASH
+					Enums.EquipmentCategory.MACE, \
+					Enums.EquipmentCategory.SHIELD:
+						return AttackAnimType.BASH
+					Enums.EquipmentCategory.BOW:
+						return AttackAnimType.SHOOT
+					Enums.EquipmentCategory.STAFF:
+						return AttackAnimType.CAST
+		return AttackAnimType.LUNGE
+
+	if not _entity.is_player and _entity.enemy_data:
+		if _entity.enemy_data.damage_type == Enums.DamageType.MAGICAL:
+			return AttackAnimType.CAST
+		return AttackAnimType.LUNGE
+
+	return AttackAnimType.LUNGE
+
+
+func _pause_animator() -> void:
+	if _animator:
+		_animator.reset_pose()
+		_animator.set_process(false)
+
+
+func _resume_animator() -> void:
+	if _animator:
+		_animator.set_process(true)
+
+
+func _play_lunge_anim(lunge_dir: float) -> void:
+	## Default lunge: quick forward-back on X axis.
+	_pause_animator()
+	var base_x: float = position.x
+	var tween := create_tween()
+	tween.tween_property(self, "position:x", base_x + lunge_dir, 0.15)
+	tween.tween_property(self, "position:x", base_x, 0.15)
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_slash_anim(lunge_dir: float) -> void:
+	## Slash: right arm swings forward, slight body lunge.
+	_pause_animator()
+	var base_x: float = position.x
+	var tween := create_tween()
+
+	# Wind up — pull arm back
+	tween.tween_property(_right_arm, "rotation:x", -0.6, 0.08)
+
+	# Swing forward + lunge
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.8, 0.12)
+	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.4, 0.12)
+	tween.set_parallel(false)
+
+	# Return to neutral
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.15)
+	tween.tween_property(self, "position:x", base_x, 0.15)
+	tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_bash_anim(lunge_dir: float) -> void:
+	## Bash: both arms raise then slam down with a small hop.
+	_pause_animator()
+	var base_x: float = position.x
+	var base_y: float = position.y
+	var tween := create_tween()
+
+	# Raise arms + hop
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", -1.0, 0.12)
+	tween.tween_property(_left_arm, "rotation:x", -1.0, 0.12)
+	tween.tween_property(self, "position:y", base_y + 0.15, 0.12)
+	tween.set_parallel(false)
+
+	# Slam down + lunge
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.5, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(_left_arm, "rotation:x", 0.5, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "position:y", base_y, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.3, 0.1)
+	tween.set_parallel(false)
+
+	# Reset
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.13)
+	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.13)
+	tween.tween_property(self, "position:x", base_x, 0.13)
+	tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_shoot_anim(lunge_dir: float) -> void:
+	## Shoot: draw back then snap release forward.
+	_pause_animator()
+	var base_x: float = position.x
+	var tween := create_tween()
+
+	# Draw back — pull right arm back, lean body away
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.15)
+	tween.tween_property(self, "position:x", base_x - lunge_dir * 0.2, 0.15)
+	tween.set_parallel(false)
+
+	# Release — snap arm forward, small lunge
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.4, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.15, 0.1)
+	tween.set_parallel(false)
+
+	# Return to neutral
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.1)
+	tween.tween_property(self, "position:x", base_x, 0.1)
+	tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_cast_anim() -> void:
+	## Cast: arms raise, brief emission glow, release.
+	_pause_animator()
+	var tween := create_tween()
+
+	# Raise both arms
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", -0.9, 0.12)
+	tween.tween_property(_left_arm, "rotation:x", -0.9, 0.12)
+	tween.set_parallel(false)
+
+	# Hold + glow
+	tween.tween_callback(func() -> void: _set_emission(Color(0.5, 0.7, 1.0), 0.6))
+	tween.tween_interval(0.1)
+
+	# Release + clear glow
+	tween.tween_callback(func() -> void: _set_emission(Color.BLACK, 0.0))
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.13)
+	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.13)
+	tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
 
 
 func set_highlight(active: bool) -> void:
