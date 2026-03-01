@@ -78,6 +78,66 @@ func get_placement_failure_reason(item_data: ItemData, grid_pos: Vector2i, rotat
 	return ""
 
 
+## Returns unique PlacedItems that block placement at the given position.
+## Returns empty if any cell is out-of-bounds/inactive (swap can't fix boundary issues).
+func get_blocking_items(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> Array:
+	var world_cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
+	var blockers: Array = []
+	for cell in world_cells:
+		if not grid_template.is_cell_active(cell):
+			return []
+		if _cell_map.has(cell):
+			var blocker: PlacedItem = _cell_map[cell]
+			if blocker not in blockers:
+				blockers.append(blocker)
+	return blockers
+
+
+## Checks whether placement would succeed if ignored_item were absent from the grid.
+## Validates swap feasibility without modifying grid state.
+func can_place_ignoring(item_data: ItemData, grid_pos: Vector2i, rotation: int, ignored_item: PlacedItem) -> bool:
+	var world_cells: Array[Vector2i] = _get_world_cells(item_data.shape, grid_pos, rotation)
+	for cell in world_cells:
+		if not grid_template.is_cell_active(cell):
+			return false
+		if _cell_map.has(cell) and _cell_map[cell] != ignored_item:
+			return false
+
+	if skip_equipment_checks:
+		return true
+
+	# Equipment slot checks accounting for the ignored item being removed
+	if item_data.item_type == Enums.ItemType.ACTIVE_TOOL and item_data.hand_slots_required > 0:
+		var available: int = get_available_hand_slots()
+		var used: int = get_used_hand_slots()
+		# Adjust for ignored item no longer contributing slots
+		available -= ignored_item.item_data.bonus_hand_slots
+		if ignored_item.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			used -= ignored_item.item_data.hand_slots_required
+		if used + item_data.hand_slots_required > available:
+			return false
+
+	if item_data.item_type == Enums.ItemType.PASSIVE_GEAR:
+		if item_data.armor_slot == Enums.EquipmentCategory.RING:
+			var ring_count := _count_equipped_by_slot(Enums.EquipmentCategory.RING)
+			if ignored_item.item_data.item_type == Enums.ItemType.PASSIVE_GEAR and ignored_item.item_data.armor_slot == Enums.EquipmentCategory.RING:
+				ring_count -= 1
+			if ring_count >= 10:
+				return false
+		elif item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
+			var necklace_count := _count_equipped_by_slot(Enums.EquipmentCategory.NECKLACE)
+			if ignored_item.item_data.item_type == Enums.ItemType.PASSIVE_GEAR and ignored_item.item_data.armor_slot == Enums.EquipmentCategory.NECKLACE:
+				necklace_count -= 1
+			if necklace_count >= 1:
+				return false
+		else:
+			var occupied_armor: Dictionary = get_equipped_armor_slots()
+			if occupied_armor.has(item_data.armor_slot) and occupied_armor[item_data.armor_slot] != ignored_item:
+				return false
+
+	return true
+
+
 func place_item(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> PlacedItem:
 	if not can_place(item_data, grid_pos, rotation):
 		return null

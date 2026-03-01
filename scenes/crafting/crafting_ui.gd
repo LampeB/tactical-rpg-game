@@ -555,13 +555,14 @@ func _on_player_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
 		match _drag_source:
 			DragSource.CRAFT_SLOT, DragSource.CRAFT_OUTPUT:
-				_complete_drop_to_player_grid(grid_pos, inv)
+				_complete_drop_to_player_grid(adjusted_pos, inv)
 			DragSource.PLAYER_GRID:
-				_complete_move_within_grid(grid_pos, inv)
+				_complete_move_within_grid(adjusted_pos, inv)
 			DragSource.STASH:
-				_complete_move_stash_to_grid(grid_pos, inv)
+				_complete_move_stash_to_grid(adjusted_pos, inv)
 		return
 
 	var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
@@ -576,8 +577,9 @@ func _on_player_cell_hovered(grid_pos: Vector2i) -> void:
 
 	if _drag_state == DragState.DRAGGING:
 		_drag_hover_pos = grid_pos
-		_player_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
-		_drag_preview.set_valid(inv.can_place(_dragged_item, grid_pos, _drag_rotation))
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_player_grid_panel.show_placement_preview(_dragged_item, adjusted_pos, _drag_rotation)
+		_drag_preview.set_valid(inv.can_place(_dragged_item, adjusted_pos, _drag_rotation))
 		return
 
 	var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)

@@ -5,6 +5,7 @@ const CELL_SIZE: int = Constants.GRID_CELL_SIZE
 
 var item_data: ItemData
 var current_rotation: int = 0
+var _center_offset_px: Vector2 = Vector2.ZERO
 
 @onready var _icon: TextureRect = $Icon
 @onready var _shape_container: Control = $ShapeCells
@@ -32,6 +33,13 @@ func get_cells() -> Array[Vector2i]:
 	return item_data.shape.get_rotated_cells(current_rotation)
 
 
+## Returns the grid-cell offset to subtract from world_to_grid(mouse) for centered placement.
+func get_center_cell_offset() -> Vector2i:
+	if not item_data:
+		return Vector2i.ZERO
+	return item_data.shape.get_center_cell_offset(current_rotation)
+
+
 func set_valid(_is_valid: bool) -> void:
 	modulate.a = 0.8
 
@@ -43,7 +51,7 @@ func hide_preview() -> void:
 
 func _process(_delta: float) -> void:
 	if visible:
-		global_position = get_global_mouse_position()
+		global_position = get_global_mouse_position() - _center_offset_px
 
 
 func _rebuild_shape() -> void:
@@ -68,6 +76,7 @@ func _rebuild_shape() -> void:
 		max_pos.y = maxi(max_pos.y, cell.y)
 
 	var bbox_size: Vector2 = Vector2((max_pos.x - min_pos.x + 1) * CELL_SIZE, (max_pos.y - min_pos.y + 1) * CELL_SIZE)
+	_center_offset_px = bbox_size / 2.0
 
 	# Position icon to cover bounding box — set expand mode before texture
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

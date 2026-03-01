@@ -63,8 +63,16 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 		return
 	var shape_cells: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
 	var can_place: bool = _grid_inventory.can_place(item_data, grid_pos, rotation)
+
+	# Detect single-item swap possibility
+	var is_swap: bool = false
 	if not can_place:
-		last_failure_reason = _grid_inventory.get_placement_failure_reason(item_data, grid_pos, rotation)
+		var blockers: Array = _grid_inventory.get_blocking_items(item_data, grid_pos, rotation)
+		if blockers.size() == 1 and _grid_inventory.can_place_ignoring(item_data, grid_pos, rotation, blockers[0]):
+			is_swap = true
+			last_failure_reason = ""
+		else:
+			last_failure_reason = _grid_inventory.get_placement_failure_reason(item_data, grid_pos, rotation)
 	else:
 		last_failure_reason = ""
 
@@ -74,19 +82,21 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 
 	# Check if this modifier would affect any tools
 	var affected_tools: Array = []
-	if can_place and item_data.item_type == Enums.ItemType.MODIFIER:
+	if (can_place or is_swap) and item_data.item_type == Enums.ItemType.MODIFIER:
 		var temp_placed: GridInventory.PlacedItem = GridInventory.PlacedItem.new()
 		temp_placed.item_data = item_data
 		temp_placed.grid_position = grid_pos
 		temp_placed.rotation = rotation
 		affected_tools = _grid_inventory.get_tools_affected_by(temp_placed)
 
-	# Show valid/invalid drop on grid cells
+	# Show valid/invalid/swap drop on grid cells
 	for cell_offset in shape_cells:
 		var target: Vector2i = grid_pos + cell_offset
 		if _cells.has(target):
 			if can_place:
 				_cells[target].set_state(_cells[target].CellState.VALID_DROP)
+			elif is_swap:
+				_cells[target].set_state(_cells[target].CellState.SWAP_DROP)
 			else:
 				_cells[target].set_state(_cells[target].CellState.INVALID_DROP)
 
