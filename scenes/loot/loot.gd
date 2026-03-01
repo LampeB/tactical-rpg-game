@@ -220,7 +220,8 @@ func _on_loot_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
-		_try_place_on_loot_grid(grid_pos)
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_try_place_on_loot_grid(adjusted_pos)
 	else:
 		var placed: GridInventory.PlacedItem = _loot_inventory.get_item_at(grid_pos)
 		if placed:
@@ -231,8 +232,9 @@ func _on_loot_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	if _drag_state == DragState.DRAGGING:
 		_drag_hover_pos = grid_pos
 		_drag_hover_panel = _loot_grid_panel
-		_loot_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
-		var can_place: bool = _loot_inventory.can_place(_dragged_item, grid_pos, _drag_rotation)
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_loot_grid_panel.show_placement_preview(_dragged_item, adjusted_pos, _drag_rotation)
+		var can_place: bool = _loot_inventory.can_place(_dragged_item, adjusted_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
 	else:
 		var placed: GridInventory.PlacedItem = _loot_inventory.get_item_at(grid_pos)
@@ -270,7 +272,8 @@ func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
-		_try_place_on_player_grid(grid_pos)
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_try_place_on_player_grid(adjusted_pos)
 	else:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
@@ -285,8 +288,9 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	if _drag_state == DragState.DRAGGING:
 		_drag_hover_pos = grid_pos
 		_drag_hover_panel = _grid_panel
-		_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
-		var can_place: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_grid_panel.show_placement_preview(_dragged_item, adjusted_pos, _drag_rotation)
+		var can_place: bool = inv.can_place(_dragged_item, adjusted_pos, _drag_rotation)
 		_drag_preview.set_valid(can_place)
 	else:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)

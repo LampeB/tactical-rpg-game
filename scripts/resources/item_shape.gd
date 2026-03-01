@@ -25,6 +25,20 @@ func get_height() -> int:
 		max_y = maxi(max_y, cell.y)
 	return max_y + 1
 
+## Returns the grid-cell offset from anchor (0,0) to the center of the rotated bounding box.
+## Used to adjust grid_pos so the cursor maps to the shape center, not the top-left corner.
+func get_center_cell_offset(rotations: int) -> Vector2i:
+	var rotated: Array[Vector2i] = get_rotated_cells(rotations)
+	if rotated.is_empty():
+		return Vector2i.ZERO
+	var max_x: int = 0
+	var max_y: int = 0
+	for c in rotated:
+		max_x = maxi(max_x, c.x)
+		max_y = maxi(max_y, c.y)
+	return Vector2i(max_x / 2, max_y / 2)
+
+
 ## Returns cells rotated 90 degrees clockwise the given number of times.
 func get_rotated_cells(rotations: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = cells.duplicate()

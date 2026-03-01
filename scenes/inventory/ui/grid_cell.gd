@@ -11,6 +11,7 @@ enum CellState {
 	MODIFIER_REACH,
 	UPGRADEABLE,
 	PURCHASABLE,
+	SWAP_DROP,
 }
 
 var STATE_COLORS: Dictionary:
@@ -25,10 +26,12 @@ var STATE_COLORS: Dictionary:
 			CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),
 			CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),
 			CellState.PURCHASABLE: Color(0.7, 0.55, 0.0, 0.5),
+			CellState.SWAP_DROP: Color(0.9, 0.7, 0.1, 0.5),
 		}
 
 const BORDER_COLORS := {
 	CellState.UPGRADEABLE: Color(1.0, 0.9, 0.2, 1.0),
+	CellState.SWAP_DROP: Color(1.0, 0.8, 0.0, 1.0),
 }
 
 var grid_position: Vector2i

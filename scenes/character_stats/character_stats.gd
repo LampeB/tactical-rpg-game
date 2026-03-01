@@ -496,7 +496,8 @@ func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 		return
 
 	if _drag_state == DragState.DRAGGING:
-		_try_place_item(grid_pos)
+		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
+		_try_place_item(adjusted_pos)
 	else:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
@@ -754,8 +755,8 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
-	# Show placement preview at current mouse position
-	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+	# Show placement preview at current mouse position (centered on cursor)
+	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position()) - _drag_preview.get_center_cell_offset()
 	_last_preview_grid_pos = mouse_grid_pos
 	_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
 	var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
@@ -775,10 +776,10 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
-	# Show placement preview at current mouse position
+	# Show placement preview at current mouse position (centered on cursor)
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if inv:
-		var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+		var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position()) - _drag_preview.get_center_cell_offset()
 		_last_preview_grid_pos = mouse_grid_pos
 		_grid_panel.show_placement_preview(_dragged_item, mouse_grid_pos, _drag_rotation)
 		var can_place: bool = inv.can_place(_dragged_item, mouse_grid_pos, _drag_rotation)
@@ -796,17 +797,47 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 		_perform_item_upgrade(inv, target_item)
 		return
 
-	if not inv.can_place(_dragged_item, grid_pos, _drag_rotation):
+	if inv.can_place(_dragged_item, grid_pos, _drag_rotation):
+		var item: ItemData = _dragged_item
+		var was_from_stash: bool = (_drag_source == DragSource.STASH)
+		var placed: GridInventory.PlacedItem = inv.place_item(item, grid_pos, _drag_rotation)
+		if not placed:
+			return
+		# End drag BEFORE emitting signals — the hub listens to inventory_changed
+		# and calls setup_embedded, which would _cancel_drag and duplicate the item.
+		_end_drag()
+		_grid_panel.refresh()
+		EventBus.item_placed.emit(_current_character_id, item, grid_pos)
+		EventBus.inventory_changed.emit(_current_character_id)
+		if was_from_stash:
+			EventBus.stash_changed.emit()
+		_refresh_left_panel()
 		return
 
-	var item: ItemData = _dragged_item
+	# --- Single-item swap: if exactly one item blocks, swap them ---
+	var blockers: Array = inv.get_blocking_items(_dragged_item, grid_pos, _drag_rotation)
+	if blockers.size() != 1:
+		return
+	var blocker: GridInventory.PlacedItem = blockers[0]
+	if not inv.can_place_ignoring(_dragged_item, grid_pos, _drag_rotation, blocker):
+		return
+
+	var blocker_data: ItemData = blocker.item_data
+	var blocker_pos: Vector2i = blocker.grid_position
+	var blocker_rot: int = blocker.rotation
 	var was_from_stash: bool = (_drag_source == DragSource.STASH)
+
+	# Remove blocker and place the held item
+	inv.remove_item(blocker)
+	var item: ItemData = _dragged_item
 	var placed: GridInventory.PlacedItem = inv.place_item(item, grid_pos, _drag_rotation)
 	if not placed:
+		# Safety fallback: restore blocker
+		inv.place_item(blocker_data, blocker_pos, blocker_rot)
 		return
 
-	# End drag BEFORE emitting signals — the hub listens to inventory_changed
-	# and calls setup_embedded, which would _cancel_drag and duplicate the item.
+	# End current drag BEFORE emitting signals (hub listens to inventory_changed
+	# and calls setup_embedded → _cancel_drag — must be a no-op at this point)
 	_end_drag()
 	_grid_panel.refresh()
 	EventBus.item_placed.emit(_current_character_id, item, grid_pos)
@@ -814,6 +845,18 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	if was_from_stash:
 		EventBus.stash_changed.emit()
 	_refresh_left_panel()
+
+	# NOW start a new drag with the displaced blocker
+	_dragged_item = blocker_data
+	_drag_source = DragSource.GRID
+	_drag_source_placed = null
+	_drag_source_pos = blocker_pos
+	_drag_source_rotation = blocker_rot
+	_drag_rotation = blocker_rot
+	_drag_state = DragState.DRAGGING
+	_last_preview_grid_pos = Vector2i(-999, -999)
+
+	_drag_preview.setup(blocker_data, blocker_rot)
 
 
 func _perform_item_upgrade(inv: GridInventory, target_placed: GridInventory.PlacedItem) -> void:
@@ -912,10 +955,10 @@ func _rotate_dragged_item() -> void:
 func _update_drag_preview() -> void:
 	_stash_panel.highlight_drop_target(_stash_panel.is_mouse_over())
 
-	# Update grid placement preview every frame based on mouse position
+	# Update grid placement preview every frame based on mouse position (centered on cursor)
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if inv and _dragged_item:
-		var grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position())
+		var grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position()) - _drag_preview.get_center_cell_offset()
 		if grid_pos != _last_preview_grid_pos:
 			_last_preview_grid_pos = grid_pos
 			_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
