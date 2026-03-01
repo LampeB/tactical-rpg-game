@@ -52,17 +52,18 @@
 | Implement defend action (damage reduction via shield/defense) | 3147700f-d0fb-81a3-853e-dd34af44a4d4 |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
-| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 | Restrict roaming enemies from entering town/NPC areas | 3147700f-d0fb-81af-9c68-e10347a8d3e9 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | Dead characters persist death across battles (no auto-revive) | 3147700f-d0fb-81f1-8f45-fc6389364961 |
 | EncounterZoneData for enemy spawn areas | 3147700f-d0fb-8166-8fcb-f55ede7b5342 |
 | KO'd characters still play animations / act during battle | 3147700f-d0fb-8101-b64d-e663c1304ba2 |
 | Persist HP/Mana after fights | 3147700f-d0fb-8119-8955-f25b43a7be3a |
+| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
 | Runtime errors: typed array assignment from Variant | 3147700f-d0fb-81de-886d-db067f32a2a2 |
 | Use skills/items outside of combat (healing) | 3147700f-d0fb-8171-8223-c3f36449a4f2 |
 | Visible roaming enemies (Chrono Trigger style) | 3147700f-d0fb-8128-86b2-d501c34afda8 |
@@ -252,16 +253,15 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
 | Cinematic animation system (cutscene keyframes, emotes, camera) | 3167700f-d0fb-8100-81ba-ca342993e653 |
-| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 | Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | 3D project foundation (WorldEnvironment, lighting, renderer, physics layers) | 3157700f-d0fb-81ad-8a3f-d70c0325f9f4 |
 | Add model_scene field to CharacterData, EnemyData, NpcData | 3157700f-d0fb-81fc-919d-ddeb8e113937 |
 | Create GridMap terrain MeshLibrary (grass, dirt, stone, water blocks) | 3157700f-d0fb-813d-8fea-d3c5a0983843 |
@@ -270,6 +270,7 @@
 | Free-rotating orbit camera system (Camera3D, orbit, zoom, pan) | 3157700f-d0fb-813b-8b8a-ff8a95e0b5ad |
 | MagicaVoxel import pipeline (.vox models, replace CSG placeholders) | 3157700f-d0fb-810a-88ca-d26a22f357fe |
 | Multi-part voxel models (split humanoids into articulated limbs with joint pivots) | 3167700f-d0fb-814d-8751-f83f9be095ad |
+| Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
 | Procedural walk/idle animations (ModelAnimator) | 3167700f-d0fb-81c4-9b93-d8fa5e1062a5 |
 | Port battle scene to 3D (Node3D BattleWorld, Camera3D, CSG models) | 3157700f-d0fb-816a-9d4f-e013c03f2468 |
 | Port markers to 3D (location, NPC, enemy, encounter zones) | 3157700f-d0fb-81fb-adc8-f1ecc9017a4d |
