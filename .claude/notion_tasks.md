@@ -2,7 +2,7 @@
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
 <\!-- Total tasks: 147 -->
-<\!-- Last updated: 2026-02-28 -->
+<\!-- Last updated: 2026-03-01 -->
 
 ## Prerequisites
 
@@ -12,7 +12,6 @@
 | Create town area maps (starting town, cities, villages) | 3147700f-d0fb-813e-877a-d3243e44be13 |
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
-| Permanently remove items from shop stock when bought | 3147700f-d0fb-8195-9b19-fd4024d1ae34 |
 
 ### Done
 | Name | Notion ID |
@@ -35,6 +34,7 @@
 | In-game NPC/dialogue editor | 3147700f-d0fb-818f-b549-c632838e7cff |
 | NPC & dialogue system (NpcData, dialogue tree, dialogue UI, NPC markers) | 3147700f-d0fb-819d-a8db-ca9bd148bf24 |
 | Npc scene (Area2D, triggers dialogue on interact) | 3147700f-d0fb-8164-8585-d9c32e8a8d9b |
+| Permanently remove items from shop stock when bought | 3147700f-d0fb-8195-9b19-fd4024d1ae34 |
 | NpcData resource (id, display_name, portrait, dialogue_tree, role) | 3147700f-d0fb-8158-b647-d1675a82f68e |
 | NpcDatabase autoload | 3147700f-d0fb-8169-9066-d2da0150ab94 |
 | Shop UI scene (buy/sell panels, item grid, gold, confirmation) | 3147700f-d0fb-8122-a35d-de6c9db96e18 |
@@ -79,7 +79,6 @@
 | Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
 | Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
 | Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
-| Remove gold cost from blacksmith recipes (ingredients only) | 3147700f-d0fb-8189-9733-c20b7f5cc375 |
 
 ### Done
 | Name | Notion ID |
@@ -98,6 +97,7 @@
 | Items not picked up from loot panel are lost (no auto-stash) | 3147700f-d0fb-81e7-87d0-d940aaa6e299 |
 | Jewelry system (1 necklace, up to 10 rings) | 3147700f-d0fb-81c2-860c-f8c2a1a93a80 |
 | Loot grid shapes depend on the encounter | 3147700f-d0fb-8141-b6bf-d214ea169ddb |
+| Remove gold cost from blacksmith recipes (ingredients only) | 3147700f-d0fb-8189-9733-c20b7f5cc375 |
 | Replace loot screen items list with Tetris-style loot grid | 3147700f-d0fb-8131-ac33-c40d90865392 |
 | Rotating an item does not rotate its reach shape | 3147700f-d0fb-8148-902e-e729f3b84bc8 |
 | Shield system (ACTIVE_TOOL, 1 hand) | 3147700f-d0fb-8104-8f62-fd67ad3217bd |
@@ -247,17 +247,21 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| 3D project foundation (WorldEnvironment, lighting, renderer, physics layers) | 3157700f-d0fb-81ad-8a3f-d70c0325f9f4 |
-| Free-rotating orbit camera system (Camera3D, orbit, zoom, pan) | 3157700f-d0fb-813b-8b8a-ff8a95e0b5ad |
-| CSG character model factory (humanoid primitives, color tinting) | 3157700f-d0fb-81ae-a9b9-eee898a9b5d2 |
-| Add model_scene field to CharacterData, EnemyData, NpcData | 3157700f-d0fb-81fc-919d-ddeb8e113937 |
-| Port overworld to 3D (Node3D, GridMap, CharacterBody3D) | 3157700f-d0fb-8103-997e-f8eba4f96720 |
-| Port markers to 3D (location, NPC, enemy, encounter zones) | 3157700f-d0fb-81fb-adc8-f1ecc9017a4d |
-| Replace 2D world objects with 3D CSG meshes (trees, rocks, bushes) | 3157700f-d0fb-81d6-9716-f728b10176d4 |
-| Create GridMap terrain MeshLibrary (grass, dirt, stone, water blocks) | 3157700f-d0fb-813d-8fea-d3c5a0983843 |
-| Port battle scene to 3D (Node3D BattleWorld, Camera3D, CSG models) | 3157700f-d0fb-816a-9d4f-e013c03f2468 |
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
-| MagicaVoxel import pipeline (.vox models, replace CSG placeholders) | 3157700f-d0fb-810a-88ca-d26a22f357fe |
-| Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 | 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
 | Create voxel models for all game objects (characters, enemies, items, world) | 3157700f-d0fb-8109-bb44-c2759d60ceeb |
+| Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
+
+### Done
+| Name | Notion ID |
+|---|---|
+| 3D project foundation (WorldEnvironment, lighting, renderer, physics layers) | 3157700f-d0fb-81ad-8a3f-d70c0325f9f4 |
+| Add model_scene field to CharacterData, EnemyData, NpcData | 3157700f-d0fb-81fc-919d-ddeb8e113937 |
+| Create GridMap terrain MeshLibrary (grass, dirt, stone, water blocks) | 3157700f-d0fb-813d-8fea-d3c5a0983843 |
+| CSG character model factory (humanoid primitives, color tinting) | 3157700f-d0fb-81ae-a9b9-eee898a9b5d2 |
+| Free-rotating orbit camera system (Camera3D, orbit, zoom, pan) | 3157700f-d0fb-813b-8b8a-ff8a95e0b5ad |
+| MagicaVoxel import pipeline (.vox models, replace CSG placeholders) | 3157700f-d0fb-810a-88ca-d26a22f357fe |
+| Port battle scene to 3D (Node3D BattleWorld, Camera3D, CSG models) | 3157700f-d0fb-816a-9d4f-e013c03f2468 |
+| Port markers to 3D (location, NPC, enemy, encounter zones) | 3157700f-d0fb-81fb-adc8-f1ecc9017a4d |
+| Port overworld to 3D (Node3D, GridMap, CharacterBody3D) | 3157700f-d0fb-8103-997e-f8eba4f96720 |
+| Replace 2D world objects with 3D CSG meshes (trees, rocks, bushes) | 3157700f-d0fb-81d6-9716-f728b10176d4 |
