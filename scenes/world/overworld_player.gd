@@ -11,6 +11,7 @@ var _total_steps: int = 0
 var _is_input_enabled: bool = true
 var _current_location_area: Area3D = null
 var _model: Node3D = null
+var _animator: ModelAnimator = null
 
 @onready var _interaction_area: Area3D = $InteractionArea
 
@@ -30,6 +31,11 @@ func _ready() -> void:
 
 	# Build CSG character model
 	_build_player_model()
+
+	# Attach procedural walk/idle animator
+	_animator = ModelAnimator.new()
+	add_child(_animator)
+	_animator.setup(_model)
 
 
 func _physics_process(delta: float) -> void:
@@ -60,6 +66,9 @@ func _physics_process(delta: float) -> void:
 		_update_model_direction(input_vector)
 	else:
 		velocity = Vector3.ZERO
+
+	if _animator:
+		_animator.set_walking(velocity.length() > 0.1)
 
 	# Apply gravity if not on floor
 	if not is_on_floor():
