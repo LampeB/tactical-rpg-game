@@ -72,14 +72,26 @@ func _set_emission(color: Color, energy: float) -> void:
 	if not _model:
 		return
 	for child in _model.get_children():
-		if child is CSGShape3D and child.material is StandardMaterial3D:
-			var mat: StandardMaterial3D = child.material as StandardMaterial3D
+		var mat: StandardMaterial3D = _get_child_material(child)
+		if mat:
 			if energy > 0:
 				mat.emission_enabled = true
 				mat.emission = color
 				mat.emission_energy_multiplier = energy
 			else:
 				mat.emission_enabled = false
+
+
+static func _get_child_material(child: Node) -> StandardMaterial3D:
+	if child is CSGShape3D and child.material is StandardMaterial3D:
+		return child.material as StandardMaterial3D
+	if child is MeshInstance3D:
+		var mi: MeshInstance3D = child as MeshInstance3D
+		if mi.mesh and mi.mesh.get_surface_count() > 0:
+			var mat: Material = mi.mesh.surface_get_material(0)
+			if mat is StandardMaterial3D:
+				return mat as StandardMaterial3D
+	return null
 
 
 # === Awaitable Animations ===
@@ -115,8 +127,8 @@ func play_death_animation() -> void:
 	tween.tween_property(self, "position:y", position.y - 0.5, 0.5)
 	if _model:
 		for child in _model.get_children():
-			if child is CSGShape3D and child.material is StandardMaterial3D:
-				var mat: StandardMaterial3D = child.material as StandardMaterial3D
+			var mat: StandardMaterial3D = _get_child_material(child)
+			if mat:
 				mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 				tween.tween_property(mat, "albedo_color:a", 0.0, 0.5)
 	tween.chain().tween_callback(func() -> void: animation_finished.emit())

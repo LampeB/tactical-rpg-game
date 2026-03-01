@@ -20,6 +20,10 @@ static func create_from_character(char_data: CharacterData) -> Node3D:
 		var model: Node3D = char_data.model_scene.instantiate()
 		model.scale = Vector3.ONE * char_data.model_scale
 		return model
+	var vox_model := _try_load_vox("res://assets/voxels/characters/%s.vox" % char_data.id)
+	if vox_model:
+		_add_name_label(vox_model, char_data.display_name, 2.0)
+		return vox_model
 	var color: Color = Constants.CHARACTER_CLASS_COLORS.get(
 		char_data.character_class, Constants.CHARACTER_DEFAULT_COLOR
 	)
@@ -33,6 +37,11 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 		var model: Node3D = enemy_data.model_scene.instantiate()
 		model.scale = Vector3.ONE * enemy_data.model_scale
 		return model
+	var vox_model := _try_load_vox("res://assets/voxels/enemies/%s.vox" % enemy_data.id)
+	if vox_model:
+		vox_model.scale = Vector3.ONE * enemy_data.model_scale
+		_add_name_label(vox_model, enemy_data.display_name, _get_model_top(vox_model) + 0.3)
+		return vox_model
 	var model: Node3D
 	# Special shapes for specific enemy types
 	if enemy_data.id.begins_with("slime"):
@@ -54,6 +63,10 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 	if npc_data.model_scene:
 		var model: Node3D = npc_data.model_scene.instantiate()
 		return model
+	var vox_model := _try_load_vox("res://assets/voxels/npcs/%s.vox" % npc_data.id)
+	if vox_model:
+		_add_name_label(vox_model, npc_data.display_name, 2.0)
+		return vox_model
 	var color: Color = npc_data.model_color
 	# Role-based color hints
 	match npc_data.role:
@@ -153,6 +166,21 @@ static func create_humanoid(color: Color, height: float = 1.8) -> Node3D:
 
 # --- Private helpers ---
 
+static func _try_load_vox(path: String) -> Node3D:
+	if not FileAccess.file_exists(path):
+		return null
+	var mesh: ArrayMesh = VoxImporter.load_vox(path)
+	if not mesh:
+		return null
+	var root := Node3D.new()
+	root.name = "VoxModel"
+	var inst := MeshInstance3D.new()
+	inst.name = "Mesh"
+	inst.mesh = mesh
+	root.add_child(inst)
+	return root
+
+
 static func _create_slime(color: Color) -> Node3D:
 	var root := Node3D.new()
 	root.name = "CSGSlime"
@@ -197,7 +225,12 @@ static func _add_name_label(root: Node3D, display_name: String, y_offset: float)
 static func _get_model_top(model: Node3D) -> float:
 	var max_y := 1.0
 	for child in model.get_children():
-		if child is CSGShape3D:
+		if child is MeshInstance3D and child.mesh:
+			var aabb: AABB = child.mesh.get_aabb()
+			var top: float = child.position.y + aabb.position.y + aabb.size.y
+			if top > max_y:
+				max_y = top
+		elif child is CSGShape3D:
 			var top: float = child.position.y
 			if child is CSGSphere3D:
 				top += (child as CSGSphere3D).radius

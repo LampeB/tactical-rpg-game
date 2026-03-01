@@ -180,13 +180,13 @@ static func _build_mesh(
 				mesh_normals.append(normal)
 				mesh_colors.append(color)
 
-			# Two triangles: 0-1-2, 0-2-3
+			# Two triangles: 0-2-1, 0-3-2 (CW winding = front face in Godot)
 			mesh_indices.append(vi_start)
+			mesh_indices.append(vi_start + 2)
 			mesh_indices.append(vi_start + 1)
-			mesh_indices.append(vi_start + 2)
 			mesh_indices.append(vi_start)
-			mesh_indices.append(vi_start + 2)
 			mesh_indices.append(vi_start + 3)
+			mesh_indices.append(vi_start + 2)
 
 	if vertices.is_empty():
 		push_error("VoxImporter: No visible faces generated")
