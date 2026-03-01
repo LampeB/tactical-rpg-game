@@ -670,10 +670,15 @@ func _execute_player_action(targets: Array) -> void:
 	# Step 1: Play attacker animation and wait
 	var attacker_sprite: Node3D = _entity_sprites.get(source)
 	if attacker_sprite:
-		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [source.entity_name, str(attacker_sprite.position)], "BattleAnim")
-		attacker_sprite.play_attack_animation()
+		var use_cast: bool = _is_magical_action(_pending_action_type, _pending_skill)
+		if use_cast:
+			DebugLogger.log_info("Anim: %s -> play_cast (pos=%s)" % [source.entity_name, str(attacker_sprite.position)], "BattleAnim")
+			attacker_sprite.play_cast_animation()
+		else:
+			DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [source.entity_name, str(attacker_sprite.position)], "BattleAnim")
+			attacker_sprite.play_attack_animation()
 		await attacker_sprite.animation_finished
-		DebugLogger.log_info("Anim: %s -> attack finished" % source.entity_name, "BattleAnim")
+		DebugLogger.log_info("Anim: %s -> anim finished" % source.entity_name, "BattleAnim")
 	else:
 		DebugLogger.log_warn("Anim: no sprite found for attacker %s" % source.entity_name, "BattleAnim")
 
@@ -722,6 +727,19 @@ func _execute_player_action(targets: Array) -> void:
 
 
 # === Animation Helpers ===
+
+func _is_magical_action(action_type: int, skill: SkillData) -> bool:
+	## Returns true when the action should play a cast animation instead of attack.
+	if action_type != Enums.CombatAction.SKILL and action_type != Enums.CombatAction.ITEM:
+		return false
+	if not skill:
+		return false
+	if skill.magical_scaling > skill.physical_scaling:
+		return true
+	if skill.heal_amount > 0 or skill.heal_percent > 0.0:
+		return true
+	return false
+
 
 func _play_hurt_animation_for(target: CombatEntity, dmg: int) -> void:
 	## Play hurt animation on a single target if it took damage.
@@ -774,13 +792,18 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	var skill_name: String = skill.display_name if skill else "none"
 	DebugLogger.log_info("Enemy AI chose: %s, skill: %s, targets: [%s]" % [action_name, skill_name, target_names], "Battle")
 
-	# Step 1: Play enemy attack animation
+	# Step 1: Play enemy animation (cast for magical skills, attack otherwise)
 	var enemy_sprite: Node3D = _entity_sprites.get(entity)
 	if enemy_sprite:
-		DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
-		enemy_sprite.play_attack_animation()
+		var use_cast: bool = _is_magical_action(action_type, skill)
+		if use_cast:
+			DebugLogger.log_info("Anim: %s -> play_cast (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
+			enemy_sprite.play_cast_animation()
+		else:
+			DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
+			enemy_sprite.play_attack_animation()
 		await enemy_sprite.animation_finished
-		DebugLogger.log_info("Anim: %s -> attack finished" % entity.entity_name, "BattleAnim")
+		DebugLogger.log_info("Anim: %s -> anim finished" % entity.entity_name, "BattleAnim")
 	else:
 		DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
 

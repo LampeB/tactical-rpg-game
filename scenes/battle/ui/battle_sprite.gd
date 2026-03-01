@@ -174,16 +174,11 @@ func play_death_animation() -> void:
 
 func play_cast_animation() -> void:
 	## Dedicated cast animation for skills that use magic.
+	## Humanoids get full channel/release/recoil; others get squash + glow.
 	if _has_limbs:
 		_play_cast_anim()
 	else:
-		_set_emission(Color(0.5, 0.7, 1.0), 0.6)
-		var tween := create_tween()
-		tween.tween_interval(0.2)
-		tween.tween_callback(func() -> void:
-			_set_emission(Color.BLACK, 0.0)
-			animation_finished.emit()
-		)
+		_play_cast_no_limbs()
 
 
 func play_idle_animation() -> void:
@@ -341,28 +336,93 @@ func _play_shoot_anim(lunge_dir: float) -> void:
 
 
 func _play_cast_anim() -> void:
-	## Cast: arms raise, brief emission glow, release.
+	## Cast with 3 phases: channel (arms raise + glow builds), release (thrust +
+	## bright flash), recoil (small backward step + fade).
 	_pause_animator()
+	var base_x: float = position.x
+	var base_y: float = position.y
+	var lunge_dir: float = 1.0 if _entity.is_player else -1.0
 	var tween := create_tween()
 
-	# Raise both arms
+	# Phase 1 — Channel: arms raise, body lifts, glow builds
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", -0.9, 0.12)
-	tween.tween_property(_left_arm, "rotation:x", -0.9, 0.12)
+	tween.tween_property(_right_arm, "rotation:x", -1.2, 0.18).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_left_arm, "rotation:x", -1.2, 0.18).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "position:y", base_y + 0.1, 0.18)
+	tween.set_parallel(false)
+	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
+	tween.tween_interval(0.08)
+	tween.tween_callback(func() -> void: _set_emission(Color(0.5, 0.7, 1.0), 0.6))
+	tween.tween_interval(0.06)
+
+	# Phase 2 — Release: arms thrust forward, bright flash, slight lunge
+	tween.tween_callback(func() -> void: _set_emission(Color(0.7, 0.85, 1.0), 1.2))
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 0.6, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(_left_arm, "rotation:x", 0.6, 0.1).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.25, 0.1)
+	tween.tween_property(self, "position:y", base_y, 0.1)
 	tween.set_parallel(false)
 
-	# Hold + glow
-	tween.tween_callback(func() -> void: _set_emission(Color(0.5, 0.7, 1.0), 0.6))
-	tween.tween_interval(0.1)
+	# Phase 3 — Recoil: step back, glow fades, arms settle
+	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
+	tween.set_parallel(true)
+	tween.tween_property(self, "position:x", base_x - lunge_dir * 0.1, 0.1)
+	tween.tween_property(_right_arm, "rotation:x", -0.15, 0.1)
+	tween.tween_property(_left_arm, "rotation:x", -0.15, 0.1)
+	tween.set_parallel(false)
 
-	# Release + clear glow
+	# Settle back to neutral
 	tween.tween_callback(func() -> void: _set_emission(Color.BLACK, 0.0))
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.13)
-	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.13)
+	tween.tween_property(self, "position:x", base_x, 0.12)
+	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.12)
+	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.12)
 	tween.set_parallel(false)
 
 	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_cast_no_limbs() -> void:
+	## Non-humanoid cast: squash/stretch pulse with glow build and flash.
+	_pause_animator()
+	var base_y: float = position.y
+	var base_scale: Vector3 = _model.scale if _model else Vector3.ONE
+	var tween := create_tween()
+
+	# Channel: squash down + dim glow
+	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
+	tween.set_parallel(true)
+	tween.tween_property(self, "position:y", base_y - 0.08, 0.15)
+	if _model:
+		tween.tween_property(_model, "scale:y", base_scale.y * 0.8, 0.15)
+		tween.tween_property(_model, "scale:x", base_scale.x * 1.15, 0.15)
+	tween.set_parallel(false)
+	tween.tween_callback(func() -> void: _set_emission(Color(0.5, 0.7, 1.0), 0.6))
+	tween.tween_interval(0.08)
+
+	# Release: stretch up + bright flash
+	tween.tween_callback(func() -> void: _set_emission(Color(0.7, 0.85, 1.0), 1.2))
+	tween.set_parallel(true)
+	tween.tween_property(self, "position:y", base_y + 0.15, 0.1).set_ease(Tween.EASE_IN)
+	if _model:
+		tween.tween_property(_model, "scale:y", base_scale.y * 1.2, 0.1).set_ease(Tween.EASE_IN)
+		tween.tween_property(_model, "scale:x", base_scale.x * 0.85, 0.1).set_ease(Tween.EASE_IN)
+	tween.set_parallel(false)
+
+	# Settle: return to rest
+	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
+	tween.set_parallel(true)
+	tween.tween_property(self, "position:y", base_y, 0.15)
+	if _model:
+		tween.tween_property(_model, "scale", base_scale, 0.15)
+	tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_set_emission(Color.BLACK, 0.0)
 		_resume_animator()
 		animation_finished.emit()
 	)
