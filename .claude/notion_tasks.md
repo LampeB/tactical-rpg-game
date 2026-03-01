@@ -249,7 +249,6 @@
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
-| Create voxel models for all game objects (characters, enemies, items, world) | 3157700f-d0fb-8109-bb44-c2759d60ceeb |
 | Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 
 ### Done
@@ -259,6 +258,7 @@
 | Add model_scene field to CharacterData, EnemyData, NpcData | 3157700f-d0fb-81fc-919d-ddeb8e113937 |
 | Create GridMap terrain MeshLibrary (grass, dirt, stone, water blocks) | 3157700f-d0fb-813d-8fea-d3c5a0983843 |
 | CSG character model factory (humanoid primitives, color tinting) | 3157700f-d0fb-81ae-a9b9-eee898a9b5d2 |
+| Create voxel models for all game objects (characters, enemies, items, world) | 3157700f-d0fb-8109-bb44-c2759d60ceeb |
 | Free-rotating orbit camera system (Camera3D, orbit, zoom, pan) | 3157700f-d0fb-813b-8b8a-ff8a95e0b5ad |
 | MagicaVoxel import pipeline (.vox models, replace CSG placeholders) | 3157700f-d0fb-810a-88ca-d26a22f357fe |
 | Port battle scene to 3D (Node3D BattleWorld, Camera3D, CSG models) | 3157700f-d0fb-816a-9d4f-e013c03f2468 |
