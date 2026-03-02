@@ -565,9 +565,10 @@ func _on_player_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 				_complete_move_stash_to_grid(adjusted_pos, inv)
 		return
 
-	var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
-	if placed:
-		_start_drag_from_player_grid(placed, inv)
+	if _drag_state == DragState.IDLE:
+		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
+		if placed:
+			_start_drag_from_player_grid(placed, inv, grid_pos)
 
 
 func _on_player_cell_hovered(grid_pos: Vector2i) -> void:
@@ -659,7 +660,7 @@ func _input(event: InputEvent) -> void:
 #  Drag Start
 # ════════════════════════════════════════════════════════════════════════════
 
-func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInventory) -> void:
+func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInventory, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
 	_dragged_item            = placed.item_data
 	_drag_source_player_pos  = placed.grid_position
 	_drag_source_player_rot  = placed.rotation
@@ -669,8 +670,10 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInv
 
 	inv.remove_item(placed)
 	_player_grid_panel.refresh()
-	_item_tooltip.hide_tooltip()
-	_drag_preview.setup(_dragged_item, _drag_rotation)
+	var anchor: Vector2i = Vector2i(-1, -1)
+	if clicked_pos != Vector2i(-1, -1):
+		anchor = clicked_pos - placed.grid_position
+	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 	_highlight_valid_slots(_dragged_item)
 
 

@@ -190,16 +190,16 @@ func hide_tooltip() -> void:
 	visible = false
 
 
-func _position_at(screen_pos: Vector2) -> void:
-	# Wait one frame for size to update, then clamp
+func _position_at(_screen_pos: Vector2) -> void:
+	# Wait one frame for size to update, then anchor to fixed screen position
 	await get_tree().process_frame
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var tooltip_size: Vector2 = size
-	var pos: Vector2 = screen_pos + Vector2(16, 16)  # Offset from cursor
-	pos.x = minf(pos.x, viewport_size.x - tooltip_size.x - 8)
-	pos.y = minf(pos.y, viewport_size.y - tooltip_size.y - 8)
-	pos.x = maxf(pos.x, 8)
-	pos.y = maxf(pos.y, 8)
+	# Fixed position: right side, vertically centered
+	var margin: float = 16.0
+	var pos: Vector2
+	pos.x = viewport_size.x - tooltip_size.x - margin
+	pos.y = (viewport_size.y - tooltip_size.y) / 2.0
 	global_position = pos
 
 

@@ -6,14 +6,19 @@ const CELL_SIZE: int = Constants.GRID_CELL_SIZE
 var item_data: ItemData
 var current_rotation: int = 0
 var _center_offset_px: Vector2 = Vector2.ZERO
+var _anchor_cell: Vector2i = Vector2i.ZERO
 
 @onready var _icon: TextureRect = $Icon
 @onready var _shape_container: Control = $ShapeCells
 
 
-func setup(item: ItemData, rotation: int = 0) -> void:
+func setup(item: ItemData, rotation: int = 0, anchor: Vector2i = Vector2i(-1, -1)) -> void:
 	item_data = item
 	current_rotation = rotation
+	if anchor == Vector2i(-1, -1):
+		_anchor_cell = item.shape.get_center_cell_offset(rotation)
+	else:
+		_anchor_cell = anchor
 	_icon.texture = item.icon
 	_rebuild_shape()
 	visible = true
@@ -22,6 +27,20 @@ func setup(item: ItemData, rotation: int = 0) -> void:
 func rotate_cw() -> void:
 	if not item_data:
 		return
+	# Rotate anchor through the same transform as ItemShape.get_rotated_cells():
+	# 1. Get cells at current rotation, then rotate all cells + anchor by 90° CW
+	var old_cells: Array[Vector2i] = item_data.shape.get_rotated_cells(current_rotation)
+	var rotated_cells: Array[Vector2i] = []
+	for c in old_cells:
+		rotated_cells.append(Vector2i(-c.y, c.x))
+	var rotated_anchor: Vector2i = Vector2i(-_anchor_cell.y, _anchor_cell.x)
+	# 2. Normalize using the same min offset as the shape
+	var min_x: int = 0
+	var min_y: int = 0
+	for rc in rotated_cells:
+		min_x = mini(min_x, rc.x)
+		min_y = mini(min_y, rc.y)
+	_anchor_cell = Vector2i(rotated_anchor.x - min_x, rotated_anchor.y - min_y)
 	# Always allow 4 rotations so the sprite can face any direction
 	current_rotation = (current_rotation + 1) % 4
 	_rebuild_shape()
@@ -33,11 +52,11 @@ func get_cells() -> Array[Vector2i]:
 	return item_data.shape.get_rotated_cells(current_rotation)
 
 
-## Returns the grid-cell offset to subtract from world_to_grid(mouse) for centered placement.
+## Returns the grid-cell offset to subtract from world_to_grid(mouse) for anchor placement.
 func get_center_cell_offset() -> Vector2i:
 	if not item_data:
 		return Vector2i.ZERO
-	return item_data.shape.get_center_cell_offset(current_rotation)
+	return _anchor_cell
 
 
 func set_valid(_is_valid: bool) -> void:
@@ -76,7 +95,7 @@ func _rebuild_shape() -> void:
 		max_pos.y = maxi(max_pos.y, cell.y)
 
 	var bbox_size: Vector2 = Vector2((max_pos.x - min_pos.x + 1) * CELL_SIZE, (max_pos.y - min_pos.y + 1) * CELL_SIZE)
-	_center_offset_px = bbox_size / 2.0
+	_center_offset_px = Vector2(_anchor_cell) * CELL_SIZE + Vector2(CELL_SIZE / 2.0, CELL_SIZE / 2.0)
 
 	# Position icon to cover bounding box — set expand mode before texture
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
