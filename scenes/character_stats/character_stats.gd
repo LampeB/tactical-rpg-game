@@ -498,10 +498,10 @@ func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	if _drag_state == DragState.DRAGGING:
 		var adjusted_pos: Vector2i = grid_pos - _drag_preview.get_center_cell_offset()
 		_try_place_item(adjusted_pos)
-	else:
+	elif _drag_state == DragState.IDLE:
 		var placed: GridInventory.PlacedItem = inv.get_item_at(grid_pos)
 		if placed:
-			_start_drag_from_grid(placed)
+			_start_drag_from_grid(placed, grid_pos)
 
 
 func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
@@ -735,7 +735,7 @@ func _on_target_popup_hidden() -> void:
 
 # === Drag & Drop ===
 
-func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
+func _start_drag_from_grid(placed: GridInventory.PlacedItem, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if not inv:
 		return
@@ -750,10 +750,12 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem) -> void:
 
 	inv.remove_item(placed)
 	_grid_panel.refresh()
-	_item_tooltip.hide_tooltip()
 	_refresh_left_panel()
 
-	_drag_preview.setup(_dragged_item, _drag_rotation)
+	var anchor: Vector2i = Vector2i(-1, -1)
+	if clicked_pos != Vector2i(-1, -1):
+		anchor = clicked_pos - placed.grid_position
+	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 
 	# Show placement preview at current mouse position (centered on cursor)
 	var mouse_grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position()) - _drag_preview.get_center_cell_offset()
