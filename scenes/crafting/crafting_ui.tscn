@@ -77,13 +77,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="Divider" type="VSeparator" parent="VBox/Content"]
-layout_mode = 2
-
 [node name="PlayerSide" type="VBoxContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
+size_flags_stretch_ratio = 1.2
 theme_override_constants/separation = 8
 
 [node name="CharacterTabs" parent="VBox/Content/PlayerSide" instance=ExtResource("2")]
@@ -94,7 +91,20 @@ layout_mode = 2
 
 [node name="PlayerGridPanel" parent="VBox/Content/PlayerSide/GridCentering" instance=ExtResource("3")]
 
-[node name="StashPanel" parent="VBox/Content/PlayerSide" instance=ExtResource("4")]
+[node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+theme_override_constants/separation = 6
+
+[node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel"]
+layout_mode = 2
+
+[node name="StashPanel" parent="VBox/Content/RightPanel" instance=ExtResource("4")]
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -113,8 +123,3 @@ text = "Close"
 layer = 10
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("5")]
-
-[node name="TooltipLayer" type="CanvasLayer" parent="."]
-layer = 11
-
-[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6")]

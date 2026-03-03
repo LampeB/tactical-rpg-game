@@ -22,9 +22,9 @@ const RESULT_SZ := 50   ## Canvas size for the shape+icon display in the result 
 @onready var _craft_detail: VBoxContainer = $VBox/Content/LeftHalf/CraftScroll/CraftDetail
 @onready var _character_tabs              = $VBox/Content/PlayerSide/CharacterTabs
 @onready var _player_grid_panel           = $VBox/Content/PlayerSide/GridCentering/PlayerGridPanel
-@onready var _stash_panel                 = $VBox/Content/PlayerSide/StashPanel
+@onready var _stash_panel                 = $VBox/Content/RightPanel/StashPanel
 @onready var _drag_preview                = $DragLayer/DragPreview
-@onready var _item_tooltip                = $TooltipLayer/ItemTooltip
+@onready var _item_tooltip                = $VBox/Content/RightPanel/ItemTooltip
 
 var _station: CraftingStationData         = null
 var _selected_recipe: CraftingRecipeData  = null
@@ -91,7 +91,8 @@ func _ready() -> void:
 		_character_tabs.character_selected.connect(_on_character_selected)
 
 	_drag_preview.visible = false
-	_item_tooltip.visible = false
+	_item_tooltip.embedded = true
+	_item_tooltip.show_empty_state()
 
 
 
