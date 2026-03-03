@@ -18,6 +18,11 @@ static func choose_action(
 	if alive_targets.is_empty():
 		return {"action": Enums.CombatAction.DEFEND, "skill": null, "targets": []}
 
+	# Defend when low HP (below 30%) with 40% probability
+	var hp_ratio: float = float(enemy.current_hp) / float(enemy.max_hp)
+	if hp_ratio < 0.3 and randf() < 0.4:
+		return {"action": Enums.CombatAction.DEFEND, "skill": null, "targets": [enemy]}
+
 	# Check available skills
 	var available: Array = enemy.get_available_skills()
 	var usable_skills: Array = []

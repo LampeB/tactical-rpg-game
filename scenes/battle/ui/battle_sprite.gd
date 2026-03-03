@@ -428,6 +428,48 @@ func _play_cast_no_limbs() -> void:
 	)
 
 
+func play_defend_animation() -> void:
+	## Guard pose animation: arms cross for humanoid, squash for non-humanoid.
+	_pause_animator()
+	var tween := create_tween()
+
+	if _has_limbs:
+		# Arms cross into guard pose + blue glow
+		tween.set_parallel(true)
+		tween.tween_property(_right_arm, "rotation:x", -0.8, 0.12)
+		tween.tween_property(_left_arm, "rotation:x", -0.8, 0.12)
+		tween.set_parallel(false)
+		tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.5))
+		# Settle to subtle guard
+		tween.set_parallel(true)
+		tween.tween_property(_right_arm, "rotation:x", -0.4, 0.15)
+		tween.tween_property(_left_arm, "rotation:x", -0.4, 0.15)
+		tween.set_parallel(false)
+	else:
+		# Squash down + blue glow
+		tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.5))
+		if _model:
+			tween.set_parallel(true)
+			tween.tween_property(_model, "scale:y", _model.scale.y * 0.85, 0.1)
+			tween.tween_property(_model, "scale:x", _model.scale.x * 1.1, 0.1)
+			tween.set_parallel(false)
+			tween.tween_property(_model, "scale", _model.scale, 0.15)
+
+	tween.tween_callback(func() -> void:
+		_set_emission(Color(0.3, 0.5, 1.0), 0.3)
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func show_defend_indicator(active: bool) -> void:
+	## Persistent blue emission glow while entity is defending.
+	if active:
+		_set_emission(Color(0.3, 0.5, 1.0), 0.3)
+	else:
+		_set_emission(Color.BLACK, 0.0)
+
+
 func set_highlight(active: bool) -> void:
 	if active:
 		_set_emission(Color(1, 1, 1), 0.3)

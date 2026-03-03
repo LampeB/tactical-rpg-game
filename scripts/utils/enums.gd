@@ -99,6 +99,7 @@ enum PopupType {
 	DAMAGE,
 	HEAL,
 	CRIT,
+	BLOCKED,
 }
 
 enum CombatState {

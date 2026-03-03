@@ -359,7 +359,7 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 				"%s uses %s on %s for %d damage%s" % [source.entity_name, skill.display_name, target.entity_name, actual, crit_text],
 				Color(1.0, 0.9, 0.3),
 			)
-			var target_result: Dictionary = {"target": target, "damage": actual, "is_crit": dmg.is_crit}
+			var target_result: Dictionary = {"target": target, "damage": actual, "is_crit": dmg.is_crit, "defended": dmg.get("defended", false)}
 
 			# Apply status effects
 			for s_i in range(skill.applied_statuses.size()):
