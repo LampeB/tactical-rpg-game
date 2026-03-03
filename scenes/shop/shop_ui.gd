@@ -26,10 +26,11 @@ enum DragSource { NONE, MERCHANT, PLAYER_GRID, STASH, SOLD_PANEL }
 @onready var _sold_total_label: Label     = $VBox/Content/MerchantSide/SoldPanel/SoldVBox/SoldTotalLabel
 @onready var _character_tabs              = $VBox/Content/PlayerSide/CharacterTabs
 @onready var _player_grid_panel           = $VBox/Content/PlayerSide/GridCentering/PlayerGridPanel
-@onready var _stash_panel                 = $VBox/Content/PlayerSide/StashPanel
+@onready var _stash_panel                 = $VBox/Content/RightPanel/StashPanel
 @onready var _close_btn: Button           = $VBox/BottomBar/CloseButton
 @onready var _drag_preview                = $DragLayer/DragPreview
-@onready var _item_tooltip                = $TooltipLayer/ItemTooltip
+@onready var _item_tooltip                = $VBox/Content/RightPanel/ItemTooltip
+@onready var _discard_zone: PanelContainer = $VBox/Content/PlayerSide/DiscardZone
 
 const MERCHANT_GRID_WIDTH  := 10
 const MERCHANT_GRID_HEIGHT := 7
@@ -102,8 +103,12 @@ func _ready() -> void:
 		_character_tabs.setup(GameManager.party.squad, GameManager.party.roster)
 		_character_tabs.character_selected.connect(_on_character_selected)
 
+	# Wire discard zone
+	_discard_zone.gui_input.connect(_on_discard_zone_input)
+
 	_drag_preview.visible = false
-	_item_tooltip.visible = false
+	_item_tooltip.embedded = true
+	_item_tooltip.show_empty_state()
 	_refresh_sold_panel()
 
 
@@ -207,6 +212,8 @@ func _process(_delta: float) -> void:
 	# Highlight upgradeable items on player grid and stash
 	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
 	_stash_panel.highlight_upgradeable_items(_dragged_item)
+	var over_discard: bool = _discard_zone.get_global_rect().has_point(get_global_mouse_position())
+	_highlight_discard_zone(over_discard)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -688,6 +695,7 @@ func _end_drag() -> void:
 	_merchant_grid_panel.clear_placement_preview()
 	_player_grid_panel.clear_placement_preview()
 	_stash_panel.clear_upgradeable_highlights()
+	_highlight_discard_zone(false)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -767,6 +775,19 @@ func _on_buyback(index: int) -> void:
 # ════════════════════════════════════════════════════════════════════════════
 #  Discard
 # ════════════════════════════════════════════════════════════════════════════
+
+func _on_discard_zone_input(event: InputEvent) -> void:
+	if _drag_state == DragState.DRAGGING:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_request_discard_dragged()
+
+
+func _highlight_discard_zone(show: bool) -> void:
+	if show:
+		_discard_zone.self_modulate = Color(1.0, 0.4, 0.4)
+	else:
+		_discard_zone.self_modulate = Color.WHITE
+
 
 func _on_stash_discard_requested(item: ItemData, index: int) -> void:
 	_pending_discard_item = item

@@ -111,12 +111,20 @@ theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "Discard"
 
-[node name="StashSide" type="VBoxContainer" parent="VBox/Content"]
+[node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.8
+theme_override_constants/separation = 6
 
-[node name="StashPanel" parent="VBox/Content/StashSide" instance=ExtResource("7_stash")]
+[node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6_tooltip")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel"]
+layout_mode = 2
+
+[node name="StashPanel" parent="VBox/Content/RightPanel" instance=ExtResource("7_stash")]
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -146,7 +154,3 @@ layer = 10
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("5_drag")]
 
-[node name="TooltipLayer" type="CanvasLayer" parent="."]
-layer = 11
-
-[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6_tooltip")]

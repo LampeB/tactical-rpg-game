@@ -190,7 +190,25 @@ func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) ->
 
 
 func hide_tooltip() -> void:
+	if embedded:
+		show_empty_state()
+		return
 	visible = false
+
+
+## Clear all content and show a placeholder. Used in embedded mode.
+func show_empty_state() -> void:
+	_name_label.text = ""
+	_rarity_label.text = ""
+	_type_label.text = ""
+	_price_label.visible = false
+	_clear_container(_stats_container)
+	_modifier_section.visible = false
+	_clear_container(_modifier_list)
+	_description_label.text = "Hover an item to see details"
+	_description_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1.0))
+	_description_label.visible = true
+	visible = true
 
 
 func _position_at(_screen_pos: Vector2) -> void:

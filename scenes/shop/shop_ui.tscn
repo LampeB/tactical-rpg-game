@@ -114,7 +114,40 @@ layout_mode = 2
 
 [node name="PlayerGridPanel" parent="VBox/Content/PlayerSide/GridCentering" instance=ExtResource("3")]
 
-[node name="StashPanel" parent="VBox/Content/PlayerSide" instance=ExtResource("4")]
+[node name="DiscardZone" type="PanelContainer" parent="VBox/Content/PlayerSide"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+
+[node name="HBox" type="HBoxContainer" parent="VBox/Content/PlayerSide/DiscardZone"]
+layout_mode = 2
+alignment = 1
+
+[node name="DiscardIcon" type="Label" parent="VBox/Content/PlayerSide/DiscardZone/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.8, 0.3, 0.3, 1)
+text = "✕"
+
+[node name="DiscardLabel" type="Label" parent="VBox/Content/PlayerSide/DiscardZone/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "Discard"
+
+[node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+theme_override_constants/separation = 6
+
+[node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel"]
+layout_mode = 2
+
+[node name="StashPanel" parent="VBox/Content/RightPanel" instance=ExtResource("4")]
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -133,8 +166,3 @@ text = "Close"
 layer = 10
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("5")]
-
-[node name="TooltipLayer" type="CanvasLayer" parent="."]
-layer = 11
-
-[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("6")]

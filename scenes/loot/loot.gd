@@ -18,7 +18,7 @@ const DEFAULT_LOOT_GRID_HEIGHT: int = 5
 @onready var _loot_info_label: Label = $VBox/Content/LootSide/LootInfoLabel
 @onready var _grid_panel: Control = $VBox/Content/GridSide/GridCentering/GridPanel
 @onready var _character_tabs: HBoxContainer = $VBox/Content/GridSide/CharacterTabs
-@onready var _item_tooltip: PanelContainer = $TooltipLayer/ItemTooltip
+@onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/ItemTooltip
 @onready var _drag_preview: Control = $DragLayer/DragPreview
 @onready var _loot_count_label: Label = $VBox/BottomBar/LootCountLabel
 @onready var _continue_btn: Button = $VBox/BottomBar/ContinueButton
@@ -41,7 +41,7 @@ var _drag_hover_panel: Control = null  ## Which grid panel is being hovered duri
 var _dragged_was_inventory_item: bool = false  ## Whether the dragged item was from player inventory (on loot grid)
 
 # Stash state
-@onready var _stash_panel: PanelContainer = $VBox/Content/StashSide/StashPanel
+@onready var _stash_panel: PanelContainer = $VBox/Content/RightPanel/StashPanel
 @onready var _discard_zone: PanelContainer = $VBox/Content/GridSide/DiscardZone
 var _drag_source_stash_index: int = -1
 
@@ -103,7 +103,8 @@ func _ready() -> void:
 	_discard_dialog.confirmed.connect(_on_discard_confirmed)
 	add_child(_discard_dialog)
 
-	_item_tooltip.visible = false
+	_item_tooltip.embedded = true
+	_item_tooltip.show_empty_state()
 	_drag_preview.visible = false
 
 

@@ -111,28 +111,26 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
-| Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
-| Limit the size of the stash (enforce MAX_STASH_SLOTS cap) | 3147700f-d0fb-81ca-bb5f-ca52d08ffe82 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
 | Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
 | Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
-| Stash sorting and filtering (by type, rarity; primary + secondary sort) | 3147700f-d0fb-8177-b8a8-f2c7956f3ad3 |
-| Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
+| Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
+| Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
 | Cascading parse error from misaligned indentation in item_ | 3147700f-d0fb-81da-a238-da97d9ce20ed |
 | Click-relative drag anchor | 3167700f-d0fb-81dd-95c8-ecad0569141c |
 | Click-to-inspect vs hold-to-drag item interaction | 3167700f-d0fb-818d-8ea1-c4a76ff6f301 |
 | ESC should leave current interface/screen (except battles) | 3147700f-d0fb-8161-93a5-ff4492e35669 |
 | Equipment slots indicator panel in inventory UI | 3147700f-d0fb-81fa-a966-f0c1c065485b |
+| Limit the size of the stash (enforce MAX_STASH_SLOTS cap) | 3147700f-d0fb-81ca-bb5f-ca52d08ffe82 |
 | Loot screen Use button should show target selection popup | 3147700f-d0fb-81f0-bb82-d3b6b4bbe982 |
 | Passive + active skills summary on stat tab | 3147700f-d0fb-8164-a2cf-f1e040d541f2 |
 | Passive skills summary on skill tab | 3147700f-d0fb-81a8-ac83-ecb3e75d9b71 |
@@ -143,8 +141,10 @@
 | Settings menu with keyboard rebinding | 3147700f-d0fb-8118-a2d7-da6aba515db9 |
 | Squad composition management | 3147700f-d0fb-8102-b0f6-ca4b09adefda |
 | Squad screen navigation fix | 3147700f-d0fb-81ff-8966-da551579994a |
+| Stash sorting and filtering (by type, rarity; primary + secondary sort) | 3147700f-d0fb-8177-b8a8-f2c7956f3ad3 |
 | Stat screen per character | 3147700f-d0fb-81fd-8c8c-c66fcafd3574 |
 | Tooltip doesn't disappear in blacksmith interface | 3147700f-d0fb-8122-8a64-da9a1102d7fe |
+| Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
 
 ## World
 
