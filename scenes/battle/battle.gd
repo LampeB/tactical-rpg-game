@@ -327,6 +327,10 @@ func _refresh_all_ui() -> void:
 # === Combat Manager Callbacks ===
 
 func _on_turn_ready(entity: CombatEntity) -> void:
+	# Clear defend indicator when entity's turn starts (defend lasts one round)
+	var turn_sprite: Node3D = _entity_sprites.get(entity)
+	if turn_sprite and turn_sprite.has_method("show_defend_indicator"):
+		turn_sprite.show_defend_indicator(false)
 	_refresh_all_ui()
 
 	if entity.is_player:
@@ -480,6 +484,11 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 		Enums.CombatAction.DEFEND:
 			_action_menu.show_disabled()
 			_combat_manager.execute_defend(_combat_manager.current_entity)
+			var def_sprite: Node3D = _entity_sprites.get(_combat_manager.current_entity)
+			if def_sprite:
+				def_sprite.play_defend_animation()
+				await def_sprite.animation_finished
+				def_sprite.show_defend_indicator(true)
 			_advance_after_action()
 
 		Enums.CombatAction.FLEE:
@@ -792,20 +801,21 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 	var skill_name: String = skill.display_name if skill else "none"
 	DebugLogger.log_info("Enemy AI chose: %s, skill: %s, targets: [%s]" % [action_name, skill_name, target_names], "Battle")
 
-	# Step 1: Play enemy animation (cast for magical skills, attack otherwise)
-	var enemy_sprite: Node3D = _entity_sprites.get(entity)
-	if enemy_sprite:
-		var use_cast: bool = _is_magical_action(action_type, skill)
-		if use_cast:
-			DebugLogger.log_info("Anim: %s -> play_cast (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
-			enemy_sprite.play_cast_animation()
+	# Step 1: Play enemy animation (cast for magical skills, attack otherwise; skip for defend)
+	if action_type != Enums.CombatAction.DEFEND:
+		var enemy_sprite: Node3D = _entity_sprites.get(entity)
+		if enemy_sprite:
+			var use_cast: bool = _is_magical_action(action_type, skill)
+			if use_cast:
+				DebugLogger.log_info("Anim: %s -> play_cast (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
+				enemy_sprite.play_cast_animation()
+			else:
+				DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
+				enemy_sprite.play_attack_animation()
+			await enemy_sprite.animation_finished
+			DebugLogger.log_info("Anim: %s -> anim finished" % entity.entity_name, "BattleAnim")
 		else:
-			DebugLogger.log_info("Anim: %s -> play_attack (pos=%s)" % [entity.entity_name, str(enemy_sprite.position)], "BattleAnim")
-			enemy_sprite.play_attack_animation()
-		await enemy_sprite.animation_finished
-		DebugLogger.log_info("Anim: %s -> anim finished" % entity.entity_name, "BattleAnim")
-	else:
-		DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
+			DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
 
 	# Step 2: Execute combat logic
 	match action_type:
@@ -822,6 +832,11 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 				await _play_target_reactions_from_results(result)
 
 		Enums.CombatAction.DEFEND:
+			var def_sprite: Node3D = _entity_sprites.get(entity)
+			if def_sprite:
+				def_sprite.play_defend_animation()
+				await def_sprite.animation_finished
+				def_sprite.show_defend_indicator(true)
 			_combat_manager.execute_defend(entity)
 
 	_advance_after_action()
@@ -861,6 +876,8 @@ func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 
 	if result.has("heal"):
 		popup_type = Enums.PopupType.HEAL
+	elif result.get("defended", false):
+		popup_type = Enums.PopupType.BLOCKED
 	elif result.get("is_crit", false):
 		popup_type = Enums.PopupType.CRIT
 

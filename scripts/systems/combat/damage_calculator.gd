@@ -49,14 +49,15 @@ static func calculate_damage(
 		total *= crit_mult
 
 	# Defend multiplier
-	if target.is_defending:
+	var defended: bool = target.is_defending
+	if defended:
 		total *= Constants.DEFEND_DAMAGE_REDUCTION
 
 	# Status effect damage multiplier on target
 	total *= target.get_damage_taken_multiplier()
 
 	var amount: int = maxi(int(total), 1)
-	return {"amount": amount, "is_crit": is_crit}
+	return {"amount": amount, "is_crit": is_crit, "defended": defended}
 
 
 static func calculate_basic_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:

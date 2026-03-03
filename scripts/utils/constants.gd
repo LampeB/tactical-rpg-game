@@ -104,6 +104,7 @@ const COLOR_DEAD := Color(0.5, 0.5, 0.5, 0.6)         ## Dead entity (grey)
 const COLOR_DAMAGE := Color(1.0, 0.3, 0.3)            ## Damage (red)
 const COLOR_HEAL := Color(0.3, 1.0, 0.3)              ## Healing (green)
 const COLOR_CRIT := Color(1.0, 0.84, 0.0)             ## Critical/gold
+const COLOR_BLOCKED := Color(0.4, 0.7, 1.0)           ## Blocked/defend (blue)
 const COLOR_DEATH_MSG := Color(1.0, 0.5, 0.5)         ## Death message (light red)
 
 ## Combat log colors
