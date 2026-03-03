@@ -89,6 +89,17 @@ func set_upgradeable_highlight(enabled: bool) -> void:
 		remove_theme_stylebox_override("panel")
 
 
+func set_ingredient_highlight(enabled: bool) -> void:
+	## Highlights this slot as matching a crafting ingredient (cyan tint).
+	if enabled:
+		self_modulate = Color(0.5, 0.9, 1.0)
+	else:
+		if _is_returnable:
+			self_modulate = Color(1.0, 0.9, 0.7)
+		else:
+			self_modulate = Color.WHITE
+
+
 func _create_upgradeable_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.2, 0.6, 0.2, 0.8)  # Dark green background

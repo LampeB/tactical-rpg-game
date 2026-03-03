@@ -300,3 +300,21 @@ func clear_upgradeable_highlights() -> void:
 		var slot: PanelContainer = _slots[i]
 		if slot.has_method("set_upgradeable_highlight"):
 			slot.set_upgradeable_highlight(false)
+
+
+func highlight_matching_ingredient(ingredient: CraftingIngredient) -> void:
+	## Highlights stash items that match a crafting ingredient (cyan tint).
+	if not ingredient:
+		clear_ingredient_highlights()
+		return
+	for slot in _slots:
+		if slot.has_method("set_ingredient_highlight"):
+			var matches: bool = CraftingSystem.item_matches(slot.item_data, ingredient)
+			slot.set_ingredient_highlight(matches)
+
+
+func clear_ingredient_highlights() -> void:
+	## Clears all ingredient highlights from stash slots.
+	for slot in _slots:
+		if slot.has_method("set_ingredient_highlight"):
+			slot.set_ingredient_highlight(false)

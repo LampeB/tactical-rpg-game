@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 154 -->
-<\!-- Last updated: 2026-03-02 -->
+<\!-- Total tasks: 157 -->
+<\!-- Last updated: 2026-03-03 -->
 
 ## Prerequisites
 
@@ -123,6 +123,9 @@
 | Name | Notion ID |
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
+| Auto-fill ingredients in crafting recipes | 3187700f-d0fb-81df-bb9d-f87b59bec21c |
+| Highlight matching inventory/stash items when hovering a recipe ingredient | 3187700f-d0fb-814c-b7b4-c76366ceb13c |
+| Quick indicator showing if player can craft a recipe (has all ingredients) | 3187700f-d0fb-810f-bea5-f407af15a305 |
 | Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
 | Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
 | Cascading parse error from misaligned indentation in item_ | 3147700f-d0fb-81da-a238-da97d9ce20ed |
@@ -220,17 +223,17 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
-| Battle speed controls | 3147700f-d0fb-81c4-b2e5-d61ae1108830 |
 | Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
-| Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
+| Battle speed controls | 3147700f-d0fb-81c4-b2e5-d61ae1108830 |
 | Full GDScript warning cleanup (~50+ warnings fixed) | 3147700f-d0fb-8176-bc39-ee92449e85f4 |
+| Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Multiple save slots (5-10) with metadata | 3147700f-d0fb-81a1-a075-f7cb35bbae6f |
 
 ## Map Editor

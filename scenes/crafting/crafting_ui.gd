@@ -216,6 +216,19 @@ func _build_icon_card(recipe: CraftingRecipeData) -> PanelContainer:
 		ph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		center.add_child(ph)
 
+	# Craftability indicator badge (bottom-right corner)
+	var indicator := Label.new()
+	indicator.text = "✓" if is_craftable else "✗"
+	indicator.add_theme_font_size_override("font_size", 14)
+	indicator.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3) if is_craftable else Color(0.7, 0.3, 0.3))
+	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	indicator.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	indicator.anchors_preset = Control.PRESET_BOTTOM_RIGHT
+	indicator.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	indicator.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(indicator)
+
 	card.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			_select_recipe(recipe)
@@ -256,6 +269,15 @@ func _refresh_icon_list_styles() -> void:
 			style.border_width_right  = 1
 			style.border_width_top    = 1
 			style.border_width_bottom = 1
+		# Update indicator badge and icon dimming
+		for sub in child.get_children():
+			if sub is Label:
+				sub.text = "✓" if is_craftable else "✗"
+				sub.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3) if is_craftable else Color(0.7, 0.3, 0.3))
+			elif sub is CenterContainer:
+				for icon_child in sub.get_children():
+					if icon_child is TextureRect:
+						icon_child.modulate = Color.WHITE if is_craftable else Color(0.45, 0.45, 0.45)
 
 
 func _find_recipe_by_id(recipe_id: String) -> CraftingRecipeData:
@@ -311,7 +333,7 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 			slot.setup(slot_idx, ingredient)
 			slot.clicked.connect(_on_slot_clicked)
 			slot.mouse_entered.connect(_on_slot_mouse_entered.bind(slot_idx))
-			slot.mouse_exited.connect(func() -> void: _item_tooltip.hide_tooltip())
+			slot.mouse_exited.connect(_on_slot_mouse_exited)
 			slots_hbox.add_child(slot)
 			_slot_nodes.append(slot)
 			slot_idx += 1
@@ -338,6 +360,12 @@ func _select_recipe(recipe: CraftingRecipeData) -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom_row.add_child(spacer)
+
+	var autofill_btn := Button.new()
+	autofill_btn.name = "AutoFillButton"
+	autofill_btn.text = "Auto-fill"
+	autofill_btn.pressed.connect(_on_autofill_pressed)
+	bottom_row.add_child(autofill_btn)
 
 	var craft_btn := Button.new()
 	craft_btn.name     = "CraftButton"
@@ -527,6 +555,15 @@ func _on_slot_mouse_entered(slot_idx: int) -> void:
 	var slot := _slot_nodes[slot_idx]
 	if slot.assigned_item:
 		_item_tooltip.show_for_item(slot.assigned_item, null, null, get_global_mouse_position())
+	else:
+		_player_grid_panel.highlight_matching_ingredient(slot.ingredient)
+		_stash_panel.highlight_matching_ingredient(slot.ingredient)
+
+
+func _on_slot_mouse_exited() -> void:
+	_item_tooltip.hide_tooltip()
+	_player_grid_panel.clear_ingredient_highlights()
+	_stash_panel.clear_ingredient_highlights()
 
 
 func _highlight_valid_slots(item: ItemData) -> void:
@@ -867,6 +904,9 @@ func _update_craft_button() -> void:
 	var btn := _craft_detail.find_child("CraftButton", true, false) as Button
 	if btn:
 		btn.disabled = not _all_slots_filled()
+	var autofill_btn := _craft_detail.find_child("AutoFillButton", true, false) as Button
+	if autofill_btn:
+		autofill_btn.disabled = _all_slots_filled()
 
 
 func _all_slots_filled() -> bool:
@@ -876,6 +916,89 @@ func _all_slots_filled() -> bool:
 		if not slot.assigned_item:
 			return false
 	return true
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Auto-fill
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_autofill_pressed() -> void:
+	if not _selected_recipe:
+		return
+	var used_items: Array = []
+	for slot in _slot_nodes:
+		if slot.assigned_item:
+			used_items.append(slot.assigned_item)
+	for i in range(_slot_nodes.size()):
+		var slot := _slot_nodes[i]
+		if slot.assigned_item:
+			continue
+		var found := _find_best_match(slot.ingredient, used_items)
+		if found.get("item"):
+			_autofill_slot(i, found)
+			used_items.append(found.item)
+	_update_craft_button()
+	_refresh_icon_list_styles()
+
+
+## Find the best matching item for an ingredient, preferring lowest rarity.
+## Search order: current character grid → other characters → stash.
+func _find_best_match(ingredient: CraftingIngredient, exclude: Array) -> Dictionary:
+	var char_order: Array = [_current_character_id]
+	for cid: String in _player_grid_inventories:
+		if cid != _current_character_id:
+			char_order.append(cid)
+	for cid in char_order:
+		var inv: GridInventory = _player_grid_inventories.get(cid)
+		if not inv:
+			continue
+		var best_placed: GridInventory.PlacedItem = null
+		for placed in inv.get_all_placed_items():
+			if exclude.has(placed.item_data):
+				continue
+			if CraftingSystem.item_matches(placed.item_data, ingredient):
+				if not best_placed or int(placed.item_data.rarity) < int(best_placed.item_data.rarity):
+					best_placed = placed
+		if best_placed:
+			return {"item": best_placed.item_data, "source": DragSource.PLAYER_GRID,
+					"char_id": cid, "placed": best_placed}
+	var best_idx := -1
+	var best_rarity := 999
+	for idx in range(GameManager.party.stash.size()):
+		var stash_item: ItemData = GameManager.party.stash[idx]
+		if exclude.has(stash_item):
+			continue
+		if CraftingSystem.item_matches(stash_item, ingredient):
+			if int(stash_item.rarity) < best_rarity:
+				best_rarity = int(stash_item.rarity)
+				best_idx = idx
+	if best_idx >= 0:
+		return {"item": GameManager.party.stash[best_idx], "source": DragSource.STASH,
+				"stash_idx": best_idx}
+	return {}
+
+
+func _autofill_slot(slot_idx: int, found: Dictionary) -> void:
+	var item: ItemData = found.item
+	if found.source == DragSource.PLAYER_GRID:
+		var placed: GridInventory.PlacedItem = found.placed
+		var inv: GridInventory = _player_grid_inventories.get(found.char_id)
+		_slot_origins[slot_idx] = {
+			"source": DragSource.PLAYER_GRID,
+			"char_id": found.char_id,
+			"pos": placed.grid_position,
+			"rot": placed.rotation
+		}
+		inv.remove_item(placed)
+		EventBus.inventory_changed.emit(found.char_id)
+	else:
+		var stash_idx: int = found.stash_idx
+		_slot_origins[slot_idx] = {"source": DragSource.STASH}
+		GameManager.party.stash.remove_at(stash_idx)
+		EventBus.stash_changed.emit()
+	_slot_nodes[slot_idx].assign(item)
+	_player_grid_panel.refresh()
+	_refresh_stash()
 
 
 # ════════════════════════════════════════════════════════════════════════════
