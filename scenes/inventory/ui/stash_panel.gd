@@ -5,9 +5,16 @@ signal item_clicked(item: ItemData, index: int)
 signal item_hovered(item: ItemData, global_pos: Vector2)
 signal item_exited()
 signal item_use_requested(item: ItemData, index: int)
+signal item_discard_requested(item: ItemData, index: int)
 signal background_clicked()
 
 const StashSlotScene: PackedScene = preload("res://scenes/inventory/ui/stash_slot.tscn")
+
+enum SortKey { NONE, NAME, TYPE, RARITY }
+
+## Session-persistent sort state shared across all StashPanel instances.
+static var _sort_primary: SortKey = SortKey.NONE
+static var _sort_ascending: bool = true
 
 var _slots: Array = []
 var _drop_highlighted: bool = false
@@ -33,6 +40,9 @@ var _filter_active: Dictionary = {
 @onready var _cons_btn: Button = $VBox/FilterGrid/ConsBtn
 @onready var _mat_btn: Button = $VBox/FilterGrid/MatBtn
 @onready var _all_btn: Button = $VBox/FilterGrid/AllBtn
+@onready var _name_sort_btn: Button = $VBox/SortBar/NameSortBtn
+@onready var _type_sort_btn: Button = $VBox/SortBar/TypeSortBtn
+@onready var _rarity_sort_btn: Button = $VBox/SortBar/RaritySortBtn
 
 
 func _ready() -> void:
@@ -43,6 +53,12 @@ func _ready() -> void:
 	_cons_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.CONSUMABLE))
 	_mat_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.MATERIAL))
 	_all_btn.pressed.connect(_on_all_filters)
+
+	# Connect sort button signals
+	_name_sort_btn.pressed.connect(_on_sort_pressed.bind(SortKey.NAME))
+	_type_sort_btn.pressed.connect(_on_sort_pressed.bind(SortKey.TYPE))
+	_rarity_sort_btn.pressed.connect(_on_sort_pressed.bind(SortKey.RARITY))
+	_update_sort_button_states()
 
 
 func refresh(stash: Array, returnable_indices: Dictionary = {}) -> void:
@@ -58,24 +74,32 @@ func refresh(stash: Array, returnable_indices: Dictionary = {}) -> void:
 		child.queue_free()
 	_slots.clear()
 
-	# Build slots only for items matching active filters
-	var visible_count: int = 0
+	# Build indexed list, applying filters
+	var indexed: Array = []
 	for i in range(stash.size()):
 		var item: ItemData = stash[i]
-
-		# Check if this item type is filtered
 		if not _filter_active.get(item.item_type, true):
 			continue
+		indexed.append({"item": item, "index": i})
 
-		visible_count += 1
-		var is_returnable: bool = returnable_indices.has(i)
+	# Sort if a sort key is active
+	if _sort_primary != SortKey.NONE:
+		indexed.sort_custom(_compare_items)
+
+	# Create slot nodes
+	var visible_count: int = indexed.size()
+	for entry in indexed:
+		var item: ItemData = entry.item
+		var original_index: int = entry.index
+		var is_returnable: bool = returnable_indices.has(original_index)
 		var slot: PanelContainer = StashSlotScene.instantiate()
 		_item_list.add_child(slot)
-		slot.setup(item, i, is_returnable)
+		slot.setup(item, original_index, is_returnable)
 		slot.clicked.connect(_on_slot_clicked.bind(item))
 		slot.hovered.connect(func(it: ItemData, pos: Vector2) -> void: item_hovered.emit(it, pos))
 		slot.exited.connect(func() -> void: item_exited.emit())
 		slot.use_requested.connect(_on_slot_use_requested.bind(item))
+		slot.discard_requested.connect(_on_slot_discard_requested.bind(item))
 		_slots.append(slot)
 
 	_update_count_label(visible_count, stash.size())
@@ -94,13 +118,15 @@ func is_mouse_over() -> bool:
 
 
 func _on_slot_clicked(index: int, item: ItemData) -> void:
-	# Slot emits (index, item) but we re-emit as (item, index) for consistency with other signals
 	item_clicked.emit(item, index)
 
 
 func _on_slot_use_requested(index: int, item: ItemData) -> void:
-	# Slot emits (index, item) but we re-emit as (item, index) for consistency with other signals
 	item_use_requested.emit(item, index)
+
+
+func _on_slot_discard_requested(index: int, item: ItemData) -> void:
+	item_discard_requested.emit(item, index)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -130,6 +156,69 @@ func _update_count_label(visible_count: int, total_count: int = -1) -> void:
 			else:
 				_count_label.text = "%s (%d)" % [_label_prefix, total_count]
 
+		if _show_max and total_count >= Constants.MAX_STASH_SLOTS:
+			_count_label.add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
+		else:
+			_count_label.remove_theme_color_override("font_color")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Sorting
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_sort_pressed(key: SortKey) -> void:
+	if _sort_primary == key:
+		_sort_ascending = not _sort_ascending
+	else:
+		_sort_primary = key
+		_sort_ascending = true
+	_update_sort_button_states()
+	refresh(_cached_stash, _cached_returnable)
+
+
+func _update_sort_button_states() -> void:
+	_name_sort_btn.set_pressed_no_signal(_sort_primary == SortKey.NAME)
+	_type_sort_btn.set_pressed_no_signal(_sort_primary == SortKey.TYPE)
+	_rarity_sort_btn.set_pressed_no_signal(_sort_primary == SortKey.RARITY)
+
+	var arrow: String = " ▲" if _sort_ascending else " ▼"
+	_name_sort_btn.text = "Name" + (arrow if _sort_primary == SortKey.NAME else "")
+	_type_sort_btn.text = "Type" + (arrow if _sort_primary == SortKey.TYPE else "")
+	_rarity_sort_btn.text = "Rarity" + (arrow if _sort_primary == SortKey.RARITY else "")
+
+
+func _compare_items(a: Dictionary, b: Dictionary) -> bool:
+	var item_a: ItemData = a.item
+	var item_b: ItemData = b.item
+	var result: int = _compare_by_key(item_a, item_b, _sort_primary)
+	if result == 0:
+		# Secondary tiebreaker
+		match _sort_primary:
+			SortKey.TYPE:
+				result = int(item_b.rarity) - int(item_a.rarity)
+			SortKey.RARITY:
+				result = item_a.display_name.naturalnocasecmp_to(item_b.display_name)
+			SortKey.NAME:
+				result = int(item_a.item_type) - int(item_b.item_type)
+	if not _sort_ascending:
+		return result > 0
+	return result < 0
+
+
+func _compare_by_key(a: ItemData, b: ItemData, key: SortKey) -> int:
+	match key:
+		SortKey.NAME:
+			return a.display_name.naturalnocasecmp_to(b.display_name)
+		SortKey.TYPE:
+			return int(a.item_type) - int(b.item_type)
+		SortKey.RARITY:
+			return int(a.rarity) - int(b.rarity)
+	return 0
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Filtering
+# ════════════════════════════════════════════════════════════════════════════
 
 func _on_filter_toggled(button_pressed: bool, item_type: Enums.ItemType) -> void:
 	if not button_pressed:
@@ -187,6 +276,10 @@ func _on_all_filters() -> void:
 	# Re-apply filters
 	refresh(_cached_stash, _cached_returnable)
 
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Upgrade Highlights
+# ════════════════════════════════════════════════════════════════════════════
 
 func highlight_upgradeable_items(dragged_item: ItemData) -> void:
 	## Highlights stash items that can be upgraded with the dragged item

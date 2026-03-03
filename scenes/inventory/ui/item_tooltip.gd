@@ -3,6 +3,9 @@ extends PanelContainer
 
 const FONT_SIZE := 12  ## Font size used for all dynamically-created labels in the tooltip
 
+## When true, the tooltip stays in its layout position instead of floating.
+var embedded: bool = false
+
 @onready var _name_label: Label = $Margin/VBox/NameLabel
 @onready var _rarity_label: Label = $Margin/VBox/RarityLabel
 @onready var _type_label: Label = $Margin/VBox/TypeLabel
@@ -191,6 +194,8 @@ func hide_tooltip() -> void:
 
 
 func _position_at(_screen_pos: Vector2) -> void:
+	if embedded:
+		return
 	# Wait one frame for size to update, then anchor to fixed screen position
 	await get_tree().process_frame
 	var viewport_size: Vector2 = get_viewport_rect().size

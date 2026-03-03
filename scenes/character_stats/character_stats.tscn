@@ -200,24 +200,34 @@ theme_override_styles/panel = SubResource("style_right_panel")
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="PassivesHeader" type="Label" parent="VBox/Content/RightPanel/VBox"]
+[node name="TopSlot" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="PassivesHeader" type="Label" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
 text = "Unlocked Passives"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
-[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel/VBox"]
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
 
-[node name="PassivesScroll" type="ScrollContainer" parent="VBox/Content/RightPanel/VBox"]
+[node name="PassivesScroll" type="ScrollContainer" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PassivesList" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox/PassivesScroll"]
+[node name="PassivesList" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
+
+[node name="ItemTooltip" parent="VBox/Content/RightPanel/VBox/TopSlot" instance=ExtResource("5_tooltip")]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="HSeparator2" type="HSeparator" parent="VBox/Content/RightPanel/VBox"]
 layout_mode = 2
@@ -230,8 +240,3 @@ size_flags_vertical = 3
 layer = 10
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("4_drag")]
-
-[node name="TooltipLayer" type="CanvasLayer" parent="."]
-layer = 11
-
-[node name="ItemTooltip" parent="TooltipLayer" instance=ExtResource("5_tooltip")]

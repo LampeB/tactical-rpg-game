@@ -24,11 +24,14 @@ extends Control
 @onready var _grid_panel: Control = $VBox/Content/CenterPanel/VBox/GridCentering/GridPanel
 
 # Right panel
-@onready var _passives_list: VBoxContainer = $VBox/Content/RightPanel/VBox/PassivesScroll/PassivesList
+@onready var _passives_header: Label = $VBox/Content/RightPanel/VBox/TopSlot/PassivesHeader
+@onready var _passives_sep: HSeparator = $VBox/Content/RightPanel/VBox/TopSlot/HSeparator
+@onready var _passives_scroll: ScrollContainer = $VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll
+@onready var _passives_list: VBoxContainer = $VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll/PassivesList
+@onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/VBox/TopSlot/ItemTooltip
 @onready var _stash_panel: PanelContainer = $VBox/Content/RightPanel/VBox/StashPanel
 
-# Drag & tooltip layers
-@onready var _item_tooltip: PanelContainer = $TooltipLayer/ItemTooltip
+# Drag layer
 @onready var _drag_preview: Control = $DragLayer/DragPreview
 
 var _current_character_id: String = ""
@@ -58,6 +61,12 @@ var _pending_consumable_source: DragSource = DragSource.NONE
 var _pending_consumable_index: int = -1
 var _pending_consumable_placed: GridInventory.PlacedItem = null
 var _target_selection_popup: PopupPanel = null
+
+# Discard confirmation
+var _discard_dialog: ConfirmationDialog = null
+var _pending_discard_item: ItemData = null
+var _pending_discard_index: int = -1
+var _pending_discard_is_dragged: bool = false
 # Cached data for stat display
 var _cached_char_data: CharacterData = null
 var _cached_inv: GridInventory = null
@@ -118,7 +127,13 @@ func _ready() -> void:
 	_stash_panel.item_hovered.connect(_on_stash_item_hovered)
 	_stash_panel.item_exited.connect(_on_hover_exited)
 	_stash_panel.item_use_requested.connect(_on_stash_item_use_requested)
+	_stash_panel.item_discard_requested.connect(_on_stash_discard_requested)
 	_stash_panel.background_clicked.connect(_on_stash_background_clicked)
+
+	_discard_dialog = ConfirmationDialog.new()
+	_discard_dialog.title = "Discard Item"
+	_discard_dialog.confirmed.connect(_on_discard_confirmed)
+	add_child(_discard_dialog)
 
 	if GameManager.party:
 		_character_tabs.setup(GameManager.party.squad, GameManager.party.roster)
@@ -134,7 +149,8 @@ func _ready() -> void:
 	EventBus.inventory_expanded.connect(_on_inventory_expanded)
 	_update_gold_display()
 
-	# Hide tooltip and drag preview initially
+	# Tooltip is embedded in the right panel (no floating layer)
+	_item_tooltip.embedded = true
 	_item_tooltip.visible = false
 	_drag_preview.visible = false
 
@@ -155,6 +171,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed:
 			_tooltips_enabled = false
 			_item_tooltip.hide_tooltip()
+			_show_passives_section()
 		else:
 			_tooltips_enabled = true
 			if _last_hovered_grid_pos != null:
@@ -162,8 +179,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				if inv:
 					var placed: GridInventory.PlacedItem = inv.get_item_at(_last_hovered_grid_pos)
 					if placed:
+						_hide_passives_section()
 						_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 			elif _last_hovered_stash_item != null:
+				_hide_passives_section()
 				_item_tooltip.show_for_item(_last_hovered_stash_item, null, null, _last_hovered_stash_global_pos)
 		get_viewport().set_input_as_handled()
 		return
@@ -175,6 +194,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if event.is_action_pressed("escape"):
 			_cancel_drag()
+			get_viewport().set_input_as_handled()
+			return
+		if event is InputEventKey and event.pressed and event.keycode == KEY_DELETE:
+			_request_discard_dragged()
 			get_viewport().set_input_as_handled()
 			return
 		return
@@ -415,6 +438,7 @@ func _update_center_panel(inv: GridInventory) -> void:
 	if inv and _grid_panel.has_method("setup"):
 		_grid_panel.setup(inv)
 	_item_tooltip.hide_tooltip()
+	_show_passives_section()
 
 
 # === Right Panel: Unlocked Passives ===
@@ -459,6 +483,19 @@ func _update_right_panel(character_id: String, tree: PassiveTreeData) -> void:
 			effect_label.text = "• %s" % PassiveEffects.get_description(node.special_effect_id)
 			UIThemes.style_label(effect_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
 			_passives_list.add_child(effect_label)
+
+
+func _show_passives_section() -> void:
+	_passives_header.visible = true
+	_passives_sep.visible = true
+	_passives_scroll.visible = true
+	_item_tooltip.visible = false
+
+
+func _hide_passives_section() -> void:
+	_passives_header.visible = false
+	_passives_sep.visible = false
+	_passives_scroll.visible = false
 
 
 # === Grid Interaction ===
@@ -518,6 +555,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		_last_hovered_stash_item = null
 		_grid_panel.highlight_modifier_connections(placed)
 		if _tooltips_enabled:
+			_hide_passives_section()
 			_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 	elif not inv.grid_template.is_cell_active(grid_pos):
 		# Hovering an inactive cell — show purchase info if the cell is buyable.
@@ -528,17 +566,20 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 				var cost := BackpackUpgradeSystem.get_next_cell_cost(char_data, state)
 				_grid_panel.set_cell_purchasable(grid_pos)
 				if _tooltips_enabled:
+					_hide_passives_section()
 					_item_tooltip.show_for_cell_purchase(cost, GameManager.gold >= cost, get_global_mouse_position())
 				return
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_grid_panel.clear_highlights()
 		_item_tooltip.hide_tooltip()
+		_show_passives_section()
 	else:
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_grid_panel.clear_highlights()
 		_item_tooltip.hide_tooltip()
+		_show_passives_section()
 
 
 func _on_hover_exited() -> void:
@@ -546,6 +587,7 @@ func _on_hover_exited() -> void:
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_item_tooltip.hide_tooltip()
+		_show_passives_section()
 		_grid_panel.clear_highlights()
 
 
@@ -569,12 +611,53 @@ func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 		_last_hovered_stash_global_pos = global_pos
 		_last_hovered_grid_pos = null
 		if _tooltips_enabled:
+			_hide_passives_section()
 			_item_tooltip.show_for_item(item, null, null, global_pos)
 
 
 func _on_stash_background_clicked() -> void:
 	if _drag_state == DragState.DRAGGING:
 		_return_to_stash()
+
+
+func _on_stash_discard_requested(item: ItemData, index: int) -> void:
+	_pending_discard_item = item
+	_pending_discard_index = index
+	_pending_discard_is_dragged = false
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _request_discard_dragged() -> void:
+	if not _dragged_item:
+		return
+	_pending_discard_item = _dragged_item
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = true
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % _dragged_item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _on_discard_confirmed() -> void:
+	if not _pending_discard_item:
+		return
+	if _pending_discard_is_dragged:
+		var was_from_grid: bool = (_drag_source == DragSource.GRID)
+		var source_pos: Vector2i = _drag_source_pos
+		_end_drag()
+		if was_from_grid:
+			EventBus.item_removed.emit(_current_character_id, _pending_discard_item, source_pos)
+			EventBus.inventory_changed.emit(_current_character_id)
+			_refresh_left_panel()
+	else:
+		if _pending_discard_index >= 0 and _pending_discard_index < GameManager.party.stash.size():
+			GameManager.party.stash.remove_at(_pending_discard_index)
+			_stash_panel.refresh(GameManager.party.stash)
+			EventBus.stash_changed.emit()
+	DebugLogger.log_info("Discarded: %s" % _pending_discard_item.display_name, "CharStats")
+	_pending_discard_item = null
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = false
 
 
 func _on_stash_changed() -> void:
@@ -892,7 +975,8 @@ func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
 	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
 
 	GameManager.party.stash.remove_at(target_index)
-	GameManager.party.add_to_stash(upgraded_item)
+	if not GameManager.party.add_to_stash(upgraded_item):
+		GameManager.party.force_add_to_stash(upgraded_item)
 
 	_end_drag()
 	_stash_panel.refresh(GameManager.party.stash)
@@ -907,11 +991,14 @@ func _return_to_stash() -> void:
 	if not _dragged_item:
 		return
 
+	if not GameManager.party.add_to_stash(_dragged_item):
+		EventBus.show_message.emit("Stash is full!")
+		return
+
 	var was_from_grid: bool = (_drag_source == DragSource.GRID)
 	var item: ItemData = _dragged_item
 	var item_name: String = _dragged_item.display_name
 	var source_pos: Vector2i = _drag_source_pos
-	GameManager.party.add_to_stash(_dragged_item)
 
 	_end_drag()
 	_stash_panel.refresh(GameManager.party.stash)
