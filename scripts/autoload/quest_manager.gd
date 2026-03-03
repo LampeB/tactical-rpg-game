@@ -167,7 +167,8 @@ func complete_quest(quest_id: String) -> void:
 		GameManager.add_gold(quest.reward_gold)
 	for i in range(quest.reward_items.size()):
 		var item: ItemData = quest.reward_items[i]
-		GameManager.party.add_to_stash(item)
+		if not GameManager.party.add_to_stash(item):
+			DebugLogger.log_warn("Stash full, quest reward lost: %s" % item.display_name, "QuestManager")
 	# XP reward — TODO: implement XP system, for now just store as flag
 	if quest.reward_xp > 0:
 		GameManager.set_flag("quest_%s_xp_awarded" % quest_id, quest.reward_xp)

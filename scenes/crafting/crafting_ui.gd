@@ -55,6 +55,12 @@ var _drag_source_player_rot: int      = 0
 var _drag_source_stash_index: int     = -1
 var _drag_source_slot_index: int      = -1
 
+# Discard confirmation
+var _discard_dialog: ConfirmationDialog = null
+var _pending_discard_item: ItemData = null
+var _pending_discard_index: int = -1
+var _pending_discard_is_dragged: bool = false
+
 
 # ════════════════════════════════════════════════════════════════════════════
 #  Setup
@@ -71,7 +77,13 @@ func _ready() -> void:
 	_stash_panel.item_hovered.connect(func(item: ItemData, pos: Vector2) -> void:
 		_item_tooltip.show_for_item(item, null, null, pos))
 	_stash_panel.item_exited.connect(func() -> void: _item_tooltip.hide_tooltip())
+	_stash_panel.item_discard_requested.connect(_on_stash_discard_requested)
 	_stash_panel.set_label_prefix("Stash", false)
+
+	_discard_dialog = ConfirmationDialog.new()
+	_discard_dialog.title = "Discard Item"
+	_discard_dialog.confirmed.connect(_on_discard_confirmed)
+	add_child(_discard_dialog)
 
 	if GameManager.party:
 		_player_grid_inventories = GameManager.party.grid_inventories
@@ -635,6 +647,12 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
+	# Discard (Delete key)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_DELETE:
+		_request_discard_dragged()
+		get_viewport().set_input_as_handled()
+		return
+
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 
@@ -787,7 +805,9 @@ func _complete_move_stash_to_grid(grid_pos: Vector2i, inv: GridInventory) -> voi
 
 
 func _complete_drop_to_stash() -> void:
-	GameManager.party.add_to_stash(_dragged_item)
+	if not GameManager.party.add_to_stash(_dragged_item):
+		EventBus.show_message.emit("Stash is full!")
+		return
 	EventBus.stash_changed.emit()
 	_refresh_stash()
 	_end_drag()
@@ -807,7 +827,7 @@ func _cancel_drag() -> void:
 			var inv: GridInventory = _player_grid_inventories.get(_current_character_id)
 			if inv:
 				if not inv.place_item(_dragged_item, _drag_source_player_pos, _drag_source_player_rot):
-					GameManager.party.add_to_stash(_dragged_item)
+					GameManager.party.force_add_to_stash(_dragged_item)
 					EventBus.stash_changed.emit()
 					_refresh_stash()
 				else:
@@ -890,6 +910,45 @@ func _on_craft_pressed() -> void:
 
 
 # ════════════════════════════════════════════════════════════════════════════
+#  Discard
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_stash_discard_requested(item: ItemData, index: int) -> void:
+	_pending_discard_item = item
+	_pending_discard_index = index
+	_pending_discard_is_dragged = false
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _request_discard_dragged() -> void:
+	if not _dragged_item:
+		return
+	_pending_discard_item = _dragged_item
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = true
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % _dragged_item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _on_discard_confirmed() -> void:
+	if not _pending_discard_item:
+		return
+	if _pending_discard_is_dragged:
+		_end_drag()
+		_clear_slot_highlights()
+	else:
+		if _pending_discard_index >= 0 and _pending_discard_index < GameManager.party.stash.size():
+			GameManager.party.stash.remove_at(_pending_discard_index)
+			_refresh_stash()
+			EventBus.stash_changed.emit()
+	DebugLogger.log_info("Discarded: %s" % _pending_discard_item.display_name, "Crafting")
+	_pending_discard_item = null
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = false
+
+
+# ════════════════════════════════════════════════════════════════════════════
 #  UI Helpers
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -900,7 +959,7 @@ func _return_all_slot_items() -> void:
 		if slot.assigned_item:
 			_return_slot_item_to_origin(i, slot.assigned_item)
 	if _output_item:
-		GameManager.party.add_to_stash(_output_item)
+		GameManager.party.force_add_to_stash(_output_item)
 		EventBus.stash_changed.emit()
 		_refresh_stash()
 		_output_item = null
@@ -924,7 +983,7 @@ func _return_slot_item_to_origin(slot_idx: int, item: ItemData) -> void:
 				returned = true
 		_slot_origins.erase(slot_idx)
 	if not returned:
-		GameManager.party.add_to_stash(item)
+		GameManager.party.force_add_to_stash(item)
 		EventBus.stash_changed.emit()
 		_refresh_stash()
 

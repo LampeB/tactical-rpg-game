@@ -105,7 +105,8 @@ func new_game() -> void:
 	for item_id: String in starter_items:
 		var item: ItemData = ItemDatabase.get_item(item_id)
 		if item:
-			party.add_to_stash(item)
+			if not party.add_to_stash(item):
+				DebugLogger.log_warn("Stash full, could not add starter item: %s" % item_id, "GameManager")
 		else:
 			DebugLogger.log_warn("Starter item not found: %s" % item_id, "GameManager")
 
@@ -212,7 +213,8 @@ func unlock_next_tier_via_weaver() -> bool:
 		var displaced: Array = BackpackUpgradeSystem.unlock_next_tier(
 			character, state, party.grid_inventories[character.id])
 		for item in displaced:
-			party.add_to_stash(item)
+			if not party.add_to_stash(item):
+				party.force_add_to_stash(item)
 		EventBus.backpack_tier_unlocked.emit(character.id, state.get("tier", 0))
 
 	EventBus.inventory_expanded.emit()

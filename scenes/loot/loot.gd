@@ -4,7 +4,7 @@ extends Control
 ## Items left on the loot grid when the player presses Continue are LOST.
 
 enum DragState { IDLE, DRAGGING }
-enum DragSource { NONE, PLAYER_GRID, LOOT_GRID }
+enum DragSource { NONE, PLAYER_GRID, LOOT_GRID, STASH }
 
 const DEFAULT_LOOT_GRID_WIDTH: int = 8
 const DEFAULT_LOOT_GRID_HEIGHT: int = 5
@@ -40,9 +40,21 @@ var _drag_hover_pos: Vector2i = Vector2i(-1, -1)  ## Last grid cell hovered duri
 var _drag_hover_panel: Control = null  ## Which grid panel is being hovered during drag
 var _dragged_was_inventory_item: bool = false  ## Whether the dragged item was from player inventory (on loot grid)
 
+# Stash state
+@onready var _stash_panel: PanelContainer = $VBox/Content/StashSide/StashPanel
+@onready var _discard_zone: PanelContainer = $VBox/Content/GridSide/DiscardZone
+var _drag_source_stash_index: int = -1
+
+# Discard state
+var _discard_dialog: ConfirmationDialog = null
+var _pending_discard_item: ItemData = null
+var _pending_discard_index: int = -1
+var _pending_discard_is_dragged: bool = false
+
 # Consumable use state
 var _target_selection_popup: PopupPanel = null
 var _pending_consumable_placed: GridInventory.PlacedItem = null
+var _pending_consumable_stash_index: int = -1
 
 
 func _ready() -> void:
@@ -69,6 +81,27 @@ func _ready() -> void:
 	if GameManager.party and not GameManager.party.squad.is_empty():
 		_on_character_selected(GameManager.party.squad[0])
 		_character_tabs.select(GameManager.party.squad[0])
+
+	# Wire stash panel signals
+	_stash_panel.set_label_prefix("Stash")
+	_stash_panel.item_clicked.connect(_on_stash_item_clicked)
+	_stash_panel.item_hovered.connect(_on_stash_item_hovered)
+	_stash_panel.item_exited.connect(_on_stash_item_exited)
+	_stash_panel.background_clicked.connect(_on_stash_background_clicked)
+	_stash_panel.item_use_requested.connect(_on_stash_item_use_requested)
+	_stash_panel.item_discard_requested.connect(_on_stash_discard_requested)
+	EventBus.stash_changed.connect(_on_stash_changed)
+	if GameManager.party:
+		_stash_panel.refresh(GameManager.party.stash)
+
+	# Wire discard zone
+	_discard_zone.gui_input.connect(_on_discard_zone_input)
+
+	# Discard confirmation dialog
+	_discard_dialog = ConfirmationDialog.new()
+	_discard_dialog.title = "Discard Item"
+	_discard_dialog.confirmed.connect(_on_discard_confirmed)
+	add_child(_discard_dialog)
 
 	_item_tooltip.visible = false
 	_drag_preview.visible = false
@@ -170,6 +203,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if event.is_action_pressed("escape"):
 			_cancel_drag()
+			get_viewport().set_input_as_handled()
+			return
+		if event is InputEventKey and event.pressed and event.keycode == KEY_DELETE:
+			_request_discard_dragged()
 			get_viewport().set_input_as_handled()
 			return
 		return
@@ -372,12 +409,15 @@ func _try_place_on_player_grid(grid_pos: Vector2i) -> void:
 			_items_placed_from_loot[_current_character_id] = {}
 		_items_placed_from_loot[_current_character_id][grid_pos] = true
 
+	var was_from_stash: bool = (_drag_source == DragSource.STASH)
 	EventBus.item_placed.emit(_current_character_id, _dragged_item, grid_pos)
 	EventBus.inventory_changed.emit(_current_character_id)
 
 	_end_drag()
 	_grid_panel.refresh()
 	_update_loot_count()
+	if was_from_stash:
+		EventBus.stash_changed.emit()
 
 
 func _perform_player_grid_upgrade(inv: GridInventory, target_placed: GridInventory.PlacedItem) -> void:
@@ -419,6 +459,7 @@ func _try_place_on_loot_grid(grid_pos: Vector2i) -> void:
 		return
 
 	# Track inventory items placed onto the loot grid
+	var was_from_stash: bool = (_drag_source == DragSource.STASH)
 	if _drag_source == DragSource.PLAYER_GRID:
 		var char_placements: Dictionary = _items_placed_from_loot.get(_current_character_id, {})
 		if char_placements.has(_drag_source_pos):
@@ -437,6 +478,8 @@ func _try_place_on_loot_grid(grid_pos: Vector2i) -> void:
 	_loot_grid_panel.refresh()
 	_grid_panel.refresh()
 	_update_loot_count()
+	if was_from_stash:
+		EventBus.stash_changed.emit()
 
 
 func _perform_loot_grid_upgrade(target_placed: GridInventory.PlacedItem) -> void:
@@ -484,6 +527,9 @@ func _cancel_drag() -> void:
 		if restored and _dragged_was_inventory_item:
 			_inventory_items_on_loot_grid[restored] = true
 		_loot_grid_panel.refresh()
+	elif _drag_source == DragSource.STASH:
+		GameManager.party.stash.insert(mini(_drag_source_stash_index, GameManager.party.stash.size()), _dragged_item)
+		_stash_panel.refresh(GameManager.party.stash)
 
 	_end_drag()
 
@@ -503,17 +549,184 @@ func _rotate_dragged_item() -> void:
 func _update_drag_preview() -> void:
 	_grid_panel.highlight_upgradeable_items(_dragged_item)
 	_loot_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_drop_target(_stash_panel.is_mouse_over())
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
+	var over_discard: bool = _discard_zone.get_global_rect().has_point(get_global_mouse_position())
+	_highlight_discard_zone(over_discard)
 
 
 func _end_drag() -> void:
 	_drag_state = DragState.IDLE
 	_dragged_item = null
 	_drag_source = DragSource.NONE
+	_drag_source_stash_index = -1
 	_dragged_was_inventory_item = false
 	_drag_preview.hide_preview()
 	_grid_panel.clear_placement_preview()
 	_loot_grid_panel.clear_placement_preview()
 	_loot_grid_panel.clear_highlights()
+	_stash_panel.highlight_drop_target(false)
+	_stash_panel.clear_upgradeable_highlights()
+	_highlight_discard_zone(false)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Discard Zone (drag-to-trash)
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_discard_zone_input(event: InputEvent) -> void:
+	if _drag_state == DragState.DRAGGING:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_request_discard_dragged()
+
+
+func _highlight_discard_zone(show: bool) -> void:
+	if show:
+		_discard_zone.self_modulate = Color(1.0, 0.4, 0.4)
+	else:
+		_discard_zone.self_modulate = Color.WHITE
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Stash Interaction
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_stash_item_clicked(item: ItemData, index: int) -> void:
+	if _drag_state == DragState.DRAGGING:
+		# Check for upgrade
+		if ItemUpgradeSystem.can_upgrade(_dragged_item, item):
+			_perform_stash_upgrade(item, index)
+			return
+		# Drop current item to stash
+		_return_to_stash()
+	else:
+		_start_drag_from_stash(item, index)
+
+
+func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
+	if _drag_state == DragState.IDLE:
+		_item_tooltip.show_for_item(item, null, null, global_pos)
+
+
+func _on_stash_item_exited() -> void:
+	if _drag_state == DragState.IDLE:
+		_item_tooltip.hide_tooltip()
+
+
+func _on_stash_background_clicked() -> void:
+	if _drag_state == DragState.DRAGGING:
+		_return_to_stash()
+
+
+func _start_drag_from_stash(item: ItemData, index: int) -> void:
+	_dragged_item = item
+	_drag_source = DragSource.STASH
+	_drag_source_stash_index = index
+	_drag_rotation = 0
+	_drag_state = DragState.DRAGGING
+
+	GameManager.party.stash.remove_at(index)
+	_stash_panel.refresh(GameManager.party.stash)
+	_item_tooltip.hide_tooltip()
+
+	_drag_preview.setup(_dragged_item, _drag_rotation)
+
+
+func _return_to_stash() -> void:
+	if not _dragged_item:
+		return
+
+	if not GameManager.party.add_to_stash(_dragged_item):
+		EventBus.show_message.emit("Stash is full!")
+		return
+
+	var was_from_player_grid: bool = (_drag_source == DragSource.PLAYER_GRID)
+	var was_from_loot: bool = (_drag_source == DragSource.LOOT_GRID)
+	var item: ItemData = _dragged_item
+	var source_pos: Vector2i = _drag_source_pos
+
+	_end_drag()
+	_stash_panel.refresh(GameManager.party.stash)
+
+	if was_from_player_grid:
+		var char_placements: Dictionary = _items_placed_from_loot.get(_current_character_id, {})
+		if char_placements.has(source_pos):
+			char_placements.erase(source_pos)
+		EventBus.item_removed.emit(_current_character_id, item, source_pos)
+		EventBus.inventory_changed.emit(_current_character_id)
+		_grid_panel.refresh()
+	elif was_from_loot:
+		_loot_grid_panel.refresh()
+
+	_update_loot_count()
+	EventBus.stash_changed.emit()
+	DebugLogger.log_info("Moved %s to stash" % item.display_name, "Loot")
+
+
+func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
+	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
+	var dragged_name: String = _dragged_item.display_name
+	_end_drag()
+	GameManager.party.stash.remove_at(target_index)
+	GameManager.party.force_add_to_stash(upgraded_item)
+	_stash_panel.refresh(GameManager.party.stash)
+	EventBus.stash_changed.emit()
+	DebugLogger.log_info("STASH UPGRADE! %s + %s -> %s" % [
+		dragged_name, target_item.display_name, upgraded_item.display_name
+	], "Loot")
+
+
+func _on_stash_changed() -> void:
+	if GameManager.party:
+		_stash_panel.refresh(GameManager.party.stash)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Discard
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_stash_discard_requested(item: ItemData, index: int) -> void:
+	_pending_discard_item = item
+	_pending_discard_index = index
+	_pending_discard_is_dragged = false
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _request_discard_dragged() -> void:
+	if not _dragged_item:
+		return
+	_pending_discard_item = _dragged_item
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = true
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % _dragged_item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _on_discard_confirmed() -> void:
+	if not _pending_discard_item:
+		return
+	if _pending_discard_is_dragged:
+		var was_from_player_grid: bool = (_drag_source == DragSource.PLAYER_GRID)
+		var was_from_loot: bool = (_drag_source == DragSource.LOOT_GRID)
+		var source_pos: Vector2i = _drag_source_pos
+		_end_drag()
+		if was_from_player_grid:
+			EventBus.item_removed.emit(_current_character_id, _pending_discard_item, source_pos)
+			EventBus.inventory_changed.emit(_current_character_id)
+			_grid_panel.refresh()
+		elif was_from_loot:
+			_loot_grid_panel.refresh()
+			_update_loot_count()
+	else:
+		if _pending_discard_index >= 0 and _pending_discard_index < GameManager.party.stash.size():
+			GameManager.party.stash.remove_at(_pending_discard_index)
+			_stash_panel.refresh(GameManager.party.stash)
+			EventBus.stash_changed.emit()
+	DebugLogger.log_info("Discarded: %s" % _pending_discard_item.display_name, "Loot")
+	_pending_discard_item = null
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = false
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -582,14 +795,38 @@ func _on_continue() -> void:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-#  Consumable Use (right-click on loot grid)
+#  Consumable Use
 # ════════════════════════════════════════════════════════════════════════════
 
 func _on_loot_consumable_use(placed: GridInventory.PlacedItem) -> void:
 	if not placed.item_data.use_skill:
 		return
 	_pending_consumable_placed = placed
+	_pending_consumable_stash_index = -1
 	_show_target_selection_popup()
+
+
+func _on_stash_item_use_requested(item: ItemData, index: int) -> void:
+	# Blueprints are used instantly
+	if item.item_type == Enums.ItemType.BLUEPRINT:
+		_use_blueprint(item)
+		return
+	if not item.use_skill:
+		return
+	_pending_consumable_placed = null
+	_pending_consumable_stash_index = index
+	_show_target_selection_popup()
+
+
+func _use_blueprint(item: ItemData) -> void:
+	if GameManager.get_flag(item.id) == true:
+		DebugLogger.log_info("Blueprint already learned: %s" % item.id, "Crafting")
+		return
+	GameManager.set_flag(item.id, true)
+	GameManager.party.remove_from_stash(item)
+	EventBus.stash_changed.emit()
+	EventBus.show_message.emit("New recipe unlocked!")
+	DebugLogger.log_info("Blueprint used: %s" % item.id, "Crafting")
 
 
 func _show_target_selection_popup() -> void:
@@ -646,16 +883,27 @@ func _show_target_selection_popup() -> void:
 
 
 func _on_target_selected(character_id: String) -> void:
-	var placed: GridInventory.PlacedItem = _pending_consumable_placed
 	_target_selection_popup.hide()
-
-	if not placed or not placed.item_data.use_skill:
-		return
 
 	if not GameManager.party:
 		return
 
-	var skill: SkillData = placed.item_data.use_skill
+	var item: ItemData = null
+	var is_stash_consumable: bool = (_pending_consumable_stash_index >= 0)
+
+	if is_stash_consumable:
+		if _pending_consumable_stash_index >= GameManager.party.stash.size():
+			return
+		item = GameManager.party.stash[_pending_consumable_stash_index]
+	elif _pending_consumable_placed:
+		item = _pending_consumable_placed.item_data
+	else:
+		return
+
+	if not item or not item.use_skill:
+		return
+
+	var skill: SkillData = item.use_skill
 	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var target_max_hp: int = GameManager.party.get_max_hp(character_id, tree)
 
@@ -667,14 +915,19 @@ func _on_target_selected(character_id: String) -> void:
 
 	GameManager.party.heal_character(character_id, heal, 0, tree)
 
-	# Remove consumed item from loot grid
-	_inventory_items_on_loot_grid.erase(placed)
-	_loot_inventory.remove_item(placed)
-	_loot_grid_panel.refresh()
-	_update_loot_count()
-
-	DebugLogger.log_info("Used %s on %s, healed %d HP" % [placed.item_data.display_name, character_id, heal], "Loot")
+	if is_stash_consumable:
+		GameManager.party.stash.remove_at(_pending_consumable_stash_index)
+		_stash_panel.refresh(GameManager.party.stash)
+		EventBus.stash_changed.emit()
+		DebugLogger.log_info("Used %s on %s from stash, healed %d HP" % [item.display_name, character_id, heal], "Loot")
+	else:
+		_inventory_items_on_loot_grid.erase(_pending_consumable_placed)
+		_loot_inventory.remove_item(_pending_consumable_placed)
+		_loot_grid_panel.refresh()
+		_update_loot_count()
+		DebugLogger.log_info("Used %s on %s, healed %d HP" % [item.display_name, character_id, heal], "Loot")
 
 
 func _on_target_popup_hidden() -> void:
 	_pending_consumable_placed = null
+	_pending_consumable_stash_index = -1

@@ -101,6 +101,12 @@ func add_to_stash(item: ItemData) -> bool:
 	stash_changed.emit()
 	return true
 
+
+func force_add_to_stash(item: ItemData) -> void:
+	## Emergency add — used only when an item has no other home (cancel-drag fallback).
+	stash.append(item)
+	stash_changed.emit()
+
 func remove_from_stash(item: ItemData) -> void:
 	var idx := stash.find(item)
 	if idx >= 0:

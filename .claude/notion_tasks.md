@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 152 -->
-<\!-- Last updated: 2026-03-01 -->
+<\!-- Total tasks: 154 -->
+<\!-- Last updated: 2026-03-02 -->
 
 ## Prerequisites
 
@@ -118,7 +118,6 @@
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Limit the size of the stash (enforce MAX_STASH_SLOTS cap) | 3147700f-d0fb-81ca-bb5f-ca52d08ffe82 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Reduce tooltip size and anchor to fixed screen area | 3147700f-d0fb-8115-aa38-c13daf38af9f |
 | Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
 | Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
@@ -130,6 +129,8 @@
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
 | Cascading parse error from misaligned indentation in item_ | 3147700f-d0fb-81da-a238-da97d9ce20ed |
+| Click-relative drag anchor | 3167700f-d0fb-81dd-95c8-ecad0569141c |
+| Click-to-inspect vs hold-to-drag item interaction | 3167700f-d0fb-818d-8ea1-c4a76ff6f301 |
 | ESC should leave current interface/screen (except battles) | 3147700f-d0fb-8161-93a5-ff4492e35669 |
 | Equipment slots indicator panel in inventory UI | 3147700f-d0fb-81fa-a966-f0c1c065485b |
 | Loot screen Use button should show target selection popup | 3147700f-d0fb-81f0-bb82-d3b6b4bbe982 |
@@ -138,6 +139,7 @@
 | Pause menu (canvas overlay on overworld) | 3147700f-d0fb-811b-b66e-dfc7febb13eb |
 | Persistent party character cards on overworld HUD | 3147700f-d0fb-8110-b6a0-fd11955a5120 |
 | Post-battle loot screen with drag-and-drop | 3147700f-d0fb-81c2-89f5-d71b3757d61c |
+| Reduce tooltip size and anchor to fixed screen area | 3147700f-d0fb-8115-aa38-c13daf38af9f |
 | Settings menu with keyboard rebinding | 3147700f-d0fb-8118-a2d7-da6aba515db9 |
 | Squad composition management | 3147700f-d0fb-8102-b0f6-ca4b09adefda |
 | Squad screen navigation fix | 3147700f-d0fb-81ff-8966-da551579994a |

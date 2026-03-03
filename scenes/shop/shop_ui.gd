@@ -61,6 +61,12 @@ var _purchase_prices: Dictionary = {}
 ## [{item, name, price}] — sold items; can be bought back for entry.price.
 var _sold_log: Array = []
 
+# Discard confirmation
+var _discard_dialog: ConfirmationDialog = null
+var _pending_discard_item: ItemData = null
+var _pending_discard_index: int = -1
+var _pending_discard_is_dragged: bool = false
+
 
 # ════════════════════════════════════════════════════════════════════════════
 #  Setup
@@ -83,7 +89,13 @@ func _ready() -> void:
 	_stash_panel.item_hovered.connect(func(item: ItemData, pos: Vector2) -> void:
 		_item_tooltip.show_for_item(item, null, null, pos, _sell_price_for(item), "Sell"))
 	_stash_panel.item_exited.connect(func() -> void: _item_tooltip.hide_tooltip())
+	_stash_panel.item_discard_requested.connect(_on_stash_discard_requested)
 	_stash_panel.set_label_prefix("Stash", false)
+
+	_discard_dialog = ConfirmationDialog.new()
+	_discard_dialog.title = "Discard Item"
+	_discard_dialog.confirmed.connect(_on_discard_confirmed)
+	add_child(_discard_dialog)
 
 	if GameManager.party:
 		_player_grid_inventories = GameManager.party.grid_inventories
@@ -222,6 +234,12 @@ func _input(event: InputEvent) -> void:
 	# Cancel
 	if event.is_action_pressed("escape"):
 		_cancel_drag()
+		get_viewport().set_input_as_handled()
+		return
+
+	# Discard (Delete key)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_DELETE:
+		_request_discard_dragged()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -381,7 +399,8 @@ func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
 	var upgraded_item: ItemData = ItemUpgradeSystem.create_upgraded_item(target_item)
 	GameManager.party.stash.remove_at(target_index)
-	GameManager.party.add_to_stash(upgraded_item)
+	if not GameManager.party.add_to_stash(upgraded_item):
+		GameManager.party.force_add_to_stash(upgraded_item)
 	_end_drag()
 	_refresh_stash()
 	EventBus.stash_changed.emit()
@@ -527,7 +546,11 @@ func _complete_buy_to_stash() -> void:
 		_purchase_prices[_dragged_item] = price
 		_mark_item_purchased(_dragged_item)
 	var item_name := _dragged_item.display_name
-	GameManager.party.add_to_stash(_dragged_item)
+	if not GameManager.party.add_to_stash(_dragged_item):
+		GameManager.add_gold(price)
+		EventBus.show_message.emit("Stash is full!")
+		_cancel_drag()
+		return
 	EventBus.stash_changed.emit()
 	_refresh_stash()
 	_update_gold_label()
@@ -635,7 +658,7 @@ func _cancel_drag() -> void:
 			var inv: GridInventory = _player_grid_inventories.get(_current_character_id)
 			if inv:
 				if not inv.place_item(_dragged_item, _drag_source_player_pos, _drag_source_player_rot):
-					GameManager.party.add_to_stash(_dragged_item)
+					GameManager.party.force_add_to_stash(_dragged_item)
 					EventBus.stash_changed.emit()
 					_refresh_stash()
 				else:
@@ -728,14 +751,55 @@ func _on_buyback(index: int) -> void:
 	if not GameManager.spend_gold(price):
 		_flash_gold_label()
 		return
+	if not GameManager.party.add_to_stash(item):
+		GameManager.add_gold(price)
+		EventBus.show_message.emit("Stash is full!")
+		return
 	_sold_log.remove_at(index)
-	GameManager.party.add_to_stash(item)
 	EventBus.stash_changed.emit()
 	_refresh_sold_panel()
 	_refresh_stash()
 	_update_gold_label()
 	_set_hover_info("Bought back: %s  —  %dg" % [item.display_name, price], Color(0.5, 0.8, 1.0))
 	DebugLogger.log_info("Bought back %s for %dg" % [item.display_name, price], "Shop")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Discard
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_stash_discard_requested(item: ItemData, index: int) -> void:
+	_pending_discard_item = item
+	_pending_discard_index = index
+	_pending_discard_is_dragged = false
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _request_discard_dragged() -> void:
+	if not _dragged_item:
+		return
+	_pending_discard_item = _dragged_item
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = true
+	_discard_dialog.dialog_text = "Discard %s? This cannot be undone." % _dragged_item.display_name
+	_discard_dialog.popup_centered()
+
+
+func _on_discard_confirmed() -> void:
+	if not _pending_discard_item:
+		return
+	if _pending_discard_is_dragged:
+		_end_drag()
+	else:
+		if _pending_discard_index >= 0 and _pending_discard_index < GameManager.party.stash.size():
+			GameManager.party.stash.remove_at(_pending_discard_index)
+			_refresh_stash()
+			EventBus.stash_changed.emit()
+	DebugLogger.log_info("Discarded: %s" % _pending_discard_item.display_name, "Shop")
+	_pending_discard_item = null
+	_pending_discard_index = -1
+	_pending_discard_is_dragged = false
 
 
 # ════════════════════════════════════════════════════════════════════════════
