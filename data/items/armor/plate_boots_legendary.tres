@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_sazcd"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_4uefk"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_weza9"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_a5k9l"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_jj7jc"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_fucju"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_a3ntl"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_422km"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_4vvtk"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_hhnhg"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_434db"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_gfeo8"]
 
-[sub_resource type="Resource" id="Resource_c1to0"]
-script = ExtResource("3_weza9")
+[sub_resource type="Resource" id="Resource_5kgrv"]
+script = ExtResource("3_4vvtk")
 stat = 5
 value = 15.0
 
-[sub_resource type="Resource" id="Resource_s49ps"]
-script = ExtResource("3_weza9")
+[sub_resource type="Resource" id="Resource_0r2hl"]
+script = ExtResource("3_4vvtk")
 stat = 0
 value = 24.0
 
-[sub_resource type="Resource" id="Resource_m5644"]
-script = ExtResource("3_weza9")
+[sub_resource type="Resource" id="Resource_prvjx"]
+script = ExtResource("3_4vvtk")
 stat = 2
 value = -6.0
 
 [resource]
-script = ExtResource("1_sazcd")
+script = ExtResource("1_a3ntl")
 id = "plate_boots_legendary"
 display_name = "Plate Sabatons"
 description = "Armored boots of solid steel. Each step shakes the earth."
-icon = ExtResource("6_fucju")
+icon = ExtResource("6_gfeo8")
 item_type = 1
 category = 11
 rarity = 4
 armor_slot = 11
-shape = ExtResource("5_jj7jc")
-stat_modifiers = Array[ExtResource("3_weza9")]([SubResource("Resource_c1to0"), SubResource("Resource_s49ps"), SubResource("Resource_m5644")])
+shape = ExtResource("5_434db")
+stat_modifiers = Array[ExtResource("3_4vvtk")]([SubResource("Resource_5kgrv"), SubResource("Resource_0r2hl"), SubResource("Resource_prvjx")])
 base_price = 198

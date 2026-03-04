@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_3qotj"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_aj396"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ehrc4"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_g6ama"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_onb0q"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_fhrm5"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ik0hu"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_5sqwy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_lhjf9"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ruuvs"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_8egjh"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_6s8ik"]
 
-[sub_resource type="Resource" id="Resource_xzahb"]
-script = ExtResource("3_ehrc4")
+[sub_resource type="Resource" id="Resource_wbk6o"]
+script = ExtResource("3_lhjf9")
 stat = 5
 value = 2.0
 
-[sub_resource type="Resource" id="Resource_y5kgh"]
-script = ExtResource("3_ehrc4")
+[sub_resource type="Resource" id="Resource_hsjrw"]
+script = ExtResource("3_lhjf9")
 stat = 2
 value = 2.0
 
 [resource]
-script = ExtResource("1_3qotj")
+script = ExtResource("1_ik0hu")
 id = "leather_helmet_common"
 display_name = "Leather Cap"
 description = "A fitted leather cap that keeps the head protected without slowing the wearer."
-icon = ExtResource("6_fhrm5")
+icon = ExtResource("6_6s8ik")
 item_type = 1
 category = 7
 armor_slot = 7
-shape = ExtResource("5_onb0q")
-stat_modifiers = Array[ExtResource("3_ehrc4")]([SubResource("Resource_xzahb"), SubResource("Resource_y5kgh")])
+shape = ExtResource("5_8egjh")
+stat_modifiers = Array[ExtResource("3_lhjf9")]([SubResource("Resource_wbk6o"), SubResource("Resource_hsjrw")])
 base_price = 30

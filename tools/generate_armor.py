@@ -60,8 +60,8 @@ SHAPES = {
 ICONS = {
     SLOT_HELMET:     "res://assets/sprites/items/helmet_common.png",
     SLOT_CHESTPLATE: "res://assets/sprites/items/chestplate_common.png",
-    SLOT_GLOVES:     "res://assets/sprites/items/gloves_common.png",
-    SLOT_LEGS:       "res://assets/sprites/items/legs_common.png",
+    SLOT_GLOVES:     "res://assets/sprites/items/chestplate_common.png",  # placeholder
+    SLOT_LEGS:       "res://assets/sprites/items/boots_common.png",       # placeholder
     SLOT_BOOTS:      "res://assets/sprites/items/boots_common.png",
 }
 

@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_b0y64"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_oq1w6"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ut75t"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_xifjx"]
-[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_pu0s9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_m678x"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_p9ypt"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_gal2e"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_80ssy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_rxnnq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_zt7cc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_nt2dn"]
 
-[sub_resource type="Resource" id="Resource_agzde"]
-script = ExtResource("3_ut75t")
+[sub_resource type="Resource" id="Resource_9wtx3"]
+script = ExtResource("3_80ssy")
 stat = 5
 value = 28.0
 
-[sub_resource type="Resource" id="Resource_5o67v"]
-script = ExtResource("3_ut75t")
+[sub_resource type="Resource" id="Resource_bm4ap"]
+script = ExtResource("3_80ssy")
 stat = 7
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_gca8c"]
-script = ExtResource("3_ut75t")
+[sub_resource type="Resource" id="Resource_0a76d"]
+script = ExtResource("3_80ssy")
 stat = 0
 value = 40.0
 
 [resource]
-script = ExtResource("1_b0y64")
+script = ExtResource("1_p9ypt")
 id = "chain_chestplate_unique"
 display_name = "Chain Hauberk"
 description = "A knee-length shirt of riveted chain. The backbone of any soldier's kit."
-icon = ExtResource("6_m678x")
+icon = ExtResource("6_nt2dn")
 item_type = 1
 category = 8
 rarity = 5
 armor_slot = 8
-shape = ExtResource("5_pu0s9")
-stat_modifiers = Array[ExtResource("3_ut75t")]([SubResource("Resource_agzde"), SubResource("Resource_5o67v"), SubResource("Resource_gca8c")])
+shape = ExtResource("5_zt7cc")
+stat_modifiers = Array[ExtResource("3_80ssy")]([SubResource("Resource_9wtx3"), SubResource("Resource_bm4ap"), SubResource("Resource_0a76d")])
 base_price = 408

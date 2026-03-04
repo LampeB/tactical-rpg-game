@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9qpwh"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_4nah3"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_icp3a"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ohvpk"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_oki3r"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_yrsi1"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_uo5do"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mx1wg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7j91j"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_odm2w"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_73tx9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_lu3i9"]
 
-[sub_resource type="Resource" id="Resource_6gofy"]
-script = ExtResource("3_icp3a")
+[sub_resource type="Resource" id="Resource_fod2h"]
+script = ExtResource("3_7j91j")
 stat = 7
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_vwbf3"]
-script = ExtResource("3_icp3a")
+[sub_resource type="Resource" id="Resource_djdpm"]
+script = ExtResource("3_7j91j")
 stat = 1
 value = 18.0
 
-[sub_resource type="Resource" id="Resource_csu9o"]
-script = ExtResource("3_icp3a")
+[sub_resource type="Resource" id="Resource_hc3g4"]
+script = ExtResource("3_7j91j")
 stat = 2
 value = 2.0
 
 [resource]
-script = ExtResource("1_9qpwh")
+script = ExtResource("1_uo5do")
 id = "cloth_legs_elite"
 display_name = "Cloth Trousers"
 description = "Loose-fitting trousers sewn with glyphs of warding. Move freely, think clearly."
-icon = ExtResource("6_yrsi1")
+icon = ExtResource("6_lu3i9")
 item_type = 1
 category = 10
 rarity = 3
 armor_slot = 10
-shape = ExtResource("5_oki3r")
-stat_modifiers = Array[ExtResource("3_icp3a")]([SubResource("Resource_6gofy"), SubResource("Resource_vwbf3"), SubResource("Resource_csu9o")])
+shape = ExtResource("5_73tx9")
+stat_modifiers = Array[ExtResource("3_7j91j")]([SubResource("Resource_fod2h"), SubResource("Resource_djdpm"), SubResource("Resource_hc3g4")])
 base_price = 92

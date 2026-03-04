@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xrs59"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bqvbb"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_9k6tu"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lobd4"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_od52k"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_h95r5"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_k91f8"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_byir6"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_w8bzz"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_082fw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_bgvvf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_ttjba"]
 
-[sub_resource type="Resource" id="Resource_tqqyi"]
-script = ExtResource("3_9k6tu")
+[sub_resource type="Resource" id="Resource_sflal"]
+script = ExtResource("3_w8bzz")
 stat = 2
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_zxs5r"]
-script = ExtResource("3_9k6tu")
+[sub_resource type="Resource" id="Resource_g4i66"]
+script = ExtResource("3_w8bzz")
 stat = 8
 value = 8.0
 
 [resource]
-script = ExtResource("1_xrs59")
+script = ExtResource("1_k91f8")
 id = "leather_boots_unique"
 display_name = "Leather Boots"
 description = "Soft-soled boots that make no sound. Perfect for those who strike first."
-icon = ExtResource("6_h95r5")
+icon = ExtResource("6_ttjba")
 item_type = 1
 category = 11
 rarity = 5
 armor_slot = 11
-shape = ExtResource("5_od52k")
-stat_modifiers = Array[ExtResource("3_9k6tu")]([SubResource("Resource_tqqyi"), SubResource("Resource_zxs5r")])
+shape = ExtResource("5_bgvvf")
+stat_modifiers = Array[ExtResource("3_w8bzz")]([SubResource("Resource_sflal"), SubResource("Resource_g4i66")])
 base_price = 168

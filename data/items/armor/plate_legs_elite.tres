@@ -1,42 +1,42 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_iy32t"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_zs5x6"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_a65hb"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_p7971"]
-[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="5_m3vz0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_7xsrk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bzuep"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1564o"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_cvit8"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_w0dy7"]
+[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="5_7z2id"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_xmpme"]
 
-[sub_resource type="Resource" id="Resource_x03i2"]
-script = ExtResource("3_a65hb")
+[sub_resource type="Resource" id="Resource_lw3c2"]
+script = ExtResource("3_cvit8")
 stat = 5
 value = 15.0
 
-[sub_resource type="Resource" id="Resource_1dbbg"]
-script = ExtResource("3_a65hb")
+[sub_resource type="Resource" id="Resource_52sug"]
+script = ExtResource("3_cvit8")
 stat = 7
 value = 2.0
 
-[sub_resource type="Resource" id="Resource_td8b5"]
-script = ExtResource("3_a65hb")
+[sub_resource type="Resource" id="Resource_llq50"]
+script = ExtResource("3_cvit8")
 stat = 0
 value = 22.0
 
-[sub_resource type="Resource" id="Resource_xpayb"]
-script = ExtResource("3_a65hb")
+[sub_resource type="Resource" id="Resource_edp2g"]
+script = ExtResource("3_cvit8")
 stat = 2
 value = -4.0
 
 [resource]
-script = ExtResource("1_iy32t")
+script = ExtResource("1_bzuep")
 id = "plate_legs_elite"
 display_name = "Plate Greaves"
 description = "Massive leg plates bolted to a steel frame. Standing ground has never been easier."
-icon = ExtResource("6_7xsrk")
+icon = ExtResource("6_xmpme")
 item_type = 1
 category = 10
 rarity = 3
 armor_slot = 10
-shape = ExtResource("5_m3vz0")
-stat_modifiers = Array[ExtResource("3_a65hb")]([SubResource("Resource_x03i2"), SubResource("Resource_1dbbg"), SubResource("Resource_td8b5"), SubResource("Resource_xpayb")])
+shape = ExtResource("5_7z2id")
+stat_modifiers = Array[ExtResource("3_cvit8")]([SubResource("Resource_lw3c2"), SubResource("Resource_52sug"), SubResource("Resource_llq50"), SubResource("Resource_edp2g")])
 base_price = 198

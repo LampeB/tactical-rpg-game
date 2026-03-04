@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_wqp7w"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_iiovq"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_brtrd"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3unjg"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_w8vxt"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_sfeyi"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_0fh0d"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_pr4wd"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_xbkkj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3m091"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_t1fq6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_7m16o"]
 
-[sub_resource type="Resource" id="Resource_jimrf"]
-script = ExtResource("3_brtrd")
+[sub_resource type="Resource" id="Resource_879f8"]
+script = ExtResource("3_xbkkj")
 stat = 5
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_zse0x"]
-script = ExtResource("3_brtrd")
+[sub_resource type="Resource" id="Resource_bf704"]
+script = ExtResource("3_xbkkj")
 stat = 7
 value = 20.0
 
-[sub_resource type="Resource" id="Resource_gsjvj"]
-script = ExtResource("3_brtrd")
+[sub_resource type="Resource" id="Resource_p9u9e"]
+script = ExtResource("3_xbkkj")
 stat = 1
 value = 40.0
 
 [resource]
-script = ExtResource("1_wqp7w")
+script = ExtResource("1_0fh0d")
 id = "cloth_chestplate_unique"
 display_name = "Cloth Robe"
 description = "An enchanter's robe layered with protective wards. Light as silk, strong against spells."
-icon = ExtResource("6_sfeyi")
+icon = ExtResource("6_7m16o")
 item_type = 1
 category = 8
 rarity = 5
 armor_slot = 8
-shape = ExtResource("5_w8vxt")
-stat_modifiers = Array[ExtResource("3_brtrd")]([SubResource("Resource_jimrf"), SubResource("Resource_zse0x"), SubResource("Resource_gsjvj")])
+shape = ExtResource("5_t1fq6")
+stat_modifiers = Array[ExtResource("3_xbkkj")]([SubResource("Resource_879f8"), SubResource("Resource_bf704"), SubResource("Resource_p9u9e")])
 base_price = 240

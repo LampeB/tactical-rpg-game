@@ -10,19 +10,19 @@
 [ext_resource type="Resource" path="res://data/items/weapons/bow_common.tres" id="8"]
 [ext_resource type="Resource" path="res://data/items/weapons/shield_common.tres" id="9"]
 [ext_resource type="Resource" path="res://data/items/armor/cloth_helmet_common.tres" id="10"]
-[ext_resource type="Resource" path="res://data/items/armor/leather_helmet_common.tres" id="10b"]
-[ext_resource type="Resource" path="res://data/items/armor/cloth_chestplate_common.tres" id="11"]
-[ext_resource type="Resource" path="res://data/items/armor/leather_chestplate_common.tres" id="11b"]
-[ext_resource type="Resource" path="res://data/items/armor/cloth_gloves_common.tres" id="12"]
-[ext_resource type="Resource" path="res://data/items/armor/leather_gloves_common.tres" id="12b"]
-[ext_resource type="Resource" path="res://data/items/armor/cloth_legs_common.tres" id="13"]
-[ext_resource type="Resource" path="res://data/items/armor/leather_legs_common.tres" id="13b"]
-[ext_resource type="Resource" path="res://data/items/armor/cloth_boots_common.tres" id="14"]
-[ext_resource type="Resource" path="res://data/items/armor/leather_boots_common.tres" id="14b"]
-[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_common.tres" id="15"]
-[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_common.tres" id="16"]
-[ext_resource type="Resource" path="res://data/items/modifiers/power_gem_common.tres" id="17"]
-[ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_common.tres" id="18"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_helmet_common.tres" id="11"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_chestplate_common.tres" id="12"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_chestplate_common.tres" id="13"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_gloves_common.tres" id="14"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_gloves_common.tres" id="15"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_legs_common.tres" id="16"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_legs_common.tres" id="17"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_boots_common.tres" id="18"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_boots_common.tres" id="19"]
+[ext_resource type="Resource" path="res://data/items/modifiers/fire_gem_common.tres" id="20"]
+[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_common.tres" id="21"]
+[ext_resource type="Resource" path="res://data/items/modifiers/power_gem_common.tres" id="22"]
+[ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_common.tres" id="23"]
 
 [resource]
 script = ExtResource("1")
@@ -30,6 +30,6 @@ id = "merchant_general"
 display_name = "Lyra's Wares"
 shop_type = 0
 pricing_type = 0
-stock = [ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("10b"), ExtResource("11"), ExtResource("11b"), ExtResource("12"), ExtResource("12b"), ExtResource("13"), ExtResource("13b"), ExtResource("14"), ExtResource("14b"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18")]
+stock = [ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("11"), ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18"), ExtResource("19"), ExtResource("20"), ExtResource("21"), ExtResource("22"), ExtResource("23")]
 buy_multiplier = 1.0
 sell_multiplier = 0.5

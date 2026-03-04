@@ -1,42 +1,42 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_a9l72"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_m402l"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_0ka63"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_riqdm"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_c6k0s"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_8nu4k"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_k34mf"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_cqq8m"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_fz9p8"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_wwpxn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_k9woy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_gcoyy"]
 
-[sub_resource type="Resource" id="Resource_3uk4e"]
-script = ExtResource("3_0ka63")
+[sub_resource type="Resource" id="Resource_e1mx9"]
+script = ExtResource("3_fz9p8")
 stat = 5
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_e3qpt"]
-script = ExtResource("3_0ka63")
+[sub_resource type="Resource" id="Resource_5b7xx"]
+script = ExtResource("3_fz9p8")
 stat = 4
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_i7gcm"]
-script = ExtResource("3_0ka63")
+[sub_resource type="Resource" id="Resource_4lbqi"]
+script = ExtResource("3_fz9p8")
 stat = 0
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_jgmuy"]
-script = ExtResource("3_0ka63")
+[sub_resource type="Resource" id="Resource_xihx5"]
+script = ExtResource("3_fz9p8")
 stat = 2
 value = -2.0
 
 [resource]
-script = ExtResource("1_a9l72")
+script = ExtResource("1_k34mf")
 id = "plate_gloves_rare"
 display_name = "Plate Gauntlets"
 description = "Articulated steel gauntlets. Every punch lands like a hammer blow."
-icon = ExtResource("6_8nu4k")
+icon = ExtResource("6_gcoyy")
 item_type = 1
 category = 9
 rarity = 2
 armor_slot = 9
-shape = ExtResource("5_c6k0s")
-stat_modifiers = Array[ExtResource("3_0ka63")]([SubResource("Resource_3uk4e"), SubResource("Resource_e3qpt"), SubResource("Resource_i7gcm"), SubResource("Resource_jgmuy")])
+shape = ExtResource("5_k9woy")
+stat_modifiers = Array[ExtResource("3_fz9p8")]([SubResource("Resource_e1mx9"), SubResource("Resource_5b7xx"), SubResource("Resource_4lbqi"), SubResource("Resource_xihx5")])
 base_price = 102

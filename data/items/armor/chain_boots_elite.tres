@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_z901n"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_kk1a4"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_im3eh"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2eb1b"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_uwsw3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_jdkqb"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_80tq1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_aluug"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7rk72"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_c1z1v"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_pdlm0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_kfy9e"]
 
-[sub_resource type="Resource" id="Resource_s3p40"]
-script = ExtResource("3_im3eh")
+[sub_resource type="Resource" id="Resource_tq0x2"]
+script = ExtResource("3_7rk72")
 stat = 5
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_w53pm"]
-script = ExtResource("3_im3eh")
+[sub_resource type="Resource" id="Resource_8kr9t"]
+script = ExtResource("3_7rk72")
 stat = 2
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_hihvs"]
-script = ExtResource("3_im3eh")
+[sub_resource type="Resource" id="Resource_t0j4m"]
+script = ExtResource("3_7rk72")
 stat = 7
 value = 2.0
 
 [resource]
-script = ExtResource("1_z901n")
+script = ExtResource("1_80tq1")
 id = "chain_boots_elite"
 display_name = "Chain Boots"
 description = "Mail-clad boots with reinforced soles. Steady footing on any battlefield."
-icon = ExtResource("6_jdkqb")
+icon = ExtResource("6_kfy9e")
 item_type = 1
 category = 11
 rarity = 3
 armor_slot = 11
-shape = ExtResource("5_uwsw3")
-stat_modifiers = Array[ExtResource("3_im3eh")]([SubResource("Resource_s3p40"), SubResource("Resource_w53pm"), SubResource("Resource_hihvs")])
+shape = ExtResource("5_pdlm0")
+stat_modifiers = Array[ExtResource("3_7rk72")]([SubResource("Resource_tq0x2"), SubResource("Resource_8kr9t"), SubResource("Resource_t0j4m")])
 base_price = 106

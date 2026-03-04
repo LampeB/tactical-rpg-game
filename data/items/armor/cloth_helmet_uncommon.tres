@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_roosk"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_nk07l"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_cnuju"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_snzn8"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_h6pkc"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_0ymt5"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_qqqnm"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_j0nfk"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_sfigr"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lg4vj"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_xc0bm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_f4nxj"]
 
-[sub_resource type="Resource" id="Resource_7g7kr"]
-script = ExtResource("3_cnuju")
+[sub_resource type="Resource" id="Resource_obtdm"]
+script = ExtResource("3_sfigr")
 stat = 7
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_u7a8u"]
-script = ExtResource("3_cnuju")
+[sub_resource type="Resource" id="Resource_rvmz0"]
+script = ExtResource("3_sfigr")
 stat = 1
 value = 7.0
 
 [resource]
-script = ExtResource("1_roosk")
+script = ExtResource("1_qqqnm")
 id = "cloth_helmet_uncommon"
 display_name = "Cloth Hood"
 description = "A soft hood woven with arcane thread. Shields the mind from hostile magic."
-icon = ExtResource("6_0ymt5")
+icon = ExtResource("6_f4nxj")
 item_type = 1
 category = 7
 rarity = 1
 armor_slot = 7
-shape = ExtResource("5_h6pkc")
-stat_modifiers = Array[ExtResource("3_cnuju")]([SubResource("Resource_7g7kr"), SubResource("Resource_u7a8u")])
+shape = ExtResource("5_xc0bm")
+stat_modifiers = Array[ExtResource("3_sfigr")]([SubResource("Resource_obtdm"), SubResource("Resource_rvmz0")])
 base_price = 39

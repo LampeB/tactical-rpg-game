@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4hk02"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_z8t27"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_g2kmz"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_zxjv6"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_3t4yx"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_swamf"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_8h0of"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1my7r"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dvihj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_k22de"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_izvbi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_tnzel"]
 
-[sub_resource type="Resource" id="Resource_mgdlh"]
-script = ExtResource("3_g2kmz")
+[sub_resource type="Resource" id="Resource_o39i4"]
+script = ExtResource("3_dvihj")
 stat = 5
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_32jxe"]
-script = ExtResource("3_g2kmz")
+[sub_resource type="Resource" id="Resource_9fzf1"]
+script = ExtResource("3_dvihj")
 stat = 7
 value = 4.0
 
 [resource]
-script = ExtResource("1_4hk02")
+script = ExtResource("1_8h0of")
 id = "chain_helmet_elite"
 display_name = "Chain Coif"
 description = "Interlocking metal rings drape over the head and neck, offering sturdy protection."
-icon = ExtResource("6_swamf")
+icon = ExtResource("6_tnzel")
 item_type = 1
 category = 7
 rarity = 3
 armor_slot = 7
-shape = ExtResource("5_3t4yx")
-stat_modifiers = Array[ExtResource("3_g2kmz")]([SubResource("Resource_mgdlh"), SubResource("Resource_32jxe")])
+shape = ExtResource("5_izvbi")
+stat_modifiers = Array[ExtResource("3_dvihj")]([SubResource("Resource_o39i4"), SubResource("Resource_9fzf1")])
 base_price = 106
