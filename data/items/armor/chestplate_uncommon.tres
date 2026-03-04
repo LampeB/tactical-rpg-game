@@ -24,7 +24,7 @@ value = 26.0
 [resource]
 script = ExtResource("2_kd77t")
 id = "chestplate_uncommon"
-display_name = "Fine Iron Chestplate"
+display_name = "Chestplate"
 description = "Heavy iron armor protecting the torso. Provides significant defense and vitality."
 icon = ExtResource("1_8m12l")
 item_type = 1

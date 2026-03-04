@@ -17,7 +17,7 @@ value = 8.0
 [resource]
 script = ExtResource("4_hrbfm")
 id = "staff_uncommon"
-display_name = "Fine Oak Staff"
+display_name = "Staff"
 description = "A staff carved from ancient oak. Channels magical energy."
 icon = ExtResource("3_1fnh3")
 category = 3

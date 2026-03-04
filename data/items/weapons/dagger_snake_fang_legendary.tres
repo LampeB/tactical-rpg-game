@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("3_6mfgt")
 id = "dagger_snake_fang_legendary"
-display_name = "Legendary Snake Fang"
+display_name = "Snake Fang"
 description = "A blade carved from a serpent's tooth. Even a glancing blow leaves the target poisoned."
 icon = ExtResource("1_iuir8")
 category = 4
@@ -20,5 +20,7 @@ hand_slots_required = 1
 shape = ExtResource("4_j3dhc")
 base_power = 12
 innate_status_effect = ExtResource("2_v8dud")
-innate_status_effect_chance = 0.5
+innate_status_effect_chance = 0.45
+innate_status_stacks = 2
+innate_crit_status_stacks = 4
 base_price = 498

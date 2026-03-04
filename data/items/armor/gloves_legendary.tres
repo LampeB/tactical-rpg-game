@@ -20,7 +20,7 @@ value = 3.0
 [resource]
 script = ExtResource("2_wtpgn")
 id = "gloves_legendary"
-display_name = "Legendary Leather Gloves"
+display_name = "Gloves"
 description = "Flexible leather gloves. Improves grip and striking power."
 icon = ExtResource("1_373ct")
 item_type = 1

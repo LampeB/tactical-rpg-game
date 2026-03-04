@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_d14e8"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_5nrc7"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_s60et"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_o34y5"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_3t3he"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_hvdpa"]
+
+[sub_resource type="Resource" id="Resource_1p19c"]
+script = ExtResource("3_s60et")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_poqeg"]
+script = ExtResource("3_s60et")
+stat = 8
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_687fz"]
+script = ExtResource("3_s60et")
+stat = 9
+value = 12.0
+
+[resource]
+script = ExtResource("1_d14e8")
+id = "hawkeye_common"
+display_name = "Hawkeye"
+description = "A precision-crafted bow that guides arrows to vital targets. Every shot counts."
+icon = ExtResource("6_hvdpa")
+category = 2
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_3t3he")
+stat_modifiers = Array[ExtResource("3_s60et")]([SubResource("Resource_1p19c"), SubResource("Resource_poqeg"), SubResource("Resource_687fz")])
+base_power = 4
+base_price = 85

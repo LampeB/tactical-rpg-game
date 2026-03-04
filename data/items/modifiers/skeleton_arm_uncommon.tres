@@ -10,7 +10,7 @@
 [resource]
 script = ExtResource("2_0qlp0")
 id = "skeleton_arm_uncommon"
-display_name = "Fine Skeletal Arm"
+display_name = "Skeletal Arm"
 description = "A mummified skeletal arm of mysterious origin. Grants an additional hand slot. Does not occupy a hand slot itself."
 icon = ExtResource("1_v1xlo")
 item_type = 2

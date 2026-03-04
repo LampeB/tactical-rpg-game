@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_a3bdd"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_o61tr"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_v8fv3"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_buwyf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_1n5l2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_p3mup"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_z3qj9"]
+
+[sub_resource type="Resource" id="Resource_k9mxp"]
+script = ExtResource("3_v8fv3")
+stat = 4
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_y4tb8"]
+script = ExtResource("3_v8fv3")
+stat = 8
+value = 22.0
+
+[sub_resource type="Resource" id="Resource_hrq1l"]
+script = ExtResource("3_v8fv3")
+stat = 9
+value = 33.0
+
+[resource]
+script = ExtResource("1_a3bdd")
+id = "vorpal_blade_elite"
+display_name = "Vorpal Blade"
+description = "A blade so sharp it finds vital points on its own. Devastating on a lucky strike."
+icon = ExtResource("6_p3mup")
+rarity = 3
+hand_slots_required = 1
+armor_slot = 0
+shape = ExtResource("5_1n5l2")
+stat_modifiers = Array[ExtResource("3_v8fv3")]([SubResource("Resource_k9mxp"), SubResource("Resource_y4tb8"), SubResource("Resource_hrq1l")])
+base_power = 7
+granted_skills = Array[ExtResource("4_buwyf")]([ExtResource("7_z3qj9")])
+base_price = 211

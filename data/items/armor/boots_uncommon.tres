@@ -20,7 +20,7 @@ value = 3.0
 [resource]
 script = ExtResource("2_4su42")
 id = "boots_uncommon"
-display_name = "Fine Leather Boots"
+display_name = "Boots"
 description = "Light leather boots. Enhances movement speed."
 icon = ExtResource("1_cjx8g")
 item_type = 1

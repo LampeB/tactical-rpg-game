@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_cu3p7")
 id = "recipe_flameblade"
-display_name = "Blueprint: Flameblade"
+display_name = "Blueprint: Hellbane"
 description = "Forging instructions for a fire-infused blade. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_jxndy")

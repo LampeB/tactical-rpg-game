@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_629rv"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_b2ruy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bdspt"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_omswn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_anugo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_klxmw"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_89apm"]
+
+[sub_resource type="Resource" id="Resource_j7pfs"]
+script = ExtResource("3_bdspt")
+stat = 4
+value = 40.0
+
+[resource]
+script = ExtResource("1_629rv")
+id = "halberd_unique"
+display_name = "Halberd"
+description = "A polearm topped with an axe blade, hook, and spike."
+icon = ExtResource("6_klxmw")
+category = 6
+rarity = 5
+hand_slots_required = 2
+armor_slot = 6
+shape = ExtResource("5_anugo")
+stat_modifiers = Array[ExtResource("3_bdspt")]([SubResource("Resource_j7pfs")])
+base_power = 40
+granted_skills = Array[ExtResource("4_omswn")]([ExtResource("7_89apm")])
+base_price = 374

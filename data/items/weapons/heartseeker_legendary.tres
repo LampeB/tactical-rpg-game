@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_6mc3f"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_yhc6r"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_2m8wq"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_anaxx"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_ugpxo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_ejunh"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_lwceq"]
+
+[sub_resource type="Resource" id="Resource_usnks"]
+script = ExtResource("3_2m8wq")
+stat = 4
+value = 6.0
+
+[sub_resource type="Resource" id="Resource_xj19g"]
+script = ExtResource("3_2m8wq")
+stat = 8
+value = 36.0
+
+[sub_resource type="Resource" id="Resource_w58wn"]
+script = ExtResource("3_2m8wq")
+stat = 9
+value = 30.0
+
+[resource]
+script = ExtResource("1_6mc3f")
+id = "heartseeker_legendary"
+display_name = "Heartseeker"
+description = "A dagger that unerringly finds the heart. Low base damage, devastating crits."
+icon = ExtResource("6_ejunh")
+category = 4
+rarity = 4
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_ugpxo")
+stat_modifiers = Array[ExtResource("3_2m8wq")]([SubResource("Resource_usnks"), SubResource("Resource_xj19g"), SubResource("Resource_w58wn")])
+base_power = 6
+granted_skills = Array[ExtResource("4_anaxx")]([ExtResource("7_lwceq")])
+base_price = 270

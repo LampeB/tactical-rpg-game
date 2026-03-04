@@ -26,5 +26,6 @@ shape = ExtResource("3")
 stat_modifiers = Array[ExtResource("2")]([SubResource("Resource_m673t")])
 base_power = 6
 innate_status_effect = ExtResource("5")
-innate_status_effect_chance = 0.35
+innate_status_effect_chance = 0.25
+innate_crit_status_stacks = 3
 base_price = 250

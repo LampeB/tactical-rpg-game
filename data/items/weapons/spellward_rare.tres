@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_mrjao"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_hfo6d"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_r1r5w"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0zxw0"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_sk98o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_c1bi2"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_i0axb"]
+
+[sub_resource type="Resource" id="Resource_njjdz"]
+script = ExtResource("3_r1r5w")
+stat = 5
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_nubdr"]
+script = ExtResource("3_r1r5w")
+stat = 7
+value = 14.0
+
+[resource]
+script = ExtResource("1_mrjao")
+id = "spellward_rare"
+display_name = "Spellward"
+description = "A rune-etched shield that deflects spells. Mages dread its glimmering surface."
+icon = ExtResource("6_c1bi2")
+category = 5
+rarity = 2
+hand_slots_required = 1
+armor_slot = 5
+shape = ExtResource("5_sk98o")
+stat_modifiers = Array[ExtResource("3_r1r5w")]([SubResource("Resource_njjdz"), SubResource("Resource_nubdr")])
+granted_skills = Array[ExtResource("4_0zxw0")]([ExtResource("7_i0axb")])
+base_price = 143

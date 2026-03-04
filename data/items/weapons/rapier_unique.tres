@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_90ana"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_pcrab"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_1lv8l"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_qrsaa"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_2uhhx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_htwsy"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_8tlta"]
+
+[sub_resource type="Resource" id="Resource_4zfgl"]
+script = ExtResource("3_1lv8l")
+stat = 4
+value = 16.0
+
+[sub_resource type="Resource" id="Resource_0keuf"]
+script = ExtResource("3_1lv8l")
+stat = 8
+value = 20.0
+
+[resource]
+script = ExtResource("1_90ana")
+id = "rapier_unique"
+display_name = "Rapier"
+description = "A thin thrusting sword that finds gaps in any defense."
+icon = ExtResource("6_htwsy")
+rarity = 5
+hand_slots_required = 1
+armor_slot = 0
+shape = ExtResource("5_2uhhx")
+stat_modifiers = Array[ExtResource("3_1lv8l")]([SubResource("Resource_4zfgl"), SubResource("Resource_0keuf")])
+base_power = 16
+granted_skills = Array[ExtResource("4_qrsaa")]([ExtResource("7_8tlta")])
+base_price = 278

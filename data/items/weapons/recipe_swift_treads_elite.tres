@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_75r41")
 id = "recipe_swift_treads_elite"
-display_name = "Elite Blueprint: Swift Treads"
+display_name = "Blueprint: Windwalkers"
 description = "Cobbling plans for speed-enchanted footwear. Bring this to a blacksmith."
 item_type = 5
 rarity = 3

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = "recipe_arcane_staff"
-display_name = "Blueprint: Arcane Staff"
+display_name = "Blueprint: Arcanum"
 description = "Instructions for channeling mystic energies through a staff. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("2")

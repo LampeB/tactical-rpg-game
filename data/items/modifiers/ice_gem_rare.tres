@@ -48,7 +48,7 @@ status_effect_chance = 0.34
 [resource]
 script = ExtResource("6_idkgi")
 id = "ice_gem_rare"
-display_name = "Superior Ice Gem"
+display_name = "Ice Gem"
 description = "A crystalline frost gem. Adds ice damage and chill chance to weapons. Grants Ice Shard to magic weapons."
 icon = ExtResource("5_bvw8q")
 item_type = 2

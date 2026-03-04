@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_b8brf"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_perax"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_2n44p"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_rcmhv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_r5xn4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_n5w4z"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_zt349"]
+
+[sub_resource type="Resource" id="Resource_j2erx"]
+script = ExtResource("3_2n44p")
+stat = 6
+value = 18.0
+
+[resource]
+script = ExtResource("1_b8brf")
+id = "rod_legendary"
+display_name = "Rod"
+description = "A sturdy rod infused with arcane resonance."
+icon = ExtResource("6_n5w4z")
+category = 3
+rarity = 4
+hand_slots_required = 1
+armor_slot = 3
+shape = ExtResource("5_r5xn4")
+stat_modifiers = Array[ExtResource("3_2n44p")]([SubResource("Resource_j2erx")])
+magical_power = 18
+granted_skills = Array[ExtResource("4_rcmhv")]([ExtResource("7_zt349")])
+base_price = 198

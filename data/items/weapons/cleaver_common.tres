@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vnq57"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_38jmk"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_j7v6x"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2scoq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_9e0yy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_d55ig"]
+
+[sub_resource type="Resource" id="Resource_8gowb"]
+script = ExtResource("3_j7v6x")
+stat = 4
+value = 7.0
+
+[resource]
+script = ExtResource("1_vnq57")
+id = "cleaver_common"
+display_name = "Cleaver"
+description = "A wide-bladed chopping weapon with a butcher's edge."
+icon = ExtResource("6_d55ig")
+category = 6
+hand_slots_required = 1
+armor_slot = 6
+shape = ExtResource("5_9e0yy")
+stat_modifiers = Array[ExtResource("3_j7v6x")]([SubResource("Resource_8gowb")])
+base_power = 7
+base_price = 55

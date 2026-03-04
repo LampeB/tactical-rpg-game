@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_htp78")
 id = "recipe_vampiric_axe"
-display_name = "Blueprint: Vampiric Axe"
+display_name = "Blueprint: Soulreaver"
 description = "Rare schematics for an axe that drains life from foes. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_ccybq")

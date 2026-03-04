@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_f92es"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_k4vbn"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_1ryzg"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_g2j7x"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_vhcg1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_ckhki"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_xtjcc"]
+
+[sub_resource type="Resource" id="Resource_ixlx4"]
+script = ExtResource("3_1ryzg")
+stat = 6
+value = 16.0
+
+[resource]
+script = ExtResource("1_f92es")
+id = "wand_unique"
+display_name = "Wand"
+description = "A slender focus for channeling quick bursts of magic."
+icon = ExtResource("6_ckhki")
+category = 3
+rarity = 5
+hand_slots_required = 1
+armor_slot = 3
+shape = ExtResource("5_vhcg1")
+stat_modifiers = Array[ExtResource("3_1ryzg")]([SubResource("Resource_ixlx4")])
+magical_power = 16
+granted_skills = Array[ExtResource("4_g2j7x")]([ExtResource("7_xtjcc")])
+base_price = 216

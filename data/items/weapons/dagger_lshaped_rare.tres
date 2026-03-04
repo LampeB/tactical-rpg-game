@@ -15,7 +15,7 @@ value = 5.0
 [resource]
 script = ExtResource("2_fn7bn")
 id = "dagger_lshaped_rare"
-display_name = "Superior Hooked Dagger"
+display_name = "Hooked Dagger"
 description = "A wicked dagger with a hooked blade. The L-shape makes it awkward to store."
 icon = ExtResource("1_ibov8")
 category = 4

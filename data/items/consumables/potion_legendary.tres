@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1")
 id = "potion_legendary"
-display_name = "Legendary Health Potion"
+display_name = "Health Potion"
 description = "A mythical elixir of extraordinary power. Restores 300 HP."
 icon = ExtResource("5")
 item_type = 3

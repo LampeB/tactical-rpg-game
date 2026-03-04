@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bx4vm"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mojig"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_m6mtc"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_yvpie"]
+[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_bxern"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_tppt5"]
+
+[sub_resource type="Resource" id="Resource_45za9"]
+script = ExtResource("3_m6mtc")
+stat = 4
+value = 21.0
+
+[resource]
+script = ExtResource("1_bx4vm")
+id = "longbow_legendary"
+display_name = "Longbow"
+description = "A tall bow with exceptional range and stopping power."
+icon = ExtResource("6_tppt5")
+category = 2
+rarity = 4
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_bxern")
+stat_modifiers = Array[ExtResource("3_m6mtc")]([SubResource("Resource_45za9")])
+base_power = 21
+base_price = 216

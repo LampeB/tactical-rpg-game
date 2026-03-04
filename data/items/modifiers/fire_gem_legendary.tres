@@ -48,7 +48,7 @@ status_effect_chance = 0.45
 [resource]
 script = ExtResource("6_3yjfu")
 id = "fire_gem_legendary"
-display_name = "Legendary Fire Gem"
+display_name = "Fire Gem"
 description = "A glowing ember gem. Adds fire damage and burn chance to weapons. Grants Fire Bolt to magic weapons."
 icon = ExtResource("5_5xe7w")
 item_type = 2

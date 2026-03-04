@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_0b49w"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bt74p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_74wdl"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_7o2k9"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_tb2av"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_pt8u6"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_335iq"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_2xjpp"]
+
+[sub_resource type="Resource" id="Resource_4fkog"]
+script = ExtResource("3_74wdl")
+stat = 6
+value = 11.0
+
+[resource]
+script = ExtResource("1_0b49w")
+id = "oracle_staff_uncommon"
+display_name = "Oracle Staff"
+description = "An ancient staff that bends the fabric of reality."
+icon = ExtResource("6_pt8u6")
+category = 3
+rarity = 1
+hand_slots_required = 2
+armor_slot = 3
+shape = ExtResource("5_tb2av")
+stat_modifiers = Array[ExtResource("3_74wdl")]([SubResource("Resource_4fkog")])
+magical_power = 11
+granted_skills = Array[ExtResource("4_7o2k9")]([ExtResource("7_335iq"), ExtResource("8_2xjpp")])
+base_price = 117

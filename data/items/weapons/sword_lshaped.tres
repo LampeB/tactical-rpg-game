@@ -17,7 +17,7 @@ value = 6.0
 [resource]
 script = ExtResource("1")
 id = "sword_lshaped"
-display_name = "L-Shaped Broadsword"
+display_name = "Broadsword"
 description = "An unusual broad-bladed sword with an L-shaped profile. Takes up more space but hits harder."
 icon = ExtResource("4")
 rarity = 1

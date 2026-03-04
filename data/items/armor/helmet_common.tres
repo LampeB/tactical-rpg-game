@@ -20,7 +20,7 @@ value = 2.0
 [resource]
 script = ExtResource("1")
 id = "helmet_common"
-display_name = "Iron Helmet"
+display_name = "Helmet"
 description = "A sturdy iron helmet. Protects the head from blows."
 icon = ExtResource("4")
 item_type = 1

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_qo5x1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mjjt4"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gtqml"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ijtxj"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_vin4w"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_hlda5"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_rvcug"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="8_t61e4"]
+
+[sub_resource type="Resource" id="Resource_rd4j0"]
+script = ExtResource("3_gtqml")
+stat = 4
+value = 24.0
+
+[resource]
+script = ExtResource("1_qo5x1")
+id = "katana_unique"
+display_name = "Katana"
+description = "A curved single-edged blade forged for swift, precise cuts."
+icon = ExtResource("6_hlda5")
+rarity = 5
+hand_slots_required = 1
+armor_slot = 0
+shape = ExtResource("5_vin4w")
+stat_modifiers = Array[ExtResource("3_gtqml")]([SubResource("Resource_rd4j0")])
+base_power = 24
+granted_skills = Array[ExtResource("4_ijtxj")]([ExtResource("7_rvcug"), ExtResource("8_t61e4")])
+base_price = 264

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_8ruka"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f6k16"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_nur2g"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_64qya"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_d7orl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ux1w0"]
+
+[sub_resource type="Resource" id="Resource_3aezj"]
+script = ExtResource("3_nur2g")
+stat = 4
+value = 28.0
+
+[resource]
+script = ExtResource("1_8ruka")
+id = "morning_star_unique"
+display_name = "Morning Star"
+description = "A heavy spiked mace that punctures the thickest plate."
+icon = ExtResource("6_ux1w0")
+category = 1
+rarity = 5
+hand_slots_required = 1
+armor_slot = 1
+shape = ExtResource("5_d7orl")
+stat_modifiers = Array[ExtResource("3_nur2g")]([SubResource("Resource_3aezj")])
+base_power = 28
+base_price = 298

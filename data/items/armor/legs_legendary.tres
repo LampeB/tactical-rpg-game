@@ -25,7 +25,7 @@ value = -6.0
 [resource]
 script = ExtResource("2_nqq77")
 id = "legs_legendary"
-display_name = "Legendary Iron Greaves"
+display_name = "Greaves"
 description = "Heavy leg armor. Provides good protection but reduces mobility."
 icon = ExtResource("1_klc4b")
 item_type = 1

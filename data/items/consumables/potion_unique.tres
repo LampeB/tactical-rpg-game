@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("2_vucg7")
 id = "potion_unique"
-display_name = "Mythic Health Potion"
+display_name = "Health Potion"
 description = "A basic healing potion. Restores 30 HP."
 icon = ExtResource("1_svcbi")
 item_type = 3

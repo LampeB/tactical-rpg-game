@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_7hf85")
 id = "recipe_frostbow_unique"
-display_name = "Mythic Blueprint: Frostbow"
+display_name = "Blueprint: Frostbow"
 description = "Instructions for a bow enchanted with ice magic. Bring this to a blacksmith."
 item_type = 5
 rarity = 5

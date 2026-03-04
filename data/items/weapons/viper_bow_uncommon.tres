@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xl5s0"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_yti00"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3rmpp"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3ts2l"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_pnsyw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_4cuub"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="7_z0vw8"]
+
+[sub_resource type="Resource" id="Resource_5ezht"]
+script = ExtResource("3_3rmpp")
+stat = 4
+value = 7.0
+
+[resource]
+script = ExtResource("1_xl5s0")
+id = "viper_bow_uncommon"
+display_name = "Viper Bow"
+description = "A bow strung with serpent sinew. Its arrows carry venom that rots from within."
+icon = ExtResource("6_4cuub")
+category = 2
+rarity = 1
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_pnsyw")
+stat_modifiers = Array[ExtResource("3_3rmpp")]([SubResource("Resource_5ezht")])
+base_power = 7
+innate_status_effect = ExtResource("7_z0vw8")
+innate_status_effect_chance = 0.15
+base_price = 101

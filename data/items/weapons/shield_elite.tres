@@ -21,7 +21,7 @@ value = 13.0
 [resource]
 script = ExtResource("3_f8wi4")
 id = "shield_elite"
-display_name = "Elite Wooden Shield"
+display_name = "Shield"
 description = "A sturdy wooden shield. Offers basic protection."
 icon = ExtResource("2_rkgjq")
 category = 5

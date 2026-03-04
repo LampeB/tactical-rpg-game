@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_x2vwh")
 id = "recipe_vampiric_axe_legendary"
-display_name = "Legendary Blueprint: Vampiric Axe"
+display_name = "Blueprint: Soulreaver"
 description = "Rare schematics for an axe that drains life from foes. Bring this to a blacksmith."
 item_type = 5
 rarity = 4

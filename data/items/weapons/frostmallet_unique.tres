@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ok75c"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ux952"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_tmu6p"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ch0r9"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ses9i"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_k7tvu"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_8nxdn"]
+
+[sub_resource type="Resource" id="Resource_9nitf"]
+script = ExtResource("3_tmu6p")
+stat = 4
+value = 20.0
+
+[resource]
+script = ExtResource("1_ok75c")
+id = "frostmallet_unique"
+display_name = "Frostmallet"
+description = "A hammer forged from glacier ice that never melts. Each blow numbs the foe."
+icon = ExtResource("6_k7tvu")
+category = 1
+rarity = 5
+hand_slots_required = 1
+armor_slot = 1
+shape = ExtResource("5_ses9i")
+stat_modifiers = Array[ExtResource("3_tmu6p")]([SubResource("Resource_9nitf")])
+base_power = 20
+innate_status_effect = ExtResource("7_8nxdn")
+innate_status_effect_chance = 0.6
+innate_status_stacks = 3
+innate_crit_status_stacks = 5
+base_price = 288

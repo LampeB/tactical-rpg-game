@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 id = "recipe_twin_dagger"
-display_name = "Blueprint: Twin Dagger"
+display_name = "Blueprint: Shadow Blades"
 description = "Detailed forging instructions for a twin dagger. Bring this to a blacksmith to learn the recipe."
 item_type = 5
 shape = ExtResource("2")

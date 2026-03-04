@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_zhdtj"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p0yw4"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_g0l0y"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_m91ke"]
+[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_m22m2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_zmanv"]
+[ext_resource type="Resource" path="res://data/status_effects/shocked.tres" id="7_n92km"]
+
+[sub_resource type="Resource" id="Resource_ib2u0"]
+script = ExtResource("3_g0l0y")
+stat = 4
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_baylr"]
+script = ExtResource("3_g0l0y")
+stat = 2
+value = 7.0
+
+[resource]
+script = ExtResource("1_zhdtj")
+id = "stormstring_elite"
+display_name = "Stormstring"
+description = "Each arrow crackles with captured lightning. Fast, relentless, and paralyzing."
+icon = ExtResource("6_zmanv")
+category = 2
+rarity = 3
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_m22m2")
+stat_modifiers = Array[ExtResource("3_g0l0y")]([SubResource("Resource_ib2u0"), SubResource("Resource_baylr")])
+base_power = 9
+innate_status_effect = ExtResource("7_n92km")
+innate_status_effect_chance = 0.35
+innate_status_stacks = 2
+innate_crit_status_stacks = 3
+base_price = 185

@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_i8sbd")
 id = "recipe_venom_dagger"
-display_name = "Blueprint: Venom Dagger"
+display_name = "Blueprint: Venomfang"
 description = "Instructions for coating a blade with concentrated poison. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_y8pu2")

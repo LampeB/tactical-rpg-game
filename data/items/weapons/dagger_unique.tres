@@ -21,7 +21,7 @@ value = 12.0
 [resource]
 script = ExtResource("3_rfcsn")
 id = "dagger_unique"
-display_name = "Mythic Iron Dagger"
+display_name = "Dagger"
 description = "A lightweight dagger. Quick and easy to conceal."
 icon = ExtResource("2_f3qpe")
 category = 4

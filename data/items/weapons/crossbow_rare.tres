@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_70751"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_pkr7l"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gfa53"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ew2yn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_cross.tres" id="5_x35kx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_digin"]
+
+[sub_resource type="Resource" id="Resource_3pam3"]
+script = ExtResource("3_gfa53")
+stat = 4
+value = 14.0
+
+[resource]
+script = ExtResource("1_70751")
+id = "crossbow_rare"
+display_name = "Crossbow"
+description = "A mechanical bow that trades speed for raw penetration."
+icon = ExtResource("6_digin")
+category = 2
+rarity = 2
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_x35kx")
+stat_modifiers = Array[ExtResource("3_gfa53")]([SubResource("Resource_3pam3")])
+base_power = 14
+base_price = 133

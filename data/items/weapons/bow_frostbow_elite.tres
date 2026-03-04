@@ -16,7 +16,7 @@ value = 10.0
 [resource]
 script = ExtResource("3_cgk8h")
 id = "bow_frostbow_elite"
-display_name = "Elite Frostbow"
+display_name = "Frostbow"
 description = "A bow threaded with frozen sinew. Every arrow carries a chill. Critical shots freeze even deeper."
 icon = ExtResource("1_7avmm")
 category = 2
@@ -27,4 +27,6 @@ stat_modifiers = Array[ExtResource("5_6b8ks")]([SubResource("Resource_6b8ks")])
 base_power = 8
 innate_status_effect = ExtResource("2_x35mb")
 innate_status_effect_chance = 0.35
+innate_status_stacks = 2
+innate_crit_status_stacks = 3
 base_price = 388

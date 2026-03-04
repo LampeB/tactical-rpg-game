@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pw52z"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_xgnvf"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_q3dbk"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_u1zk8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_6q8mp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_g6aa3"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_ibrzh"]
+
+[sub_resource type="Resource" id="Resource_iv09b"]
+script = ExtResource("3_q3dbk")
+stat = 4
+value = 7.0
+
+[resource]
+script = ExtResource("1_pw52z")
+id = "permafrost_axe_common"
+display_name = "Permafrost Axe"
+description = "An axe of frozen steel that slows foes to a crawl. The cold bites deeper than the blade."
+icon = ExtResource("6_g6aa3")
+category = 6
+hand_slots_required = 2
+armor_slot = 6
+shape = ExtResource("5_6q8mp")
+stat_modifiers = Array[ExtResource("3_q3dbk")]([SubResource("Resource_iv09b")])
+base_power = 7
+innate_status_effect = ExtResource("7_ibrzh")
+innate_status_effect_chance = 0.05
+base_price = 75

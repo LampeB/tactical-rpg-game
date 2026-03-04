@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_l4kgu")
 id = "recipe_venom_dagger_unique"
-display_name = "Mythic Blueprint: Venom Dagger"
+display_name = "Blueprint: Venomfang"
 description = "Instructions for coating a blade with concentrated poison. Bring this to a blacksmith."
 item_type = 5
 rarity = 5

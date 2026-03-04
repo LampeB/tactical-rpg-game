@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1")
 id = "potion_elite"
-display_name = "Superior Health Potion"
+display_name = "Health Potion"
 description = "A masterfully brewed healing potion. Restores 175 HP."
 icon = ExtResource("5")
 item_type = 3

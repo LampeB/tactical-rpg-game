@@ -15,7 +15,7 @@ value = 7.0
 [resource]
 script = ExtResource("2_72f0m")
 id = "bow_rare"
-display_name = "Superior Hunting Bow"
+display_name = "Bow"
 description = "A lightweight hunting bow. Ranged weapon with a distinctive zigzag profile."
 icon = ExtResource("1_4p8gt")
 category = 2

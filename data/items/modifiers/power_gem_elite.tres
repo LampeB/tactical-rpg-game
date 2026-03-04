@@ -45,7 +45,7 @@ status_effect_chance = 0.25384615384615383
 [resource]
 script = ExtResource("4_modmm")
 id = "power_gem_elite"
-display_name = "Elite Power Gem"
+display_name = "Power Gem"
 description = "A glowing red gem pulsing with strength. Adds +15% physical attack to adjacent weapons."
 icon = ExtResource("3_3vmlr")
 item_type = 2

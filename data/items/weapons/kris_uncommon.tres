@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kbgol"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_7d7nn"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_exufi"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pzaf1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_tkh0u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_spysi"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_moc5j"]
+
+[sub_resource type="Resource" id="Resource_ojh82"]
+script = ExtResource("3_exufi")
+stat = 4
+value = 7.0
+
+[sub_resource type="Resource" id="Resource_9q6az"]
+script = ExtResource("3_exufi")
+stat = 2
+value = 4.0
+
+[resource]
+script = ExtResource("1_kbgol")
+id = "kris_uncommon"
+display_name = "Kris"
+description = "A wavy-bladed dagger that leaves jagged wounds."
+icon = ExtResource("6_spysi")
+category = 4
+rarity = 1
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_tkh0u")
+stat_modifiers = Array[ExtResource("3_exufi")]([SubResource("Resource_ojh82"), SubResource("Resource_9q6az")])
+base_power = 7
+granted_skills = Array[ExtResource("4_pzaf1")]([ExtResource("7_moc5j")])
+base_price = 70

@@ -15,7 +15,7 @@ value = 28.0
 [resource]
 script = ExtResource("2_tylme")
 id = "mace_unique"
-display_name = "Mythic Iron Mace"
+display_name = "Mace"
 description = "A heavy iron mace. Slow but powerful."
 icon = ExtResource("1_dxw7q")
 category = 1

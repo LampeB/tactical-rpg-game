@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_llnh5"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_4n97z"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ltjbe"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ddf4q"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_ver39"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_zo51k"]
+
+[sub_resource type="Resource" id="Resource_wb0ap"]
+script = ExtResource("3_ltjbe")
+stat = 4
+value = 18.0
+
+[sub_resource type="Resource" id="Resource_gumws"]
+script = ExtResource("3_ltjbe")
+stat = 2
+value = 6.0
+
+[resource]
+script = ExtResource("1_llnh5")
+id = "recurve_bow_legendary"
+display_name = "Recurve Bow"
+description = "Curved limbs store extra energy for a powerful shot."
+icon = ExtResource("6_zo51k")
+category = 2
+rarity = 4
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_ver39")
+stat_modifiers = Array[ExtResource("3_ltjbe")]([SubResource("Resource_wb0ap"), SubResource("Resource_gumws")])
+base_power = 18
+base_price = 198
