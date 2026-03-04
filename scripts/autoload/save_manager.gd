@@ -2,7 +2,7 @@ extends Node
 ## Handles serialization/deserialization of game state to/from JSON.
 ## Supports 5 manual save slots + 1 auto-save slot, each with a ring-buffer history.
 
-const SAVE_VERSION := 6
+const SAVE_VERSION := 7
 const MAX_SLOTS := 5
 const MAX_HISTORY := 5
 const AUTO_HISTORY := 3
@@ -437,6 +437,7 @@ func _deserialize(data: Dictionary) -> void:
 ## Reconstruct a Party from save data. Pure data transformation — no side effects.
 func _build_party(data: Dictionary) -> Party:
 	var party := Party.new()
+	var save_ver: int = int(data.get("version", 1))
 
 	# Backpack states must be restored BEFORE add_to_roster so the correct grid
 	# template is used when each character's GridInventory is created.
@@ -444,8 +445,12 @@ func _build_party(data: Dictionary) -> Party:
 	for char_id: String in bp_data:
 		var s: Dictionary = bp_data[char_id]
 		var cells: Array = []
-		for raw in s.get("purchased_cells", []):
-			cells.append(Vector2i(int(raw[0]), int(raw[1])))
+		if save_ver >= 7:
+			# Version 7+: purchased_cells are cumulative master-grid coords.
+			for raw in s.get("purchased_cells", []):
+				cells.append(Vector2i(int(raw[0]), int(raw[1])))
+		# Version <=6: old per-tier coords are meaningless on the new master grid.
+		# Keep tier but reset purchased_cells to empty.
 		party.backpack_states[char_id] = {
 			"tier": int(s.get("tier", 0)),
 			"purchased_cells": cells,

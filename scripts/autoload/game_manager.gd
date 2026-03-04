@@ -207,14 +207,11 @@ func unlock_next_tier_via_weaver() -> bool:
 	spend_gold(check.cost_gold)
 	party.consume_runes(check.cost_runes)
 
-	# Unlock for every character; displaced items go to stash.
+	# Unlock for every character (grid only grows — no displaced items).
 	for character in characters:
 		var state := party.get_or_init_backpack_state(character)
-		var displaced: Array = BackpackUpgradeSystem.unlock_next_tier(
+		BackpackUpgradeSystem.unlock_next_tier(
 			character, state, party.grid_inventories[character.id])
-		for item in displaced:
-			if not party.add_to_stash(item):
-				party.force_add_to_stash(item)
 		EventBus.backpack_tier_unlocked.emit(character.id, state.get("tier", 0))
 
 	EventBus.inventory_expanded.emit()
@@ -280,6 +277,29 @@ func _on_item_database_reloaded() -> void:
 	if not displaced_items.is_empty():
 		DebugLogger.log_info("Moved %d displaced items to stash after reload" % displaced_items.size(), "GameManager")
 		EventBus.stash_changed.emit()
+
+
+## Unlock the next backpack tier for a single character.
+## Returns: { ok: bool, reason: String, new_tier: int }
+func unlock_tier_for_character(character_id: String) -> Dictionary:
+	if not party:
+		return {"ok": false, "reason": "No party.", "new_tier": 0}
+	var character: CharacterData = party.roster.get(character_id)
+	if not character or character.backpack_tiers.is_empty():
+		return {"ok": false, "reason": "No backpack tiers.", "new_tier": 0}
+	var state := party.get_or_init_backpack_state(character)
+	var total_runes: int = party.count_runes()
+	var check := BackpackUpgradeSystem.can_unlock_next_tier(character, state, gold, total_runes)
+	if not check.ok:
+		return {"ok": false, "reason": check.reason, "new_tier": 0}
+	spend_gold(check.cost_gold)
+	party.consume_runes(check.cost_runes)
+	BackpackUpgradeSystem.unlock_next_tier(
+		character, state, party.grid_inventories[character.id])
+	var new_tier: int = state.get("tier", 0)
+	EventBus.backpack_tier_unlocked.emit(character.id, new_tier)
+	EventBus.inventory_expanded.emit()
+	return {"ok": true, "reason": "", "new_tier": new_tier + 1}
 
 
 ## Returns true if the next tier can be unlocked (enough gold + runes in party pool).
