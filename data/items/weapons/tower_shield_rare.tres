@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_iruyi"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_k9pvi"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_xa28e"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_vp437"]
-[ext_resource type="Resource" path="res://data/shapes/shape_2x3.tres" id="5_bpnlq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_18o6t"]
-[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_qyeuk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rkhux"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_kgd6f"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_8fpl6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_nbrp5"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_k2uxx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_pd24t"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_ii.tres" id="7_j8839"]
 
-[sub_resource type="Resource" id="Resource_wytfv"]
-script = ExtResource("3_xa28e")
+[sub_resource type="Resource" id="Resource_dbd0h"]
+script = ExtResource("3_8fpl6")
 stat = 5
 value = 22.0
 
-[sub_resource type="Resource" id="Resource_q8fwd"]
-script = ExtResource("3_xa28e")
+[sub_resource type="Resource" id="Resource_5k47r"]
+script = ExtResource("3_8fpl6")
 stat = 7
 value = 11.0
 
 [resource]
-script = ExtResource("1_iruyi")
+script = ExtResource("1_rkhux")
 id = "tower_shield_rare"
 display_name = "Tower Shield"
 description = "A massive shield that covers the entire body."
-icon = ExtResource("6_18o6t")
+icon = ExtResource("6_pd24t")
 category = 5
 rarity = 2
 hand_slots_required = 1
 armor_slot = 5
-shape = ExtResource("5_bpnlq")
-stat_modifiers = Array[ExtResource("3_xa28e")]([SubResource("Resource_wytfv"), SubResource("Resource_q8fwd")])
-granted_skills = Array[ExtResource("4_vp437")]([ExtResource("7_qyeuk")])
+shape = ExtResource("5_k2uxx")
+stat_modifiers = Array[ExtResource("3_8fpl6")]([SubResource("Resource_dbd0h"), SubResource("Resource_5k47r")])
+granted_skills = Array[ExtResource("4_nbrp5")]([ExtResource("7_j8839")])
 base_price = 143

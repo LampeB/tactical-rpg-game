@@ -63,7 +63,7 @@ SHAPES = {
     "cross": "res://data/shapes/shape_cross.tres",
 }
 
-# --- Skill paths ---
+# --- Skill paths (base = tier 1) ---
 SKILLS = {
     "slash":        "res://data/skills/slash.tres",
     "power_strike": "res://data/skills/power_strike.tres",
@@ -71,7 +71,37 @@ SKILLS = {
     "shield_bash":  "res://data/skills/shield_bash.tres",
     "fire_bolt":    "res://data/skills/fire_bolt.tres",
     "ice_shard":    "res://data/skills/ice_shard.tres",
+    # Tier 2
+    "slash_ii":        "res://data/skills/slash_ii.tres",
+    "power_strike_ii": "res://data/skills/power_strike_ii.tres",
+    "backstab_ii":     "res://data/skills/backstab_ii.tres",
+    "shield_bash_ii":  "res://data/skills/shield_bash_ii.tres",
+    "fire_bolt_ii":    "res://data/skills/fire_bolt_ii.tres",
+    "ice_shard_ii":    "res://data/skills/ice_shard_ii.tres",
+    # Tier 3
+    "slash_iii":        "res://data/skills/slash_iii.tres",
+    "power_strike_iii": "res://data/skills/power_strike_iii.tres",
+    "backstab_iii":     "res://data/skills/backstab_iii.tres",
+    "shield_bash_iii":  "res://data/skills/shield_bash_iii.tres",
+    "fire_bolt_iii":    "res://data/skills/fire_bolt_iii.tres",
+    "ice_shard_iii":    "res://data/skills/ice_shard_iii.tres",
 }
+
+# Rarity → skill tier suffix mapping
+SKILL_TIER_SUFFIX = {
+    0: "",      # common
+    1: "",      # uncommon
+    2: "_ii",   # rare
+    3: "_ii",   # elite
+    4: "_iii",  # legendary
+    5: "_iii",  # unique
+}
+
+
+def get_tiered_skill(base_skill: str, rarity_enum: int) -> str:
+    """Return the tiered skill key for a given base skill and rarity."""
+    suffix = SKILL_TIER_SUFFIX[rarity_enum]
+    return base_skill + suffix
 
 # --- Status effect paths ---
 STATUS_EFFECTS = {
@@ -188,7 +218,7 @@ WEAPONS = [
         "id": "ember_wand", "name": "Ember Wand", "category": CAT_STAFF,
         "hands": 1, "shape": "1x1",
         "base_power": 0, "magical_power": 4,
-        "stats": [(STAT_MAG_ATK, 4)],
+        "stats": [(STAT_MAG_ATK, 6)],
         "skills": ["fire_bolt"],
         "innate_effect": ("burn", 0.35),
         "description": "A wand that smolders with inner flame. Its spells scorch and ignite.",
@@ -198,7 +228,7 @@ WEAPONS = [
         "id": "frostspire", "name": "Frostspire", "category": CAT_STAFF,
         "hands": 2, "shape": "1x4",
         "base_power": 0, "magical_power": 6,
-        "stats": [(STAT_MAG_ATK, 6)],
+        "stats": [(STAT_MAG_ATK, 9)],
         "skills": ["ice_shard"],
         "innate_effect": ("chilled", 0.45),
         "description": "An icicle staff that radiates bitter cold. Enemies slow to a crawl.",
@@ -318,10 +348,11 @@ def generate_tres(weapon: dict, rarity: dict) -> str:
         status_key, _ = w["innate_effect"]
         eid_status = add_ext("Resource", STATUS_EFFECTS[status_key])
 
-    # Skills
+    # Skills (tiered by rarity)
     skill_eids = []
     for sk in w["skills"]:
-        eid = add_ext("Resource", SKILLS[sk])
+        tiered_sk = get_tiered_skill(sk, r["enum_val"])
+        eid = add_ext("Resource", SKILLS[tiered_sk])
         skill_eids.append(eid)
 
     # Build ext_resource section
@@ -403,7 +434,10 @@ def generate_tres(weapon: dict, rarity: dict) -> str:
 
 def main():
     apply = "--apply" in sys.argv
+    force = "--force" in sys.argv
     mode = "APPLYING" if apply else "DRY RUN"
+    if force:
+        mode += " (FORCE OVERWRITE)"
     print(f"=== {mode} ===\n")
 
     total = 0
@@ -415,7 +449,7 @@ def main():
             filename = f"{item_id}.tres"
             filepath = os.path.join(WEAPONS_DIR, filename)
 
-            if os.path.exists(filepath):
+            if os.path.exists(filepath) and not force:
                 print(f"  SKIP (exists): {filename}")
                 skipped += 1
                 continue

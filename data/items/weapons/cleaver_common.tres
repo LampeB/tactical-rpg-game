@@ -1,27 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vnq57"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_38jmk"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_j7v6x"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2scoq"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_9e0yy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_d55ig"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bb9yy"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9831f"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dps3z"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_t1j38"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_2xqcf"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_5b6k2"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_b0cx7"]
 
-[sub_resource type="Resource" id="Resource_8gowb"]
-script = ExtResource("3_j7v6x")
+[sub_resource type="Resource" id="Resource_xjzyx"]
+script = ExtResource("3_dps3z")
 stat = 4
 value = 7.0
 
 [resource]
-script = ExtResource("1_vnq57")
+script = ExtResource("1_bb9yy")
 id = "cleaver_common"
 display_name = "Cleaver"
 description = "A wide-bladed chopping weapon with a butcher's edge."
-icon = ExtResource("6_d55ig")
+icon = ExtResource("6_5b6k2")
 category = 6
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_9e0yy")
-stat_modifiers = Array[ExtResource("3_j7v6x")]([SubResource("Resource_8gowb")])
+shape = ExtResource("5_2xqcf")
+stat_modifiers = Array[ExtResource("3_dps3z")]([SubResource("Resource_xjzyx")])
 base_power = 7
+granted_skills = Array[ExtResource("4_t1j38")]([ExtResource("7_b0cx7")])
 base_price = 55

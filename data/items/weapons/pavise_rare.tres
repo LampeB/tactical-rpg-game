@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_gdove"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f731g"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ld6lk"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_nerz6"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_9q5vw"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_k7v10"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_2x1l4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_wwudr"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_boi3l"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pmlau"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_652u3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_17738"]
 
-[sub_resource type="Resource" id="Resource_6uscw"]
-script = ExtResource("3_ld6lk")
+[sub_resource type="Resource" id="Resource_63bl1"]
+script = ExtResource("3_boi3l")
 stat = 5
 value = 18.0
 
-[sub_resource type="Resource" id="Resource_uufm4"]
-script = ExtResource("3_ld6lk")
+[sub_resource type="Resource" id="Resource_nylfq"]
+script = ExtResource("3_boi3l")
 stat = 7
 value = 7.0
 
 [resource]
-script = ExtResource("1_gdove")
+script = ExtResource("1_2x1l4")
 id = "pavise_rare"
 display_name = "Pavise"
 description = "A tall standing shield that deflects arrows and spells alike."
-icon = ExtResource("6_k7v10")
+icon = ExtResource("6_17738")
 category = 5
 rarity = 2
 hand_slots_required = 1
 armor_slot = 5
-shape = ExtResource("5_9q5vw")
-stat_modifiers = Array[ExtResource("3_ld6lk")]([SubResource("Resource_6uscw"), SubResource("Resource_uufm4")])
+shape = ExtResource("5_652u3")
+stat_modifiers = Array[ExtResource("3_boi3l")]([SubResource("Resource_63bl1"), SubResource("Resource_nylfq")])
 base_price = 112

@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_gewjo"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_w4sa9"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_spkki"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_9chnd"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_bp56m"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_vjmd9"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_fd2xm"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vfvcy"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_79tzm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_z3tah"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_i9uv8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_pfl64"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_blwyn"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="7_4atdx"]
 
-[sub_resource type="Resource" id="Resource_7hf9w"]
-script = ExtResource("3_spkki")
+[sub_resource type="Resource" id="Resource_ltsn4"]
+script = ExtResource("3_z3tah")
 stat = 4
 value = 18.0
 
 [resource]
-script = ExtResource("1_gewjo")
+script = ExtResource("1_vfvcy")
 id = "halberd_rare"
 display_name = "Halberd"
 description = "A polearm topped with an axe blade, hook, and spike."
-icon = ExtResource("6_vjmd9")
+icon = ExtResource("6_blwyn")
 category = 6
 rarity = 2
 hand_slots_required = 2
 armor_slot = 6
-shape = ExtResource("5_bp56m")
-stat_modifiers = Array[ExtResource("3_spkki")]([SubResource("Resource_7hf9w")])
+shape = ExtResource("5_pfl64")
+stat_modifiers = Array[ExtResource("3_z3tah")]([SubResource("Resource_ltsn4")])
 base_power = 18
-granted_skills = Array[ExtResource("4_9chnd")]([ExtResource("7_fd2xm")])
+granted_skills = Array[ExtResource("4_i9uv8")]([ExtResource("7_4atdx")])
 base_price = 159

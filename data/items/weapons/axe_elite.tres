@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_vbr51"]
 [ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="3_hd16v"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="4_vbr51"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="skill_lnrsp"]
 
 [sub_resource type="Resource" id="Resource_ys0mo"]
 script = ExtResource("4_vbr51")
@@ -24,4 +25,5 @@ hand_slots_required = 2
 shape = ExtResource("3_hd16v")
 stat_modifiers = Array[ExtResource("4_vbr51")]([SubResource("Resource_ys0mo")])
 base_power = 18
+granted_skills = Array[ExtResource("2_vbr51")]([ExtResource("skill_lnrsp")])
 base_price = 185

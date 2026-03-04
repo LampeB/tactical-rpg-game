@@ -1,28 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7urvc"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_kwtru"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_9e4wu"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2nsns"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_o07hj"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_7ofu6"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ajoey"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_nqoos"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_oj9by"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_21epv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_9yemx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_qb5up"]
+[ext_resource type="Resource" path="res://data/skills/slash_iii.tres" id="7_22sg2"]
 
-[sub_resource type="Resource" id="Resource_pt4fe"]
-script = ExtResource("3_9e4wu")
+[sub_resource type="Resource" id="Resource_594wd"]
+script = ExtResource("3_oj9by")
 stat = 4
 value = 21.0
 
 [resource]
-script = ExtResource("1_7urvc")
+script = ExtResource("1_ajoey")
 id = "cleaver_legendary"
 display_name = "Cleaver"
 description = "A wide-bladed chopping weapon with a butcher's edge."
-icon = ExtResource("6_7ofu6")
+icon = ExtResource("6_qb5up")
 category = 6
 rarity = 4
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_o07hj")
-stat_modifiers = Array[ExtResource("3_9e4wu")]([SubResource("Resource_pt4fe")])
+shape = ExtResource("5_9yemx")
+stat_modifiers = Array[ExtResource("3_oj9by")]([SubResource("Resource_594wd")])
 base_power = 21
+granted_skills = Array[ExtResource("4_21epv")]([ExtResource("7_22sg2")])
 base_price = 198

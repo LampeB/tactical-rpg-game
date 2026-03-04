@@ -1,33 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4q6w4"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_xh23x"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_x3y7h"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_nha98"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_my338"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ckd8k"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_yymbg"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_g31r5"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_b2pg5"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0t1mt"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_32l14"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ssm65"]
 
-[sub_resource type="Resource" id="Resource_decmm"]
-script = ExtResource("3_x3y7h")
+[sub_resource type="Resource" id="Resource_5lmg9"]
+script = ExtResource("3_b2pg5")
 stat = 4
 value = 20.0
 
-[sub_resource type="Resource" id="Resource_xscep"]
-script = ExtResource("3_x3y7h")
+[sub_resource type="Resource" id="Resource_0jprc"]
+script = ExtResource("3_b2pg5")
 stat = 2
 value = 8.0
 
 [resource]
-script = ExtResource("1_4q6w4")
+script = ExtResource("1_yymbg")
 id = "hatchet_unique"
 display_name = "Hatchet"
 description = "A light throwing axe, quick and brutal."
-icon = ExtResource("6_ckd8k")
+icon = ExtResource("6_ssm65")
 category = 6
 rarity = 5
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_my338")
-stat_modifiers = Array[ExtResource("3_x3y7h")]([SubResource("Resource_decmm"), SubResource("Resource_xscep")])
+shape = ExtResource("5_32l14")
+stat_modifiers = Array[ExtResource("3_b2pg5")]([SubResource("Resource_5lmg9"), SubResource("Resource_0jprc")])
 base_power = 20
 base_price = 202

@@ -1,30 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_m4n7c"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_xwbcq"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_nam7g"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_40ztp"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_e7wj1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_6yzhk"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_iqbm8"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jhrqo"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_99qk8"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_sb7yx"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_wnod9"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_9jene"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_dmcf7"]
 
-[sub_resource type="Resource" id="Resource_dkhlg"]
-script = ExtResource("3_nam7g")
+[sub_resource type="Resource" id="Resource_pv9r9"]
+script = ExtResource("3_sb7yx")
 stat = 4
-value = 22.0
+value = 25.0
+
+[sub_resource type="Resource" id="Resource_zn0sf"]
+script = ExtResource("3_sb7yx")
+stat = 9
+value = 14.0
 
 [resource]
-script = ExtResource("1_m4n7c")
+script = ExtResource("1_jhrqo")
 id = "maul_rare"
 display_name = "Maul"
 description = "An enormous two-handed hammer built to shatter."
-icon = ExtResource("6_6yzhk")
+icon = ExtResource("6_dmcf7")
 category = 1
 rarity = 2
 hand_slots_required = 2
 armor_slot = 1
-shape = ExtResource("5_e7wj1")
-stat_modifiers = Array[ExtResource("3_nam7g")]([SubResource("Resource_dkhlg")])
-base_power = 22
-granted_skills = Array[ExtResource("4_40ztp")]([ExtResource("7_iqbm8")])
-base_price = 173
+shape = ExtResource("5_9jene")
+stat_modifiers = Array[ExtResource("3_sb7yx")]([SubResource("Resource_pv9r9"), SubResource("Resource_zn0sf")])
+base_power = 25
+base_price = 184

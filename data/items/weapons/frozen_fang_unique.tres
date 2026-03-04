@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_eseep"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9eqsg"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ket2y"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_g6197"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_63c0u"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_p28o3"]
-[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_ke4ma"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="8_65xz5"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_n56q2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_k6iot"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ya13h"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_36vb6"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_ugm0i"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_geot1"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_ffxiz"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="8_y6oce"]
 
-[sub_resource type="Resource" id="Resource_1mcfg"]
-script = ExtResource("3_ket2y")
+[sub_resource type="Resource" id="Resource_y0fj1"]
+script = ExtResource("3_ya13h")
 stat = 4
 value = 12.0
 
 [resource]
-script = ExtResource("1_eseep")
+script = ExtResource("1_n56q2")
 id = "frozen_fang_unique"
 display_name = "Frozen Fang"
 description = "A blade of eternal ice that numbs on contact. Foes feel the cold long after the cut."
-icon = ExtResource("6_p28o3")
+icon = ExtResource("6_geot1")
 category = 4
 rarity = 5
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_63c0u")
-stat_modifiers = Array[ExtResource("3_ket2y")]([SubResource("Resource_1mcfg")])
+shape = ExtResource("5_ugm0i")
+stat_modifiers = Array[ExtResource("3_ya13h")]([SubResource("Resource_y0fj1")])
 base_power = 12
-innate_status_effect = ExtResource("7_ke4ma")
+innate_status_effect = ExtResource("7_ffxiz")
 innate_status_effect_chance = 0.6
 innate_status_stacks = 3
 innate_crit_status_stacks = 5
-granted_skills = Array[ExtResource("4_g6197")]([ExtResource("8_65xz5")])
+granted_skills = Array[ExtResource("4_36vb6")]([ExtResource("8_y6oce")])
 base_price = 240

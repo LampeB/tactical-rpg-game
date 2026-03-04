@@ -1,28 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bwx71"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_w9ybn"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3b5ht"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_kdjg8"]
-[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_oupia"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_cnld1"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rzdm0"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_smfqh"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_km1lt"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lrn2u"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_2u49d"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_52zkt"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="7_olc97"]
 
-[sub_resource type="Resource" id="Resource_vojsm"]
-script = ExtResource("3_3b5ht")
+[sub_resource type="Resource" id="Resource_lftr8"]
+script = ExtResource("3_km1lt")
 stat = 4
 value = 13.0
 
 [resource]
-script = ExtResource("1_bwx71")
+script = ExtResource("1_rzdm0")
 id = "longbow_rare"
 display_name = "Longbow"
 description = "A tall bow with exceptional range and stopping power."
-icon = ExtResource("6_cnld1")
+icon = ExtResource("6_52zkt")
 category = 2
 rarity = 2
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_oupia")
-stat_modifiers = Array[ExtResource("3_3b5ht")]([SubResource("Resource_vojsm")])
+shape = ExtResource("5_2u49d")
+stat_modifiers = Array[ExtResource("3_km1lt")]([SubResource("Resource_lftr8")])
 base_power = 13
+granted_skills = Array[ExtResource("4_lrn2u")]([ExtResource("7_olc97")])
 base_price = 122

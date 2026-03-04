@@ -1,40 +1,40 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_6mc3f"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_yhc6r"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_2m8wq"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_anaxx"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_ugpxo"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_ejunh"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_lwceq"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_3zf7q"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_03bc9"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_420f1"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ryt04"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_19rbx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_li8sm"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="7_7pk9j"]
 
-[sub_resource type="Resource" id="Resource_usnks"]
-script = ExtResource("3_2m8wq")
+[sub_resource type="Resource" id="Resource_9d3wi"]
+script = ExtResource("3_420f1")
 stat = 4
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_xj19g"]
-script = ExtResource("3_2m8wq")
+[sub_resource type="Resource" id="Resource_j1fph"]
+script = ExtResource("3_420f1")
 stat = 8
 value = 36.0
 
-[sub_resource type="Resource" id="Resource_w58wn"]
-script = ExtResource("3_2m8wq")
+[sub_resource type="Resource" id="Resource_0j6cv"]
+script = ExtResource("3_420f1")
 stat = 9
 value = 30.0
 
 [resource]
-script = ExtResource("1_6mc3f")
+script = ExtResource("1_3zf7q")
 id = "heartseeker_legendary"
 display_name = "Heartseeker"
 description = "A dagger that unerringly finds the heart. Low base damage, devastating crits."
-icon = ExtResource("6_ejunh")
+icon = ExtResource("6_li8sm")
 category = 4
 rarity = 4
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_ugpxo")
-stat_modifiers = Array[ExtResource("3_2m8wq")]([SubResource("Resource_usnks"), SubResource("Resource_xj19g"), SubResource("Resource_w58wn")])
+shape = ExtResource("5_19rbx")
+stat_modifiers = Array[ExtResource("3_420f1")]([SubResource("Resource_9d3wi"), SubResource("Resource_j1fph"), SubResource("Resource_0j6cv")])
 base_power = 6
-granted_skills = Array[ExtResource("4_anaxx")]([ExtResource("7_lwceq")])
+granted_skills = Array[ExtResource("4_ryt04")]([ExtResource("7_7pk9j")])
 base_price = 270

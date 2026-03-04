@@ -1,27 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bz01e"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_i9nka"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_a916n"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_c8tgr"]
-[ext_resource type="Resource" path="res://data/shapes/shape_cross.tres" id="5_1zhul"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_6xg6i"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_v544d"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_fkq0x"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zhhqk"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_kw9z9"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_3tnxi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_ypcnf"]
 
-[sub_resource type="Resource" id="Resource_qhic4"]
-script = ExtResource("3_a916n")
+[sub_resource type="Resource" id="Resource_fnyt0"]
+script = ExtResource("3_zhhqk")
 stat = 4
 value = 8.0
 
+[sub_resource type="Resource" id="Resource_3f4sv"]
+script = ExtResource("3_zhhqk")
+stat = 9
+value = 6.0
+
 [resource]
-script = ExtResource("1_bz01e")
+script = ExtResource("1_v544d")
 id = "crossbow_common"
 display_name = "Crossbow"
 description = "A mechanical bow that trades speed for raw penetration."
-icon = ExtResource("6_6xg6i")
+icon = ExtResource("6_ypcnf")
 category = 2
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_1zhul")
-stat_modifiers = Array[ExtResource("3_a916n")]([SubResource("Resource_qhic4")])
+shape = ExtResource("5_3tnxi")
+stat_modifiers = Array[ExtResource("3_zhhqk")]([SubResource("Resource_fnyt0"), SubResource("Resource_3f4sv")])
 base_power = 8
 base_price = 65

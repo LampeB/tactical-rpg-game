@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vc1zx"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_iv8dz"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_r1v0q"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ugxto"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_bchxj"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_deceh"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_gd8qq"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_m807w"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_kof09"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zcrh6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_i5asj"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_5a6gg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_9oyc3"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_ii.tres" id="7_bb9zt"]
 
-[sub_resource type="Resource" id="Resource_kty6g"]
-script = ExtResource("3_r1v0q")
+[sub_resource type="Resource" id="Resource_q64rf"]
+script = ExtResource("3_zcrh6")
 stat = 6
-value = 13.0
+value = 20.0
 
 [resource]
-script = ExtResource("1_vc1zx")
+script = ExtResource("1_m807w")
 id = "rod_elite"
 display_name = "Rod"
 description = "A sturdy rod infused with arcane resonance."
-icon = ExtResource("6_deceh")
+icon = ExtResource("6_9oyc3")
 category = 3
 rarity = 3
 hand_slots_required = 1
 armor_slot = 3
-shape = ExtResource("5_bchxj")
-stat_modifiers = Array[ExtResource("3_r1v0q")]([SubResource("Resource_kty6g")])
+shape = ExtResource("5_5a6gg")
+stat_modifiers = Array[ExtResource("3_zcrh6")]([SubResource("Resource_q64rf")])
 magical_power = 13
-granted_skills = Array[ExtResource("4_ugxto")]([ExtResource("7_gd8qq")])
+granted_skills = Array[ExtResource("4_i5asj")]([ExtResource("7_bb9zt")])
 base_price = 145

@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_r9943"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ghxwf"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_1v6l5"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3jj29"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_dll24"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_nm5nl"]
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_zl122"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="8_3yci8"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_enx4b"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_0kqkg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_to8g5"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lyujw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_3o3gl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_n1734"]
+[ext_resource type="Resource" path="res://data/skills/slash_iii.tres" id="7_7i3zt"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="8_xvaji"]
 
-[sub_resource type="Resource" id="Resource_revm6"]
-script = ExtResource("3_1v6l5")
+[sub_resource type="Resource" id="Resource_lhrp8"]
+script = ExtResource("3_to8g5")
 stat = 4
 value = 18.0
 
 [resource]
-script = ExtResource("1_r9943")
+script = ExtResource("1_enx4b")
 id = "katana_legendary"
 display_name = "Katana"
 description = "A curved single-edged blade forged for swift, precise cuts."
-icon = ExtResource("6_nm5nl")
+icon = ExtResource("6_n1734")
 rarity = 4
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_dll24")
-stat_modifiers = Array[ExtResource("3_1v6l5")]([SubResource("Resource_revm6")])
+shape = ExtResource("5_3o3gl")
+stat_modifiers = Array[ExtResource("3_to8g5")]([SubResource("Resource_lhrp8")])
 base_power = 18
-granted_skills = Array[ExtResource("4_3jj29")]([ExtResource("7_zl122"), ExtResource("8_3yci8")])
+granted_skills = Array[ExtResource("4_lyujw")]([ExtResource("7_7i3zt"), ExtResource("8_xvaji")])
 base_price = 198

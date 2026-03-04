@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="1_1rr3h"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_ii.tres" id="1_1rr3h"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_bp0da"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="2_bt00u"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_ii.tres" id="2_bt00u"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_p2xt8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/staff_uncommon.png" id="3_bp0da"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_p2xt8"]

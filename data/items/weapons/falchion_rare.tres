@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_tpy3g"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_un0ep"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_j7yix"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2prtl"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8x0c9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_tw52g"]
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_9nc7n"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="8_bmebh"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1222y"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_318aa"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_67jmo"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gvpiz"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_f40nn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_xqbl0"]
+[ext_resource type="Resource" path="res://data/skills/slash_ii.tres" id="7_xn139"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="8_w2mas"]
 
-[sub_resource type="Resource" id="Resource_452xf"]
-script = ExtResource("3_j7yix")
+[sub_resource type="Resource" id="Resource_qcjig"]
+script = ExtResource("3_67jmo")
 stat = 4
 value = 13.0
 
 [resource]
-script = ExtResource("1_tpy3g")
+script = ExtResource("1_1222y")
 id = "falchion_rare"
 display_name = "Falchion"
 description = "A heavy single-edged blade favored by veteran soldiers."
-icon = ExtResource("6_tw52g")
+icon = ExtResource("6_xqbl0")
 rarity = 2
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_8x0c9")
-stat_modifiers = Array[ExtResource("3_j7yix")]([SubResource("Resource_452xf")])
+shape = ExtResource("5_f40nn")
+stat_modifiers = Array[ExtResource("3_67jmo")]([SubResource("Resource_qcjig")])
 base_power = 13
-granted_skills = Array[ExtResource("4_2prtl")]([ExtResource("7_9nc7n"), ExtResource("8_bmebh")])
+granted_skills = Array[ExtResource("4_gvpiz")]([ExtResource("7_xn139"), ExtResource("8_w2mas")])
 base_price = 122

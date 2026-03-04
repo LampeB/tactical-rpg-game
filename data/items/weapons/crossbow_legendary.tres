@@ -1,28 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_nc2nn"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_x39uo"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_96rcm"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_tbh9t"]
-[ext_resource type="Resource" path="res://data/shapes/shape_cross.tres" id="5_eguuw"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_85slp"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_revi1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_n0vmv"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ekpus"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0jmyx"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ovzp5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_vylo2"]
 
-[sub_resource type="Resource" id="Resource_t1m13"]
-script = ExtResource("3_96rcm")
+[sub_resource type="Resource" id="Resource_38b6k"]
+script = ExtResource("3_ekpus")
 stat = 4
 value = 24.0
 
+[sub_resource type="Resource" id="Resource_xey80"]
+script = ExtResource("3_ekpus")
+stat = 9
+value = 18.0
+
 [resource]
-script = ExtResource("1_nc2nn")
+script = ExtResource("1_revi1")
 id = "crossbow_legendary"
 display_name = "Crossbow"
 description = "A mechanical bow that trades speed for raw penetration."
-icon = ExtResource("6_85slp")
+icon = ExtResource("6_vylo2")
 category = 2
 rarity = 4
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_eguuw")
-stat_modifiers = Array[ExtResource("3_96rcm")]([SubResource("Resource_t1m13")])
+shape = ExtResource("5_ovzp5")
+stat_modifiers = Array[ExtResource("3_ekpus")]([SubResource("Resource_38b6k"), SubResource("Resource_xey80")])
 base_power = 24
 base_price = 234

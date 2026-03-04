@@ -1,28 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_i4lct"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ahoul"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gciuy"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ex1lx"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_wmist"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_37upz"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pv1ej"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_iu3ww"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_vv5a4"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_azexs"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_knu1h"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ztd53"]
 
-[sub_resource type="Resource" id="Resource_am0na"]
-script = ExtResource("3_gciuy")
+[sub_resource type="Resource" id="Resource_3jm9l"]
+script = ExtResource("3_vv5a4")
 stat = 4
 value = 18.0
 
+[sub_resource type="Resource" id="Resource_ki9g0"]
+script = ExtResource("3_vv5a4")
+stat = 8
+value = 9.0
+
 [resource]
-script = ExtResource("1_i4lct")
+script = ExtResource("1_pv1ej")
 id = "tomahawk_legendary"
 display_name = "Tomahawk"
 description = "A balanced hand axe that strikes with lethal precision."
-icon = ExtResource("6_37upz")
+icon = ExtResource("6_ztd53")
 category = 6
 rarity = 4
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_wmist")
-stat_modifiers = Array[ExtResource("3_gciuy")]([SubResource("Resource_am0na")])
+shape = ExtResource("5_knu1h")
+stat_modifiers = Array[ExtResource("3_vv5a4")]([SubResource("Resource_3jm9l"), SubResource("Resource_ki9g0")])
 base_power = 18
 base_price = 173

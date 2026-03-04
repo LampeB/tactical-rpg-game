@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ice_shard_ii"
+display_name = "Ice Shard II"
+description = "Launches a razor-sharp ice shard that freezes all enemies."
+usage = 0
+mp_cost = 10
+cooldown_turns = 0
+target_type = 4
+physical_scaling = 0.0
+magical_scaling = 1.05
+heal_amount = 0
+heal_percent = 0.0

@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_y7djz"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_nett1"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_y3pad"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_4zxgj"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_i6ze9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_1m1wg"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_j0dgw"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_wkyrb"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kbjj0"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_v1t7a"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zu6cy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_twoqu"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_8m7th"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_18743"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_ii.tres" id="7_gwk4u"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_ii.tres" id="8_8hxnw"]
 
-[sub_resource type="Resource" id="Resource_vkn6y"]
-script = ExtResource("3_y3pad")
+[sub_resource type="Resource" id="Resource_u7cax"]
+script = ExtResource("3_zu6cy")
 stat = 6
-value = 14.0
+value = 22.0
 
 [resource]
-script = ExtResource("1_y7djz")
+script = ExtResource("1_kbjj0")
 id = "oracle_staff_rare"
 display_name = "Oracle Staff"
 description = "An ancient staff that bends the fabric of reality."
-icon = ExtResource("6_1m1wg")
+icon = ExtResource("6_18743")
 category = 3
 rarity = 2
 hand_slots_required = 2
 armor_slot = 3
-shape = ExtResource("5_i6ze9")
-stat_modifiers = Array[ExtResource("3_y3pad")]([SubResource("Resource_vkn6y")])
+shape = ExtResource("5_8m7th")
+stat_modifiers = Array[ExtResource("3_zu6cy")]([SubResource("Resource_u7cax")])
 magical_power = 14
-granted_skills = Array[ExtResource("4_4zxgj")]([ExtResource("7_j0dgw"), ExtResource("8_wkyrb")])
+granted_skills = Array[ExtResource("4_twoqu")]([ExtResource("7_gwk4u"), ExtResource("8_8hxnw")])
 base_price = 153

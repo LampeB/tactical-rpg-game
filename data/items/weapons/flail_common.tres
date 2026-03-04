@@ -1,27 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_aurwo"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_60hkl"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7yhdp"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_6mh9a"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_kohb0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_niks5"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_gjomp"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_h1sza"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_4tyy5"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_1f9io"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_78sp1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_y6i59"]
 
-[sub_resource type="Resource" id="Resource_prlrx"]
-script = ExtResource("3_7yhdp")
+[sub_resource type="Resource" id="Resource_l718l"]
+script = ExtResource("3_4tyy5")
 stat = 4
 value = 6.0
 
+[sub_resource type="Resource" id="Resource_unv71"]
+script = ExtResource("3_4tyy5")
+stat = 8
+value = 4.0
+
 [resource]
-script = ExtResource("1_aurwo")
+script = ExtResource("1_gjomp")
 id = "flail_common"
 display_name = "Flail"
 description = "A spiked ball on a chain, unpredictable and devastating."
-icon = ExtResource("6_niks5")
+icon = ExtResource("6_y6i59")
 category = 1
 hand_slots_required = 1
 armor_slot = 1
-shape = ExtResource("5_kohb0")
-stat_modifiers = Array[ExtResource("3_7yhdp")]([SubResource("Resource_prlrx")])
+shape = ExtResource("5_78sp1")
+stat_modifiers = Array[ExtResource("3_4tyy5")]([SubResource("Resource_l718l"), SubResource("Resource_unv71")])
 base_power = 6
 base_price = 55

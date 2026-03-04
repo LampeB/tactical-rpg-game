@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jpse7"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_zs8ku"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_uo5v7"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_iajqu"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_3s5tz"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_7ed4k"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_iibzf"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_k2bpy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_veo4h"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3guox"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_y1e36"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_l7rlv"]
 
-[sub_resource type="Resource" id="Resource_bgumi"]
-script = ExtResource("3_uo5v7")
+[sub_resource type="Resource" id="Resource_pby4g"]
+script = ExtResource("3_veo4h")
 stat = 5
 value = 14.0
 
-[sub_resource type="Resource" id="Resource_gvca9"]
-script = ExtResource("3_uo5v7")
+[sub_resource type="Resource" id="Resource_10j6d"]
+script = ExtResource("3_veo4h")
 stat = 7
 value = 6.0
 
 [resource]
-script = ExtResource("1_jpse7")
+script = ExtResource("1_iibzf")
 id = "pavise_uncommon"
 display_name = "Pavise"
 description = "A tall standing shield that deflects arrows and spells alike."
-icon = ExtResource("6_7ed4k")
+icon = ExtResource("6_l7rlv")
 category = 5
 rarity = 1
 hand_slots_required = 1
 armor_slot = 5
-shape = ExtResource("5_3s5tz")
-stat_modifiers = Array[ExtResource("3_uo5v7")]([SubResource("Resource_bgumi"), SubResource("Resource_gvca9")])
+shape = ExtResource("5_y1e36")
+stat_modifiers = Array[ExtResource("3_veo4h")]([SubResource("Resource_pby4g"), SubResource("Resource_10j6d")])
 base_price = 86

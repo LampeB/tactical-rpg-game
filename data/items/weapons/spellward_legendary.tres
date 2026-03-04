@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7cp87"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_co9ok"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_esun5"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_g8sno"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_stkuc"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_h7hsf"]
-[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_jzqup"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_mwfua"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_y0g09"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_kq6d4"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0swep"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ys5t9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_c0tez"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="7_qu17e"]
 
-[sub_resource type="Resource" id="Resource_flim8"]
-script = ExtResource("3_esun5")
+[sub_resource type="Resource" id="Resource_711xp"]
+script = ExtResource("3_kq6d4")
 stat = 5
 value = 12.0
 
-[sub_resource type="Resource" id="Resource_kykn2"]
-script = ExtResource("3_esun5")
+[sub_resource type="Resource" id="Resource_bbs7p"]
+script = ExtResource("3_kq6d4")
 stat = 7
 value = 24.0
 
 [resource]
-script = ExtResource("1_7cp87")
+script = ExtResource("1_mwfua")
 id = "spellward_legendary"
 display_name = "Spellward"
 description = "A rune-etched shield that deflects spells. Mages dread its glimmering surface."
-icon = ExtResource("6_h7hsf")
+icon = ExtResource("6_c0tez")
 category = 5
 rarity = 4
 hand_slots_required = 1
 armor_slot = 5
-shape = ExtResource("5_stkuc")
-stat_modifiers = Array[ExtResource("3_esun5")]([SubResource("Resource_flim8"), SubResource("Resource_kykn2")])
-granted_skills = Array[ExtResource("4_g8sno")]([ExtResource("7_jzqup")])
+shape = ExtResource("5_ys5t9")
+stat_modifiers = Array[ExtResource("3_kq6d4")]([SubResource("Resource_711xp"), SubResource("Resource_bbs7p")])
+granted_skills = Array[ExtResource("4_0swep")]([ExtResource("7_qu17e")])
 base_price = 252

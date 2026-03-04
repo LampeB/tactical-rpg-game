@@ -1,33 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_lh2lr"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f284i"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_esiqq"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lqc4z"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ftw6h"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_44lwj"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_agblh"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_k0oaw"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_t1187"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ows4f"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_7ntkk"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ty1hp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_abf8w"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_q8wat"]
 
-[sub_resource type="Resource" id="Resource_d2yxl"]
-script = ExtResource("3_esiqq")
+[sub_resource type="Resource" id="Resource_el5q1"]
+script = ExtResource("3_ows4f")
 stat = 4
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_9gkbo"]
-script = ExtResource("3_esiqq")
+[sub_resource type="Resource" id="Resource_jfaki"]
+script = ExtResource("3_ows4f")
 stat = 8
 value = 5.0
 
 [resource]
-script = ExtResource("1_lh2lr")
+script = ExtResource("1_k0oaw")
 id = "rapier_common"
 display_name = "Rapier"
 description = "A thin thrusting sword that finds gaps in any defense."
-icon = ExtResource("6_44lwj")
+icon = ExtResource("6_abf8w")
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_ftw6h")
-stat_modifiers = Array[ExtResource("3_esiqq")]([SubResource("Resource_d2yxl"), SubResource("Resource_9gkbo")])
+shape = ExtResource("5_ty1hp")
+stat_modifiers = Array[ExtResource("3_ows4f")]([SubResource("Resource_el5q1"), SubResource("Resource_jfaki")])
 base_power = 4
-granted_skills = Array[ExtResource("4_lqc4z")]([ExtResource("7_agblh")])
+granted_skills = Array[ExtResource("4_7ntkk")]([ExtResource("7_q8wat")])
 base_price = 58

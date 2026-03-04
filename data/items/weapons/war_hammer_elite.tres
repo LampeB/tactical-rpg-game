@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_wond2"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_w5gl4"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ixbc0"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0m5m2"]
-[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_avsv6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_olx5s"]
-[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_7gd70"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ay6z1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_c19id"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_u9lto"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_b6fww"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_2qbar"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_pm7bs"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_ii.tres" id="7_o258f"]
 
-[sub_resource type="Resource" id="Resource_26x2p"]
-script = ExtResource("3_ixbc0")
+[sub_resource type="Resource" id="Resource_4l98a"]
+script = ExtResource("3_u9lto")
 stat = 4
 value = 22.0
 
 [resource]
-script = ExtResource("1_wond2")
+script = ExtResource("1_ay6z1")
 id = "war_hammer_elite"
 display_name = "War Hammer"
 description = "A massive hammer that crushes armor and bone alike."
-icon = ExtResource("6_olx5s")
+icon = ExtResource("6_pm7bs")
 category = 1
 rarity = 3
 hand_slots_required = 2
 armor_slot = 1
-shape = ExtResource("5_avsv6")
-stat_modifiers = Array[ExtResource("3_ixbc0")]([SubResource("Resource_26x2p")])
+shape = ExtResource("5_2qbar")
+stat_modifiers = Array[ExtResource("3_u9lto")]([SubResource("Resource_4l98a")])
 base_power = 22
-granted_skills = Array[ExtResource("4_0m5m2")]([ExtResource("7_7gd70")])
+granted_skills = Array[ExtResource("4_b6fww")]([ExtResource("7_o258f")])
 base_price = 211

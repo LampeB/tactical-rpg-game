@@ -1,39 +1,39 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jm9lc"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_g2rk4"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_tua1k"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_q4h06"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_utlql"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_dti3j"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_w23nd"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_u7uag"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_edsti"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_sxc2v"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_sn4c1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_a2rxc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_bfmd7"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="7_014uz"]
 
-[sub_resource type="Resource" id="Resource_a42ju"]
-script = ExtResource("3_tua1k")
+[sub_resource type="Resource" id="Resource_9k8vl"]
+script = ExtResource("3_sxc2v")
 stat = 4
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_xg2xn"]
-script = ExtResource("3_tua1k")
+[sub_resource type="Resource" id="Resource_793pc"]
+script = ExtResource("3_sxc2v")
 stat = 8
 value = 30.0
 
-[sub_resource type="Resource" id="Resource_v7215"]
-script = ExtResource("3_tua1k")
+[sub_resource type="Resource" id="Resource_bw2co"]
+script = ExtResource("3_sxc2v")
 stat = 9
 value = 45.0
 
 [resource]
-script = ExtResource("1_jm9lc")
+script = ExtResource("1_u7uag")
 id = "vorpal_blade_legendary"
 display_name = "Vorpal Blade"
 description = "A blade so sharp it finds vital points on its own. Devastating on a lucky strike."
-icon = ExtResource("6_dti3j")
+icon = ExtResource("6_bfmd7")
 rarity = 4
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_utlql")
-stat_modifiers = Array[ExtResource("3_tua1k")]([SubResource("Resource_a42ju"), SubResource("Resource_xg2xn"), SubResource("Resource_v7215")])
+shape = ExtResource("5_a2rxc")
+stat_modifiers = Array[ExtResource("3_sxc2v")]([SubResource("Resource_9k8vl"), SubResource("Resource_793pc"), SubResource("Resource_bw2co")])
 base_power = 9
-granted_skills = Array[ExtResource("4_q4h06")]([ExtResource("7_w23nd")])
+granted_skills = Array[ExtResource("4_sn4c1")]([ExtResource("7_014uz")])
 base_price = 288

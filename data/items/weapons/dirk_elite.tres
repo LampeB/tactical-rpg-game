@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_syucg"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_5q7gk"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_mmvtq"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_h7xno"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_vgcdk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_l75el"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_4n3pk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rb9ul"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_645gi"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_wpx6v"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_sv5vx"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_cfmp8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_vus7u"]
+[ext_resource type="Resource" path="res://data/skills/backstab_ii.tres" id="7_bu070"]
 
-[sub_resource type="Resource" id="Resource_gdo4e"]
-script = ExtResource("3_mmvtq")
+[sub_resource type="Resource" id="Resource_qdyi2"]
+script = ExtResource("3_wpx6v")
 stat = 4
 value = 11.0
 
-[sub_resource type="Resource" id="Resource_sjiyl"]
-script = ExtResource("3_mmvtq")
+[sub_resource type="Resource" id="Resource_oez5y"]
+script = ExtResource("3_wpx6v")
 stat = 2
 value = 7.0
 
 [resource]
-script = ExtResource("1_syucg")
+script = ExtResource("1_rb9ul")
 id = "dirk_elite"
 display_name = "Dirk"
 description = "A long thrusting dagger favored by naval fighters."
-icon = ExtResource("6_l75el")
+icon = ExtResource("6_vus7u")
 category = 4
 rarity = 3
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_vgcdk")
-stat_modifiers = Array[ExtResource("3_mmvtq")]([SubResource("Resource_gdo4e"), SubResource("Resource_sjiyl")])
+shape = ExtResource("5_cfmp8")
+stat_modifiers = Array[ExtResource("3_wpx6v")]([SubResource("Resource_qdyi2"), SubResource("Resource_oez5y")])
 base_power = 11
-granted_skills = Array[ExtResource("4_h7xno")]([ExtResource("7_4n3pk")])
+granted_skills = Array[ExtResource("4_sv5vx")]([ExtResource("7_bu070")])
 base_price = 132

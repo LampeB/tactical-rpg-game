@@ -1,28 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pb2xj"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_pbn11"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gv8c8"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lalrf"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8al46"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_t8jxu"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_c5rr1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_dgywu"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zm35u"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_hwq5u"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_31k5q"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_p4rda"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_054uh"]
 
-[sub_resource type="Resource" id="Resource_zj888"]
-script = ExtResource("3_gv8c8")
+[sub_resource type="Resource" id="Resource_vt2yx"]
+script = ExtResource("3_zm35u")
 stat = 4
 value = 10.0
 
 [resource]
-script = ExtResource("1_pb2xj")
+script = ExtResource("1_c5rr1")
 id = "cleaver_uncommon"
 display_name = "Cleaver"
 description = "A wide-bladed chopping weapon with a butcher's edge."
-icon = ExtResource("6_t8jxu")
+icon = ExtResource("6_p4rda")
 category = 6
 rarity = 1
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_8al46")
-stat_modifiers = Array[ExtResource("3_gv8c8")]([SubResource("Resource_zj888")])
+shape = ExtResource("5_31k5q")
+stat_modifiers = Array[ExtResource("3_zm35u")]([SubResource("Resource_vt2yx")])
 base_power = 10
+granted_skills = Array[ExtResource("4_hwq5u")]([ExtResource("7_054uh")])
 base_price = 86

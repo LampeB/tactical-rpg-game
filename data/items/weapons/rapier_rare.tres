@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ua9kg"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_l6sra"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_r0w3f"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pu80j"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_mauwz"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_2aflq"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_49ejh"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ydj2z"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_vf68d"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_g8yh2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_f39mr"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_xbb7o"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_5gvh1"]
+[ext_resource type="Resource" path="res://data/skills/backstab_ii.tres" id="7_03tw6"]
 
-[sub_resource type="Resource" id="Resource_5c1wy"]
-script = ExtResource("3_r0w3f")
+[sub_resource type="Resource" id="Resource_sfseq"]
+script = ExtResource("3_g8yh2")
 stat = 4
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_46qu8"]
-script = ExtResource("3_r0w3f")
+[sub_resource type="Resource" id="Resource_yo0a3"]
+script = ExtResource("3_g8yh2")
 stat = 8
 value = 9.0
 
 [resource]
-script = ExtResource("1_ua9kg")
+script = ExtResource("1_ydj2z")
 id = "rapier_rare"
 display_name = "Rapier"
 description = "A thin thrusting sword that finds gaps in any defense."
-icon = ExtResource("6_2aflq")
+icon = ExtResource("6_5gvh1")
 rarity = 2
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_mauwz")
-stat_modifiers = Array[ExtResource("3_r0w3f")]([SubResource("Resource_5c1wy"), SubResource("Resource_46qu8")])
+shape = ExtResource("5_xbb7o")
+stat_modifiers = Array[ExtResource("3_g8yh2")]([SubResource("Resource_sfseq"), SubResource("Resource_yo0a3")])
 base_power = 7
-granted_skills = Array[ExtResource("4_pu80j")]([ExtResource("7_49ejh")])
+granted_skills = Array[ExtResource("4_f39mr")]([ExtResource("7_03tw6")])
 base_price = 118

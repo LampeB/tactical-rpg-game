@@ -1,27 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_e3kk1"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_hc7j8"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hvu3o"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_k0spx"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_xmqsk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_k8jjc"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_boss3"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_2gn45"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_u5w0m"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_fc9dg"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_518y2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_zxibd"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_nxpya"]
 
-[sub_resource type="Resource" id="Resource_tseyc"]
-script = ExtResource("3_hvu3o")
+[sub_resource type="Resource" id="Resource_ukfcz"]
+script = ExtResource("3_u5w0m")
 stat = 4
 value = 7.0
 
 [resource]
-script = ExtResource("1_e3kk1")
+script = ExtResource("1_boss3")
 id = "morning_star_common"
 display_name = "Morning Star"
 description = "A heavy spiked mace that punctures the thickest plate."
-icon = ExtResource("6_k8jjc")
+icon = ExtResource("6_zxibd")
 category = 1
 hand_slots_required = 1
 armor_slot = 1
-shape = ExtResource("5_xmqsk")
-stat_modifiers = Array[ExtResource("3_hvu3o")]([SubResource("Resource_tseyc")])
+shape = ExtResource("5_518y2")
+stat_modifiers = Array[ExtResource("3_u5w0m")]([SubResource("Resource_ukfcz")])
 base_power = 7
+granted_skills = Array[ExtResource("4_fc9dg")]([ExtResource("7_nxpya")])
 base_price = 62

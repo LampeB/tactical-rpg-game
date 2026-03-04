@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_0qyib"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mkkd9"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_lof90"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_b0obd"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_vhytp"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_76s24"]
-[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_5oz70"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_c76aw"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ih8od"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_tajay"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7e94m"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_7yuli"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_jmjhd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_lolp5"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_3h086"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_iii.tres" id="8_gjh33"]
 
-[sub_resource type="Resource" id="Resource_wu5i7"]
-script = ExtResource("3_lof90")
+[sub_resource type="Resource" id="Resource_g275x"]
+script = ExtResource("3_7e94m")
 stat = 6
-value = 18.0
+value = 27.0
 
 [resource]
-script = ExtResource("1_0qyib")
+script = ExtResource("1_ih8od")
 id = "frostspire_legendary"
 display_name = "Frostspire"
 description = "An icicle staff that radiates bitter cold. Enemies slow to a crawl."
-icon = ExtResource("6_76s24")
+icon = ExtResource("6_lolp5")
 category = 3
 rarity = 4
 hand_slots_required = 2
 armor_slot = 3
-shape = ExtResource("5_vhytp")
-stat_modifiers = Array[ExtResource("3_lof90")]([SubResource("Resource_wu5i7")])
+shape = ExtResource("5_jmjhd")
+stat_modifiers = Array[ExtResource("3_7e94m")]([SubResource("Resource_g275x")])
 magical_power = 18
-innate_status_effect = ExtResource("7_5oz70")
+innate_status_effect = ExtResource("7_3h086")
 innate_status_effect_chance = 0.45
 innate_status_stacks = 2
 innate_crit_status_stacks = 4
-granted_skills = Array[ExtResource("4_b0obd")]([ExtResource("8_c76aw")])
+granted_skills = Array[ExtResource("4_7yuli")]([ExtResource("8_gjh33")])
 base_price = 288

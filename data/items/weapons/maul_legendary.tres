@@ -1,30 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_t43ih"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_lod9b"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_kkbmg"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_c1blx"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_i6jv6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_wseu9"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_qes32"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_qvsgz"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ema2v"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_k4ch4"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_fiwe3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_e9obu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ockmb"]
 
-[sub_resource type="Resource" id="Resource_xqixf"]
-script = ExtResource("3_kkbmg")
+[sub_resource type="Resource" id="Resource_myvym"]
+script = ExtResource("3_k4ch4")
 stat = 4
-value = 36.0
+value = 42.0
+
+[sub_resource type="Resource" id="Resource_uypyv"]
+script = ExtResource("3_k4ch4")
+stat = 9
+value = 24.0
 
 [resource]
-script = ExtResource("1_t43ih")
+script = ExtResource("1_qvsgz")
 id = "maul_legendary"
 display_name = "Maul"
 description = "An enormous two-handed hammer built to shatter."
-icon = ExtResource("6_wseu9")
+icon = ExtResource("6_ockmb")
 category = 1
 rarity = 4
 hand_slots_required = 2
 armor_slot = 1
-shape = ExtResource("5_i6jv6")
-stat_modifiers = Array[ExtResource("3_kkbmg")]([SubResource("Resource_xqixf")])
-base_power = 36
-granted_skills = Array[ExtResource("4_c1blx")]([ExtResource("7_qes32")])
-base_price = 306
+shape = ExtResource("5_e9obu")
+stat_modifiers = Array[ExtResource("3_k4ch4")]([SubResource("Resource_myvym"), SubResource("Resource_uypyv")])
+base_power = 42
+base_price = 324

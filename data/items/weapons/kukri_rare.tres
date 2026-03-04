@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ds4ou"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_on534"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_9elap"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_d89ks"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_nqqo0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_9den9"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_9u8qf"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jkzig"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1bvrl"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_wo5m9"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_trpkd"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_yovma"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_8xj16"]
+[ext_resource type="Resource" path="res://data/skills/backstab_ii.tres" id="7_hae8m"]
 
-[sub_resource type="Resource" id="Resource_5omxk"]
-script = ExtResource("3_9elap")
+[sub_resource type="Resource" id="Resource_b01je"]
+script = ExtResource("3_wo5m9")
 stat = 4
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_n7hyu"]
-script = ExtResource("3_9elap")
+[sub_resource type="Resource" id="Resource_n0l7k"]
+script = ExtResource("3_wo5m9")
 stat = 2
 value = 7.0
 
 [resource]
-script = ExtResource("1_ds4ou")
+script = ExtResource("1_jkzig")
 id = "kukri_rare"
 display_name = "Kukri"
 description = "A curved chopping knife from distant highlands."
-icon = ExtResource("6_9den9")
+icon = ExtResource("6_8xj16")
 category = 4
 rarity = 2
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_nqqo0")
-stat_modifiers = Array[ExtResource("3_9elap")]([SubResource("Resource_5omxk"), SubResource("Resource_n7hyu")])
+shape = ExtResource("5_yovma")
+stat_modifiers = Array[ExtResource("3_wo5m9")]([SubResource("Resource_b01je"), SubResource("Resource_n0l7k")])
 base_power = 9
-granted_skills = Array[ExtResource("4_d89ks")]([ExtResource("7_9u8qf")])
+granted_skills = Array[ExtResource("4_trpkd")]([ExtResource("7_hae8m")])
 base_price = 96

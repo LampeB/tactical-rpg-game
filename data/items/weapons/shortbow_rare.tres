@@ -1,33 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vaye7"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_xo6qg"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ekz87"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_d1a7y"]
-[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_2k8s4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_l6tmw"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_l7xls"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_k57hk"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_pdbw6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_cxtz2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_mzs5m"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_4f8il"]
 
-[sub_resource type="Resource" id="Resource_gn16j"]
-script = ExtResource("3_ekz87")
+[sub_resource type="Resource" id="Resource_z3pix"]
+script = ExtResource("3_pdbw6")
 stat = 4
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_jiwsc"]
-script = ExtResource("3_ekz87")
+[sub_resource type="Resource" id="Resource_6v0oa"]
+script = ExtResource("3_pdbw6")
 stat = 2
 value = 7.0
 
 [resource]
-script = ExtResource("1_vaye7")
+script = ExtResource("1_l7xls")
 id = "shortbow_rare"
 display_name = "Shortbow"
 description = "A compact bow for rapid volleys at close range."
-icon = ExtResource("6_l6tmw")
+icon = ExtResource("6_4f8il")
 category = 2
 rarity = 2
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_2k8s4")
-stat_modifiers = Array[ExtResource("3_ekz87")]([SubResource("Resource_gn16j"), SubResource("Resource_jiwsc")])
+shape = ExtResource("5_mzs5m")
+stat_modifiers = Array[ExtResource("3_pdbw6")]([SubResource("Resource_z3pix"), SubResource("Resource_6v0oa")])
 base_power = 7
 base_price = 86
