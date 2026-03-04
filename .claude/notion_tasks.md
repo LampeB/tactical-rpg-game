@@ -70,28 +70,31 @@
 
 ## Items
 
+### In Progress
+| Name | Notion ID |
+|---|---|
+| In-game backpack tier editor (visual grid editor for designers) | 3197700f-d0fb-8124-9842-e3065f25a15f |
+
 ### Todo
 | Name | Notion ID |
 |---|---|
 | Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
-| Backpack upgrade feedback prompt (success/failure message) | 3197700f-d0fb-81dc-af51-d998b928d381 |
 | Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
-| Display current backpack tier on inventory screen | 3197700f-d0fb-8178-a211-efdfadb30b57 |
-| Escalating Spatial Rune cost per backpack tier | 3197700f-d0fb-81a9-b074-eb3cd5e7da38 |
-| Expand backpack tiers to 10 with growing shapes | 3197700f-d0fb-815f-b03e-c9829e725cee |
-| In-game backpack tier editor (visual grid editor for designers) | 3197700f-d0fb-8124-9842-e3065f25a15f |
 | Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
 | Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
 | Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
-| Per-character backpack tier selection via Weaver | 3197700f-d0fb-81fa-9239-dd21c31aec28 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Armor slot system (helmet, chestplate, gloves, legs, boots) | 3147700f-d0fb-8128-a032-dac89055321a |
 | Backpack tier upgrade system (6 tiers, custom shapes, Weaver NPC) | 3147700f-d0fb-8144-8820-ec459d66c111 |
+| Backpack upgrade feedback prompt (success/failure message) | 3197700f-d0fb-81dc-af51-d998b928d381 |
 | Create armor items with subtypes per slot (5 slots × 4 weight classes) | 3147700f-d0fb-8159-a100-e41b635b055b |
+| Display current backpack tier on inventory screen | 3197700f-d0fb-8178-a211-efdfadb30b57 |
+| Escalating Spatial Rune cost per backpack tier | 3197700f-d0fb-81a9-b074-eb3cd5e7da38 |
+| Expand backpack tiers to 10 with growing shapes | 3197700f-d0fb-815f-b03e-c9829e725cee |
 | Balance item stats across all tiers | 3147700f-d0fb-81ab-9b39-f75c2f232060 |
 | Block percentage property for weapons | 3147700f-d0fb-81c7-950b-f01963d9df36 |
 | Custom modifier reach patterns for gems | 3147700f-d0fb-818a-b7eb-e2ab083a4726 |
@@ -105,6 +108,7 @@
 | Item editor missing fields for innate status effect modifiers | 3147700f-d0fb-811c-bcf3-c99075f27515 |
 | Items not picked up from loot panel are lost (no auto-stash) | 3147700f-d0fb-81e7-87d0-d940aaa6e299 |
 | Jewelry system (1 necklace, up to 10 rings) | 3147700f-d0fb-81c2-860c-f8c2a1a93a80 |
+| Per-character backpack tier selection via Weaver | 3197700f-d0fb-81fa-9239-dd21c31aec28 |
 | Loot grid shapes depend on the encounter | 3147700f-d0fb-8141-b6bf-d214ea169ddb |
 | Remove gold cost from blacksmith recipes (ingredients only) | 3147700f-d0fb-8189-9733-c20b7f5cc375 |
 | Replace loot screen items list with Tetris-style loot grid | 3147700f-d0fb-8131-ac33-c40d90865392 |

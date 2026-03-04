@@ -73,6 +73,10 @@ text = "Item Editor"
 layout_mode = 2
 text = "NPC Editor"
 
+[node name="BackpackEditorButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Backpack Editor"
+
 [node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=191023814]
 layout_mode = 2
 text = "Settings"
