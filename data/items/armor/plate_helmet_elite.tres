@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_2gyk1"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_qi6hy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7copj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_by4p1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_n85f1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_2edti"]
+
+[sub_resource type="Resource" id="Resource_w6aau"]
+script = ExtResource("3_7copj")
+stat = 5
+value = 13.0
+
+[sub_resource type="Resource" id="Resource_v88ae"]
+script = ExtResource("3_7copj")
+stat = 7
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_p76v4"]
+script = ExtResource("3_7copj")
+stat = 0
+value = 18.0
+
+[resource]
+script = ExtResource("1_2gyk1")
+id = "plate_helmet_elite"
+display_name = "Plate Helm"
+description = "A full-face helm of forged steel. Heavy, but few blows can penetrate it."
+icon = ExtResource("6_2edti")
+item_type = 1
+category = 7
+rarity = 3
+armor_slot = 7
+shape = ExtResource("5_n85f1")
+stat_modifiers = Array[ExtResource("3_7copj")]([SubResource("Resource_w6aau"), SubResource("Resource_v88ae"), SubResource("Resource_p76v4")])
+base_price = 145

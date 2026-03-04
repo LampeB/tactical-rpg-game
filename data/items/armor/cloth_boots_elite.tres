@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_i1fx8"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_eiatr"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ezih0"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_xr84f"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_j038j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_qeqvy"]
+
+[sub_resource type="Resource" id="Resource_cq1i5"]
+script = ExtResource("3_ezih0")
+stat = 2
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_q802y"]
+script = ExtResource("3_ezih0")
+stat = 7
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_xdjvg"]
+script = ExtResource("3_ezih0")
+stat = 1
+value = 11.0
+
+[resource]
+script = ExtResource("1_i1fx8")
+id = "cloth_boots_elite"
+display_name = "Cloth Sandals"
+description = "Simple enchanted sandals. The wearer's feet barely touch the ground."
+icon = ExtResource("6_qeqvy")
+item_type = 1
+category = 11
+rarity = 3
+armor_slot = 11
+shape = ExtResource("5_j038j")
+stat_modifiers = Array[ExtResource("3_ezih0")]([SubResource("Resource_cq1i5"), SubResource("Resource_q802y"), SubResource("Resource_xdjvg")])
+base_price = 53

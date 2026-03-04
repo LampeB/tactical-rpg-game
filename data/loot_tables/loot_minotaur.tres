@@ -9,7 +9,7 @@
 [ext_resource type="Resource" path="res://data/items/modifiers/swift_gem_rare.tres" id="item_swift"]
 [ext_resource type="Resource" path="res://data/items/weapons/axe_rare.tres" id="item_axe"]
 [ext_resource type="Resource" path="res://data/items/weapons/mace_rare.tres" id="item_mace"]
-[ext_resource type="Resource" path="res://data/items/armor/chestplate_rare.tres" id="item_chest"]
+[ext_resource type="Resource" path="res://data/items/armor/chain_chestplate_rare.tres" id="item_chest"]
 
 [sub_resource type="Resource" id="entry_potion"]
 script = ExtResource("2")

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_m1iaj"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_potej"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_5fdtm"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_1ex1f"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x3.tres" id="5_7zi2s"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_m08rj"]
+
+[sub_resource type="Resource" id="Resource_lf0ox"]
+script = ExtResource("3_5fdtm")
+stat = 5
+value = 22.0
+
+[sub_resource type="Resource" id="Resource_17720"]
+script = ExtResource("3_5fdtm")
+stat = 7
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_t60h9"]
+script = ExtResource("3_5fdtm")
+stat = 0
+value = 55.0
+
+[sub_resource type="Resource" id="Resource_zr5t7"]
+script = ExtResource("3_5fdtm")
+stat = 2
+value = -7.0
+
+[resource]
+script = ExtResource("1_m1iaj")
+id = "plate_chestplate_elite"
+display_name = "Plate Cuirass"
+description = "Thick steel plates shaped to the torso. Nearly impenetrable, but cumbersome."
+icon = ExtResource("6_m08rj")
+item_type = 1
+category = 8
+rarity = 3
+armor_slot = 8
+shape = ExtResource("5_7zi2s")
+stat_modifiers = Array[ExtResource("3_5fdtm")]([SubResource("Resource_lf0ox"), SubResource("Resource_17720"), SubResource("Resource_t60h9"), SubResource("Resource_zr5t7")])
+base_price = 317

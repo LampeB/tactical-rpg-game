@@ -183,7 +183,7 @@ unlock_flag = "recipe_arcane_staff"
 ; === Swift Treads ===
 [sub_resource type="Resource" id="ingr_boots"]
 script = ExtResource("3")
-item_family = "boots"
+item_family = "leather_boots"
 min_rarity = 0
 quantity = 1
 
@@ -199,13 +199,13 @@ id = "swift_treads"
 display_name = "Swift Treads"
 description = "Boots sewn with speed-enchanted thread. You'll always move first."
 ingredients = [SubResource("ingr_boots"), SubResource("ingr_swift_gem")]
-result_item_id = "boots_uncommon"
+result_item_id = "leather_boots_uncommon"
 unlock_flag = ""
 
 ; === Power Gauntlets ===
 [sub_resource type="Resource" id="ingr_gloves_uncommon"]
 script = ExtResource("3")
-item_family = "gloves"
+item_family = "leather_gloves"
 min_rarity = 1
 quantity = 1
 
@@ -221,7 +221,7 @@ id = "power_gauntlets"
 display_name = "Power Gauntlets"
 description = "Reinforced gloves bound with raw strength magic. Hits harder, grips tighter."
 ingredients = [SubResource("ingr_gloves_uncommon"), SubResource("ingr_power_gem")]
-result_item_id = "gloves_rare"
+result_item_id = "chain_gloves_rare"
 unlock_flag = "recipe_power_gauntlets"
 
 [resource]

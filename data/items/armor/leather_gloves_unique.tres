@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_fbdn0"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f8yb6"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_qh57l"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_b2l5e"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ikikk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_5nl39"]
+
+[sub_resource type="Resource" id="Resource_fwtfy"]
+script = ExtResource("3_qh57l")
+stat = 4
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_wz1o8"]
+script = ExtResource("3_qh57l")
+stat = 8
+value = 12.0
+
+[resource]
+script = ExtResource("1_fbdn0")
+id = "leather_gloves_unique"
+display_name = "Leather Bracers"
+description = "Reinforced leather forearm guards. Keep the wrists steady for a killing stroke."
+icon = ExtResource("6_5nl39")
+item_type = 1
+category = 9
+rarity = 5
+armor_slot = 9
+shape = ExtResource("5_ikikk")
+stat_modifiers = Array[ExtResource("3_qh57l")]([SubResource("Resource_fwtfy"), SubResource("Resource_wz1o8")])
+base_price = 144

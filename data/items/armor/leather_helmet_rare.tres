@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_uvpb4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_5mupp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bkpp1"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_kuryq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_9w034"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_v6xuj"]
+
+[sub_resource type="Resource" id="Resource_cp8yt"]
+script = ExtResource("3_bkpp1")
+stat = 5
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_zv4an"]
+script = ExtResource("3_bkpp1")
+stat = 2
+value = 4.0
+
+[resource]
+script = ExtResource("1_uvpb4")
+id = "leather_helmet_rare"
+display_name = "Leather Cap"
+description = "A fitted leather cap that keeps the head protected without slowing the wearer."
+icon = ExtResource("6_v6xuj")
+item_type = 1
+category = 7
+rarity = 2
+armor_slot = 7
+shape = ExtResource("5_9w034")
+stat_modifiers = Array[ExtResource("3_bkpp1")]([SubResource("Resource_cp8yt"), SubResource("Resource_zv4an")])
+base_price = 61

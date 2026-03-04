@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_fcrp2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_sxmdy"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_o9f92"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_k7ksg"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_vi2c6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_6i6nd"]
+
+[sub_resource type="Resource" id="Resource_1vol3"]
+script = ExtResource("3_o9f92")
+stat = 5
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_lwzet"]
+script = ExtResource("3_o9f92")
+stat = 2
+value = 6.0
+
+[sub_resource type="Resource" id="Resource_9ouo2"]
+script = ExtResource("3_o9f92")
+stat = 8
+value = 6.0
+
+[resource]
+script = ExtResource("1_fcrp2")
+id = "leather_chestplate_legendary"
+display_name = "Leather Vest"
+description = "A form-fitting vest of hardened leather. Favored by scouts and thieves alike."
+icon = ExtResource("6_6i6nd")
+item_type = 1
+category = 8
+rarity = 4
+armor_slot = 8
+shape = ExtResource("5_vi2c6")
+stat_modifiers = Array[ExtResource("3_o9f92")]([SubResource("Resource_1vol3"), SubResource("Resource_lwzet"), SubResource("Resource_9ouo2")])
+base_price = 198

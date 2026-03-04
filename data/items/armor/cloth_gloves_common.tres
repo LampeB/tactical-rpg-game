@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dkgkr"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1ogjw"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dkqa2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pmcev"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_9kftn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_dn8b4"]
+
+[sub_resource type="Resource" id="Resource_vfls1"]
+script = ExtResource("3_dkqa2")
+stat = 6
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_pfyjg"]
+script = ExtResource("3_dkqa2")
+stat = 7
+value = 1.0
+
+[resource]
+script = ExtResource("1_dkgkr")
+id = "cloth_gloves_common"
+display_name = "Cloth Wraps"
+description = "Spell-threaded bandages that channel magic through the fingertips."
+icon = ExtResource("6_dn8b4")
+item_type = 1
+category = 9
+armor_slot = 9
+shape = ExtResource("5_9kftn")
+stat_modifiers = Array[ExtResource("3_dkqa2")]([SubResource("Resource_vfls1"), SubResource("Resource_pfyjg")])
+base_price = 20

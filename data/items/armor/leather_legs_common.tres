@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_21szo"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9it1z"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gylcq"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pbjg8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_51p5e"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_qpe0x"]
+
+[sub_resource type="Resource" id="Resource_ecbu8"]
+script = ExtResource("3_gylcq")
+stat = 5
+value = 2.0
+
+[sub_resource type="Resource" id="Resource_t3ztl"]
+script = ExtResource("3_gylcq")
+stat = 2
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_3wiwt"]
+script = ExtResource("3_gylcq")
+stat = 8
+value = 2.0
+
+[resource]
+script = ExtResource("1_21szo")
+id = "leather_legs_common"
+display_name = "Leather Leggings"
+description = "Supple leather leggings built for quick footwork and silent movement."
+icon = ExtResource("6_qpe0x")
+item_type = 1
+category = 10
+armor_slot = 10
+shape = ExtResource("5_51p5e")
+stat_modifiers = Array[ExtResource("3_gylcq")]([SubResource("Resource_ecbu8"), SubResource("Resource_t3ztl"), SubResource("Resource_3wiwt")])
+base_price = 40
