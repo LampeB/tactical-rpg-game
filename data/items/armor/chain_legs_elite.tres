@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dlc7i"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_c13av"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_6aut1"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_j14w8"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_fo9qy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_4isnw"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_gixuv"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_c3t0d"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_f4km9"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3ccbv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_7n30z"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_a0j14"]
 
-[sub_resource type="Resource" id="Resource_5renr"]
-script = ExtResource("3_6aut1")
+[sub_resource type="Resource" id="Resource_szjkm"]
+script = ExtResource("3_f4km9")
 stat = 5
 value = 11.0
 
-[sub_resource type="Resource" id="Resource_e7xz7"]
-script = ExtResource("3_6aut1")
+[sub_resource type="Resource" id="Resource_8zw0u"]
+script = ExtResource("3_f4km9")
 stat = 7
 value = 7.0
 
 [resource]
-script = ExtResource("1_dlc7i")
+script = ExtResource("1_gixuv")
 id = "chain_legs_elite"
 display_name = "Chain Chausses"
 description = "Chain leggings laced over padded cloth. Standard issue for men-at-arms."
-icon = ExtResource("6_4isnw")
+icon = ExtResource("6_a0j14")
 item_type = 1
 category = 10
 rarity = 3
 armor_slot = 10
-shape = ExtResource("5_fo9qy")
-stat_modifiers = Array[ExtResource("3_6aut1")]([SubResource("Resource_5renr"), SubResource("Resource_e7xz7")])
+shape = ExtResource("5_7n30z")
+stat_modifiers = Array[ExtResource("3_f4km9")]([SubResource("Resource_szjkm"), SubResource("Resource_8zw0u")])
 base_price = 145

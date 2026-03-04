@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_nxtqk"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_pshyp"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7k1gb"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_iytd6"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_yxawq"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_0ic40"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_8dul5"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_95mb3"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hgomn"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_eepg6"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_vm47v"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_1goh3"]
 
-[sub_resource type="Resource" id="Resource_mhyth"]
-script = ExtResource("3_7k1gb")
+[sub_resource type="Resource" id="Resource_7715g"]
+script = ExtResource("3_hgomn")
 stat = 5
 value = 18.0
 
-[sub_resource type="Resource" id="Resource_zb8hl"]
-script = ExtResource("3_7k1gb")
+[sub_resource type="Resource" id="Resource_hhlkf"]
+script = ExtResource("3_hgomn")
 stat = 7
 value = 3.0
 
-[sub_resource type="Resource" id="Resource_omlq5"]
-script = ExtResource("3_7k1gb")
+[sub_resource type="Resource" id="Resource_nbg1z"]
+script = ExtResource("3_hgomn")
 stat = 0
 value = 24.0
 
 [resource]
-script = ExtResource("1_nxtqk")
+script = ExtResource("1_8dul5")
 id = "plate_helmet_legendary"
 display_name = "Plate Helm"
 description = "A full-face helm of forged steel. Heavy, but few blows can penetrate it."
-icon = ExtResource("6_0ic40")
+icon = ExtResource("6_1goh3")
 item_type = 1
 category = 7
 rarity = 4
 armor_slot = 7
-shape = ExtResource("5_yxawq")
-stat_modifiers = Array[ExtResource("3_7k1gb")]([SubResource("Resource_mhyth"), SubResource("Resource_zb8hl"), SubResource("Resource_omlq5")])
+shape = ExtResource("5_vm47v")
+stat_modifiers = Array[ExtResource("3_hgomn")]([SubResource("Resource_7715g"), SubResource("Resource_hhlkf"), SubResource("Resource_nbg1z")])
 base_price = 198

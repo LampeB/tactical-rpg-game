@@ -1,42 +1,42 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_r1tgc"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_tiqyu"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zc3k2"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_6jg79"]
-[ext_resource type="Resource" path="res://data/shapes/shape_2x3.tres" id="5_073fm"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_v3rks"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_72mmu"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1svy7"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gs2ug"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_hl28x"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x3.tres" id="5_lgezz"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_iccvj"]
 
-[sub_resource type="Resource" id="Resource_os8fk"]
-script = ExtResource("3_zc3k2")
+[sub_resource type="Resource" id="Resource_nsd7r"]
+script = ExtResource("3_gs2ug")
 stat = 5
 value = 18.0
 
-[sub_resource type="Resource" id="Resource_73f0d"]
-script = ExtResource("3_zc3k2")
+[sub_resource type="Resource" id="Resource_a02o2"]
+script = ExtResource("3_gs2ug")
 stat = 7
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_9r0ue"]
-script = ExtResource("3_zc3k2")
+[sub_resource type="Resource" id="Resource_nb0dd"]
+script = ExtResource("3_gs2ug")
 stat = 0
 value = 45.0
 
-[sub_resource type="Resource" id="Resource_m2z89"]
-script = ExtResource("3_zc3k2")
+[sub_resource type="Resource" id="Resource_ifmll"]
+script = ExtResource("3_gs2ug")
 stat = 2
 value = -5.0
 
 [resource]
-script = ExtResource("1_r1tgc")
+script = ExtResource("1_72mmu")
 id = "plate_chestplate_rare"
 display_name = "Plate Cuirass"
 description = "Thick steel plates shaped to the torso. Nearly impenetrable, but cumbersome."
-icon = ExtResource("6_v3rks")
+icon = ExtResource("6_iccvj")
 item_type = 1
 category = 8
 rarity = 2
 armor_slot = 8
-shape = ExtResource("5_073fm")
-stat_modifiers = Array[ExtResource("3_zc3k2")]([SubResource("Resource_os8fk"), SubResource("Resource_73f0d"), SubResource("Resource_9r0ue"), SubResource("Resource_m2z89")])
+shape = ExtResource("5_lgezz")
+stat_modifiers = Array[ExtResource("3_gs2ug")]([SubResource("Resource_nsd7r"), SubResource("Resource_a02o2"), SubResource("Resource_nb0dd"), SubResource("Resource_ifmll")])
 base_price = 245

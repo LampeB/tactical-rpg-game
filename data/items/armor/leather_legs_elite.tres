@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bc6qd"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mendb"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_amukh"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_jwpjy"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ees4v"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_078g4"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_n5uro"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_2coe1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3omxc"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_cn10b"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_0biyb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_h26mu"]
 
-[sub_resource type="Resource" id="Resource_gek8v"]
-script = ExtResource("3_amukh")
+[sub_resource type="Resource" id="Resource_6vl02"]
+script = ExtResource("3_3omxc")
 stat = 5
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_5pwu8"]
-script = ExtResource("3_amukh")
+[sub_resource type="Resource" id="Resource_ggey1"]
+script = ExtResource("3_3omxc")
 stat = 2
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_qorvr"]
-script = ExtResource("3_amukh")
+[sub_resource type="Resource" id="Resource_6onp0"]
+script = ExtResource("3_3omxc")
 stat = 8
 value = 4.0
 
 [resource]
-script = ExtResource("1_bc6qd")
+script = ExtResource("1_n5uro")
 id = "leather_legs_elite"
 display_name = "Leather Leggings"
 description = "Supple leather leggings built for quick footwork and silent movement."
-icon = ExtResource("6_078g4")
+icon = ExtResource("6_h26mu")
 item_type = 1
 category = 10
 rarity = 3
 armor_slot = 10
-shape = ExtResource("5_ees4v")
-stat_modifiers = Array[ExtResource("3_amukh")]([SubResource("Resource_gek8v"), SubResource("Resource_5pwu8"), SubResource("Resource_qorvr")])
+shape = ExtResource("5_0biyb")
+stat_modifiers = Array[ExtResource("3_3omxc")]([SubResource("Resource_6vl02"), SubResource("Resource_ggey1"), SubResource("Resource_6onp0")])
 base_price = 106

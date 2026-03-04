@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_hkbke"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_427qa"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_8lmdn"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_enwpu"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_tooc7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_im284"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7smek"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_jftj3"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_iz4cj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_50u8s"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_lox3m"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_mhzoq"]
 
-[sub_resource type="Resource" id="Resource_p9zje"]
-script = ExtResource("3_8lmdn")
+[sub_resource type="Resource" id="Resource_fdkt0"]
+script = ExtResource("3_iz4cj")
 stat = 5
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_933kc"]
-script = ExtResource("3_8lmdn")
+[sub_resource type="Resource" id="Resource_01fho"]
+script = ExtResource("3_iz4cj")
 stat = 2
 value = 8.0
 
-[sub_resource type="Resource" id="Resource_rj2xn"]
-script = ExtResource("3_8lmdn")
+[sub_resource type="Resource" id="Resource_965q1"]
+script = ExtResource("3_iz4cj")
 stat = 8
 value = 8.0
 
 [resource]
-script = ExtResource("1_hkbke")
+script = ExtResource("1_7smek")
 id = "leather_chestplate_unique"
 display_name = "Leather Vest"
 description = "A form-fitting vest of hardened leather. Favored by scouts and thieves alike."
-icon = ExtResource("6_im284")
+icon = ExtResource("6_mhzoq")
 item_type = 1
 category = 8
 rarity = 5
 armor_slot = 8
-shape = ExtResource("5_tooc7")
-stat_modifiers = Array[ExtResource("3_8lmdn")]([SubResource("Resource_p9zje"), SubResource("Resource_933kc"), SubResource("Resource_rj2xn")])
+shape = ExtResource("5_lox3m")
+stat_modifiers = Array[ExtResource("3_iz4cj")]([SubResource("Resource_fdkt0"), SubResource("Resource_01fho"), SubResource("Resource_965q1")])
 base_price = 264

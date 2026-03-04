@@ -1,37 +1,37 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4i7yl"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_zf4u2"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_rdxbu"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_p17yv"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_hydrl"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_1vl3t"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xuf18"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_enn37"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_rt0py"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_o91xv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_fl0m8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_e887i"]
 
-[sub_resource type="Resource" id="Resource_zmlia"]
-script = ExtResource("3_rdxbu")
+[sub_resource type="Resource" id="Resource_bw7ki"]
+script = ExtResource("3_rt0py")
 stat = 5
 value = 7.0
 
-[sub_resource type="Resource" id="Resource_ygpt9"]
-script = ExtResource("3_rdxbu")
+[sub_resource type="Resource" id="Resource_en95n"]
+script = ExtResource("3_rt0py")
 stat = 4
 value = 2.0
 
-[sub_resource type="Resource" id="Resource_uclx5"]
-script = ExtResource("3_rdxbu")
+[sub_resource type="Resource" id="Resource_x11w2"]
+script = ExtResource("3_rt0py")
 stat = 7
 value = 2.0
 
 [resource]
-script = ExtResource("1_4i7yl")
+script = ExtResource("1_xuf18")
 id = "chain_gloves_elite"
 display_name = "Chain Gauntlets"
 description = "Chain-linked gloves with padded palms. Protect without sacrificing grip."
-icon = ExtResource("6_1vl3t")
+icon = ExtResource("6_e887i")
 item_type = 1
 category = 9
 rarity = 3
 armor_slot = 9
-shape = ExtResource("5_hydrl")
-stat_modifiers = Array[ExtResource("3_rdxbu")]([SubResource("Resource_zmlia"), SubResource("Resource_ygpt9"), SubResource("Resource_uclx5")])
+shape = ExtResource("5_fl0m8")
+stat_modifiers = Array[ExtResource("3_rt0py")]([SubResource("Resource_bw7ki"), SubResource("Resource_en95n"), SubResource("Resource_x11w2")])
 base_price = 92

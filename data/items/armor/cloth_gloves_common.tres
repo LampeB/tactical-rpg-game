@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dkgkr"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1ogjw"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dkqa2"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pmcev"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_9kftn"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_dn8b4"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_y154e"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_yussm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_x0dxv"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_hwc3i"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_1j526"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_2o9og"]
 
-[sub_resource type="Resource" id="Resource_vfls1"]
-script = ExtResource("3_dkqa2")
+[sub_resource type="Resource" id="Resource_o4kff"]
+script = ExtResource("3_x0dxv")
 stat = 6
 value = 2.0
 
-[sub_resource type="Resource" id="Resource_pfyjg"]
-script = ExtResource("3_dkqa2")
+[sub_resource type="Resource" id="Resource_poyej"]
+script = ExtResource("3_x0dxv")
 stat = 7
 value = 1.0
 
 [resource]
-script = ExtResource("1_dkgkr")
+script = ExtResource("1_y154e")
 id = "cloth_gloves_common"
 display_name = "Cloth Wraps"
 description = "Spell-threaded bandages that channel magic through the fingertips."
-icon = ExtResource("6_dn8b4")
+icon = ExtResource("6_2o9og")
 item_type = 1
 category = 9
 armor_slot = 9
-shape = ExtResource("5_9kftn")
-stat_modifiers = Array[ExtResource("3_dkqa2")]([SubResource("Resource_vfls1"), SubResource("Resource_pfyjg")])
+shape = ExtResource("5_1j526")
+stat_modifiers = Array[ExtResource("3_x0dxv")]([SubResource("Resource_o4kff"), SubResource("Resource_poyej")])
 base_price = 20

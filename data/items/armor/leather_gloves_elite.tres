@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jzmuh"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_edcab"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3fflb"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gzqol"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_kffrf"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_nynku"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_61knb"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f3q2v"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_13zdy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_31ndm"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ikzof"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_42c5g"]
 
-[sub_resource type="Resource" id="Resource_205c5"]
-script = ExtResource("3_3fflb")
+[sub_resource type="Resource" id="Resource_5elho"]
+script = ExtResource("3_13zdy")
 stat = 4
 value = 4.0
 
-[sub_resource type="Resource" id="Resource_n2cop"]
-script = ExtResource("3_3fflb")
+[sub_resource type="Resource" id="Resource_acb3a"]
+script = ExtResource("3_13zdy")
 stat = 8
 value = 7.0
 
 [resource]
-script = ExtResource("1_jzmuh")
+script = ExtResource("1_61knb")
 id = "leather_gloves_elite"
 display_name = "Leather Bracers"
 description = "Reinforced leather forearm guards. Keep the wrists steady for a killing stroke."
-icon = ExtResource("6_nynku")
+icon = ExtResource("6_42c5g")
 item_type = 1
 category = 9
 rarity = 3
 armor_slot = 9
-shape = ExtResource("5_kffrf")
-stat_modifiers = Array[ExtResource("3_3fflb")]([SubResource("Resource_205c5"), SubResource("Resource_n2cop")])
+shape = ExtResource("5_ikzof")
+stat_modifiers = Array[ExtResource("3_13zdy")]([SubResource("Resource_5elho"), SubResource("Resource_acb3a")])
 base_price = 79

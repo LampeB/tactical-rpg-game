@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rp10t"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_wu1et"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_116bc"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pxx1r"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_37ihk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_fhnof"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4e8mp"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_m91u5"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_3h8d6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_f1ang"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_4vy6b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_fg6q6"]
 
-[sub_resource type="Resource" id="Resource_dou7d"]
-script = ExtResource("3_116bc")
+[sub_resource type="Resource" id="Resource_bqwup"]
+script = ExtResource("3_3h8d6")
 stat = 4
 value = 2.0
 
-[sub_resource type="Resource" id="Resource_3y9vn"]
-script = ExtResource("3_116bc")
+[sub_resource type="Resource" id="Resource_uuorz"]
+script = ExtResource("3_3h8d6")
 stat = 8
 value = 3.0
 
 [resource]
-script = ExtResource("1_rp10t")
+script = ExtResource("1_4e8mp")
 id = "leather_gloves_common"
 display_name = "Leather Bracers"
 description = "Reinforced leather forearm guards. Keep the wrists steady for a killing stroke."
-icon = ExtResource("6_fhnof")
+icon = ExtResource("6_fg6q6")
 item_type = 1
 category = 9
 armor_slot = 9
-shape = ExtResource("5_37ihk")
-stat_modifiers = Array[ExtResource("3_116bc")]([SubResource("Resource_dou7d"), SubResource("Resource_3y9vn")])
+shape = ExtResource("5_4vy6b")
+stat_modifiers = Array[ExtResource("3_3h8d6")]([SubResource("Resource_bqwup"), SubResource("Resource_uuorz")])
 base_price = 30
