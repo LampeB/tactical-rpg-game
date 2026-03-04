@@ -2,7 +2,7 @@
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
 <\!-- Total tasks: 157 -->
-<\!-- Last updated: 2026-03-03 -->
+<\!-- Last updated: 2026-03-04 -->
 
 ## Prerequisites
 
@@ -78,7 +78,6 @@
 | Create armor items with subtypes per slot (5 slots Ã— 4 weight classes) | 3147700f-d0fb-8159-a100-e41b635b055b |
 | Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
-| Expand weapon variety (multiple tiers: iron â†’ steel â†’ mythril â†’ legendary) | 3147700f-d0fb-8180-9e85-e834807b386f |
 | Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
 | Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
 | Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
@@ -90,6 +89,7 @@
 | Backpack tier upgrade system (6 tiers, custom shapes, Weaver NPC) | 3147700f-d0fb-8144-8820-ec459d66c111 |
 | Block percentage property for weapons | 3147700f-d0fb-81c7-950b-f01963d9df36 |
 | Custom modifier reach patterns for gems | 3147700f-d0fb-818a-b7eb-e2ab083a4726 |
+| Expand weapon variety (new types, innate effects, custom shapes) | 3147700f-d0fb-8180-9e85-e834807b386f |
 | Fire gem conditional modifier system | 3147700f-d0fb-81a8-b1ac-d16bb32fad6a |
 | Hand slot restrictions and weapon hand requirements | 3147700f-d0fb-8129-9675-e03c4ec008bc |
 | In-game item editor | 3147700f-d0fb-8155-ab6d-eab88cd8ed20 |
