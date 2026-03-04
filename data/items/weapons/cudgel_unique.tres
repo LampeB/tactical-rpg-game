@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_0wtu0"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_o8jvs"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_01z3m"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_10vxq"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_gdjw5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_2u18g"]
-[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_jqlxz"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kby7c"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_vtswm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_psruy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_hyz7r"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_3s10b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_h8rqb"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="7_llsh6"]
 
-[sub_resource type="Resource" id="Resource_niwz7"]
-script = ExtResource("3_01z3m")
+[sub_resource type="Resource" id="Resource_q63k5"]
+script = ExtResource("3_psruy")
 stat = 4
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_4n1rs"]
-script = ExtResource("3_01z3m")
+[sub_resource type="Resource" id="Resource_z7m33"]
+script = ExtResource("3_psruy")
 stat = 2
 value = 8.0
 
 [resource]
-script = ExtResource("1_0wtu0")
+script = ExtResource("1_kby7c")
 id = "cudgel_unique"
 display_name = "Cudgel"
 description = "A short, sturdy club. Simple but effective."
-icon = ExtResource("6_2u18g")
+icon = ExtResource("6_h8rqb")
 category = 1
 rarity = 5
 hand_slots_required = 1
 armor_slot = 1
-shape = ExtResource("5_gdjw5")
-stat_modifiers = Array[ExtResource("3_01z3m")]([SubResource("Resource_niwz7"), SubResource("Resource_4n1rs")])
+shape = ExtResource("5_3s10b")
+stat_modifiers = Array[ExtResource("3_psruy")]([SubResource("Resource_q63k5"), SubResource("Resource_z7m33")])
 base_power = 16
-granted_skills = Array[ExtResource("4_10vxq")]([ExtResource("7_jqlxz")])
+granted_skills = Array[ExtResource("4_hyz7r")]([ExtResource("7_llsh6")])
 base_price = 192

@@ -1,40 +1,40 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_21n4e"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_i2egp"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_9r6ae"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_8o24f"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_5ns7y"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_6lasb"]
-[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_sh60h"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="8_ip7if"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_et11h"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_hv1vp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_l5djh"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_c0kt1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_6629n"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_i6a8o"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_q4xlb"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="8_ce22m"]
 
-[sub_resource type="Resource" id="Resource_zkvuq"]
-script = ExtResource("3_9r6ae")
+[sub_resource type="Resource" id="Resource_ojmkz"]
+script = ExtResource("3_l5djh")
 stat = 4
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_2eod8"]
-script = ExtResource("3_9r6ae")
+[sub_resource type="Resource" id="Resource_w3yh4"]
+script = ExtResource("3_l5djh")
 stat = 2
 value = 12.0
 
 [resource]
-script = ExtResource("1_21n4e")
+script = ExtResource("1_et11h")
 id = "ember_shiv_legendary"
 display_name = "Ember Shiv"
 description = "A red-hot sliver of metal that sears flesh on contact. Quick and agonizing."
-icon = ExtResource("6_6lasb")
+icon = ExtResource("6_i6a8o")
 category = 4
 rarity = 4
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_5ns7y")
-stat_modifiers = Array[ExtResource("3_9r6ae")]([SubResource("Resource_zkvuq"), SubResource("Resource_2eod8")])
+shape = ExtResource("5_6629n")
+stat_modifiers = Array[ExtResource("3_l5djh")]([SubResource("Resource_ojmkz"), SubResource("Resource_w3yh4")])
 base_power = 9
-innate_status_effect = ExtResource("7_sh60h")
+innate_status_effect = ExtResource("7_q4xlb")
 innate_status_effect_chance = 0.45
 innate_status_stacks = 2
 innate_crit_status_stacks = 4
-granted_skills = Array[ExtResource("4_8o24f")]([ExtResource("8_ip7if")])
+granted_skills = Array[ExtResource("4_c0kt1")]([ExtResource("8_ce22m")])
 base_price = 198

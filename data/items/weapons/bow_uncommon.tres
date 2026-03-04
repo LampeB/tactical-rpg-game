@@ -12,6 +12,11 @@ script = ExtResource("4_qs1fu")
 stat = 4
 value = 5.0
 
+[sub_resource type="Resource" id="Resource_btfcj"]
+script = ExtResource("4_qs1fu")
+stat = 2
+value = 3.0
+
 [resource]
 script = ExtResource("2_j4wp8")
 id = "bow_uncommon"
@@ -22,6 +27,6 @@ category = 2
 rarity = 1
 hand_slots_required = 2
 shape = ExtResource("3_7k3aq")
-stat_modifiers = Array[ExtResource("4_qs1fu")]([SubResource("Resource_vic7p")])
+stat_modifiers = Array[ExtResource("4_qs1fu")]([SubResource("Resource_vic7p"), SubResource("Resource_btfcj")])
 base_power = 5
 base_price = 70

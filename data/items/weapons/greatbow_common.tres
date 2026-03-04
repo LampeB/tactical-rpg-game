@@ -1,27 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_50ykl"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_lnjk3"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hiyw4"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_qeshy"]
-[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_t5o1d"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_5n1uv"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vkovg"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_o67cg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_elmy1"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gngsj"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_wtoe0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_ayn9q"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_6bcdq"]
 
-[sub_resource type="Resource" id="Resource_fq23b"]
-script = ExtResource("3_hiyw4")
+[sub_resource type="Resource" id="Resource_ydl3a"]
+script = ExtResource("3_elmy1")
 stat = 4
 value = 10.0
 
 [resource]
-script = ExtResource("1_50ykl")
+script = ExtResource("1_vkovg")
 id = "greatbow_common"
 display_name = "Greatbow"
 description = "A massive siege bow that fires bolts as thick as spears."
-icon = ExtResource("6_5n1uv")
+icon = ExtResource("6_ayn9q")
 category = 2
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_t5o1d")
-stat_modifiers = Array[ExtResource("3_hiyw4")]([SubResource("Resource_fq23b")])
+shape = ExtResource("5_wtoe0")
+stat_modifiers = Array[ExtResource("3_elmy1")]([SubResource("Resource_ydl3a")])
 base_power = 10
+granted_skills = Array[ExtResource("4_gngsj")]([ExtResource("7_6bcdq")])
 base_price = 80

@@ -1,29 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_lbeb3"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f1p94"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_pxti1"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_t50nj"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_4g1hd"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_3snal"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_m9jsk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_i60zp"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_olu7l"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ewsky"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gq3wz"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_wdz0d"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_3qcni"]
 
-[sub_resource type="Resource" id="Resource_phurc"]
-script = ExtResource("3_pxti1")
+[sub_resource type="Resource" id="Resource_4fhht"]
+script = ExtResource("3_ewsky")
 stat = 4
-value = 12.0
+value = 14.0
+
+[sub_resource type="Resource" id="Resource_d88l6"]
+script = ExtResource("3_ewsky")
+stat = 9
+value = 8.0
 
 [resource]
-script = ExtResource("1_lbeb3")
+script = ExtResource("1_i60zp")
 id = "maul_common"
 display_name = "Maul"
 description = "An enormous two-handed hammer built to shatter."
-icon = ExtResource("6_3snal")
+icon = ExtResource("6_3qcni")
 category = 1
 hand_slots_required = 2
 armor_slot = 1
-shape = ExtResource("5_4g1hd")
-stat_modifiers = Array[ExtResource("3_pxti1")]([SubResource("Resource_phurc")])
-base_power = 12
-granted_skills = Array[ExtResource("4_t50nj")]([ExtResource("7_m9jsk")])
-base_price = 85
+shape = ExtResource("5_wdz0d")
+stat_modifiers = Array[ExtResource("3_ewsky")]([SubResource("Resource_4fhht"), SubResource("Resource_d88l6")])
+base_power = 14
+base_price = 90

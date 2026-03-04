@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_fh14f"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_s0vp3"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bbebh"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_eoda4"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_2yggt"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_fm3fd"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_1fsqz"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_zg4hh"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9s0ur"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_nf2aq"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_tpgls"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_y3d9b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_lhz45"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="7_kslit"]
 
-[sub_resource type="Resource" id="Resource_2oy5y"]
-script = ExtResource("3_bbebh")
+[sub_resource type="Resource" id="Resource_zegud"]
+script = ExtResource("3_nf2aq")
 stat = 4
 value = 15.0
 
-[sub_resource type="Resource" id="Resource_oqbgg"]
-script = ExtResource("3_bbebh")
+[sub_resource type="Resource" id="Resource_d76bq"]
+script = ExtResource("3_nf2aq")
 stat = 2
 value = 9.0
 
 [resource]
-script = ExtResource("1_fh14f")
+script = ExtResource("1_zg4hh")
 id = "kris_legendary"
 display_name = "Kris"
 description = "A wavy-bladed dagger that leaves jagged wounds."
-icon = ExtResource("6_fm3fd")
+icon = ExtResource("6_lhz45")
 category = 4
 rarity = 4
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_2yggt")
-stat_modifiers = Array[ExtResource("3_bbebh")]([SubResource("Resource_2oy5y"), SubResource("Resource_oqbgg")])
+shape = ExtResource("5_y3d9b")
+stat_modifiers = Array[ExtResource("3_nf2aq")]([SubResource("Resource_zegud"), SubResource("Resource_d76bq")])
 base_power = 15
-granted_skills = Array[ExtResource("4_eoda4")]([ExtResource("7_1fsqz")])
+granted_skills = Array[ExtResource("4_tpgls")]([ExtResource("7_kslit")])
 base_price = 162

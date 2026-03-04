@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_z15p0"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_jn7dn"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_6a6bw"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_c6sbs"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_qbt98"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_yrdx0"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="7_xs7we"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_p7geo"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9lx4p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_8g3it"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_bjtzl"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_qz300"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_70tav"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="7_tbe47"]
 
-[sub_resource type="Resource" id="Resource_4eb6e"]
-script = ExtResource("3_6a6bw")
+[sub_resource type="Resource" id="Resource_a1hjb"]
+script = ExtResource("3_8g3it")
 stat = 6
-value = 5.0
+value = 8.0
 
-[sub_resource type="Resource" id="Resource_s8nyc"]
-script = ExtResource("3_6a6bw")
+[sub_resource type="Resource" id="Resource_7i3jy"]
+script = ExtResource("3_8g3it")
 stat = 8
 value = 3.0
 
 [resource]
-script = ExtResource("1_z15p0")
+script = ExtResource("1_p7geo")
 id = "scepter_common"
 display_name = "Scepter"
 description = "An ornate scepter crackling with elemental power."
-icon = ExtResource("6_yrdx0")
+icon = ExtResource("6_70tav")
 category = 3
 hand_slots_required = 1
 armor_slot = 3
-shape = ExtResource("5_qbt98")
-stat_modifiers = Array[ExtResource("3_6a6bw")]([SubResource("Resource_4eb6e"), SubResource("Resource_s8nyc")])
+shape = ExtResource("5_qz300")
+stat_modifiers = Array[ExtResource("3_8g3it")]([SubResource("Resource_a1hjb"), SubResource("Resource_7i3jy")])
 magical_power = 5
-granted_skills = Array[ExtResource("4_c6sbs")]([ExtResource("7_xs7we")])
+granted_skills = Array[ExtResource("4_bjtzl")]([ExtResource("7_tbe47")])
 base_price = 58

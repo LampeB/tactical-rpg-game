@@ -1,28 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vsfq9"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_y8tie"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bhbt1"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_wutao"]
-[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_lbgwu"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_8ji6z"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_izlxi"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_7o3gp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_whn44"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_cu7hw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_3zu2j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_5v6x9"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="7_s3qci"]
 
-[sub_resource type="Resource" id="Resource_fu8fs"]
-script = ExtResource("3_bhbt1")
+[sub_resource type="Resource" id="Resource_8m7o5"]
+script = ExtResource("3_whn44")
 stat = 4
 value = 40.0
 
 [resource]
-script = ExtResource("1_vsfq9")
+script = ExtResource("1_izlxi")
 id = "greatbow_unique"
 display_name = "Greatbow"
 description = "A massive siege bow that fires bolts as thick as spears."
-icon = ExtResource("6_8ji6z")
+icon = ExtResource("6_5v6x9")
 category = 2
 rarity = 5
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_lbgwu")
-stat_modifiers = Array[ExtResource("3_bhbt1")]([SubResource("Resource_fu8fs")])
+shape = ExtResource("5_3zu2j")
+stat_modifiers = Array[ExtResource("3_whn44")]([SubResource("Resource_8m7o5")])
 base_power = 40
+granted_skills = Array[ExtResource("4_cu7hw")]([ExtResource("7_s3qci")])
 base_price = 384

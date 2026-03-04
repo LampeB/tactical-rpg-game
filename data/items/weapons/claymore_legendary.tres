@@ -1,29 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pg1zr"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bwvrq"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_c6gnd"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_l8x7h"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_cab7u"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_fsv66"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_t0tpw"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_btai2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_83vos"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_xqve2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ghrob"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_sphoy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_2rz84"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="7_k5ieb"]
 
-[sub_resource type="Resource" id="Resource_1jcx2"]
-script = ExtResource("3_c6gnd")
+[sub_resource type="Resource" id="Resource_znq0x"]
+script = ExtResource("3_xqve2")
 stat = 4
 value = 27.0
 
 [resource]
-script = ExtResource("1_pg1zr")
+script = ExtResource("1_btai2")
 id = "claymore_legendary"
 display_name = "Claymore"
 description = "A massive two-handed greatsword that cleaves through armor."
-icon = ExtResource("6_fsv66")
+icon = ExtResource("6_2rz84")
 rarity = 4
 hand_slots_required = 2
 armor_slot = 0
-shape = ExtResource("5_cab7u")
-stat_modifiers = Array[ExtResource("3_c6gnd")]([SubResource("Resource_1jcx2")])
+shape = ExtResource("5_sphoy")
+stat_modifiers = Array[ExtResource("3_xqve2")]([SubResource("Resource_znq0x")])
 base_power = 27
-granted_skills = Array[ExtResource("4_l8x7h")]([ExtResource("7_t0tpw")])
+granted_skills = Array[ExtResource("4_ghrob")]([ExtResource("7_k5ieb")])
 base_price = 270

@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_z9k8s"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_gnshe"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_y93wi"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gn1jb"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8fxys"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_8jqxu"]
-[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_4mmhf"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7uusn"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_b0qb5"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_wo04p"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_g36qf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_m9cy9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_xq6ek"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_3l7uv"]
 
-[sub_resource type="Resource" id="Resource_x698r"]
-script = ExtResource("3_y93wi")
+[sub_resource type="Resource" id="Resource_eujzc"]
+script = ExtResource("3_wo04p")
 stat = 4
 value = 7.0
 
 [resource]
-script = ExtResource("1_z9k8s")
+script = ExtResource("1_7uusn")
 id = "infernal_cleaver_uncommon"
 display_name = "Infernal Cleaver"
 description = "A cleaver that glows white-hot. Every wound it inflicts is cauterized and searing."
-icon = ExtResource("6_8jqxu")
+icon = ExtResource("6_xq6ek")
 category = 6
 rarity = 1
 hand_slots_required = 1
 armor_slot = 6
-shape = ExtResource("5_8fxys")
-stat_modifiers = Array[ExtResource("3_y93wi")]([SubResource("Resource_x698r")])
+shape = ExtResource("5_m9cy9")
+stat_modifiers = Array[ExtResource("3_wo04p")]([SubResource("Resource_eujzc")])
 base_power = 7
-innate_status_effect = ExtResource("7_4mmhf")
+innate_status_effect = ExtResource("7_3l7uv")
 innate_status_effect_chance = 0.15
 base_price = 94

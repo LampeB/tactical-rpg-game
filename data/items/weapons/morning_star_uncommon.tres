@@ -1,28 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_duoiq"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_mnc3j"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_4l7ke"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ky30i"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8eryk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_byvhc"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_lsdqk"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_0hf68"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_adfzc"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_dpxvr"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_x8dz3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_dt4s6"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_sxbc0"]
 
-[sub_resource type="Resource" id="Resource_rol2g"]
-script = ExtResource("3_4l7ke")
+[sub_resource type="Resource" id="Resource_w98jo"]
+script = ExtResource("3_adfzc")
 stat = 4
 value = 10.0
 
 [resource]
-script = ExtResource("1_duoiq")
+script = ExtResource("1_lsdqk")
 id = "morning_star_uncommon"
 display_name = "Morning Star"
 description = "A heavy spiked mace that punctures the thickest plate."
-icon = ExtResource("6_byvhc")
+icon = ExtResource("6_dt4s6")
 category = 1
 rarity = 1
 hand_slots_required = 1
 armor_slot = 1
-shape = ExtResource("5_8eryk")
-stat_modifiers = Array[ExtResource("3_4l7ke")]([SubResource("Resource_rol2g")])
+shape = ExtResource("5_x8dz3")
+stat_modifiers = Array[ExtResource("3_adfzc")]([SubResource("Resource_w98jo")])
 base_power = 10
+granted_skills = Array[ExtResource("4_dpxvr")]([ExtResource("7_sxbc0")])
 base_price = 97

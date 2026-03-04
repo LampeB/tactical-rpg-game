@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_khh7p"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_izzzz"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_z3dgz"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_t5w5g"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_wez0g"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_7ill2"]
-[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_ixvqp"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9p4g6"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_1fgen"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_z9n3m"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ilkw4"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_sl2pj"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_02u07"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_ryt8y"]
 
-[sub_resource type="Resource" id="Resource_9g7ib"]
-script = ExtResource("3_z3dgz")
+[sub_resource type="Resource" id="Resource_ameej"]
+script = ExtResource("3_z9n3m")
 stat = 4
 value = 5.0
 
 [resource]
-script = ExtResource("1_khh7p")
+script = ExtResource("1_9p4g6")
 id = "frostmallet_common"
 display_name = "Frostmallet"
 description = "A hammer forged from glacier ice that never melts. Each blow numbs the foe."
-icon = ExtResource("6_7ill2")
+icon = ExtResource("6_02u07")
 category = 1
 hand_slots_required = 1
 armor_slot = 1
-shape = ExtResource("5_wez0g")
-stat_modifiers = Array[ExtResource("3_z3dgz")]([SubResource("Resource_9g7ib")])
+shape = ExtResource("5_sl2pj")
+stat_modifiers = Array[ExtResource("3_z9n3m")]([SubResource("Resource_ameej")])
 base_power = 5
-innate_status_effect = ExtResource("7_ixvqp")
+innate_status_effect = ExtResource("7_ryt8y")
 innate_status_effect_chance = 0.05
 base_price = 60

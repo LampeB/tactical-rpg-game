@@ -1,33 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4hqev"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p83xb"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_rtlwf"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_929k7"]
-[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_ih953"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_ihr78"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1lfo2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_td638"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_i1bm4"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_8k3yp"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_gpkpp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_wmgwx"]
 
-[sub_resource type="Resource" id="Resource_96vp2"]
-script = ExtResource("3_rtlwf")
+[sub_resource type="Resource" id="Resource_n063l"]
+script = ExtResource("3_i1bm4")
 stat = 4
 value = 12.0
 
-[sub_resource type="Resource" id="Resource_pwwx8"]
-script = ExtResource("3_rtlwf")
+[sub_resource type="Resource" id="Resource_8n7xe"]
+script = ExtResource("3_i1bm4")
 stat = 2
 value = 12.0
 
 [resource]
-script = ExtResource("1_4hqev")
+script = ExtResource("1_1lfo2")
 id = "shortbow_legendary"
 display_name = "Shortbow"
 description = "A compact bow for rapid volleys at close range."
-icon = ExtResource("6_ihr78")
+icon = ExtResource("6_wmgwx")
 category = 2
 rarity = 4
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_ih953")
-stat_modifiers = Array[ExtResource("3_rtlwf")]([SubResource("Resource_96vp2"), SubResource("Resource_pwwx8")])
+shape = ExtResource("5_gpkpp")
+stat_modifiers = Array[ExtResource("3_i1bm4")]([SubResource("Resource_n063l"), SubResource("Resource_8n7xe")])
 base_power = 12
 base_price = 151

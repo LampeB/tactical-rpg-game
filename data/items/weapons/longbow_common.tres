@@ -1,27 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_k91ys"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_jfzgt"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_jaubn"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lgcyd"]
-[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_pha0i"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_46hbe"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_djpi0"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_zwlnd"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_kfz7j"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_gdko9"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_mxqjd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_okw7q"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_hvnte"]
 
-[sub_resource type="Resource" id="Resource_oj624"]
-script = ExtResource("3_jaubn")
+[sub_resource type="Resource" id="Resource_nip95"]
+script = ExtResource("3_kfz7j")
 stat = 4
 value = 7.0
 
 [resource]
-script = ExtResource("1_k91ys")
+script = ExtResource("1_djpi0")
 id = "longbow_common"
 display_name = "Longbow"
 description = "A tall bow with exceptional range and stopping power."
-icon = ExtResource("6_46hbe")
+icon = ExtResource("6_okw7q")
 category = 2
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_pha0i")
-stat_modifiers = Array[ExtResource("3_jaubn")]([SubResource("Resource_oj624")])
+shape = ExtResource("5_mxqjd")
+stat_modifiers = Array[ExtResource("3_kfz7j")]([SubResource("Resource_nip95")])
 base_power = 7
+granted_skills = Array[ExtResource("4_gdko9")]([ExtResource("7_hvnte")])
 base_price = 60

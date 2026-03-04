@@ -1,31 +1,31 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_261u2"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_s1l4m"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_lq97y"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_f8kyq"]
-[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_uzi4n"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_d0n74"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_5vhok"]
-[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_wk2mv"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_uyv9j"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_31s75"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bhmaj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_vfy9o"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_cg61s"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_jyj6z"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_iii.tres" id="7_njka3"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_iii.tres" id="8_lih6q"]
 
-[sub_resource type="Resource" id="Resource_srj5o"]
-script = ExtResource("3_lq97y")
+[sub_resource type="Resource" id="Resource_iw4d4"]
+script = ExtResource("3_bhmaj")
 stat = 6
-value = 28.0
+value = 44.0
 
 [resource]
-script = ExtResource("1_261u2")
+script = ExtResource("1_uyv9j")
 id = "grimoire_unique"
 display_name = "Grimoire"
 description = "A tome of forbidden knowledge, heavy with power."
-icon = ExtResource("6_d0n74")
+icon = ExtResource("6_jyj6z")
 category = 3
 rarity = 5
 hand_slots_required = 1
 armor_slot = 3
-shape = ExtResource("5_uzi4n")
-stat_modifiers = Array[ExtResource("3_lq97y")]([SubResource("Resource_srj5o")])
+shape = ExtResource("5_cg61s")
+stat_modifiers = Array[ExtResource("3_bhmaj")]([SubResource("Resource_iw4d4")])
 magical_power = 28
-granted_skills = Array[ExtResource("4_f8kyq")]([ExtResource("7_5vhok"), ExtResource("8_wk2mv")])
+granted_skills = Array[ExtResource("4_vfy9o")]([ExtResource("7_njka3"), ExtResource("8_lih6q")])
 base_price = 336

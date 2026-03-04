@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_5wvu1"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_43efy"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_fla25"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_fd21r"]
-[ext_resource type="Resource" path="res://data/shapes/shape_great_axe.tres" id="5_tqeru"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ub15k"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_wr6xk"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4z87g"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p1s3q"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_vey9w"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_qpl4t"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_t4dc4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_6yzs1"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="7_6inpf"]
 
-[sub_resource type="Resource" id="Resource_ib9eh"]
-script = ExtResource("3_fla25")
+[sub_resource type="Resource" id="Resource_gdgsc"]
+script = ExtResource("3_vey9w")
 stat = 4
 value = 22.0
 
 [resource]
-script = ExtResource("1_5wvu1")
+script = ExtResource("1_4z87g")
 id = "great_axe_rare"
 display_name = "Great Axe"
 description = "A towering double-headed axe that splits foes in two."
-icon = ExtResource("6_ub15k")
+icon = ExtResource("6_6yzs1")
 category = 6
 rarity = 2
 hand_slots_required = 2
 armor_slot = 6
-shape = ExtResource("5_tqeru")
-stat_modifiers = Array[ExtResource("3_fla25")]([SubResource("Resource_ib9eh")])
+shape = ExtResource("5_t4dc4")
+stat_modifiers = Array[ExtResource("3_vey9w")]([SubResource("Resource_gdgsc")])
 base_power = 22
-granted_skills = Array[ExtResource("4_fd21r")]([ExtResource("7_wr6xk")])
+granted_skills = Array[ExtResource("4_qpl4t")]([ExtResource("7_6inpf")])
 base_price = 173

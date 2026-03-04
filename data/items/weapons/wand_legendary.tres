@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_wd7mg"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_cjnp9"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_9u0qw"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3nxm6"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_xgpph"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_9vlwh"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_2dtta"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7q9df"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p3gs7"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_xo9vl"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_bvum0"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_il3hp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_ue76c"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_iii.tres" id="7_zjz7r"]
 
-[sub_resource type="Resource" id="Resource_6t0d8"]
-script = ExtResource("3_9u0qw")
+[sub_resource type="Resource" id="Resource_582ll"]
+script = ExtResource("3_xo9vl")
 stat = 6
-value = 12.0
+value = 18.0
 
 [resource]
-script = ExtResource("1_wd7mg")
+script = ExtResource("1_7q9df")
 id = "wand_legendary"
 display_name = "Wand"
 description = "A slender focus for channeling quick bursts of magic."
-icon = ExtResource("6_9vlwh")
+icon = ExtResource("6_ue76c")
 category = 3
 rarity = 4
 hand_slots_required = 1
 armor_slot = 3
-shape = ExtResource("5_xgpph")
-stat_modifiers = Array[ExtResource("3_9u0qw")]([SubResource("Resource_6t0d8")])
+shape = ExtResource("5_il3hp")
+stat_modifiers = Array[ExtResource("3_xo9vl")]([SubResource("Resource_582ll")])
 magical_power = 12
-granted_skills = Array[ExtResource("4_3nxm6")]([ExtResource("7_2dtta")])
+granted_skills = Array[ExtResource("4_bvum0")]([ExtResource("7_zjz7r")])
 base_price = 162

@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_94zlw"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_3x4f8"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_rqwh4"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_h3d0a"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ub3fn"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_2eosl"]
-[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_x0eln"]
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="8_uh2du"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_sbdka"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_lhs4q"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_c0khz"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_8vcmr"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ftgs2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_xwvb9"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_imu3b"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="8_5aa5l"]
 
-[sub_resource type="Resource" id="Resource_s0v1s"]
-script = ExtResource("3_rqwh4")
+[sub_resource type="Resource" id="Resource_nw2pz"]
+script = ExtResource("3_c0khz")
 stat = 4
 value = 7.0
 
 [resource]
-script = ExtResource("1_94zlw")
+script = ExtResource("1_sbdka")
 id = "flamberge_uncommon"
 display_name = "Flamberge"
 description = "A wavy-bladed sword wreathed in flame. Its strikes leave searing burns."
-icon = ExtResource("6_2eosl")
+icon = ExtResource("6_xwvb9")
 rarity = 1
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_ub3fn")
-stat_modifiers = Array[ExtResource("3_rqwh4")]([SubResource("Resource_s0v1s")])
+shape = ExtResource("5_ftgs2")
+stat_modifiers = Array[ExtResource("3_c0khz")]([SubResource("Resource_nw2pz")])
 base_power = 7
-innate_status_effect = ExtResource("7_x0eln")
+innate_status_effect = ExtResource("7_imu3b")
 innate_status_effect_chance = 0.15
-granted_skills = Array[ExtResource("4_h3d0a")]([ExtResource("8_uh2du")])
+granted_skills = Array[ExtResource("4_8vcmr")]([ExtResource("8_5aa5l")])
 base_price = 109

@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bi0ds"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_qkfji"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gmezz"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pzmq5"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_rjqzh"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_qnyjo"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_xb8iy"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_eu7bf"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_4pgiu"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_uu8st"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_4xjcv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_cx1e0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_tgag7"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="7_lbnkk"]
 
-[sub_resource type="Resource" id="Resource_xfgu2"]
-script = ExtResource("3_gmezz")
+[sub_resource type="Resource" id="Resource_oq09x"]
+script = ExtResource("3_uu8st")
 stat = 4
 value = 24.0
 
-[sub_resource type="Resource" id="Resource_h4ms0"]
-script = ExtResource("3_gmezz")
+[sub_resource type="Resource" id="Resource_9grld"]
+script = ExtResource("3_uu8st")
 stat = 2
 value = 8.0
 
 [resource]
-script = ExtResource("1_bi0ds")
+script = ExtResource("1_eu7bf")
 id = "tanto_unique"
 display_name = "Tanto"
 description = "A short, thick blade designed to punch through armor."
-icon = ExtResource("6_qnyjo")
+icon = ExtResource("6_tgag7")
 category = 4
 rarity = 5
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_rjqzh")
-stat_modifiers = Array[ExtResource("3_gmezz")]([SubResource("Resource_xfgu2"), SubResource("Resource_h4ms0")])
+shape = ExtResource("5_cx1e0")
+stat_modifiers = Array[ExtResource("3_uu8st")]([SubResource("Resource_oq09x"), SubResource("Resource_9grld")])
 base_power = 24
-granted_skills = Array[ExtResource("4_pzmq5")]([ExtResource("7_xb8iy")])
+granted_skills = Array[ExtResource("4_4xjcv")]([ExtResource("7_lbnkk")])
 base_price = 240

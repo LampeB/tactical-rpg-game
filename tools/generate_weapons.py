@@ -60,7 +60,7 @@ SHAPES = {
     "l":   "res://data/shapes/shape_l.tres",
 }
 
-# --- Skill paths ---
+# --- Skill paths (base = tier 1) ---
 SKILLS = {
     "slash":        "res://data/skills/slash.tres",
     "power_strike": "res://data/skills/power_strike.tres",
@@ -68,7 +68,38 @@ SKILLS = {
     "shield_bash":  "res://data/skills/shield_bash.tres",
     "fire_bolt":    "res://data/skills/fire_bolt.tres",
     "ice_shard":    "res://data/skills/ice_shard.tres",
+    # Tier 2
+    "slash_ii":        "res://data/skills/slash_ii.tres",
+    "power_strike_ii": "res://data/skills/power_strike_ii.tres",
+    "backstab_ii":     "res://data/skills/backstab_ii.tres",
+    "shield_bash_ii":  "res://data/skills/shield_bash_ii.tres",
+    "fire_bolt_ii":    "res://data/skills/fire_bolt_ii.tres",
+    "ice_shard_ii":    "res://data/skills/ice_shard_ii.tres",
+    # Tier 3
+    "slash_iii":        "res://data/skills/slash_iii.tres",
+    "power_strike_iii": "res://data/skills/power_strike_iii.tres",
+    "backstab_iii":     "res://data/skills/backstab_iii.tres",
+    "shield_bash_iii":  "res://data/skills/shield_bash_iii.tres",
+    "fire_bolt_iii":    "res://data/skills/fire_bolt_iii.tres",
+    "ice_shard_iii":    "res://data/skills/ice_shard_iii.tres",
 }
+
+# Rarity → skill tier suffix mapping
+# Common/Uncommon = base, Rare/Elite = II, Legendary/Unique = III
+SKILL_TIER_SUFFIX = {
+    0: "",      # common
+    1: "",      # uncommon
+    2: "_ii",   # rare
+    3: "_ii",   # elite
+    4: "_iii",  # legendary
+    5: "_iii",  # unique
+}
+
+
+def get_tiered_skill(base_skill: str, rarity_enum: int) -> str:
+    """Return the tiered skill key for a given base skill and rarity."""
+    suffix = SKILL_TIER_SUFFIX[rarity_enum]
+    return base_skill + suffix
 
 # --- Icon paths (reuse category icons as placeholders) ---
 ICONS = {
@@ -147,7 +178,7 @@ WEAPONS = [
         "id": "flail", "name": "Flail", "category": CAT_MACE,
         "hands": 1, "shape": "1x2",
         "base_power": 6, "magical_power": 0,
-        "stats": [(STAT_PHYS_ATK, 6)],
+        "stats": [(STAT_PHYS_ATK, 6), (STAT_CRIT_RATE, 4)],
         "skills": [],
         "description": "A spiked ball on a chain, unpredictable and devastating.",
         "base_price": 55,
@@ -157,7 +188,7 @@ WEAPONS = [
         "hands": 1, "shape": "1x2",
         "base_power": 7, "magical_power": 0,
         "stats": [(STAT_PHYS_ATK, 7)],
-        "skills": [],
+        "skills": ["shield_bash"],
         "description": "A heavy spiked mace that punctures the thickest plate.",
         "base_price": 62,
     },
@@ -173,11 +204,11 @@ WEAPONS = [
     {
         "id": "maul", "name": "Maul", "category": CAT_MACE,
         "hands": 2, "shape": "1x3",
-        "base_power": 12, "magical_power": 0,
-        "stats": [(STAT_PHYS_ATK, 12)],
-        "skills": ["power_strike"],
+        "base_power": 14, "magical_power": 0,
+        "stats": [(STAT_PHYS_ATK, 14), (STAT_CRIT_DMG, 8)],
+        "skills": [],
         "description": "An enormous two-handed hammer built to shatter.",
-        "base_price": 85,
+        "base_price": 90,
     },
 
     # === BOWS (CAT_BOW=2) ===
@@ -186,7 +217,7 @@ WEAPONS = [
         "hands": 2, "shape": "bow",
         "base_power": 7, "magical_power": 0,
         "stats": [(STAT_PHYS_ATK, 7)],
-        "skills": [],
+        "skills": ["power_strike"],
         "description": "A tall bow with exceptional range and stopping power.",
         "base_price": 60,
     },
@@ -194,7 +225,7 @@ WEAPONS = [
         "id": "crossbow", "name": "Crossbow", "category": CAT_BOW,
         "hands": 2, "shape": "1x2",
         "base_power": 8, "magical_power": 0,
-        "stats": [(STAT_PHYS_ATK, 8)],
+        "stats": [(STAT_PHYS_ATK, 8), (STAT_CRIT_DMG, 6)],
         "skills": [],
         "description": "A mechanical bow that trades speed for raw penetration.",
         "base_price": 65,
@@ -222,7 +253,7 @@ WEAPONS = [
         "hands": 2, "shape": "bow",
         "base_power": 10, "magical_power": 0,
         "stats": [(STAT_PHYS_ATK, 10)],
-        "skills": [],
+        "skills": ["power_strike"],
         "description": "A massive siege bow that fires bolts as thick as spears.",
         "base_price": 80,
     },
@@ -232,7 +263,7 @@ WEAPONS = [
         "id": "wand", "name": "Wand", "category": CAT_STAFF,
         "hands": 1, "shape": "1x1",
         "base_power": 0, "magical_power": 4,
-        "stats": [(STAT_MAG_ATK, 4)],
+        "stats": [(STAT_MAG_ATK, 6)],
         "skills": ["fire_bolt"],
         "description": "A slender focus for channeling quick bursts of magic.",
         "base_price": 45,
@@ -241,7 +272,7 @@ WEAPONS = [
         "id": "rod", "name": "Rod", "category": CAT_STAFF,
         "hands": 1, "shape": "1x2",
         "base_power": 0, "magical_power": 6,
-        "stats": [(STAT_MAG_ATK, 6)],
+        "stats": [(STAT_MAG_ATK, 9)],
         "skills": ["fire_bolt"],
         "description": "A sturdy rod infused with arcane resonance.",
         "base_price": 55,
@@ -250,7 +281,7 @@ WEAPONS = [
         "id": "scepter", "name": "Scepter", "category": CAT_STAFF,
         "hands": 1, "shape": "1x2",
         "base_power": 0, "magical_power": 5,
-        "stats": [(STAT_MAG_ATK, 5), (STAT_CRIT_RATE, 3)],
+        "stats": [(STAT_MAG_ATK, 8), (STAT_CRIT_RATE, 3)],
         "skills": ["ice_shard"],
         "description": "An ornate scepter crackling with elemental power.",
         "base_price": 58,
@@ -259,7 +290,7 @@ WEAPONS = [
         "id": "oracle_staff", "name": "Oracle Staff", "category": CAT_STAFF,
         "hands": 2, "shape": "1x4",
         "base_power": 0, "magical_power": 8,
-        "stats": [(STAT_MAG_ATK, 8)],
+        "stats": [(STAT_MAG_ATK, 12)],
         "skills": ["fire_bolt", "ice_shard"],
         "description": "An ancient staff that bends the fabric of reality.",
         "base_price": 75,
@@ -268,7 +299,7 @@ WEAPONS = [
         "id": "grimoire", "name": "Grimoire", "category": CAT_STAFF,
         "hands": 1, "shape": "2x2",
         "base_power": 0, "magical_power": 7,
-        "stats": [(STAT_MAG_ATK, 7)],
+        "stats": [(STAT_MAG_ATK, 11)],
         "skills": ["fire_bolt", "ice_shard"],
         "description": "A tome of forbidden knowledge, heavy with power.",
         "base_price": 70,
@@ -391,7 +422,7 @@ WEAPONS = [
         "id": "tomahawk", "name": "Tomahawk", "category": CAT_AXE,
         "hands": 1, "shape": "1x1",
         "base_power": 6, "magical_power": 0,
-        "stats": [(STAT_PHYS_ATK, 6)],
+        "stats": [(STAT_PHYS_ATK, 6), (STAT_CRIT_RATE, 3)],
         "skills": [],
         "description": "A balanced hand axe that strikes with lethal precision.",
         "base_price": 48,
@@ -410,7 +441,7 @@ WEAPONS = [
         "hands": 1, "shape": "1x2",
         "base_power": 7, "magical_power": 0,
         "stats": [(STAT_PHYS_ATK, 7)],
-        "skills": [],
+        "skills": ["slash"],
         "description": "A wide-bladed chopping weapon with a butcher's edge.",
         "base_price": 55,
     },
@@ -462,10 +493,11 @@ def generate_tres(weapon: dict, rarity: dict) -> str:
     icon_path = ICONS[category]
     eid_icon = add_ext("Texture2D", icon_path)
 
-    # Skills
+    # Skills (tiered by rarity)
     skill_eids = []
     for sk in w["skills"]:
-        eid = add_ext("Resource", SKILLS[sk])
+        tiered_sk = get_tiered_skill(sk, r["enum_val"])
+        eid = add_ext("Resource", SKILLS[tiered_sk])
         skill_eids.append(eid)
 
     # Build ext_resource section
@@ -538,7 +570,10 @@ def generate_tres(weapon: dict, rarity: dict) -> str:
 
 def main():
     apply = "--apply" in sys.argv
+    force = "--force" in sys.argv
     mode = "APPLYING" if apply else "DRY RUN"
+    if force:
+        mode += " (FORCE OVERWRITE)"
     print(f"=== {mode} ===\n")
 
     total = 0
@@ -550,7 +585,7 @@ def main():
             filename = f"{item_id}.tres"
             filepath = os.path.join(WEAPONS_DIR, filename)
 
-            if os.path.exists(filepath):
+            if os.path.exists(filepath) and not force:
                 print(f"  SKIP (exists): {filename}")
                 skipped += 1
                 continue

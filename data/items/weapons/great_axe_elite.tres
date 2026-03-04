@@ -1,30 +1,30 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1gw7i"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_gmtjz"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_p53g1"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_cwz41"]
-[ext_resource type="Resource" path="res://data/shapes/shape_great_axe.tres" id="5_ix11v"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_n041r"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_vgdff"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_hve9q"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_6dftp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zs230"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_eswax"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_rif69"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_c5bey"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="7_4cf4m"]
 
-[sub_resource type="Resource" id="Resource_4r3sp"]
-script = ExtResource("3_p53g1")
+[sub_resource type="Resource" id="Resource_mqsqc"]
+script = ExtResource("3_zs230")
 stat = 4
 value = 26.0
 
 [resource]
-script = ExtResource("1_1gw7i")
+script = ExtResource("1_hve9q")
 id = "great_axe_elite"
 display_name = "Great Axe"
 description = "A towering double-headed axe that splits foes in two."
-icon = ExtResource("6_n041r")
+icon = ExtResource("6_c5bey")
 category = 6
 rarity = 3
 hand_slots_required = 2
 armor_slot = 6
-shape = ExtResource("5_ix11v")
-stat_modifiers = Array[ExtResource("3_p53g1")]([SubResource("Resource_4r3sp")])
+shape = ExtResource("5_rif69")
+stat_modifiers = Array[ExtResource("3_zs230")]([SubResource("Resource_mqsqc")])
 base_power = 26
-granted_skills = Array[ExtResource("4_cwz41")]([ExtResource("7_vgdff")])
+granted_skills = Array[ExtResource("4_eswax")]([ExtResource("7_4cf4m")])
 base_price = 224

@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1iygm"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bang5"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_2m1f6"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_m238w"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_tnn2e"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_1ez5p"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_w1cwo"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_7v2xy"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ofpcu"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bfzu7"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_x13cy"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_rjtg3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ujr7j"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_dmtcd"]
 
-[sub_resource type="Resource" id="Resource_00d7y"]
-script = ExtResource("3_2m1f6")
+[sub_resource type="Resource" id="Resource_z5ene"]
+script = ExtResource("3_bfzu7")
 stat = 4
 value = 8.0
 
-[sub_resource type="Resource" id="Resource_ns2xn"]
-script = ExtResource("3_2m1f6")
+[sub_resource type="Resource" id="Resource_5werj"]
+script = ExtResource("3_bfzu7")
 stat = 8
 value = 8.0
 
 [resource]
-script = ExtResource("1_1iygm")
+script = ExtResource("1_7v2xy")
 id = "skullcracker_common"
 display_name = "Skullcracker"
 description = "A brutal weapon designed to find weak points in armor. Crits shatter bone."
-icon = ExtResource("6_1ez5p")
+icon = ExtResource("6_ujr7j")
 category = 1
 hand_slots_required = 2
 armor_slot = 1
-shape = ExtResource("5_tnn2e")
-stat_modifiers = Array[ExtResource("3_2m1f6")]([SubResource("Resource_00d7y"), SubResource("Resource_ns2xn")])
+shape = ExtResource("5_rjtg3")
+stat_modifiers = Array[ExtResource("3_bfzu7")]([SubResource("Resource_z5ene"), SubResource("Resource_5werj")])
 base_power = 8
-granted_skills = Array[ExtResource("4_m238w")]([ExtResource("7_w1cwo")])
+granted_skills = Array[ExtResource("4_x13cy")]([ExtResource("7_dmtcd")])
 base_price = 95

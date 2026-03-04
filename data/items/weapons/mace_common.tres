@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_qjkj5"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="4"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="skill_w0o49"]
 
 [sub_resource type="Resource" id="Resource_cop3q"]
 script = ExtResource("2")
@@ -24,4 +25,5 @@ armor_slot = 1
 shape = ExtResource("3")
 stat_modifiers = Array[ExtResource("2")]([SubResource("Resource_cop3q")])
 base_power = 7
+granted_skills = Array[ExtResource("2_qjkj5")]([ExtResource("skill_w0o49")])
 base_price = 60

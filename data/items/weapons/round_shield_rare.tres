@@ -1,29 +1,29 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jgajn"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_3kpmc"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_0a8c1"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_7aitz"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_n8pm6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_c2av8"]
-[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_yndjb"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_2uq06"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_fxkme"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zdfm7"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ezkl5"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_aram3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_0sqvj"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_ii.tres" id="7_06bmo"]
 
-[sub_resource type="Resource" id="Resource_rhgmo"]
-script = ExtResource("3_0a8c1")
+[sub_resource type="Resource" id="Resource_06mip"]
+script = ExtResource("3_zdfm7")
 stat = 5
 value = 13.0
 
 [resource]
-script = ExtResource("1_jgajn")
+script = ExtResource("1_2uq06")
 id = "round_shield_rare"
 display_name = "Round Shield"
 description = "A versatile circular shield, sturdy and balanced."
-icon = ExtResource("6_c2av8")
+icon = ExtResource("6_0sqvj")
 category = 5
 rarity = 2
 hand_slots_required = 1
 armor_slot = 5
-shape = ExtResource("5_n8pm6")
-stat_modifiers = Array[ExtResource("3_0a8c1")]([SubResource("Resource_rhgmo")])
-granted_skills = Array[ExtResource("4_7aitz")]([ExtResource("7_yndjb")])
+shape = ExtResource("5_aram3")
+stat_modifiers = Array[ExtResource("3_zdfm7")]([SubResource("Resource_06mip")])
+granted_skills = Array[ExtResource("4_ezkl5")]([ExtResource("7_06bmo")])
 base_price = 82

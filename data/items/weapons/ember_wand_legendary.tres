@@ -1,35 +1,35 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_5psek"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_e5ogl"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_l75k8"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_iw3l2"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_507bo"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_wxy55"]
-[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_htg6w"]
-[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="8_scu2h"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_be7i4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_7mm12"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_6zkrb"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_v0dpu"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_j32ny"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_z211r"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_kuyjp"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_iii.tres" id="8_b4qke"]
 
-[sub_resource type="Resource" id="Resource_7snah"]
-script = ExtResource("3_l75k8")
+[sub_resource type="Resource" id="Resource_ok7gj"]
+script = ExtResource("3_6zkrb")
 stat = 6
-value = 12.0
+value = 18.0
 
 [resource]
-script = ExtResource("1_5psek")
+script = ExtResource("1_be7i4")
 id = "ember_wand_legendary"
 display_name = "Ember Wand"
 description = "A wand that smolders with inner flame. Its spells scorch and ignite."
-icon = ExtResource("6_wxy55")
+icon = ExtResource("6_z211r")
 category = 3
 rarity = 4
 hand_slots_required = 1
 armor_slot = 3
-shape = ExtResource("5_507bo")
-stat_modifiers = Array[ExtResource("3_l75k8")]([SubResource("Resource_7snah")])
+shape = ExtResource("5_j32ny")
+stat_modifiers = Array[ExtResource("3_6zkrb")]([SubResource("Resource_ok7gj")])
 magical_power = 12
-innate_status_effect = ExtResource("7_htg6w")
+innate_status_effect = ExtResource("7_kuyjp")
 innate_status_effect_chance = 0.45
 innate_status_stacks = 2
 innate_crit_status_stacks = 4
-granted_skills = Array[ExtResource("4_iw3l2")]([ExtResource("8_scu2h")])
+granted_skills = Array[ExtResource("4_v0dpu")]([ExtResource("8_b4qke")])
 base_price = 198

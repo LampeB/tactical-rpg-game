@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_33bf5"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_o9inq"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_gd6k8"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0efkj"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_yrfar"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_63x9d"]
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_meksh"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rzck6"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_kpmwi"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_lgnmy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_twz80"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_vt322"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_ow3yp"]
+[ext_resource type="Resource" path="res://data/skills/slash_ii.tres" id="7_1ks3u"]
 
-[sub_resource type="Resource" id="Resource_z0iie"]
-script = ExtResource("3_gd6k8")
+[sub_resource type="Resource" id="Resource_iq37i"]
+script = ExtResource("3_lgnmy")
 stat = 4
 value = 9.0
 
-[sub_resource type="Resource" id="Resource_ysl6j"]
-script = ExtResource("3_gd6k8")
+[sub_resource type="Resource" id="Resource_97g6b"]
+script = ExtResource("3_lgnmy")
 stat = 2
 value = 5.0
 
 [resource]
-script = ExtResource("1_33bf5")
+script = ExtResource("1_rzck6")
 id = "scimitar_rare"
 display_name = "Scimitar"
 description = "A wide curved blade designed for sweeping strikes from horseback."
-icon = ExtResource("6_63x9d")
+icon = ExtResource("6_ow3yp")
 rarity = 2
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_yrfar")
-stat_modifiers = Array[ExtResource("3_gd6k8")]([SubResource("Resource_z0iie"), SubResource("Resource_ysl6j")])
+shape = ExtResource("5_vt322")
+stat_modifiers = Array[ExtResource("3_lgnmy")]([SubResource("Resource_iq37i"), SubResource("Resource_97g6b")])
 base_power = 9
-granted_skills = Array[ExtResource("4_0efkj")]([ExtResource("7_meksh")])
+granted_skills = Array[ExtResource("4_twz80")]([ExtResource("7_1ks3u")])
 base_price = 106

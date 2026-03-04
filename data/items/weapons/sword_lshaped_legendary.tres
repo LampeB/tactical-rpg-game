@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="1_gpepw"]
+[ext_resource type="Resource" path="res://data/skills/slash_iii.tres" id="1_gpepw"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_kqvx7"]
-[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="2_2vf5v"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="2_2vf5v"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_pydx8"]
 [ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="3_kqvx7"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_pydx8"]

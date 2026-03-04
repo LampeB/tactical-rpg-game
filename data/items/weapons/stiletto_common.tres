@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pl6js"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p1w6f"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_285tr"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_f598n"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_kc69a"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_nuh8t"]
-[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_yp88x"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_2quho"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_fj1o8"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_krs2m"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_sn5jg"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_nur5w"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_b2dv8"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_e139r"]
 
-[sub_resource type="Resource" id="Resource_qz0s0"]
-script = ExtResource("3_285tr")
+[sub_resource type="Resource" id="Resource_xiq3o"]
+script = ExtResource("3_krs2m")
 stat = 4
 value = 3.0
 
-[sub_resource type="Resource" id="Resource_s0j8l"]
-script = ExtResource("3_285tr")
+[sub_resource type="Resource" id="Resource_2vbh0"]
+script = ExtResource("3_krs2m")
 stat = 8
 value = 6.0
 
 [resource]
-script = ExtResource("1_pl6js")
+script = ExtResource("1_2quho")
 id = "stiletto_common"
 display_name = "Stiletto"
 description = "A needle-thin blade made for piercing vital points."
-icon = ExtResource("6_nuh8t")
+icon = ExtResource("6_b2dv8")
 category = 4
 hand_slots_required = 1
 armor_slot = 4
-shape = ExtResource("5_kc69a")
-stat_modifiers = Array[ExtResource("3_285tr")]([SubResource("Resource_qz0s0"), SubResource("Resource_s0j8l")])
+shape = ExtResource("5_nur5w")
+stat_modifiers = Array[ExtResource("3_krs2m")]([SubResource("Resource_xiq3o"), SubResource("Resource_2vbh0")])
 base_power = 3
-granted_skills = Array[ExtResource("4_f598n")]([ExtResource("7_yp88x")])
+granted_skills = Array[ExtResource("4_sn5jg")]([ExtResource("7_e139r")])
 base_price = 48

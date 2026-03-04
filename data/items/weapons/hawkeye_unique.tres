@@ -1,38 +1,38 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_udb61"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_z1357"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_juwtc"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ox5di"]
-[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_t0dfy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_e56er"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vplc7"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_rvpia"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bsysb"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_rvr0e"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_vfnq2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_035az"]
 
-[sub_resource type="Resource" id="Resource_uxk6t"]
-script = ExtResource("3_juwtc")
+[sub_resource type="Resource" id="Resource_xo3xm"]
+script = ExtResource("3_bsysb")
 stat = 4
 value = 16.0
 
-[sub_resource type="Resource" id="Resource_b4seh"]
-script = ExtResource("3_juwtc")
+[sub_resource type="Resource" id="Resource_h2yjm"]
+script = ExtResource("3_bsysb")
 stat = 8
 value = 32.0
 
-[sub_resource type="Resource" id="Resource_iez4g"]
-script = ExtResource("3_juwtc")
+[sub_resource type="Resource" id="Resource_rshka"]
+script = ExtResource("3_bsysb")
 stat = 9
 value = 48.0
 
 [resource]
-script = ExtResource("1_udb61")
+script = ExtResource("1_vplc7")
 id = "hawkeye_unique"
 display_name = "Hawkeye"
 description = "A precision-crafted bow that guides arrows to vital targets. Every shot counts."
-icon = ExtResource("6_e56er")
+icon = ExtResource("6_035az")
 category = 2
 rarity = 5
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_t0dfy")
-stat_modifiers = Array[ExtResource("3_juwtc")]([SubResource("Resource_uxk6t"), SubResource("Resource_b4seh"), SubResource("Resource_iez4g")])
+shape = ExtResource("5_vfnq2")
+stat_modifiers = Array[ExtResource("3_bsysb")]([SubResource("Resource_xo3xm"), SubResource("Resource_h2yjm"), SubResource("Resource_rshka")])
 base_power = 16
 base_price = 408

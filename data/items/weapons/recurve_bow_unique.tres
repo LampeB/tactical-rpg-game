@@ -1,33 +1,33 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_cp38q"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_hz11x"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_h30zh"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_vo8q0"]
-[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_z1qi8"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_jcsge"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ok8r9"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_7anbi"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ka9ad"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_9qo4e"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_6xnwy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_xkj71"]
 
-[sub_resource type="Resource" id="Resource_12zma"]
-script = ExtResource("3_h30zh")
+[sub_resource type="Resource" id="Resource_tmct3"]
+script = ExtResource("3_ka9ad")
 stat = 4
 value = 24.0
 
-[sub_resource type="Resource" id="Resource_6ppth"]
-script = ExtResource("3_h30zh")
+[sub_resource type="Resource" id="Resource_3r3p1"]
+script = ExtResource("3_ka9ad")
 stat = 2
 value = 8.0
 
 [resource]
-script = ExtResource("1_cp38q")
+script = ExtResource("1_ok8r9")
 id = "recurve_bow_unique"
 display_name = "Recurve Bow"
 description = "Curved limbs store extra energy for a powerful shot."
-icon = ExtResource("6_jcsge")
+icon = ExtResource("6_xkj71")
 category = 2
 rarity = 5
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_z1qi8")
-stat_modifiers = Array[ExtResource("3_h30zh")]([SubResource("Resource_12zma"), SubResource("Resource_6ppth")])
+shape = ExtResource("5_6xnwy")
+stat_modifiers = Array[ExtResource("3_ka9ad")]([SubResource("Resource_tmct3"), SubResource("Resource_3r3p1")])
 base_power = 24
 base_price = 264

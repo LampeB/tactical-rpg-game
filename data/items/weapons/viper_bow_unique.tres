@@ -1,32 +1,32 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_eyi1f"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bk6tv"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_85uuw"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_ybfuo"]
-[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_z2p63"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_9tzbc"]
-[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="7_3ajc4"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xeerp"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_hek7p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hlwjy"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_rjlg2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_mxnuo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_lrwd1"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="7_g9nuv"]
 
-[sub_resource type="Resource" id="Resource_tut8w"]
-script = ExtResource("3_85uuw")
+[sub_resource type="Resource" id="Resource_22kf7"]
+script = ExtResource("3_hlwjy")
 stat = 4
 value = 20.0
 
 [resource]
-script = ExtResource("1_eyi1f")
+script = ExtResource("1_xeerp")
 id = "viper_bow_unique"
 display_name = "Viper Bow"
 description = "A bow strung with serpent sinew. Its arrows carry venom that rots from within."
-icon = ExtResource("6_9tzbc")
+icon = ExtResource("6_lrwd1")
 category = 2
 rarity = 5
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_z2p63")
-stat_modifiers = Array[ExtResource("3_85uuw")]([SubResource("Resource_tut8w")])
+shape = ExtResource("5_mxnuo")
+stat_modifiers = Array[ExtResource("3_hlwjy")]([SubResource("Resource_22kf7")])
 base_power = 20
-innate_status_effect = ExtResource("7_3ajc4")
+innate_status_effect = ExtResource("7_g9nuv")
 innate_status_effect_chance = 0.6
 innate_status_stacks = 3
 innate_crit_status_stacks = 5

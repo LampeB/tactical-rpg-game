@@ -1,34 +1,34 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vxz1i"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_lpwny"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_mwlu3"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_911bh"]
-[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_x2a76"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_sutjw"]
-[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_t1vha"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_g4001"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_8g28p"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_7vfbm"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_065pu"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ua8za"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_aat67"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_wufgz"]
 
-[sub_resource type="Resource" id="Resource_ce16f"]
-script = ExtResource("3_mwlu3")
+[sub_resource type="Resource" id="Resource_3ijlm"]
+script = ExtResource("3_7vfbm")
 stat = 4
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_5jmxl"]
-script = ExtResource("3_mwlu3")
+[sub_resource type="Resource" id="Resource_158cz"]
+script = ExtResource("3_7vfbm")
 stat = 2
 value = 8.0
 
 [resource]
-script = ExtResource("1_vxz1i")
+script = ExtResource("1_g4001")
 id = "windblade_uncommon"
 display_name = "Windblade"
 description = "A feather-light blade that cuts faster than the eye can follow."
-icon = ExtResource("6_sutjw")
+icon = ExtResource("6_aat67")
 rarity = 1
 hand_slots_required = 1
 armor_slot = 0
-shape = ExtResource("5_x2a76")
-stat_modifiers = Array[ExtResource("3_mwlu3")]([SubResource("Resource_ce16f"), SubResource("Resource_5jmxl")])
+shape = ExtResource("5_ua8za")
+stat_modifiers = Array[ExtResource("3_7vfbm")]([SubResource("Resource_3ijlm"), SubResource("Resource_158cz")])
 base_power = 6
-granted_skills = Array[ExtResource("4_911bh")]([ExtResource("7_t1vha")])
+granted_skills = Array[ExtResource("4_065pu")]([ExtResource("7_wufgz")])
 base_price = 101

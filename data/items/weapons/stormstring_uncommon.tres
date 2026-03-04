@@ -1,36 +1,36 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dsp07"]
-[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_dzd5t"]
-[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_68z8k"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_5t18a"]
-[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_hgkyd"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_n58qw"]
-[ext_resource type="Resource" path="res://data/status_effects/shocked.tres" id="7_6lgia"]
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_otk4o"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_p9u13"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_l07th"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_kr5m7"]
+[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_03rkb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_11nfe"]
+[ext_resource type="Resource" path="res://data/status_effects/shocked.tres" id="7_8zbxu"]
 
-[sub_resource type="Resource" id="Resource_2d5zu"]
-script = ExtResource("3_68z8k")
+[sub_resource type="Resource" id="Resource_95n8a"]
+script = ExtResource("3_l07th")
 stat = 4
 value = 6.0
 
-[sub_resource type="Resource" id="Resource_q6v5u"]
-script = ExtResource("3_68z8k")
+[sub_resource type="Resource" id="Resource_qdhs8"]
+script = ExtResource("3_l07th")
 stat = 2
 value = 4.0
 
 [resource]
-script = ExtResource("1_dsp07")
+script = ExtResource("1_otk4o")
 id = "stormstring_uncommon"
 display_name = "Stormstring"
 description = "Each arrow crackles with captured lightning. Fast, relentless, and paralyzing."
-icon = ExtResource("6_n58qw")
+icon = ExtResource("6_11nfe")
 category = 2
 rarity = 1
 hand_slots_required = 2
 armor_slot = 2
-shape = ExtResource("5_hgkyd")
-stat_modifiers = Array[ExtResource("3_68z8k")]([SubResource("Resource_2d5zu"), SubResource("Resource_q6v5u")])
+shape = ExtResource("5_03rkb")
+stat_modifiers = Array[ExtResource("3_l07th")]([SubResource("Resource_95n8a"), SubResource("Resource_qdhs8")])
 base_power = 6
-innate_status_effect = ExtResource("7_6lgia")
+innate_status_effect = ExtResource("7_8zbxu")
 innate_status_effect_chance = 0.15
 base_price = 109
