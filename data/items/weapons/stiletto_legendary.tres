@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9h790"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_oq3hm"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_qyru7"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lflhq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_l0mxb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_lk57r"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_bibx6"]
+
+[sub_resource type="Resource" id="Resource_3iv07"]
+script = ExtResource("3_qyru7")
+stat = 4
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_t7noo"]
+script = ExtResource("3_qyru7")
+stat = 8
+value = 18.0
+
+[resource]
+script = ExtResource("1_9h790")
+id = "stiletto_legendary"
+display_name = "Stiletto"
+description = "A needle-thin blade made for piercing vital points."
+icon = ExtResource("6_lk57r")
+category = 4
+rarity = 4
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_l0mxb")
+stat_modifiers = Array[ExtResource("3_qyru7")]([SubResource("Resource_3iv07"), SubResource("Resource_t7noo")])
+base_power = 9
+granted_skills = Array[ExtResource("4_lflhq")]([ExtResource("7_bibx6")])
+base_price = 173

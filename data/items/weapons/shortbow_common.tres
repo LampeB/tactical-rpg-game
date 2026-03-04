@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_a3zx2"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_y6k7f"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ih3ar"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_d5ksz"]
+[ext_resource type="Resource" path="res://data/shapes/shape_shortbow.tres" id="5_swi8i"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_ysbzy"]
+
+[sub_resource type="Resource" id="Resource_2nfx2"]
+script = ExtResource("3_ih3ar")
+stat = 4
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_rg2pd"]
+script = ExtResource("3_ih3ar")
+stat = 2
+value = 4.0
+
+[resource]
+script = ExtResource("1_a3zx2")
+id = "shortbow_common"
+display_name = "Shortbow"
+description = "A compact bow for rapid volleys at close range."
+icon = ExtResource("6_ysbzy")
+category = 2
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_swi8i")
+stat_modifiers = Array[ExtResource("3_ih3ar")]([SubResource("Resource_2nfx2"), SubResource("Resource_rg2pd")])
+base_power = 4
+base_price = 42

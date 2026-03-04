@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_wp2g0")
 id = "recipe_thunder_mace"
-display_name = "Blueprint: Thunder Mace"
+display_name = "Blueprint: Stormbringer"
 description = "Plans for a mace that channels lightning. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_l7q4c")

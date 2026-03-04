@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_067or"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_8v8eu"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hwfly"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_lrn0s"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_bgswo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_4z1sm"]
+
+[sub_resource type="Resource" id="Resource_9s6cc"]
+script = ExtResource("3_hwfly")
+stat = 4
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_vj7c0"]
+script = ExtResource("3_hwfly")
+stat = 2
+value = 4.0
+
+[resource]
+script = ExtResource("1_067or")
+id = "recurve_bow_rare"
+display_name = "Recurve Bow"
+description = "Curved limbs store extra energy for a powerful shot."
+icon = ExtResource("6_4z1sm")
+category = 2
+rarity = 2
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_bgswo")
+stat_modifiers = Array[ExtResource("3_hwfly")]([SubResource("Resource_9s6cc"), SubResource("Resource_vj7c0")])
+base_power = 11
+base_price = 112

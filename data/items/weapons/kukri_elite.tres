@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_63xk9"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_vyy0x"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_o01qa"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_mdcfw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_9wvv2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_52hw1"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_60ot1"]
+
+[sub_resource type="Resource" id="Resource_ikj8h"]
+script = ExtResource("3_o01qa")
+stat = 4
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_0mvra"]
+script = ExtResource("3_o01qa")
+stat = 2
+value = 9.0
+
+[resource]
+script = ExtResource("1_63xk9")
+id = "kukri_elite"
+display_name = "Kukri"
+description = "A curved chopping knife from distant highlands."
+icon = ExtResource("6_52hw1")
+category = 4
+rarity = 3
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_9wvv2")
+stat_modifiers = Array[ExtResource("3_o01qa")]([SubResource("Resource_ikj8h"), SubResource("Resource_0mvra")])
+base_power = 11
+granted_skills = Array[ExtResource("4_mdcfw")]([ExtResource("7_60ot1")])
+base_price = 124

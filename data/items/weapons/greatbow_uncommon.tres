@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_bs2v5"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_n84hn"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_jo123"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_z9u8t"]
+[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="5_5koxs"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_blh8l"]
+
+[sub_resource type="Resource" id="Resource_mmwz6"]
+script = ExtResource("3_jo123")
+stat = 4
+value = 14.0
+
+[resource]
+script = ExtResource("1_bs2v5")
+id = "greatbow_uncommon"
+display_name = "Greatbow"
+description = "A massive siege bow that fires bolts as thick as spears."
+icon = ExtResource("6_blh8l")
+category = 2
+rarity = 1
+hand_slots_required = 2
+armor_slot = 2
+shape = ExtResource("5_5koxs")
+stat_modifiers = Array[ExtResource("3_jo123")]([SubResource("Resource_mmwz6")])
+base_power = 14
+base_price = 125

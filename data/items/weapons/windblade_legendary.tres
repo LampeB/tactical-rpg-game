@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_6grhh"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_uxlir"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bpqq5"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_86qih"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_14xr9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_qst3h"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_8a3xt"]
+
+[sub_resource type="Resource" id="Resource_mmzuw"]
+script = ExtResource("3_bpqq5")
+stat = 4
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_e9461"]
+script = ExtResource("3_bpqq5")
+stat = 2
+value = 18.0
+
+[resource]
+script = ExtResource("1_6grhh")
+id = "windblade_legendary"
+display_name = "Windblade"
+description = "A feather-light blade that cuts faster than the eye can follow."
+icon = ExtResource("6_qst3h")
+rarity = 4
+hand_slots_required = 1
+armor_slot = 0
+shape = ExtResource("5_14xr9")
+stat_modifiers = Array[ExtResource("3_bpqq5")]([SubResource("Resource_mmzuw"), SubResource("Resource_e9461")])
+base_power = 12
+granted_skills = Array[ExtResource("4_86qih")]([ExtResource("7_8a3xt")])
+base_price = 234

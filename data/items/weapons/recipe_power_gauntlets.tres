@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_4aao2")
 id = "recipe_power_gauntlets"
-display_name = "Blueprint: Power Gauntlets"
+display_name = "Blueprint: Iron Fists"
 description = "Forging plans for gauntlets that amplify striking force. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_d0iov")

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_x0dr8"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_f9s7c"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ggtwo"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_28fpq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_626yr"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_x9lx8"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_t5949"]
+
+[sub_resource type="Resource" id="Resource_y6vad"]
+script = ExtResource("3_ggtwo")
+stat = 4
+value = 14.0
+
+[resource]
+script = ExtResource("1_x0dr8")
+id = "war_hammer_uncommon"
+display_name = "War Hammer"
+description = "A massive hammer that crushes armor and bone alike."
+icon = ExtResource("6_x9lx8")
+category = 1
+rarity = 1
+hand_slots_required = 2
+armor_slot = 1
+shape = ExtResource("5_626yr")
+stat_modifiers = Array[ExtResource("3_ggtwo")]([SubResource("Resource_y6vad")])
+base_power = 14
+granted_skills = Array[ExtResource("4_28fpq")]([ExtResource("7_t5949")])
+base_price = 125

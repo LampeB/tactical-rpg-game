@@ -15,7 +15,7 @@ value = 16.0
 [resource]
 script = ExtResource("2_3fcbj")
 id = "bow_unique"
-display_name = "Mythic Hunting Bow"
+display_name = "Bow"
 description = "A lightweight hunting bow. Ranged weapon with a distinctive zigzag profile."
 icon = ExtResource("1_jdumt")
 category = 2

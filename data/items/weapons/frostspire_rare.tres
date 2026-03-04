@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_wnsm4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_b0d7m"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_c3tlm"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_eo4xf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="5_zsd80"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_fch7y"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_stil3"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_aydmj"]
+
+[sub_resource type="Resource" id="Resource_5cq7o"]
+script = ExtResource("3_c3tlm")
+stat = 6
+value = 11.0
+
+[resource]
+script = ExtResource("1_wnsm4")
+id = "frostspire_rare"
+display_name = "Frostspire"
+description = "An icicle staff that radiates bitter cold. Enemies slow to a crawl."
+icon = ExtResource("6_fch7y")
+category = 3
+rarity = 2
+hand_slots_required = 2
+armor_slot = 3
+shape = ExtResource("5_zsd80")
+stat_modifiers = Array[ExtResource("3_c3tlm")]([SubResource("Resource_5cq7o")])
+magical_power = 11
+innate_status_effect = ExtResource("7_stil3")
+innate_status_effect_chance = 0.25
+innate_crit_status_stacks = 3
+granted_skills = Array[ExtResource("4_eo4xf")]([ExtResource("8_aydmj")])
+base_price = 163

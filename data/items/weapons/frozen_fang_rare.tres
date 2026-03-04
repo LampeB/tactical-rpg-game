@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9usxt"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_uh7vx"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_asnnp"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_oq0lf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_fjqpd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_n5fc8"]
+[ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_jz4pz"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="8_dohyw"]
+
+[sub_resource type="Resource" id="Resource_szt2o"]
+script = ExtResource("3_asnnp")
+stat = 4
+value = 5.0
+
+[resource]
+script = ExtResource("1_9usxt")
+id = "frozen_fang_rare"
+display_name = "Frozen Fang"
+description = "A blade of eternal ice that numbs on contact. Foes feel the cold long after the cut."
+icon = ExtResource("6_n5fc8")
+category = 4
+rarity = 2
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_fjqpd")
+stat_modifiers = Array[ExtResource("3_asnnp")]([SubResource("Resource_szt2o")])
+base_power = 5
+innate_status_effect = ExtResource("7_jz4pz")
+innate_status_effect_chance = 0.25
+innate_crit_status_stacks = 3
+granted_skills = Array[ExtResource("4_oq0lf")]([ExtResource("8_dohyw")])
+base_price = 102

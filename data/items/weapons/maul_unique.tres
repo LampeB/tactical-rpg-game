@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kkhld"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_x39cx"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ydelx"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_wdeki"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_u15zg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_9zjzn"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_repdi"]
+
+[sub_resource type="Resource" id="Resource_xywk2"]
+script = ExtResource("3_ydelx")
+stat = 4
+value = 48.0
+
+[resource]
+script = ExtResource("1_kkhld")
+id = "maul_unique"
+display_name = "Maul"
+description = "An enormous two-handed hammer built to shatter."
+icon = ExtResource("6_9zjzn")
+category = 1
+rarity = 5
+hand_slots_required = 2
+armor_slot = 1
+shape = ExtResource("5_u15zg")
+stat_modifiers = Array[ExtResource("3_ydelx")]([SubResource("Resource_xywk2")])
+base_power = 48
+granted_skills = Array[ExtResource("4_wdeki")]([ExtResource("7_repdi")])
+base_price = 408

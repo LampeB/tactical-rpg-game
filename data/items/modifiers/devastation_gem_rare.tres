@@ -42,7 +42,7 @@ status_effect_chance = 0.19615384615384615
 [resource]
 script = ExtResource("4_58upw")
 id = "devastation_gem_rare"
-display_name = "Superior Devastation Gem"
+display_name = "Devastation Gem"
 description = "A dark gem crackling with destructive power. Adds +25% critical damage to adjacent weapons. Maximize your critical strikes!"
 icon = ExtResource("3_3fnks")
 item_type = 2

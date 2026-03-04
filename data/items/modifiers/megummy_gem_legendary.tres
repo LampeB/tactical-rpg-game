@@ -48,7 +48,7 @@ force_aoe = true
 [resource]
 script = ExtResource("5_jpyc3")
 id = "megummy_gem_legendary"
-display_name = "Legendary MeGummy"
+display_name = "MeGummy"
 description = "An unstable explosive gem. All attacks become AoE, hitting every enemy! +8 Magical ATK. WARNING: Melee attacks cost 10 HP per use. Near a Staff, unlocks EXPLOOOOOOOOOOOOOOOSION!!!"
 icon = ExtResource("4_o7ac7")
 item_type = 2

@@ -15,7 +15,7 @@ value = 7.0
 [resource]
 script = ExtResource("1")
 id = "mace_common"
-display_name = "Iron Mace"
+display_name = "Mace"
 description = "A heavy iron mace. Slow but powerful."
 icon = ExtResource("4")
 category = 1

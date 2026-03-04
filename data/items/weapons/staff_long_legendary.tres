@@ -17,7 +17,7 @@ value = 16.0
 [resource]
 script = ExtResource("4_5nydn")
 id = "staff_long_legendary"
-display_name = "Legendary Elder's Staff"
+display_name = "Elder's Staff"
 description = "An exceptionally long staff of ancient wood. Channels immense magical power."
 icon = ExtResource("3_sx0go")
 category = 3

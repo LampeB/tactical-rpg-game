@@ -48,7 +48,7 @@ status_effect_chance = 0.4
 [resource]
 script = ExtResource("6_5xtbf")
 id = "thunder_gem_unique"
-display_name = "Mythic Thunder Gem"
+display_name = "Thunder Gem"
 description = "A crackling lightning gem. Adds shock damage and stun chance to weapons. Grants Thunder Bolt to magic weapons."
 icon = ExtResource("5_5erl6")
 item_type = 2

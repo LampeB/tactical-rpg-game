@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_kqu8g")
 id = "spatial_rune_uncommon"
-display_name = "Fine Spatial Rune"
+display_name = "Spatial Rune"
 description = "A crystallized fragment of compressed dimensional space. Skilled weavers use these to craft a superior backpack for the whole party."
 item_type = 3
 rarity = 1

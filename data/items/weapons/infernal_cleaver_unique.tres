@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_gb7ft"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_zrcvo"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_uzkf6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_54qph"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_gb0np"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_rey6s"]
+[ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="7_cn86q"]
+
+[sub_resource type="Resource" id="Resource_g4j80"]
+script = ExtResource("3_uzkf6")
+stat = 4
+value = 20.0
+
+[resource]
+script = ExtResource("1_gb7ft")
+id = "infernal_cleaver_unique"
+display_name = "Infernal Cleaver"
+description = "A cleaver that glows white-hot. Every wound it inflicts is cauterized and searing."
+icon = ExtResource("6_rey6s")
+category = 6
+rarity = 5
+hand_slots_required = 1
+armor_slot = 6
+shape = ExtResource("5_gb0np")
+stat_modifiers = Array[ExtResource("3_uzkf6")]([SubResource("Resource_g4j80")])
+base_power = 20
+innate_status_effect = ExtResource("7_cn86q")
+innate_status_effect_chance = 0.6
+innate_status_stacks = 3
+innate_crit_status_stacks = 5
+base_price = 288

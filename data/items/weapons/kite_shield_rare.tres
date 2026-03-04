@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_16wnl"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_3hzf5"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_x704n"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_8f5s4"]
+[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="5_ld6sl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_yuf3h"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_o6eq3"]
+
+[sub_resource type="Resource" id="Resource_8cpp0"]
+script = ExtResource("3_x704n")
+stat = 5
+value = 14.0
+
+[sub_resource type="Resource" id="Resource_z9rba"]
+script = ExtResource("3_x704n")
+stat = 7
+value = 7.0
+
+[resource]
+script = ExtResource("1_16wnl")
+id = "kite_shield_rare"
+display_name = "Kite Shield"
+description = "A tapered shield offering solid all-round protection."
+icon = ExtResource("6_yuf3h")
+category = 5
+rarity = 2
+hand_slots_required = 1
+armor_slot = 5
+shape = ExtResource("5_ld6sl")
+stat_modifiers = Array[ExtResource("3_x704n")]([SubResource("Resource_8cpp0"), SubResource("Resource_z9rba")])
+granted_skills = Array[ExtResource("4_8f5s4")]([ExtResource("7_o6eq3")])
+base_price = 102

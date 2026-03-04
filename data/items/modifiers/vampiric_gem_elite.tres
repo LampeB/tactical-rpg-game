@@ -42,7 +42,7 @@ status_effect_chance = 0.25384615384615383
 [resource]
 script = ExtResource("4_il0ep")
 id = "vampiric_gem_elite"
-display_name = "Elite Vampiric Gem"
+display_name = "Vampiric Gem"
 description = "A blood-red gem that hungers. Adds damage to adjacent weapons. [Future: Life steal on hit]"
 icon = ExtResource("3_w0jks")
 item_type = 2

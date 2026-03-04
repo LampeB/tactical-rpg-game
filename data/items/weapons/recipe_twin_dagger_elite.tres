@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_60ebc")
 id = "recipe_twin_dagger_elite"
-display_name = "Elite Blueprint: Twin Dagger"
+display_name = "Blueprint: Shadow Blades"
 description = "Detailed forging instructions for a twin dagger. Bring this to a blacksmith to learn the recipe."
 item_type = 5
 rarity = 3

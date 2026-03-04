@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_forxt"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_o9mlp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_xwnyb"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_airda"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x3.tres" id="5_htp4a"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_u4kmm"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="7_djepv"]
+
+[sub_resource type="Resource" id="Resource_adxyq"]
+script = ExtResource("3_xwnyb")
+stat = 5
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_v5nqh"]
+script = ExtResource("3_xwnyb")
+stat = 7
+value = 6.0
+
+[resource]
+script = ExtResource("1_forxt")
+id = "tower_shield_common"
+display_name = "Tower Shield"
+description = "A massive shield that covers the entire body."
+icon = ExtResource("6_u4kmm")
+category = 5
+hand_slots_required = 1
+armor_slot = 5
+shape = ExtResource("5_htp4a")
+stat_modifiers = Array[ExtResource("3_xwnyb")]([SubResource("Resource_adxyq"), SubResource("Resource_v5nqh")])
+granted_skills = Array[ExtResource("4_airda")]([ExtResource("7_djepv")])
+base_price = 70

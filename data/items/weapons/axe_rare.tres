@@ -15,7 +15,7 @@ value = 14.0
 [resource]
 script = ExtResource("2_gg0et")
 id = "axe_rare"
-display_name = "Superior Battle Axe"
+display_name = "Axe"
 description = "A heavy two-handed battle axe. The wide blade takes up significant space but delivers devastating blows."
 icon = ExtResource("1_0l4s7")
 category = 6

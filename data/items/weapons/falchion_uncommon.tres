@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_qzekf"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_9of8y"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_tw1dt"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_bsywv"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_as1tu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_ilz1f"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="7_xrai9"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="8_7udfp"]
+
+[sub_resource type="Resource" id="Resource_gz6qj"]
+script = ExtResource("3_tw1dt")
+stat = 4
+value = 10.0
+
+[resource]
+script = ExtResource("1_qzekf")
+id = "falchion_uncommon"
+display_name = "Falchion"
+description = "A heavy single-edged blade favored by veteran soldiers."
+icon = ExtResource("6_ilz1f")
+rarity = 1
+hand_slots_required = 1
+armor_slot = 0
+shape = ExtResource("5_as1tu")
+stat_modifiers = Array[ExtResource("3_tw1dt")]([SubResource("Resource_gz6qj")])
+base_power = 10
+granted_skills = Array[ExtResource("4_bsywv")]([ExtResource("7_xrai9"), ExtResource("8_7udfp")])
+base_price = 94

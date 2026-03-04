@@ -20,7 +20,7 @@ value = 8.0
 [resource]
 script = ExtResource("2_ydyqw")
 id = "boots_unique"
-display_name = "Mythic Leather Boots"
+display_name = "Boots"
 description = "Light leather boots. Enhances movement speed."
 icon = ExtResource("1_4j0vb")
 item_type = 1

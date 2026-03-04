@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_agd5n"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_7vtll"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_y2m3o"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_oumqn"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_4vj2v"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_u5bhn"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="7_1cfvv"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="8_wzk7e"]
+
+[sub_resource type="Resource" id="Resource_cj5x0"]
+script = ExtResource("3_y2m3o")
+stat = 6
+value = 7.0
+
+[resource]
+script = ExtResource("1_agd5n")
+id = "grimoire_common"
+display_name = "Grimoire"
+description = "A tome of forbidden knowledge, heavy with power."
+icon = ExtResource("6_u5bhn")
+category = 3
+hand_slots_required = 1
+armor_slot = 3
+shape = ExtResource("5_4vj2v")
+stat_modifiers = Array[ExtResource("3_y2m3o")]([SubResource("Resource_cj5x0")])
+magical_power = 7
+granted_skills = Array[ExtResource("4_oumqn")]([ExtResource("7_1cfvv"), ExtResource("8_wzk7e")])
+base_price = 70

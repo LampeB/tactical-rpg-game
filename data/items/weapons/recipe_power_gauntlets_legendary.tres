@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_p6tew")
 id = "recipe_power_gauntlets_legendary"
-display_name = "Legendary Blueprint: Power Gauntlets"
+display_name = "Blueprint: Iron Fists"
 description = "Forging plans for gauntlets that amplify striking force. Bring this to a blacksmith."
 item_type = 5
 rarity = 4

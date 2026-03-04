@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dffee"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_tth6t"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_o8e51"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_xe4lm"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_7mb0s"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_rwlcm"]
+
+[sub_resource type="Resource" id="Resource_vddcb"]
+script = ExtResource("3_o8e51")
+stat = 5
+value = 30.0
+
+[sub_resource type="Resource" id="Resource_17geb"]
+script = ExtResource("3_o8e51")
+stat = 7
+value = 12.0
+
+[resource]
+script = ExtResource("1_dffee")
+id = "pavise_legendary"
+display_name = "Pavise"
+description = "A tall standing shield that deflects arrows and spells alike."
+icon = ExtResource("6_rwlcm")
+category = 5
+rarity = 4
+hand_slots_required = 1
+armor_slot = 5
+shape = ExtResource("5_7mb0s")
+stat_modifiers = Array[ExtResource("3_o8e51")]([SubResource("Resource_vddcb"), SubResource("Resource_17geb")])
+base_price = 198

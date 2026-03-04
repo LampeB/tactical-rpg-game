@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("4_qtc5g")
 id = "recipe_swift_treads"
-display_name = "Blueprint: Swift Treads"
+display_name = "Blueprint: Windwalkers"
 description = "Cobbling plans for speed-enchanted footwear. Bring this to a blacksmith."
 item_type = 5
 shape = ExtResource("5_j2ufv")

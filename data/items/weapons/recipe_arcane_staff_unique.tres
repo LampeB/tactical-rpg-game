@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_qkcry")
 id = "recipe_arcane_staff_unique"
-display_name = "Mythic Blueprint: Arcane Staff"
+display_name = "Blueprint: Arcanum"
 description = "Instructions for channeling mystic energies through a staff. Bring this to a blacksmith."
 item_type = 5
 rarity = 5

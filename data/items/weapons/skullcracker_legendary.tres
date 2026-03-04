@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_y052q"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_lxk8o"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hp9wr"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_uaobf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_7f144"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_rtu36"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_r2wlp"]
+
+[sub_resource type="Resource" id="Resource_nqkls"]
+script = ExtResource("3_hp9wr")
+stat = 4
+value = 24.0
+
+[sub_resource type="Resource" id="Resource_oq03f"]
+script = ExtResource("3_hp9wr")
+stat = 8
+value = 24.0
+
+[resource]
+script = ExtResource("1_y052q")
+id = "skullcracker_legendary"
+display_name = "Skullcracker"
+description = "A brutal weapon designed to find weak points in armor. Crits shatter bone."
+icon = ExtResource("6_rtu36")
+category = 1
+rarity = 4
+hand_slots_required = 2
+armor_slot = 1
+shape = ExtResource("5_7f144")
+stat_modifiers = Array[ExtResource("3_hp9wr")]([SubResource("Resource_nqkls"), SubResource("Resource_oq03f")])
+base_power = 24
+granted_skills = Array[ExtResource("4_uaobf")]([ExtResource("7_r2wlp")])
+base_price = 342

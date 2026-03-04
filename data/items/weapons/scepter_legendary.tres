@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vwtdu"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_4q87o"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_hnpy0"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_1jq2y"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_jfvnx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_j570c"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="7_63mfp"]
+
+[sub_resource type="Resource" id="Resource_bnkd7"]
+script = ExtResource("3_hnpy0")
+stat = 6
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_yyhxg"]
+script = ExtResource("3_hnpy0")
+stat = 8
+value = 9.0
+
+[resource]
+script = ExtResource("1_vwtdu")
+id = "scepter_legendary"
+display_name = "Scepter"
+description = "An ornate scepter crackling with elemental power."
+icon = ExtResource("6_j570c")
+category = 3
+rarity = 4
+hand_slots_required = 1
+armor_slot = 3
+shape = ExtResource("5_jfvnx")
+stat_modifiers = Array[ExtResource("3_hnpy0")]([SubResource("Resource_bnkd7"), SubResource("Resource_yyhxg")])
+magical_power = 15
+granted_skills = Array[ExtResource("4_1jq2y")]([ExtResource("7_63mfp")])
+base_price = 209

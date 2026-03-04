@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_h6ck7"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_851yh"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_1xdd1"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_th174"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_2lyca"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_aeoq6"]
+
+[sub_resource type="Resource" id="Resource_xwimc"]
+script = ExtResource("3_1xdd1")
+stat = 4
+value = 8.0
+
+[resource]
+script = ExtResource("1_h6ck7")
+id = "flail_uncommon"
+display_name = "Flail"
+description = "A spiked ball on a chain, unpredictable and devastating."
+icon = ExtResource("6_aeoq6")
+category = 1
+rarity = 1
+hand_slots_required = 1
+armor_slot = 1
+shape = ExtResource("5_2lyca")
+stat_modifiers = Array[ExtResource("3_1xdd1")]([SubResource("Resource_xwimc")])
+base_power = 8
+base_price = 86

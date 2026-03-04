@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kymq4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_8i5sq"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_1vsvc"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_42mxq"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_lznh2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_aixsc"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_pj3ks"]
+
+[sub_resource type="Resource" id="Resource_mw9bk"]
+script = ExtResource("3_1vsvc")
+stat = 4
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_cz1gq"]
+script = ExtResource("3_1vsvc")
+stat = 2
+value = 9.0
+
+[resource]
+script = ExtResource("1_kymq4")
+id = "dirk_legendary"
+display_name = "Dirk"
+description = "A long thrusting dagger favored by naval fighters."
+icon = ExtResource("6_aixsc")
+category = 4
+rarity = 4
+hand_slots_required = 1
+armor_slot = 4
+shape = ExtResource("5_lznh2")
+stat_modifiers = Array[ExtResource("3_1vsvc")]([SubResource("Resource_mw9bk"), SubResource("Resource_cz1gq")])
+base_power = 15
+granted_skills = Array[ExtResource("4_42mxq")]([ExtResource("7_pj3ks")])
+base_price = 180

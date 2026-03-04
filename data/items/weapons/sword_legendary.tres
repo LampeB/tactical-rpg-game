@@ -17,7 +17,7 @@ value = 15.0
 [resource]
 script = ExtResource("4_dahjk")
 id = "sword_legendary"
-display_name = "Legendary Iron Sword"
+display_name = "Sword"
 description = "A basic iron sword. Reliable if unexceptional."
 icon = ExtResource("3_6bu22")
 rarity = 4

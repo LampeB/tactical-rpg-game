@@ -24,7 +24,7 @@ value = 60.0
 [resource]
 script = ExtResource("2_eduw7")
 id = "chestplate_legendary"
-display_name = "Legendary Iron Chestplate"
+display_name = "Chestplate"
 description = "Heavy iron armor protecting the torso. Provides significant defense and vitality."
 icon = ExtResource("1_ej1n1")
 item_type = 1

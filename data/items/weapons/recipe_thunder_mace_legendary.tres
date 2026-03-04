@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("1_m2uf5")
 id = "recipe_thunder_mace_legendary"
-display_name = "Legendary Blueprint: Thunder Mace"
+display_name = "Blueprint: Stormbringer"
 description = "Plans for a mace that channels lightning. Bring this to a blacksmith."
 item_type = 5
 rarity = 4

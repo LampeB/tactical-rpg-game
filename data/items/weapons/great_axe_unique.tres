@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_012jj"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_fn8yh"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_lvq1u"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_2zlks"]
+[ext_resource type="Resource" path="res://data/shapes/shape_great_axe.tres" id="5_7ll7b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_mu5zh"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_yoqqi"]
+
+[sub_resource type="Resource" id="Resource_71u9t"]
+script = ExtResource("3_lvq1u")
+stat = 4
+value = 48.0
+
+[resource]
+script = ExtResource("1_012jj")
+id = "great_axe_unique"
+display_name = "Great Axe"
+description = "A towering double-headed axe that splits foes in two."
+icon = ExtResource("6_mu5zh")
+category = 6
+rarity = 5
+hand_slots_required = 2
+armor_slot = 6
+shape = ExtResource("5_7ll7b")
+stat_modifiers = Array[ExtResource("3_lvq1u")]([SubResource("Resource_71u9t")])
+base_power = 48
+granted_skills = Array[ExtResource("4_2zlks")]([ExtResource("7_yoqqi")])
+base_price = 408

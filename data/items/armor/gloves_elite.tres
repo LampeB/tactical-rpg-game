@@ -20,7 +20,7 @@ value = 2.0
 [resource]
 script = ExtResource("2_uaef2")
 id = "gloves_elite"
-display_name = "Elite Leather Gloves"
+display_name = "Gloves"
 description = "Flexible leather gloves. Improves grip and striking power."
 icon = ExtResource("1_d61x6")
 item_type = 1

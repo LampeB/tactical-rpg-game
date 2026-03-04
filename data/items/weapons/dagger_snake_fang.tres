@@ -20,5 +20,5 @@ hand_slots_required = 1
 shape = ExtResource("2")
 base_power = 5
 innate_status_effect = ExtResource("4")
-innate_status_effect_chance = 0.5
+innate_status_effect_chance = 0.15
 base_price = 180
