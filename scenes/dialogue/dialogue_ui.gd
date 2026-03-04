@@ -20,6 +20,7 @@ var _typewriter_timer: Timer = null
 var _waiting_for_input: bool = false
 var _choices_visible: bool = false
 var _resurrect_popup: AcceptDialog = null
+var _upgrade_popup: AcceptDialog = null
 
 
 func _ready() -> void:
@@ -201,8 +202,21 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 		_do_resurrect_party()
 		return
 	elif choice.action == "unlock_backpack_tier":
-		GameManager.unlock_next_tier_via_weaver()
-		_end_dialogue()
+		_do_unlock_backpack_tier()
+	elif choice.action.begins_with("give_item:"):
+		var item_id := choice.action.trim_prefix("give_item:")
+		var item: ItemData = ItemDatabase.get_item(item_id)
+		if item and GameManager.party:
+			GameManager.party.add_to_stash(item)
+			DebugLogger.log_info("Dialogue gave item: %s" % item_id, "Dialogue")
+		if not choice.next_conversation_id.is_empty():
+			var next := _find_conversation_by_id(choice.next_conversation_id)
+			if next:
+				_show_conversation(next)
+			else:
+				_end_dialogue()
+		else:
+			_end_dialogue()
 	elif choice.action.begins_with("open_shop:"):
 		var shop_id := choice.action.trim_prefix("open_shop:")
 		# replace_scene keeps the stack intact (overworld stays at stack bottom) so
@@ -353,3 +367,96 @@ func _on_resurrect_done() -> void:
 		_resurrect_popup.queue_free()
 		_resurrect_popup = null
 	_end_dialogue()
+
+
+# === Weaver actions ===
+
+func _do_unlock_backpack_tier() -> void:
+	if not GameManager.party:
+		_show_feedback_line("You have no companions to upgrade.")
+		return
+	var characters: Array = GameManager.party.get_full_roster()
+	if characters.is_empty():
+		_show_feedback_line("You have no companions to upgrade.")
+		return
+	_show_upgrade_popup(characters)
+
+
+func _show_upgrade_popup(characters: Array) -> void:
+	if _upgrade_popup and is_instance_valid(_upgrade_popup):
+		_upgrade_popup.queue_free()
+
+	_upgrade_popup = AcceptDialog.new()
+	_upgrade_popup.title = "Upgrade Backpack"
+	_upgrade_popup.dialog_hide_on_ok = false
+	_upgrade_popup.get_ok_button().text = "Cancel"
+	_upgrade_popup.get_ok_button().pressed.connect(_on_upgrade_cancelled)
+
+	var vbox := VBoxContainer.new()
+	var total_runes: int = GameManager.party.count_runes()
+	for character in characters:
+		var char_data: CharacterData = character
+		if char_data.backpack_tiers.is_empty():
+			continue
+		var state := GameManager.party.get_or_init_backpack_state(char_data)
+		var current_tier: int = state.get("tier", 0)
+		var max_tier: int = char_data.backpack_tiers.size()
+
+		var btn := Button.new()
+		if current_tier + 1 >= max_tier:
+			btn.text = "%s — Tier %d / %d (Max)" % [char_data.display_name, current_tier + 1, max_tier]
+			btn.disabled = true
+		else:
+			var next_config: BackpackTierConfig = char_data.backpack_tiers[current_tier + 1]
+			var rune_cost: int = next_config.unlock_rune_count
+			var gold_cost: int = next_config.unlock_gold_cost
+			var can_afford: bool = GameManager.gold >= gold_cost and total_runes >= rune_cost
+			var rune_suffix: String = "s" if rune_cost != 1 else ""
+			btn.text = "%s — Tier %d → %d (%dg, %d rune%s)" % [
+				char_data.display_name, current_tier + 1, current_tier + 2,
+				gold_cost, rune_cost, rune_suffix
+			]
+			if not can_afford:
+				btn.disabled = true
+			btn.pressed.connect(_on_upgrade_target.bind(char_data.id))
+		vbox.add_child(btn)
+
+	var info_label := Label.new()
+	info_label.text = "Gold: %d | Spatial Runes: %d" % [GameManager.gold, total_runes]
+	vbox.add_child(info_label)
+
+	_upgrade_popup.add_child(vbox)
+	add_child(_upgrade_popup)
+	_upgrade_popup.popup_centered(Vector2i(400, 0))
+
+
+func _on_upgrade_target(char_id: String) -> void:
+	if _upgrade_popup and is_instance_valid(_upgrade_popup):
+		_upgrade_popup.queue_free()
+		_upgrade_popup = null
+	var result := GameManager.unlock_tier_for_character(char_id)
+	if result.ok:
+		var char_data: CharacterData = GameManager.party.roster.get(char_id)
+		var char_name: String = char_data.display_name if char_data else char_id
+		_show_feedback_line("It is done. %s's pack has ascended to Tier %d." % [char_name, result.new_tier])
+	else:
+		_show_feedback_line("I cannot forge a finer vessel. %s" % result.reason)
+
+
+func _on_upgrade_cancelled() -> void:
+	if _upgrade_popup and is_instance_valid(_upgrade_popup):
+		_upgrade_popup.queue_free()
+		_upgrade_popup = null
+	var greeting := _find_conversation_by_id("greeting")
+	if greeting:
+		_show_conversation(greeting)
+	else:
+		_end_dialogue()
+
+
+func _show_feedback_line(text: String) -> void:
+	_conversation = DialogueConversation.new()
+	_conversation.lines = [text]
+	_line_index = 0
+	_clear_choices()
+	_show_next_line()

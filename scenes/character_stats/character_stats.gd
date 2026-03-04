@@ -21,6 +21,7 @@ extends Control
 @onready var _advanced_stats_btn: Button = $VBox/Content/LeftPanel/VBox/AdvancedStatsBtn
 
 # Center panel
+@onready var _inventory_label: Label = $VBox/Content/CenterPanel/VBox/InventoryLabel
 @onready var _grid_panel: Control = $VBox/Content/CenterPanel/VBox/GridCentering/GridPanel
 
 # Right panel
@@ -437,8 +438,20 @@ func _on_advanced_stats_pressed() -> void:
 func _update_center_panel(inv: GridInventory) -> void:
 	if inv and _grid_panel.has_method("setup"):
 		_grid_panel.setup(inv)
+	_update_tier_display()
 	_item_tooltip.hide_tooltip()
 	_show_passives_section()
+
+
+func _update_tier_display() -> void:
+	var char_data: CharacterData = GameManager.party.roster.get(_current_character_id) if GameManager.party else null
+	if char_data and not char_data.backpack_tiers.is_empty():
+		var state := GameManager.party.get_or_init_backpack_state(char_data)
+		var current_tier: int = state.get("tier", 0) + 1
+		var max_tier: int = char_data.backpack_tiers.size()
+		_inventory_label.text = "Inventory — Tier %d / %d" % [current_tier, max_tier]
+	else:
+		_inventory_label.text = "Inventory"
 
 
 # === Right Panel: Unlocked Passives ===

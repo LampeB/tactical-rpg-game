@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 157 -->
+<\!-- Total tasks: 163 -->
 <\!-- Last updated: 2026-03-04 -->
 
 ## Prerequisites
@@ -74,11 +74,17 @@
 | Name | Notion ID |
 |---|---|
 | Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
+| Backpack upgrade feedback prompt (success/failure message) | 3197700f-d0fb-81dc-af51-d998b928d381 |
 | Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
+| Display current backpack tier on inventory screen | 3197700f-d0fb-8178-a211-efdfadb30b57 |
+| Escalating Spatial Rune cost per backpack tier | 3197700f-d0fb-81a9-b074-eb3cd5e7da38 |
+| Expand backpack tiers to 10 with growing shapes | 3197700f-d0fb-815f-b03e-c9829e725cee |
+| In-game backpack tier editor (visual grid editor for designers) | 3197700f-d0fb-8124-9842-e3065f25a15f |
 | Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
 | Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
 | Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
+| Per-character backpack tier selection via Weaver | 3197700f-d0fb-81fa-9239-dd21c31aec28 |
 
 ### Done
 | Name | Notion ID |
