@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_w21n4"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_11gsr"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dgyzu"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3neoo"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_z22zl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_1e4x0"]
+
+[sub_resource type="Resource" id="Resource_vlqi2"]
+script = ExtResource("3_dgyzu")
+stat = 5
+value = 21.0
+
+[sub_resource type="Resource" id="Resource_ylf39"]
+script = ExtResource("3_dgyzu")
+stat = 7
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_ymmyv"]
+script = ExtResource("3_dgyzu")
+stat = 0
+value = 30.0
+
+[resource]
+script = ExtResource("1_w21n4")
+id = "chain_chestplate_legendary"
+display_name = "Chain Hauberk"
+description = "A knee-length shirt of riveted chain. The backbone of any soldier's kit."
+icon = ExtResource("6_1e4x0")
+item_type = 1
+category = 8
+rarity = 4
+armor_slot = 8
+shape = ExtResource("5_z22zl")
+stat_modifiers = Array[ExtResource("3_dgyzu")]([SubResource("Resource_vlqi2"), SubResource("Resource_ylf39"), SubResource("Resource_ymmyv")])
+base_price = 306

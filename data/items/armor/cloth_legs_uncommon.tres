@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4vcsu"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_bfl4l"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_r8i2a"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_38jx3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_i10rm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_jxw0e"]
+
+[sub_resource type="Resource" id="Resource_plffq"]
+script = ExtResource("3_r8i2a")
+stat = 7
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_niui6"]
+script = ExtResource("3_r8i2a")
+stat = 1
+value = 11.0
+
+[sub_resource type="Resource" id="Resource_bdqct"]
+script = ExtResource("3_r8i2a")
+stat = 2
+value = 1.0
+
+[resource]
+script = ExtResource("1_4vcsu")
+id = "cloth_legs_uncommon"
+display_name = "Cloth Trousers"
+description = "Loose-fitting trousers sewn with glyphs of warding. Move freely, think clearly."
+icon = ExtResource("6_jxw0e")
+item_type = 1
+category = 10
+rarity = 1
+armor_slot = 10
+shape = ExtResource("5_i10rm")
+stat_modifiers = Array[ExtResource("3_r8i2a")]([SubResource("Resource_plffq"), SubResource("Resource_niui6"), SubResource("Resource_bdqct")])
+base_price = 55

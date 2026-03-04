@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_pe3pm"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_6nyzx"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_vmmr8"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_o8vwg"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8qdrn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_common.png" id="6_epu8j"]
+
+[sub_resource type="Resource" id="Resource_ntghz"]
+script = ExtResource("3_vmmr8")
+stat = 5
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_8vddp"]
+script = ExtResource("3_vmmr8")
+stat = 7
+value = 6.0
+
+[resource]
+script = ExtResource("1_pe3pm")
+id = "chain_helmet_legendary"
+display_name = "Chain Coif"
+description = "Interlocking metal rings drape over the head and neck, offering sturdy protection."
+icon = ExtResource("6_epu8j")
+item_type = 1
+category = 7
+rarity = 4
+armor_slot = 7
+shape = ExtResource("5_8qdrn")
+stat_modifiers = Array[ExtResource("3_vmmr8")]([SubResource("Resource_ntghz"), SubResource("Resource_8vddp")])
+base_price = 144

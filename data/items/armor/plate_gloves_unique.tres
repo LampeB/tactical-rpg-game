@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_msafr"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_uh3rq"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_nxc2t"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_68pj8"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_dqhvx"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_lkdgy"]
+
+[sub_resource type="Resource" id="Resource_ydk4y"]
+script = ExtResource("3_nxc2t")
+stat = 5
+value = 16.0
+
+[sub_resource type="Resource" id="Resource_gn0qf"]
+script = ExtResource("3_nxc2t")
+stat = 4
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_pd75z"]
+script = ExtResource("3_nxc2t")
+stat = 0
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_mjfd1"]
+script = ExtResource("3_nxc2t")
+stat = 2
+value = -4.0
+
+[resource]
+script = ExtResource("1_msafr")
+id = "plate_gloves_unique"
+display_name = "Plate Gauntlets"
+description = "Articulated steel gauntlets. Every punch lands like a hammer blow."
+icon = ExtResource("6_lkdgy")
+item_type = 1
+category = 9
+rarity = 5
+armor_slot = 9
+shape = ExtResource("5_dqhvx")
+stat_modifiers = Array[ExtResource("3_nxc2t")]([SubResource("Resource_ydk4y"), SubResource("Resource_gn0qf"), SubResource("Resource_pd75z"), SubResource("Resource_mjfd1")])
+base_price = 240

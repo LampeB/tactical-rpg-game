@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_80k84"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_yktsq"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_zuax2"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_jzwn1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_ckqva"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/legs_common.png" id="6_v0isi"]
+
+[sub_resource type="Resource" id="Resource_bg7uc"]
+script = ExtResource("3_zuax2")
+stat = 5
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_ei8yk"]
+script = ExtResource("3_zuax2")
+stat = 7
+value = 12.0
+
+[resource]
+script = ExtResource("1_80k84")
+id = "chain_legs_unique"
+display_name = "Chain Chausses"
+description = "Chain leggings laced over padded cloth. Standard issue for men-at-arms."
+icon = ExtResource("6_v0isi")
+item_type = 1
+category = 10
+rarity = 5
+armor_slot = 10
+shape = ExtResource("5_ckqva")
+stat_modifiers = Array[ExtResource("3_zuax2")]([SubResource("Resource_bg7uc"), SubResource("Resource_ei8yk")])
+base_price = 264

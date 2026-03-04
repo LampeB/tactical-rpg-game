@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vz8xl"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_ku1sp"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_0frtp"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_o3j1i"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_eqdhm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/gloves_common.png" id="6_6bcea"]
+
+[sub_resource type="Resource" id="Resource_bm493"]
+script = ExtResource("3_0frtp")
+stat = 5
+value = 9.0
+
+[sub_resource type="Resource" id="Resource_yy95g"]
+script = ExtResource("3_0frtp")
+stat = 4
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_w6j0t"]
+script = ExtResource("3_0frtp")
+stat = 7
+value = 3.0
+
+[resource]
+script = ExtResource("1_vz8xl")
+id = "chain_gloves_legendary"
+display_name = "Chain Gauntlets"
+description = "Chain-linked gloves with padded palms. Protect without sacrificing grip."
+icon = ExtResource("6_6bcea")
+item_type = 1
+category = 9
+rarity = 4
+armor_slot = 9
+shape = ExtResource("5_eqdhm")
+stat_modifiers = Array[ExtResource("3_0frtp")]([SubResource("Resource_bm493"), SubResource("Resource_yy95g"), SubResource("Resource_w6j0t")])
+base_price = 126

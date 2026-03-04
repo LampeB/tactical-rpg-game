@@ -74,8 +74,6 @@
 | Name | Notion ID |
 |---|---|
 | Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
-| Balance item stats across all tiers | 3147700f-d0fb-81ab-9b39-f75c2f232060 |
-| Create armor items with subtypes per slot (5 slots Ã— 4 weight classes) | 3147700f-d0fb-8159-a100-e41b635b055b |
 | Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
 | Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
@@ -87,6 +85,8 @@
 |---|---|
 | Armor slot system (helmet, chestplate, gloves, legs, boots) | 3147700f-d0fb-8128-a032-dac89055321a |
 | Backpack tier upgrade system (6 tiers, custom shapes, Weaver NPC) | 3147700f-d0fb-8144-8820-ec459d66c111 |
+| Create armor items with subtypes per slot (5 slots × 4 weight classes) | 3147700f-d0fb-8159-a100-e41b635b055b |
+| Balance item stats across all tiers | 3147700f-d0fb-81ab-9b39-f75c2f232060 |
 | Block percentage property for weapons | 3147700f-d0fb-81c7-950b-f01963d9df36 |
 | Custom modifier reach patterns for gems | 3147700f-d0fb-818a-b7eb-e2ab083a4726 |
 | Expand weapon variety (new types, innate effects, custom shapes) | 3147700f-d0fb-8180-9e85-e834807b386f |

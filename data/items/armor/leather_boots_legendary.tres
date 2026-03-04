@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_kwim5"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_g6dpg"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ry3ep"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_3sn2j"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_qhpzr"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_3yjm0"]
+
+[sub_resource type="Resource" id="Resource_m99e7"]
+script = ExtResource("3_ry3ep")
+stat = 2
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_48bx2"]
+script = ExtResource("3_ry3ep")
+stat = 8
+value = 6.0
+
+[resource]
+script = ExtResource("1_kwim5")
+id = "leather_boots_legendary"
+display_name = "Leather Boots"
+description = "Soft-soled boots that make no sound. Perfect for those who strike first."
+icon = ExtResource("6_3yjm0")
+item_type = 1
+category = 11
+rarity = 4
+armor_slot = 11
+shape = ExtResource("5_qhpzr")
+stat_modifiers = Array[ExtResource("3_ry3ep")]([SubResource("Resource_m99e7"), SubResource("Resource_48bx2")])
+base_price = 126

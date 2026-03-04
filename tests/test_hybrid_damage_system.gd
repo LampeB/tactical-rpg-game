@@ -461,9 +461,9 @@ func test_armor_has_dual_defense() -> void:
 	var test_name := "Armor items have both physical and magical defense"
 
 	var armor_files := [
-		"res://data/items/armor/helmet_common.tres",
-		"res://data/items/armor/chestplate_common.tres",
-		"res://data/items/armor/legs_common.tres",
+		"res://data/items/armor/chain_helmet_uncommon.tres",
+		"res://data/items/armor/chain_chestplate_uncommon.tres",
+		"res://data/items/armor/chain_legs_uncommon.tres",
 	]
 
 	for file_path in armor_files:

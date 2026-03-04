@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_odkjx"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_59z16"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_6bauj"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_0r1oy"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_ssifv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/boots_common.png" id="6_5dh9v"]
+
+[sub_resource type="Resource" id="Resource_g3f8a"]
+script = ExtResource("3_6bauj")
+stat = 5
+value = 4.0
+
+[sub_resource type="Resource" id="Resource_cpz9j"]
+script = ExtResource("3_6bauj")
+stat = 2
+value = 3.0
+
+[sub_resource type="Resource" id="Resource_lt1bq"]
+script = ExtResource("3_6bauj")
+stat = 7
+value = 1.0
+
+[resource]
+script = ExtResource("1_odkjx")
+id = "chain_boots_uncommon"
+display_name = "Chain Boots"
+description = "Mail-clad boots with reinforced soles. Steady footing on any battlefield."
+icon = ExtResource("6_5dh9v")
+item_type = 1
+category = 11
+rarity = 1
+armor_slot = 11
+shape = ExtResource("5_ssifv")
+stat_modifiers = Array[ExtResource("3_6bauj")]([SubResource("Resource_g3f8a"), SubResource("Resource_cpz9j"), SubResource("Resource_lt1bq")])
+base_price = 62

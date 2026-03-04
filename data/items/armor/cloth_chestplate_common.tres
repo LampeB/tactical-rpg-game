@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_al7wc"]
+[ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="2_li6z7"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_qa83a"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_8cilw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_szif4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_x1r89"]
+
+[sub_resource type="Resource" id="Resource_kf2t3"]
+script = ExtResource("3_qa83a")
+stat = 5
+value = 1.0
+
+[sub_resource type="Resource" id="Resource_6lb0z"]
+script = ExtResource("3_qa83a")
+stat = 7
+value = 5.0
+
+[sub_resource type="Resource" id="Resource_ihhh7"]
+script = ExtResource("3_qa83a")
+stat = 1
+value = 10.0
+
+[resource]
+script = ExtResource("1_al7wc")
+id = "cloth_chestplate_common"
+display_name = "Cloth Robe"
+description = "An enchanter's robe layered with protective wards. Light as silk, strong against spells."
+icon = ExtResource("6_x1r89")
+item_type = 1
+category = 8
+armor_slot = 8
+shape = ExtResource("5_szif4")
+stat_modifiers = Array[ExtResource("3_qa83a")]([SubResource("Resource_kf2t3"), SubResource("Resource_6lb0z"), SubResource("Resource_ihhh7")])
+base_price = 50
