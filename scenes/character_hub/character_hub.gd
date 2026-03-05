@@ -63,6 +63,7 @@ func _setup_views() -> void:
 		_stats_view.setup_embedded(_current_character_id)
 		_skills_view.setup_embedded(_current_character_id)
 	_switch_view(ViewType.STATS)
+	TutorialManager.show_tutorial("first_inventory")
 
 
 func _instance_view(scene_path: String) -> Control:
@@ -94,6 +95,9 @@ func _switch_view(view_name: ViewType) -> void:
 
 	_stats_tab.button_pressed = (view_name == ViewType.STATS)
 	_skills_tab.button_pressed = (view_name == ViewType.SKILLS)
+
+	if view_name == ViewType.SKILLS:
+		TutorialManager.show_tutorial("first_skill_tree")
 
 	# Refresh the view if it was marked dirty
 	if _dirty_views.get(view_name, false) and not _current_character_id.is_empty():

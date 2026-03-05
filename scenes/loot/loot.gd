@@ -136,6 +136,7 @@ func receive_data(data: Dictionary) -> void:
 	_setup_loot_grid(loot, template)
 	_update_loot_count()
 	DebugLogger.log_info("Received %d loot items" % loot.size(), "Loot")
+	TutorialManager.show_tutorial("first_loot")
 
 
 # ════════════════════════════════════════════════════════════════════════════
