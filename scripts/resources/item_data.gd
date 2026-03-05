@@ -63,6 +63,15 @@ extends Resource
 func get_sell_price() -> int:
 	return int(base_price * 0.5)
 
+
+func is_modifiable() -> bool:
+	if item_type == Enums.ItemType.ACTIVE_TOOL:
+		return true
+	if item_type == Enums.ItemType.PASSIVE_GEAR:
+		return category != Enums.EquipmentCategory.NECKLACE \
+			and category != Enums.EquipmentCategory.RING
+	return false
+
 func get_reach_cells(rotations: int = 0) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
 	if not modifier_reach_pattern.is_empty():

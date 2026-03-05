@@ -125,8 +125,8 @@ func highlight_modifier_connections(placed: GridInventory.PlacedItem) -> void:
 	_clear_hover_reach_cells()
 	if not _grid_inventory or not placed:
 		return
-	if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-		# Hovering a weapon: one star per gem, on the gem cell that reaches the weapon
+	if placed.item_data.is_modifiable():
+		# Hovering a modifiable item: one star per gem, on the gem cell that reaches it
 		var tool_cells: Array[Vector2i] = placed.get_occupied_cells()
 		var modifiers: Array = _grid_inventory.get_modifiers_affecting(placed)
 		for j in range(modifiers.size()):

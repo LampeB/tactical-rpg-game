@@ -106,10 +106,10 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var skill: SkillData = rule.granted_skills[gs]
 					_add_modifier_label("  Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
 
-	elif item.item_type == Enums.ItemType.ACTIVE_TOOL:
+	elif item.is_modifiable():
 		var has_innate: bool = item.innate_status_effect != null
 		var modifiers: Array = grid_inv.get_modifiers_affecting(placed) if placed and grid_inv else []
-		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed) if placed and grid_inv else null
+		var state: ToolModifierState = grid_inv.get_tool_modifier_state(placed) if placed and grid_inv and item.item_type == Enums.ItemType.ACTIVE_TOOL else null
 		var has_gem_effects: bool = not modifiers.is_empty() or (state and not state.active_modifiers.is_empty())
 
 		# ── Innate section ───────────────────────────────────────────────────

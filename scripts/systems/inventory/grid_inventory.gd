@@ -216,7 +216,7 @@ func get_equipped_armor_slots() -> Dictionary:
 ## Returns all MODIFIER PlacedItems whose cells are within reach of the target ACTIVE_TOOL.
 func get_modifiers_affecting(target: PlacedItem) -> Array:
 	var result: Array = []
-	if target.item_data.item_type != Enums.ItemType.ACTIVE_TOOL:
+	if not target.item_data.is_modifiable():
 		return result
 	var target_cells: Array[Vector2i] = target.get_occupied_cells()
 	for i in range(placed_items.size()):
@@ -237,7 +237,7 @@ func get_tools_affected_by(modifier_placed: PlacedItem) -> Array:
 	var reach: int = modifier_placed.item_data.modifier_reach
 	for i in range(placed_items.size()):
 		var placed: PlacedItem = placed_items[i]
-		if placed.item_data.item_type != Enums.ItemType.ACTIVE_TOOL:
+		if not placed.item_data.is_modifiable():
 			continue
 		var tool_cells: Array[Vector2i] = placed.get_occupied_cells()
 		if _items_within_reach(modifier_placed, tool_cells, reach):
@@ -345,8 +345,8 @@ func get_computed_stats() -> Dictionary:
 			if mod is StatModifier:
 				_accumulate_modifier(mod, flat_bonuses, pct_bonuses)
 
-		# Modifier bonuses from adjacent gems (only for ACTIVE_TOOLs)
-		if item.item_type == Enums.ItemType.ACTIVE_TOOL:
+		# Modifier bonuses from adjacent gems (for all modifiable items)
+		if item.is_modifiable():
 			var modifiers: Array = get_modifiers_affecting(placed)
 			for j in range(modifiers.size()):
 				var gem_placed: PlacedItem = modifiers[j]

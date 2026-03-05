@@ -77,9 +77,6 @@
 | Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
 | Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
-| Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
-| Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
-| Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
 
 ### Done
 | Name | Notion ID |
@@ -100,7 +97,10 @@
 | Gem design document with reach patterns and tradeoff gems | 31a7700f-d0fb-81f2-871e-c8cc5bd4db83 |
 | Hand slot restrictions and weapon hand requirements | 3147700f-d0fb-8129-9675-e03c4ec008bc |
 | In-game item editor | 3147700f-d0fb-8155-ab6d-eab88cd8ed20 |
+| Inventory grid size upgrades (dedicated resource, not gold) | 3147700f-d0fb-81b6-8525-ff52bea333a2 |
 | Item and reach pattern rotation with sprite rotation | 3147700f-d0fb-81bd-8eeb-fc40ffd1e6e4 |
+| Item merging by superposing on inventory grid (same-family upgrade) | 3147700f-d0fb-8137-9f62-c46bd2a68bb7 |
+| Loot screen item merging (combine adjacent-rarity items post-battle) | 3147700f-d0fb-8131-a045-de18285e13a5 |
 | Item crafting system (blacksmith, recipes, blueprints, crafting UI) | 3147700f-d0fb-81da-8598-ebb390809f59 |
 | Item database with IDs instead of hardcoding | 3147700f-d0fb-814c-9916-ff72715f5626 |
 | Item editor missing fields for innate status effect modifiers | 3147700f-d0fb-811c-bcf3-c99075f27515 |

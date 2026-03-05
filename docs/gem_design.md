@@ -1,13 +1,23 @@
-# Gem Design Reference
+# Modifier Design Reference
 
-## How Gems Work
+## How Modifiers Work
 
-Gems are MODIFIER items placed in the grid inventory. They affect adjacent items based on:
+Modifiers are items placed in the grid inventory that affect adjacent items based on:
 - **Weapon subtype** (Sword, Dagger, Axe, Mace, Shield, Bow, Staff)
 - **Armor slot** (Helmet, Chest, Legs, Boots, Gloves, Necklace)
 
-Each gem has 6 rarity tiers (Common to Unique) with scaling values.
+Each modifier has 6 rarity tiers (Common to Unique) with scaling values.
 Reach pattern expands with rarity (more cells affected at higher tiers).
+
+### Two Categories
+
+| Category | Inventory Shape | Identity | Examples |
+|---|---|---|---|
+| **Gems** | Always 1x1 | Simple, compact, stackable effects | Fire, Ice, Power, Precision, Fortify |
+| **Enchanted Items** | 1x2, 2x2, or L-shape | Powerful, build-defining, takes grid space | Blood Pact Relic, Echo Stone, Phoenix Feather |
+
+Enchanted items use the same MODIFIER `item_type` and reach system as gems —
+they just occupy more inventory cells, creating a tradeoff: stronger effects at the cost of backpack space.
 
 ### Reach System
 
@@ -140,9 +150,9 @@ Coords:
 - Legendary: `(0,-1), (-1,0), (1,0), (0,1), (0,-2), (-1,-1), (1,-1)`
 - Unique: `(0,-1), (-1,0), (1,0), (0,1), (0,-2), (-1,-1), (1,-1), (0,2), (-1,1)`
 
-### MeGummy — Full 3×3 (always max area) *(implemented)*
+### MeGummy *(2x2 enchanted item)* — Full 3×3 (always max area) *(implemented)*
 
-All rarities use the same 8-cell ring (the gem's AoE identity):
+All rarities use the same 8-cell ring (the item's AoE identity):
 ```
 All tiers (8)
   ···
@@ -170,7 +180,7 @@ Coords:
 - Legendary: `(0,-1), (-1,0), (1,0), (0,1), (-1,-1), (1,-1)`
 - Unique: `(0,-1), (-1,0), (1,0), (0,1), (-1,-1), (1,-1), (-1,1), (1,1)`
 
-### Berserker Gem — Cleave (wide frontal arc)
+### Berserker Fang *(1x2 enchanted item)* — Cleave (wide frontal arc)
 
 ```
 Common (1)    Uncommon (3)   Rare (5)       Elite (6)        Legendary (8)      Unique (10)
@@ -187,7 +197,7 @@ Coords:
 - Legendary: `(-1,-1), (0,-1), (1,-1), (0,1), (-1,0), (1,0), (-2,-1), (2,-1)`
 - Unique: `(-1,-1), (0,-1), (1,-1), (0,1), (-1,0), (1,0), (-2,-1), (2,-1), (-2,0), (2,0)`
 
-### Vampiric Gem — Fangs (two prongs extending)
+### Vampiric Fang *(1x2 enchanted item)* — Fangs (two prongs extending)
 
 ```
 Common (1)    Uncommon (2)   Rare (3)       Elite (5)        Legendary (7)      Unique (9)
@@ -205,7 +215,7 @@ Coords:
 - Legendary: `(-1,-1), (1,-1), (0,1), (-1,1), (1,1), (-1,0), (1,0)`
 - Unique: `(-1,-1), (1,-1), (0,1), (-1,1), (1,1), (-1,0), (1,0), (0,-1), (0,2)`
 
-### Multiple Strike Gem — Echo (stacked horizontal lines)
+### Echo Stone *(L-shape enchanted item)* — Echo (stacked horizontal lines)
 
 ```
 Common (1)    Uncommon (2)   Rare (3)       Elite (5)        Legendary (7)      Unique (8)
@@ -240,7 +250,7 @@ Coords:
 - Legendary: `(-1,1), (1,1), (0,-2), (0,2), (-1,-1), (1,-1)`
 - Unique: `(-1,1), (1,1), (0,-2), (0,2), (-1,-1), (1,-1), (-1,-2), (1,-2)`
 
-### Healing Gem — Radiance (plus sign expanding)
+### Healing Gem *(1x1 gem)* — Radiance (plus sign expanding)
 
 ```
 Common (1)    Uncommon (2)   Rare (4)       Elite (5)        Legendary (8)      Unique (12)
@@ -258,7 +268,7 @@ Coords:
 - Legendary: `(0,-1), (0,1), (-1,0), (1,0), (0,-2), (0,2), (-2,0), (2,0)`
 - Unique: uses `modifier_reach = 2` (full diamond, 12 cells)
 
-### Thorns Gem — Spikes (star pattern, pointy)
+### Thorns Mail *(1x2 enchanted item)* — Spikes (star pattern, pointy)
 
 ```
 Common (1)    Uncommon (2)   Rare (4)       Elite (6)        Legendary (8)      Unique (10)
@@ -276,9 +286,9 @@ Coords:
 - Legendary: `(-1,-1), (1,-1), (-1,1), (1,1), (-1,0), (1,0), (0,-1), (0,1)`
 - Unique: `(-1,-1), (1,-1), (-1,1), (1,1), (-1,0), (1,0), (0,-1), (0,1), (-2,-2), (2,-2)`
 
-### Silence / Cleanse / Resurrect — Aura (ring expanding outward)
+### Silence Rune *(1x2)* / Cleanse Gem *(1x1)* / Phoenix Feather *(2x2)* — Aura (ring expanding outward)
 
-Status-effect gems share a ring pattern.
+Status-effect modifiers share a ring reach pattern (inventory shape differs per item).
 
 ```
 Common (1)    Uncommon (2)   Rare (4)       Elite (6)        Legendary (8)      Unique (12)
@@ -294,9 +304,9 @@ Coords:
 - Legendary: full 8-cell ring (all adjacent)
 - Unique: uses `modifier_reach = 2` (full diamond, 12 cells)
 
-### Tradeoff Gems (Blood Pact, Phantom, Oath, Hunger, Chaos, Mirror)
+### Tradeoff Enchanted Items (Blood Pact Relic, Phantom Shard, Oath Seal, Hunger Maw, Chaos Orb, Mirror Fragment)
 
-Tradeoff gems are powerful and complex — their reach starts small and grows slowly.
+Tradeoff items are powerful and complex — their reach starts small and grows slowly.
 
 ```
 Common (1)    Uncommon (1)   Rare (2)       Elite (3)        Legendary (4)      Unique (6)
@@ -388,7 +398,7 @@ Coords:
 | All weapons | +Speed (flat) |
 | Armor (planned) | +Dodge chance |
 
-### MeGummy
+### MeGummy *(enchanted item — 2x2)*
 *"All attacks become AoE. WARNING: Melee attacks cost 10 HP per use."*
 
 | Adjacent To | Effect |
@@ -398,9 +408,9 @@ Coords:
 
 ---
 
-## Existing Gems to Rework
+## Existing Modifiers to Rework
 
-### Vampiric Gem (currently: +Phys ATK flat placeholder)
+### Vampiric Fang *(enchanted item — 1x2)* (currently: Vampiric Gem, +Phys ATK flat placeholder)
 *"It drinks deep from every wound you inflict."*
 
 | Adjacent To | Effect |
@@ -409,8 +419,8 @@ Coords:
 
 Scaling: Common 5% -> Legendary 20% lifesteal.
 
-### Ripple Gem -> Multiple Strike Gem
-*"The gem resonates with each swing, echoing the strike."*
+### Echo Stone *(enchanted item — L-shape)* (currently: Ripple Gem)
+*"The stone resonates with each swing, echoing the strike."*
 
 | Adjacent To | Effect |
 |---|---|
@@ -426,7 +436,7 @@ Scaling:
 
 ---
 
-## New Simple Gems (data only, no code changes)
+## New Simple Gems (1x1, data only, no code changes)
 
 ### Fortify Gem
 *"A dense mineral that hardens everything around it."*
@@ -456,7 +466,7 @@ Scaling:
 |---|---|
 | All weapons/armor | +Luck (feeds crit via LUCK_CRIT_SCALING) |
 
-### Berserker Gem
+### Berserker Fang *(enchanted item — 1x2)*
 *"Rage made solid. It demands blood — yours or theirs."*
 
 | Adjacent To | Effect |
@@ -467,7 +477,7 @@ Physical MeGummy — big damage, self-harm, no AoE.
 
 ---
 
-## New Mechanic Gems (need code changes)
+## New Mechanic Modifiers (need code changes)
 
 ### Lucky Bounce Gem
 *"The stone skips fate like a pebble on still water."*
@@ -494,15 +504,15 @@ Scaling: Common 10% -> Legendary 40% bounce chance.
 | Weapons | Chance to remove 1 debuff from self on hit |
 | Armor | Chance to resist new debuffs |
 
-### Resurrect Gem
-*"Death is merely a door, and this gem holds the key."*
+### Phoenix Feather *(enchanted item — 2x2)*
+*"Death is merely a door, and this feather holds the key."*
 
 | Adjacent To | Effect |
 |---|---|
 | Armor only | Auto-revive once per battle at X% HP when KO'd |
 
-### Thorns Gem
-*"A jagged crystal that punishes those who dare strike."*
+### Thorns Mail *(enchanted item — 1x2)*
+*"A jagged relic that punishes those who dare strike."*
 
 | Adjacent To | Effect |
 |---|---|
@@ -510,12 +520,13 @@ Scaling: Common 10% -> Legendary 40% bounce chance.
 
 ---
 
-## Tradeoff Gems (different behavior per equipment slot)
+## Tradeoff Enchanted Items (different behavior per equipment slot)
 
-These gems change behavior depending on what they're adjacent to.
+These enchanted items change behavior depending on what they're adjacent to.
 Every effect has a meaningful tradeoff — power at a cost.
+All tradeoff modifiers are enchanted items (larger inventory shapes) due to their build-defining power.
 
-### Silence Gem
+### Silence Rune *(enchanted item — 1x2)*
 *"The silence sharpens your senses. You hear the breath of a beetle, the heartbeat of a butterfly."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -531,8 +542,8 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | +huge Crit Rate, +huge Dodge | Self-silenced (can't use skills) |
 | **Necklace** | +huge Crit Rate, +huge Dodge | Self-silenced (can't use skills) |
 
-### Blood Pact Gem
-*"A crimson gem that feeds on its bearer's vitality."*
+### Blood Pact Relic *(enchanted item — 2x2)*
+*"A crimson relic that feeds on its bearer's vitality."*
 
 | Adjacent To | Effect | Tradeoff |
 |---|---|---|
@@ -547,7 +558,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | Blood Grip — +Phys ATK scaling per missing HP% | -Phys ATK at full HP |
 | **Necklace** | Blood Bond — link HP with ally, share damage 50/50 | Both take damage when one is hit |
 
-### Phantom Gem
+### Phantom Shard *(enchanted item — 1x2)*
 *"Phasing between worlds, it grants power at the cost of presence."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -563,7 +574,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | Phantom Hands — attacks ignore shields | Can't gain shields yourself |
 | **Necklace** | Fade — 15% chance enemies skip you as target | Can't taunt or guard allies |
 
-### Oath Gem
+### Oath Seal *(enchanted item — L-shape)*
 *"Swear an oath. Break it, and pay the price."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -579,7 +590,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | Duelist — +damage in 1v1 (one enemy alive) | -damage when multiple enemies alive |
 | **Necklace** | Martyr's Chain — revive an ally once at your HP cost | You lose the HP they gain |
 
-### Hunger Gem
+### Hunger Maw *(enchanted item — 2x2)*
 *"It feeds. It grows. It is never satisfied."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -595,7 +606,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | Attacks gain +2 flat damage per hit landed (resets per battle) | First hit deals -5 damage |
 | **Necklace** | +3% lifesteal per kill (stacks) | 0% lifesteal until first kill |
 
-### Chaos Gem
+### Chaos Orb *(enchanted item — L-shape)*
 *"Order is an illusion. Embrace the beautiful randomness."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -611,7 +622,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 | **Gloves** | Each attack randomly picks a stat to scale from (ATK/MAG/SPD/LCK) | Might scale from worst stat |
 | **Necklace** | At battle start: randomly double one stat, halve another | Pure gamble |
 
-### Mirror Gem
+### Mirror Fragment *(enchanted item — 1x2)*
 *"What you give, you receive. What you receive, you give."*
 
 | Adjacent To | Effect | Tradeoff |
@@ -633,8 +644,8 @@ Every effect has a meaningful tradeoff — power at a cost.
 
 | Status | Mechanic | Used By |
 |---|---|---|
-| **Silenced** | Can't use skills, basic attack only | Silence Gem |
-| **Bleeding** | Physical DoT, scales with damage dealt | Blood Pact Gem |
+| **Silenced** | Can't use skills, basic attack only | Silence Rune |
+| **Bleeding** | Physical DoT, scales with damage dealt | Blood Pact Relic |
 
 ---
 
@@ -661,7 +672,7 @@ Every effect has a meaningful tradeoff — power at a cost.
 - `debuff_resist_chance: float` — resist incoming debuffs
 - `auto_revive: bool` — revive once per battle
 - `revive_hp_percent: float` — HP% on revive
-- `self_silence: bool` — can't use skills (Silence Gem on armor)
+- `self_silence: bool` — can't use skills (Silence Rune on armor)
 - `damage_variance_min: float` — min damage multiplier (Chaos)
 - `damage_variance_max: float` — max damage multiplier (Chaos)
 - `stacking_stat_on_kill: Enums.Stat` — stat that grows per kill (Hunger)
@@ -675,14 +686,25 @@ Every effect has a meaningful tradeoff — power at a cost.
 - `_apply_lifesteal()` — heal source after damage (Vampiric)
 - `_check_auto_revive()` — on KO, check for resurrect gem
 - `_check_silence()` — prevent skill use if silenced
-- Stacking buff tracking per battle (Hunger Gem)
+- Stacking buff tracking per battle (Hunger Maw)
 - Conditional stat modifiers (below 50% HP, defending, etc.)
 
 ---
 
 ## Implementation Priority
 
-1. **Batch 1 — Data only**: Fortify, Vitality, Arcane, Lucky, Berserker
-2. **Batch 2 — Rework existing**: Vampiric (lifesteal), Multiple Strike (extra attacks), Swift (dodge on armor)
-3. **Batch 3 — New status + mechanics**: Silence, Thorns, Lucky Bounce, Healing, Cleanse, Resurrect
-4. **Batch 4 — Tradeoff gems**: Blood Pact, Phantom, Oath, Hunger, Chaos, Mirror (need WeaponType expansion + armor slot rules)
+1. **Batch 1 — Data only (gems)**: Fortify, Vitality, Arcane, Lucky (1x1 gems)
+2. **Batch 2 — Rework existing**: Vampiric Fang (1x2, lifesteal), Echo Stone (L, extra attacks), Swift (dodge on armor), Berserker Fang (1x2), MeGummy (2x2)
+3. **Batch 3 — New status + mechanics**: Silence Rune (1x2), Thorns Mail (1x2), Lucky Bounce Gem (1x1), Healing Gem (1x1), Cleanse Gem (1x1), Phoenix Feather (2x2)
+4. **Batch 4 — Tradeoff enchanted items**: Blood Pact Relic (2x2), Phantom Shard (1x2), Oath Seal (L), Hunger Maw (2x2), Chaos Orb (L), Mirror Fragment (1x2) — need WeaponType expansion + armor slot rules
+
+---
+
+## Inventory Shape Reference
+
+| Shape | Size | File | Used By |
+|---|---|---|---|
+| 1x1 | 1 cell | `shape_1x1.tres` | All gems |
+| 1x2 | 2 cells | `shape_1x2.tres` | Vampiric Fang, Berserker Fang, Silence Rune, Phantom Shard, Mirror Fragment, Thorns Mail |
+| 2x2 | 4 cells | `shape_2x2.tres` | MeGummy, Blood Pact Relic, Hunger Maw, Phoenix Feather |
+| L-shape | 3 cells | `shape_l.tres` | Echo Stone, Oath Seal, Chaos Orb |

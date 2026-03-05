@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ueqep"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_jblqt"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_7b3xu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_elite.png" id="4_sbros"]
+
+[sub_resource type="Resource" id="Resource_khg6u"]
+script = ExtResource("2_jblqt")
+stat = 3
+value = 11.0
+
+[resource]
+script = ExtResource("1_ueqep")
+id = "topaz_ring_elite"
+display_name = "Topaz Ring"
+description = "A golden topaz that bends fortune. Lucky finds and narrow escapes follow its wearer."
+icon = ExtResource("4_sbros")
+item_type = 1
+category = 13
+rarity = 3
+armor_slot = 13
+shape = ExtResource("3_7b3xu")
+stat_modifiers = Array[ExtResource("2_jblqt")]([SubResource("Resource_khg6u")])
+base_price = 211

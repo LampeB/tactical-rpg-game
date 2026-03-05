@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9ehxe"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_iw3oe"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_z692b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_elite.png" id="4_xw2w8"]
+
+[sub_resource type="Resource" id="Resource_jm7fy"]
+script = ExtResource("2_iw3oe")
+stat = 0
+value = 55.0
+
+[resource]
+script = ExtResource("1_9ehxe")
+id = "emerald_ring_elite"
+display_name = "Emerald Ring"
+description = "A verdant emerald pulsing with vitality. The wearer feels invigorated."
+icon = ExtResource("4_xw2w8")
+item_type = 1
+category = 13
+rarity = 3
+armor_slot = 13
+shape = ExtResource("3_z692b")
+stat_modifiers = Array[ExtResource("2_iw3oe")]([SubResource("Resource_jm7fy")])
+base_price = 211
