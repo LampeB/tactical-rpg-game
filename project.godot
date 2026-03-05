@@ -32,6 +32,7 @@ NpcDatabase="*res://scripts/autoload/npc_database.gd"
 ShopDatabase="*res://scripts/autoload/shop_database.gd"
 ChestDatabase="*res://scripts/autoload/chest_database.gd"
 QuestManager="*res://scripts/autoload/quest_manager.gd"
+TutorialManager="*res://scripts/autoload/tutorial_manager.gd"
 
 [display]
 

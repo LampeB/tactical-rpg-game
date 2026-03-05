@@ -129,6 +129,7 @@ func receive_data(data: Dictionary) -> void:
 	if GameManager.party and not GameManager.party.squad.is_empty():
 		_on_character_selected(GameManager.party.squad[0])
 		_character_tabs.select(GameManager.party.squad[0])
+	TutorialManager.show_tutorial("first_shop")
 
 
 # ════════════════════════════════════════════════════════════════════════════

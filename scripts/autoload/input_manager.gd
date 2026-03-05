@@ -115,12 +115,26 @@ func get_action_keycode(action_name: String) -> int:
 	return 0
 
 
-## Gets human-readable key name for an action.
+## Gets human-readable key name for an action, respecting keyboard layout.
+## Checks key_label → keycode → physical_keycode (converted via OS layout).
 func get_action_key_name(action_name: String) -> String:
-	var keycode := get_action_keycode(action_name)
-	if keycode == 0:
+	var events := InputMap.action_get_events(action_name)
+	if events.is_empty() or not (events[0] is InputEventKey):
 		return "None"
-	return OS.get_keycode_string(keycode)
+	var event: InputEventKey = events[0] as InputEventKey
+	# key_label: what's printed on the physical key in current layout
+	if event.key_label != KEY_NONE:
+		return OS.get_keycode_string(event.key_label)
+	# keycode: logical key (layout-dependent in Godot)
+	if event.keycode != KEY_NONE:
+		return OS.get_keycode_string(event.keycode)
+	# physical_keycode: position-based — convert to current layout label
+	if event.physical_keycode != KEY_NONE:
+		var label: Key = DisplayServer.keyboard_get_keycode_from_physical(event.physical_keycode)
+		if label != KEY_NONE:
+			return OS.get_keycode_string(label)
+		return OS.get_keycode_string(event.physical_keycode)
+	return "None"
 
 
 func _apply_action_bindings(action_name: String, events: Array) -> void:
