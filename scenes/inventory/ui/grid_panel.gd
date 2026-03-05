@@ -5,8 +5,11 @@ signal cell_clicked(grid_pos: Vector2i, button: int)
 signal cell_hovered(grid_pos: Vector2i)
 signal cell_exited()
 
-const CELL_SIZE: int = Constants.GRID_CELL_SIZE
+const CELL_SIZE_MIN: int = Constants.GRID_CELL_SIZE  ## 25
+const CELL_SIZE_MAX: int = 45
 const GridCellScene: PackedScene = preload("res://scenes/inventory/ui/grid_cell.tscn")
+
+var cell_size: int = CELL_SIZE_MIN  ## Computed per-setup to best fill available space.
 
 var _grid_inventory: GridInventory
 var _cells: Dictionary = {}  ## Vector2i -> GridCell node
@@ -15,6 +18,9 @@ var _star_overlays: Array = []  ## Star labels for modifier connections
 var _hover_reach_cells: Array[Vector2i] = []  ## Cells temporarily set to MODIFIER_REACH on hover
 var _last_hovered_cell: Vector2i = Vector2i(-1, -1)
 var _last_purchasable_cell: Vector2i = Vector2i(-1, -1)  ## Tracks highlighted buyable cell.
+var _grid_origin: Vector2i = Vector2i.ZERO  ## Min layout coordinate — used to offset rendering.
+var _grid_width_cells: int = 0   ## Actual shape width (max_x - min_x + 1).
+var _grid_height_cells: int = 0  ## Actual shape height (max_y - min_y + 1).
 
 @onready var _cells_layer: Control = $CellsLayer
 @onready var _items_layer: Control = $ItemsLayer
@@ -222,7 +228,7 @@ func _clockwise_angle(offset: Vector2i) -> float:
 func _add_star_at_cell(cell_pos: Vector2i) -> void:
 	var star: Label = Label.new()
 	star.text = "*"
-	star.add_theme_font_size_override("font_size", 28)
+	star.add_theme_font_size_override("font_size", maxi(10, cell_size - 8))
 	star.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2))
 	star.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
 	star.add_theme_constant_override("shadow_offset_x", 1)
@@ -230,8 +236,8 @@ func _add_star_at_cell(cell_pos: Vector2i) -> void:
 	star.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	star.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	star.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	star.size = Vector2(CELL_SIZE, CELL_SIZE)
-	star.position = Vector2(cell_pos.x * CELL_SIZE, cell_pos.y * CELL_SIZE)
+	star.size = Vector2(cell_size, cell_size)
+	star.position = Vector2((cell_pos.x - _grid_origin.x) * cell_size, (cell_pos.y - _grid_origin.y) * cell_size)
 	_items_layer.add_child(star)
 	_star_overlays.append(star)
 
@@ -301,8 +307,8 @@ func set_cell_purchasable(cell: Vector2i) -> void:
 
 func world_to_grid(screen_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = screen_pos - _cells_layer.global_position
-	var gx: int = floori(local_pos.x / CELL_SIZE)
-	var gy: int = floori(local_pos.y / CELL_SIZE)
+	var gx: int = floori(local_pos.x / cell_size) + _grid_origin.x
+	var gy: int = floori(local_pos.y / cell_size) + _grid_origin.y
 	return Vector2i(gx, gy)
 
 
@@ -333,18 +339,86 @@ func _build_cells() -> void:
 	else:
 		positions = template.layout_cells.duplicate()
 
+	# Compute origin from layout cells so the shape renders from (0,0).
+	if not positions.is_empty():
+		var min_x: int = positions[0].x
+		var min_y: int = positions[0].y
+		for pos in positions:
+			min_x = mini(min_x, pos.x)
+			min_y = mini(min_y, pos.y)
+		_grid_origin = Vector2i(min_x, min_y)
+	else:
+		_grid_origin = Vector2i.ZERO
+
+	# Compute actual extent from layout positions (not template dimensions).
+	var max_x: int = _grid_origin.x
+	var max_y: int = _grid_origin.y
+	for pos in positions:
+		max_x = maxi(max_x, pos.x)
+		max_y = maxi(max_y, pos.y)
+	_grid_width_cells = max_x - _grid_origin.x + 1
+	_grid_height_cells = max_y - _grid_origin.y + 1
+
+	# Compute best cell size from available space.
+	_recompute_cell_size()
+
 	for pos in positions:
 		var cell_node: Control = GridCellScene.instantiate()
-		cell_node.position = Vector2(pos.x * CELL_SIZE, pos.y * CELL_SIZE)
+		cell_node.position = Vector2((pos.x - _grid_origin.x) * cell_size, (pos.y - _grid_origin.y) * cell_size)
 		cell_node.setup(pos)
 		if not template.is_cell_active(pos):
 			cell_node.set_state(cell_node.CellState.INACTIVE)
 		_cells_layer.add_child(cell_node)
+		# Override cell size from the default Constants.GRID_CELL_SIZE.
+		var sz := Vector2(cell_size, cell_size)
+		cell_node.custom_minimum_size = sz
+		cell_node.size = sz
 		_cells[pos] = cell_node
 
-	# Size to bounding box so the panel reserves the right amount of space.
-	custom_minimum_size = Vector2(template.width * CELL_SIZE, template.height * CELL_SIZE)
+	# Size to actual extent.
+	custom_minimum_size = Vector2(_grid_width_cells * cell_size, _grid_height_cells * cell_size)
 	size = custom_minimum_size
+
+	# Deferred recalc — parent layout may not be settled during initial setup.
+	call_deferred("_deferred_resize")
+
+
+func _recompute_cell_size() -> void:
+	if _grid_width_cells <= 0 or _grid_height_cells <= 0:
+		cell_size = CELL_SIZE_MIN
+		return
+	var available: Vector2 = _get_available_space()
+	var fit_w: int = int(available.x / _grid_width_cells)
+	var fit_h: int = int(available.y / _grid_height_cells)
+	cell_size = clampi(mini(fit_w, fit_h), CELL_SIZE_MIN, CELL_SIZE_MAX)
+
+
+func _get_available_space() -> Vector2:
+	## Walk up the parent tree to find the first ancestor with a settled size.
+	var node: Control = get_parent() as Control
+	while node:
+		if node.size.x > 0.0 and node.size.y > 0.0:
+			return node.size
+		node = node.get_parent() as Control
+	return get_viewport_rect().size * 0.7
+
+
+func _deferred_resize() -> void:
+	## Re-evaluate cell size after the layout pass has settled parent sizes.
+	var old_size: int = cell_size
+	_recompute_cell_size()
+	if cell_size == old_size:
+		return
+	# Reposition and resize all cells.
+	for pos: Vector2i in _cells:
+		var cell_node: Control = _cells[pos]
+		cell_node.position = Vector2((pos.x - _grid_origin.x) * cell_size, (pos.y - _grid_origin.y) * cell_size)
+		var sz := Vector2(cell_size, cell_size)
+		cell_node.custom_minimum_size = sz
+		cell_node.size = sz
+	custom_minimum_size = Vector2(_grid_width_cells * cell_size, _grid_height_cells * cell_size)
+	size = custom_minimum_size
+	_update_item_visuals()
 
 
 func _update_item_visuals() -> void:
@@ -375,13 +449,13 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 		max_pos.x = maxi(max_pos.x, cell.x)
 		max_pos.y = maxi(max_pos.y, cell.y)
 
-	var bbox_w: int = (max_pos.x - min_pos.x + 1) * CELL_SIZE
-	var bbox_h: int = (max_pos.y - min_pos.y + 1) * CELL_SIZE
+	var bbox_w: int = (max_pos.x - min_pos.x + 1) * cell_size
+	var bbox_h: int = (max_pos.y - min_pos.y + 1) * cell_size
 
 	# Wrap in a clipping container so the icon never overflows its cells
 	var container: Control = Control.new()
 	container.clip_contents = true
-	container.position = Vector2(min_pos.x * CELL_SIZE, min_pos.y * CELL_SIZE)
+	container.position = Vector2((min_pos.x - _grid_origin.x) * cell_size, (min_pos.y - _grid_origin.y) * cell_size)
 	container.size = Vector2(bbox_w, bbox_h)
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -408,18 +482,19 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
 	for cell in cells:
 		var cell_panel: PanelContainer = PanelContainer.new()
-		cell_panel.position = Vector2((cell.x - min_pos.x) * CELL_SIZE, (cell.y - min_pos.y) * CELL_SIZE)
-		cell_panel.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		cell_panel.position = Vector2((cell.x - min_pos.x) * cell_size, (cell.y - min_pos.y) * cell_size)
+		cell_panel.custom_minimum_size = Vector2(cell_size, cell_size)
 		cell_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		# Only draw border on edges not shared with another cell of the same item
 		var style: StyleBoxFlat = StyleBoxFlat.new()
 		style.bg_color = Color.TRANSPARENT
 		style.border_color = rarity_color
-		style.border_width_left = 2 if not cells.has(cell + Vector2i(-1, 0)) else 0
-		style.border_width_right = 2 if not cells.has(cell + Vector2i(1, 0)) else 0
-		style.border_width_top = 2 if not cells.has(cell + Vector2i(0, -1)) else 0
-		style.border_width_bottom = 2 if not cells.has(cell + Vector2i(0, 1)) else 0
+		var bw: int = maxi(1, cell_size / 24)
+		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0
+		style.border_width_right = bw if not cells.has(cell + Vector2i(1, 0)) else 0
+		style.border_width_top = bw if not cells.has(cell + Vector2i(0, -1)) else 0
+		style.border_width_bottom = bw if not cells.has(cell + Vector2i(0, 1)) else 0
 		cell_panel.add_theme_stylebox_override("panel", style)
 
 		shape_outline.add_child(cell_panel)

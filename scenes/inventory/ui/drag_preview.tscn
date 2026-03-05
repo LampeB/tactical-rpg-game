@@ -15,8 +15,8 @@ mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="."]
 layout_mode = 0
-offset_right = 48.0
-offset_bottom = 48.0
+offset_right = 20.0
+offset_bottom = 20.0
 mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5

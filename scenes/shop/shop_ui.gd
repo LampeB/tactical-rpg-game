@@ -435,6 +435,7 @@ func _start_drag_from_merchant(placed: GridInventory.PlacedItem, clicked_pos: Ve
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 
 
@@ -455,6 +456,7 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInv
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 
 
@@ -473,6 +475,7 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	var sell_preview := _sell_price_for(_dragged_item)
 	_set_hover_info("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
 		Color(0.5, 1.0, 0.5))
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
 
@@ -493,6 +496,7 @@ func _start_drag_from_sold_panel(index: int) -> void:
 
 	_set_hover_info("Buying back: %s  —  %dg" % [_dragged_item.display_name, _drag_source_sold_price],
 		Color(1.0, 0.84, 0.0))
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
 

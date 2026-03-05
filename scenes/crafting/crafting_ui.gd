@@ -729,6 +729,7 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInv
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 	_highlight_valid_slots(_dragged_item)
 
@@ -744,6 +745,7 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	EventBus.stash_changed.emit()
 	_refresh_stash()
 	_item_tooltip.hide_tooltip()
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 	_highlight_valid_slots(_dragged_item)
 
@@ -759,6 +761,7 @@ func _start_drag_from_slot(slot_idx: int) -> void:
 	slot.clear()
 	_update_craft_button()
 	_item_tooltip.hide_tooltip()
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 	_clear_slot_highlights()
 
@@ -772,6 +775,7 @@ func _start_drag_from_output() -> void:
 	_output_item = null
 	_refresh_output_zone()
 	_item_tooltip.hide_tooltip()
+	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
 

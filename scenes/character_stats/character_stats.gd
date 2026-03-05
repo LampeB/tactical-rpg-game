@@ -851,6 +851,7 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem, clicked_pos: Vector
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
+	_drag_preview.cell_size = _grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
 
 	# Show placement preview at current mouse position (centered on cursor)
@@ -872,6 +873,7 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	_stash_panel.refresh(GameManager.party.stash)
 	_item_tooltip.hide_tooltip()
 
+	_drag_preview.cell_size = _grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
 
 	# Show placement preview at current mouse position (centered on cursor)
@@ -954,6 +956,7 @@ func _try_place_item(grid_pos: Vector2i) -> void:
 	_drag_state = DragState.DRAGGING
 	_last_preview_grid_pos = Vector2i(-999, -999)
 
+	_drag_preview.cell_size = _grid_panel.cell_size
 	_drag_preview.setup(blocker_data, blocker_rot)
 
 
