@@ -457,6 +457,7 @@ func _update_skills_panel(char_data: CharacterData, inv: GridInventory) -> void:
 func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 4)
+	hbox.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	var name_label := Label.new()
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -473,7 +474,44 @@ func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
 		UIThemes.style_label(mp_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
 		hbox.add_child(mp_label)
 
+	# Build tooltip text
+	hbox.tooltip_text = _build_skill_tooltip(skill, is_innate)
+
 	return hbox
+
+
+func _build_skill_tooltip(skill: SkillData, is_innate: bool) -> String:
+	var lines: PackedStringArray = []
+	lines.append(skill.display_name)
+	if is_innate:
+		lines.append("(Innate)")
+
+	if skill.mp_cost > 0:
+		lines.append("MP: %d" % skill.mp_cost)
+	elif skill.use_all_mp:
+		lines.append("MP: All remaining")
+
+	lines.append("Target: %s" % Enums.get_target_type_name(skill.target_type))
+
+	if skill.cooldown_turns > 0:
+		lines.append("Cooldown: %d turn(s)" % skill.cooldown_turns)
+
+	if skill.has_damage():
+		if skill.physical_scaling > 0.0:
+			lines.append("Phys Scaling: %.1fx" % skill.physical_scaling)
+		if skill.magical_scaling > 0.0:
+			lines.append("Mag Scaling: %.1fx" % skill.magical_scaling)
+
+	if skill.heal_amount > 0:
+		lines.append("Heals: %d HP" % skill.heal_amount)
+	if skill.heal_percent > 0.0:
+		lines.append("Heals: %d%% max HP" % int(skill.heal_percent * 100))
+
+	if not skill.description.is_empty():
+		lines.append("")
+		lines.append(skill.description)
+
+	return "\n".join(lines)
 
 
 # === Element Bar (Center Panel) ===
@@ -505,7 +543,11 @@ func _update_element_bar(inv: GridInventory) -> void:
 		sq_style.border_width_top = 1
 		sq_style.border_width_bottom = 1
 		square.add_theme_stylebox_override("panel", sq_style)
-		square.tooltip_text = Enums.get_element_name(elem as Enums.Element)
+		var elem_name: String = Enums.get_element_name(elem as Enums.Element)
+		if pts > 0:
+			square.tooltip_text = "%s: %d point(s)\nGems provide element points that unlock skills." % [elem_name, pts]
+		else:
+			square.tooltip_text = "%s: 0\nEquip gems with %s element to unlock skills." % [elem_name, elem_name]
 
 		var lbl := Label.new()
 		lbl.text = str(pts)

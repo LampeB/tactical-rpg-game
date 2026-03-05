@@ -70,13 +70,13 @@ text = "Stats"
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
-text = "Skills"
+text = "Passives"
 
 [node name="AbilitiesTab" type="Button" parent="VBox/ViewTabs"]
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
-text = "Abilities"
+text = "Skills"
 
 [node name="ViewContainer" type="Control" parent="VBox"]
 layout_mode = 2
