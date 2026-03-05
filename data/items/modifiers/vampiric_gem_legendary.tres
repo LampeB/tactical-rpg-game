@@ -49,4 +49,5 @@ item_type = 2
 rarity = 4
 shape = ExtResource("5_1vejy")
 conditional_modifier_rules = Array[ExtResource("1_heu7d")]([SubResource("Resource_1vejy"), SubResource("Resource_0qv17"), SubResource("Resource_gwkca")])
+element_points = { 6: 2 }
 base_price = 125

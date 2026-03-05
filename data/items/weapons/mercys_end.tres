@@ -24,6 +24,5 @@ hand_slots_required = 1
 shape = ExtResource("3_g1u3i")
 stat_modifiers = Array[ExtResource("2_xvjep")]([SubResource("Resource_uzltu")])
 base_power = 20
-granted_skills = Array[ExtResource("5_kvlvl")]([ExtResource("6_4kirn")])
 granted_effects = Array[String](["execute_threshold"])
 base_price = 480

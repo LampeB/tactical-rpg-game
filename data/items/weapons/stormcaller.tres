@@ -25,7 +25,6 @@ hand_slots_required = 2
 shape = ExtResource("3_llxnv")
 stat_modifiers = Array[ExtResource("2_9thdm")]([SubResource("Resource_szfo6")])
 magical_power = 28
-granted_skills = Array[ExtResource("5_07tpp")]([ExtResource("6_8y6oq")])
 innate_status_effect = ExtResource("7_wlsiz")
 innate_status_effect_chance = 0.4
 innate_force_aoe = true

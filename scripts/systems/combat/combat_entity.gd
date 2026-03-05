@@ -32,6 +32,9 @@ var status_effects: Array = []
 # Gem-based status effects: Array of StatusEffect (Burn, Poisoned, Chilled, Shocked)
 var active_gem_status_effects: Array[StatusEffect] = []
 
+# Element points from equipped gems (player only)
+var element_points: Dictionary = {}
+
 # Skill cooldowns: skill_id -> turns remaining
 var cooldowns: Dictionary = {}
 
@@ -69,6 +72,10 @@ static func from_character(
 			for eff in placed.item_data.granted_effects:
 				if eff not in entity.passive_special_effects:
 					entity.passive_special_effects.append(eff)
+
+	# Compute element points from equipped gems
+	if inv:
+		entity.element_points = inv.get_element_points()
 
 	# Compute max HP/MP: base + equipment + passive flat + passive percent
 	var hp_flat: float = float(char_data.max_hp) + equip_stats.get(Enums.Stat.MAX_HP, 0.0)
@@ -178,25 +185,15 @@ func has_passive_effect(effect_id: String) -> bool:
 func get_available_skills() -> Array:
 	var skills: Array = []
 	if is_player and character_data:
+		# 1. Innate character skills
 		for innate_skill in character_data.innate_skills:
 			if innate_skill is SkillData:
 				skills.append(innate_skill)
-		# Skills granted by equipped items
-		if grid_inventory:
-			var placed_items: Array = grid_inventory.get_all_placed_items()
-			for pi in range(placed_items.size()):
-				var placed: GridInventory.PlacedItem = placed_items[pi]
-				for equip_skill in placed.item_data.granted_skills:
-					if equip_skill is SkillData and equip_skill not in skills:
-						skills.append(equip_skill)
-		# Conditional skills from tool modifier states
-		var tool_states_keys: Array = tool_modifier_states.keys()
-		for ti in range(tool_states_keys.size()):
-			var tool_state: ToolModifierState = tool_modifier_states[tool_states_keys[ti]]
-			for ci in range(tool_state.conditional_skills.size()):
-				var cond_skill: SkillData = tool_state.conditional_skills[ci]
-				if cond_skill is SkillData and cond_skill not in skills:
-					skills.append(cond_skill)
+		# 2. Element-point unlocked skills (from equipped gems)
+		var unlocked: Array[SkillData] = ElementSkillSystem.get_unlocked_skills(element_points)
+		for elem_skill in unlocked:
+			if elem_skill not in skills:
+				skills.append(elem_skill)
 	elif not is_player and enemy_data:
 		for enemy_skill in enemy_data.skills:
 			if enemy_skill is SkillData:

@@ -24,6 +24,5 @@ hand_slots_required = 2
 shape = ExtResource("3_4f88l")
 stat_modifiers = Array[ExtResource("2_p5bik")]([SubResource("Resource_yazv9")])
 base_power = 26
-granted_skills = Array[ExtResource("5_p3gux")]([ExtResource("6_07bu9")])
 on_kill_heal_percent = 0.25
 base_price = 540

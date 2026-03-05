@@ -27,5 +27,4 @@ stat_modifiers = Array[ExtResource("3_na46g")]([SubResource("Resource_szaik")])
 base_power = 5
 innate_status_effect = ExtResource("7_3gkwn")
 innate_status_effect_chance = 0.05
-granted_skills = Array[ExtResource("4_0umqm")]([ExtResource("8_sq8yu")])
 base_price = 70

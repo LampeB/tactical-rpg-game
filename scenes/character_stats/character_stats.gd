@@ -16,7 +16,6 @@ extends Control
 @onready var _hp_bar: ProgressBar = $VBox/Content/LeftPanel/VBox/HPBar
 @onready var _mp_label: Label = $VBox/Content/LeftPanel/VBox/MPLabel
 @onready var _mp_bar: ProgressBar = $VBox/Content/LeftPanel/VBox/MPBar
-@onready var _skills_list: VBoxContainer = $VBox/Content/LeftPanel/VBox/SkillsList
 @onready var _stat_rows: VBoxContainer = $VBox/Content/LeftPanel/VBox/StatRows
 @onready var _advanced_stats_btn: Button = $VBox/Content/LeftPanel/VBox/AdvancedStatsBtn
 
@@ -281,37 +280,9 @@ func _update_left_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 	_mp_bar.max_value = max_mp
 	_mp_bar.value = current_mp
 
-	# Skills list
-	_update_skills_list(char_data, inv)
-
 	# Stat table
 	_update_stat_table(char_data, inv, passive_bonuses)
 
-
-func _update_skills_list(char_data: CharacterData, inv: GridInventory) -> void:
-	_clear_children(_skills_list)
-
-	# Innate skills
-	for si in range(char_data.innate_skills.size()):
-		var skill: SkillData = char_data.innate_skills[si]
-		if skill is SkillData:
-			var label: Label = Label.new()
-			label.text = "• %s (MP: %d)" % [skill.display_name, skill.mp_cost]
-			label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
-			_skills_list.add_child(label)
-
-	# Skills from equipment
-	if inv:
-		for pi in range(inv.get_all_placed_items().size()):
-			var placed: GridInventory.PlacedItem = inv.get_all_placed_items()[pi]
-			if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-				for gi in range(placed.item_data.granted_skills.size()):
-					var equip_skill = placed.item_data.granted_skills[gi]
-					if equip_skill is SkillData:
-						var label: Label = Label.new()
-						label.text = "• %s (MP: %d)" % [equip_skill.display_name, equip_skill.mp_cost]
-						UIThemes.style_label(label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
-						_skills_list.add_child(label)
 
 
 func _update_stat_table(char_data: CharacterData, inv: GridInventory, passive_bonuses: Dictionary) -> void:

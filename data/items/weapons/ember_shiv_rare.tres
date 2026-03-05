@@ -35,5 +35,4 @@ base_power = 5
 innate_status_effect = ExtResource("7_r6mvu")
 innate_status_effect_chance = 0.25
 innate_crit_status_stacks = 3
-granted_skills = Array[ExtResource("4_x2crv")]([ExtResource("8_2xr4z")])
 base_price = 112

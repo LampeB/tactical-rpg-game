@@ -29,7 +29,6 @@ force_aoe = true
 script = ExtResource("3")
 target_weapon_type = 2
 stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_ub5xm")])
-granted_skills = Array[ExtResource("2_vqun4")]([ExtResource("6_explosion")])
 force_aoe = true
 
 [resource]
@@ -43,4 +42,5 @@ rarity = 2
 shape = ExtResource("4")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
 conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_nkpvx"), SubResource("Resource_r7tmn"), SubResource("Resource_erdsg")])
+element_points = { 0: 1, 6: 3 }
 base_price = 80

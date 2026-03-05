@@ -42,7 +42,6 @@ script = ExtResource("1_b2mya")
 target_weapon_type = 2
 stat_bonuses = Array[ExtResource("2_uos2x")]([SubResource("Resource_2pk66")])
 status_effect_chance = 0.2647058823529412
-granted_skills = Array[ExtResource("2_rslmg")]([ExtResource("3_rslmg")])
 force_aoe = true
 
 [resource]
@@ -56,4 +55,5 @@ rarity = 4
 shape = ExtResource("6_myk83")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)])
 conditional_modifier_rules = Array[ExtResource("1_b2mya")]([SubResource("Resource_jpyc3"), SubResource("Resource_m3qmh"), SubResource("Resource_e750g")])
+element_points = { 0: 1, 6: 3 }
 base_price = 169

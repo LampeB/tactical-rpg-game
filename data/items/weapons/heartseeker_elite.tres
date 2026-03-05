@@ -36,5 +36,4 @@ armor_slot = 4
 shape = ExtResource("5_q659s")
 stat_modifiers = Array[ExtResource("3_x52f7")]([SubResource("Resource_c697b"), SubResource("Resource_76jr2"), SubResource("Resource_g6ofv")])
 base_power = 4
-granted_skills = Array[ExtResource("4_157z9")]([ExtResource("7_dwyif")])
 base_price = 198

@@ -31,7 +31,6 @@ target_weapon_type = 2
 stat_bonuses = Array[ExtResource("2_ou6p8")]([SubResource("Resource_0igj1")])
 status_effect = ExtResource("3_2r2yx")
 status_effect_chance = 0.44000000000000006
-granted_skills = Array[ExtResource("2_2r2yx")]([ExtResource("4_mnj05")])
 
 [sub_resource type="Resource" id="Resource_r24kx"]
 script = ExtResource("2_ou6p8")
@@ -56,4 +55,5 @@ rarity = 3
 shape = ExtResource("7_psbe1")
 modifier_reach_pattern = Array[Vector2i]([Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -2), Vector2i(0, -3)])
 conditional_modifier_rules = Array[ExtResource("1_n5rm2")]([SubResource("Resource_3wksb"), SubResource("Resource_psbe1"), SubResource("Resource_igcsf")])
+element_points = { 0: 3 }
 base_price = 79

@@ -101,10 +101,16 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var chance_pct: int = int(rule.status_effect_chance * 100)
 					_add_modifier_label("  %s (%d%% chance)" % [effect_name, chance_pct], Color(1.0, 0.7, 0.3))
 
-				# Granted skills
-				for gs in range(rule.granted_skills.size()):
-					var skill: SkillData = rule.granted_skills[gs]
-					_add_modifier_label("  Grants: %s" % skill.display_name, Color(0.6, 1.0, 0.6))
+		# Element points
+		if not item.element_points.is_empty():
+			_modifier_section.visible = true
+			_add_header_label("Element Points:", Color(0.7, 0.9, 1.0))
+			for elem_key in item.element_points:
+				var elem: int = elem_key
+				var pts: int = item.element_points[elem_key]
+				var elem_name: String = Enums.get_element_name(elem as Enums.Element)
+				var elem_color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+				_add_modifier_label("  %s +%d" % [elem_name, pts], elem_color)
 
 	elif item.is_modifiable():
 		var has_innate: bool = item.innate_status_effect != null
@@ -154,11 +160,6 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var value: float = state.aggregate_stats[stat]
 					var prefix: String = "+" if value >= 0 else ""
 					_add_modifier_label("%s%s%d %s" % [indent, prefix, int(value), Enums.get_stat_name(stat)], Color(1.0, 0.9, 0.3))
-
-				# Conditional skills
-				for sk in range(state.conditional_skills.size()):
-					var skill: SkillData = state.conditional_skills[sk]
-					_add_modifier_label("%sGrants: %s" % [indent, skill.display_name], Color(0.6, 1.0, 0.6))
 
 	# Legendary effects section
 	var has_legendary: bool = not item.granted_effects.is_empty() \

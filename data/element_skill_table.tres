@@ -1,0 +1,176 @@
+[gd_resource type="Resource" script_class="ElementSkillTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/element_skill_table.gd" id="1_k38sm"]
+[ext_resource type="Script" path="res://scripts/resources/element_skill_entry.gd" id="2_rwr1i"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="3_wkehk"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_ii.tres" id="4_b075y"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt_iii.tres" id="5_23e10"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="6_4fdg5"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_ii.tres" id="7_idene"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard_iii.tres" id="8_1d7eo"]
+[ext_resource type="Resource" path="res://data/skills/thunder_bolt.tres" id="9_r9cyq"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="10_521t3"]
+[ext_resource type="Resource" path="res://data/skills/slash_ii.tres" id="11_3xfgx"]
+[ext_resource type="Resource" path="res://data/skills/slash_iii.tres" id="12_7xf5y"]
+[ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="13_rfha7"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="14_gr07w"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="15_766es"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash.tres" id="16_cc4f1"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_ii.tres" id="17_cnioe"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="18_axf3a"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="19_axiop"]
+[ext_resource type="Resource" path="res://data/skills/backstab_ii.tres" id="20_fic3j"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="21_uhnlz"]
+[ext_resource type="Resource" path="res://data/skills/heal_minor.tres" id="22_7vqes"]
+[ext_resource type="Resource" path="res://data/skills/heal_light.tres" id="23_jq3rt"]
+[ext_resource type="Resource" path="res://data/skills/heal_moderate.tres" id="24_gd5y5"]
+[ext_resource type="Resource" path="res://data/skills/heal_major.tres" id="25_x4di9"]
+[ext_resource type="Resource" path="res://data/skills/heal_superior.tres" id="26_93koc"]
+[ext_resource type="Resource" path="res://data/skills/chain_lightning.tres" id="27_7j4mr"]
+[ext_resource type="Resource" path="res://data/skills/soul_rend.tres" id="28_yd0zn"]
+[ext_resource type="Resource" path="res://data/skills/warcry.tres" id="29_cy6gz"]
+[ext_resource type="Resource" path="res://data/skills/explosion.tres" id="30_qdpn8"]
+
+[sub_resource type="Resource" id="Resource_aa84x"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("3_wkehk")
+required_points = { 0: 3 }
+
+[sub_resource type="Resource" id="Resource_vitpy"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("4_b075y")
+required_points = { 0: 6 }
+
+[sub_resource type="Resource" id="Resource_qh89t"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("5_23e10")
+required_points = { 0: 9 }
+
+[sub_resource type="Resource" id="Resource_1a9j1"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("6_4fdg5")
+required_points = { 1: 3 }
+
+[sub_resource type="Resource" id="Resource_5jbg1"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("7_idene")
+required_points = { 1: 6 }
+
+[sub_resource type="Resource" id="Resource_fvww2"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("8_1d7eo")
+required_points = { 1: 9 }
+
+[sub_resource type="Resource" id="Resource_jbr7u"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("9_r9cyq")
+required_points = { 2: 3 }
+
+[sub_resource type="Resource" id="Resource_qrgbg"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("10_521t3")
+required_points = { 3: 2 }
+
+[sub_resource type="Resource" id="Resource_m3yay"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("11_3xfgx")
+required_points = { 3: 4 }
+
+[sub_resource type="Resource" id="Resource_yd3k8"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("12_7xf5y")
+required_points = { 3: 6 }
+
+[sub_resource type="Resource" id="Resource_vruid"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("13_rfha7")
+required_points = { 3: 3 }
+
+[sub_resource type="Resource" id="Resource_jc5c7"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("14_gr07w")
+required_points = { 3: 5 }
+
+[sub_resource type="Resource" id="Resource_2b91z"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("15_766es")
+required_points = { 3: 8 }
+
+[sub_resource type="Resource" id="Resource_iyxqr"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("16_cc4f1")
+required_points = { 3: 2 }
+
+[sub_resource type="Resource" id="Resource_z2l7a"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("17_cnioe")
+required_points = { 3: 4 }
+
+[sub_resource type="Resource" id="Resource_etjq1"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("18_axf3a")
+required_points = { 3: 7 }
+
+[sub_resource type="Resource" id="Resource_p2g38"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("19_axiop")
+required_points = { 6: 2 }
+
+[sub_resource type="Resource" id="Resource_vvdnm"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("20_fic3j")
+required_points = { 6: 4 }
+
+[sub_resource type="Resource" id="Resource_omd1q"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("21_uhnlz")
+required_points = { 6: 7 }
+
+[sub_resource type="Resource" id="Resource_7uthq"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("22_7vqes")
+required_points = { 5: 2 }
+
+[sub_resource type="Resource" id="Resource_t2wqg"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("23_jq3rt")
+required_points = { 5: 4 }
+
+[sub_resource type="Resource" id="Resource_js4gh"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("24_gd5y5")
+required_points = { 5: 6 }
+
+[sub_resource type="Resource" id="Resource_px9b9"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("25_x4di9")
+required_points = { 5: 8 }
+
+[sub_resource type="Resource" id="Resource_46ujr"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("26_93koc")
+required_points = { 5: 10 }
+
+[sub_resource type="Resource" id="Resource_xuz76"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("27_7j4mr")
+required_points = { 0: 3, 2: 6 }
+
+[sub_resource type="Resource" id="Resource_fbgwd"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("28_yd0zn")
+required_points = { 3: 3, 6: 5 }
+
+[sub_resource type="Resource" id="Resource_77bz6"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("29_cy6gz")
+required_points = { 3: 5, 5: 3 }
+
+[sub_resource type="Resource" id="Resource_nqg9z"]
+script = ExtResource("2_rwr1i")
+skill = ExtResource("30_qdpn8")
+required_points = { 0: 6, 6: 3 }
+
+[resource]
+script = ExtResource("1_k38sm")
+entries = Array[ExtResource("2_rwr1i")]([SubResource("Resource_aa84x"), SubResource("Resource_vitpy"), SubResource("Resource_qh89t"), SubResource("Resource_1a9j1"), SubResource("Resource_5jbg1"), SubResource("Resource_fvww2"), SubResource("Resource_jbr7u"), SubResource("Resource_qrgbg"), SubResource("Resource_m3yay"), SubResource("Resource_yd3k8"), SubResource("Resource_vruid"), SubResource("Resource_jc5c7"), SubResource("Resource_2b91z"), SubResource("Resource_iyxqr"), SubResource("Resource_z2l7a"), SubResource("Resource_etjq1"), SubResource("Resource_p2g38"), SubResource("Resource_vvdnm"), SubResource("Resource_omd1q"), SubResource("Resource_7uthq"), SubResource("Resource_t2wqg"), SubResource("Resource_js4gh"), SubResource("Resource_px9b9"), SubResource("Resource_46ujr"), SubResource("Resource_xuz76"), SubResource("Resource_fbgwd"), SubResource("Resource_77bz6"), SubResource("Resource_nqg9z")])
