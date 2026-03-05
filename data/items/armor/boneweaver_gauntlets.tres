@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ew5y5"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_4c6pz"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_vo7po"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_unique.png" id="4_qrskz"]
+
+[sub_resource type="Resource" id="Resource_fjab6"]
+script = ExtResource("2_4c6pz")
+stat = 4
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_7x0pt"]
+script = ExtResource("2_4c6pz")
+stat = 5
+value = 8.0
+
+[resource]
+script = ExtResource("1_ew5y5")
+id = "boneweaver_gauntlets"
+display_name = "Boneweaver Gauntlets"
+description = "Gauntlets sewn from dragon sinew. They strike back with terrifying speed."
+icon = ExtResource("4_qrskz")
+item_type = 1
+category = 9
+rarity = 5
+armor_slot = 9
+shape = ExtResource("3_vo7po")
+stat_modifiers = Array[ExtResource("2_4c6pz")]([SubResource("Resource_fjab6"), SubResource("Resource_7x0pt")])
+granted_effects = Array[String](["counter_attack"])
+base_price = 420

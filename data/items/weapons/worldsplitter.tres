@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ww6p1"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_0be7b"]
+[ext_resource type="Resource" path="res://data/shapes/shape_bold_u.tres" id="3_ndgf1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_unique.png" id="4_cb8wd"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_jp4ty"]
+[ext_resource type="Resource" path="res://data/skills/warcry.tres" id="6_7ne9c"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="7_lfft3"]
+
+[sub_resource type="Resource" id="Resource_rmzpt"]
+script = ExtResource("2_0be7b")
+stat = 4
+value = 25.0
+
+[resource]
+script = ExtResource("1_ww6p1")
+id = "worldsplitter"
+display_name = "Worldsplitter"
+description = "A titanic warhammer that shakes the earth. Its battle cry empowers all who fight alongside the wielder."
+icon = ExtResource("4_cb8wd")
+category = 1
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_ndgf1")
+stat_modifiers = Array[ExtResource("2_0be7b")]([SubResource("Resource_rmzpt")])
+base_power = 35
+granted_skills = Array[ExtResource("5_jp4ty")]([ExtResource("6_7ne9c"), ExtResource("7_lfft3")])
+base_price = 620

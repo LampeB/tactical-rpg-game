@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_rue5q"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_cdxel"]
+[ext_resource type="Resource" path="res://data/shapes/shape_longbow.tres" id="3_xvint"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_unique.png" id="4_4jgp6"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_1nx0d"]
+[ext_resource type="Resource" path="res://data/skills/soul_rend.tres" id="6_mflo4"]
+[ext_resource type="Resource" path="res://data/status_effects/poisoned.tres" id="7_pn78f"]
+
+[sub_resource type="Resource" id="Resource_237fw"]
+script = ExtResource("2_cdxel")
+stat = 4
+value = 14.0
+
+[sub_resource type="Resource" id="Resource_tq4fi"]
+script = ExtResource("2_cdxel")
+stat = 6
+value = 8.0
+
+[resource]
+script = ExtResource("1_rue5q")
+id = "whispering_bow"
+display_name = "Whispering Bow"
+description = "A bow strung with spectral sinew. Its arrows carry whispered curses that rend the soul."
+icon = ExtResource("4_4jgp6")
+category = 2
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_xvint")
+stat_modifiers = Array[ExtResource("2_cdxel")]([SubResource("Resource_237fw"), SubResource("Resource_tq4fi")])
+base_power = 18
+magical_power = 12
+granted_skills = Array[ExtResource("5_1nx0d")]([ExtResource("6_mflo4")])
+innate_status_effect = ExtResource("7_pn78f")
+innate_status_effect_chance = 0.3
+base_price = 560

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_0hfcf"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_t4oij"]
+[ext_resource type="Resource" path="res://data/shapes/shape_great_axe.tres" id="3_oe4zo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_unique.png" id="4_n27cf"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_ak5gs"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="6_ma84h"]
+
+[sub_resource type="Resource" id="Resource_gimx4"]
+script = ExtResource("2_t4oij")
+stat = 4
+value = 22.0
+
+[resource]
+script = ExtResource("1_0hfcf")
+id = "vampiric_halberd"
+display_name = "Vampiric Halberd"
+description = "A massive halberd steeped in blood magic. It siphons life on every hit and feasts on the fallen."
+icon = ExtResource("4_n27cf")
+category = 6
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_oe4zo")
+stat_modifiers = Array[ExtResource("2_t4oij")]([SubResource("Resource_gimx4")])
+base_power = 30
+granted_skills = Array[ExtResource("5_ak5gs")]([ExtResource("6_ma84h")])
+innate_lifesteal_percent = 0.1
+on_kill_heal_percent = 0.15
+base_price = 580

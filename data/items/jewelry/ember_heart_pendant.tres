@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_dahv0"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_9ezwf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_w6cvm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_unique.png" id="4_pmfeo"]
+
+[sub_resource type="Resource" id="Resource_91ow0"]
+script = ExtResource("2_9ezwf")
+stat = 6
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_4tz64"]
+script = ExtResource("2_9ezwf")
+stat = 0
+value = 8.0
+
+[resource]
+script = ExtResource("1_dahv0")
+id = "ember_heart_pendant"
+display_name = "Ember Heart Pendant"
+description = "A pendant housing a captive ember. It scorches any who dare strike the wearer."
+icon = ExtResource("4_pmfeo")
+item_type = 1
+category = 12
+rarity = 5
+armor_slot = 12
+shape = ExtResource("3_w6cvm")
+stat_modifiers = Array[ExtResource("2_9ezwf")]([SubResource("Resource_91ow0"), SubResource("Resource_4tz64")])
+granted_effects = Array[String](["thorns"])
+base_price = 400

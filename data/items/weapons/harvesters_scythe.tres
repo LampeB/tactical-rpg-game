@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4tvi9"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_p5bik"]
+[ext_resource type="Resource" path="res://data/shapes/shape_double_scythe.tres" id="3_4f88l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_unique.png" id="4_wzab0"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_p3gux"]
+[ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="6_07bu9"]
+
+[sub_resource type="Resource" id="Resource_yazv9"]
+script = ExtResource("2_p5bik")
+stat = 4
+value = 16.0
+
+[resource]
+script = ExtResource("1_4tvi9")
+id = "harvesters_scythe"
+display_name = "Harvester's Scythe"
+description = "A wicked scythe that reaps more than grain. Every fallen foe restores the wielder's vitality."
+icon = ExtResource("4_wzab0")
+category = 6
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_4f88l")
+stat_modifiers = Array[ExtResource("2_p5bik")]([SubResource("Resource_yazv9")])
+base_power = 26
+granted_skills = Array[ExtResource("5_p3gux")]([ExtResource("6_07bu9")])
+on_kill_heal_percent = 0.25
+base_price = 540

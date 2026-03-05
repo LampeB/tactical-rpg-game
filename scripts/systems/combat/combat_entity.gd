@@ -23,6 +23,8 @@ var max_mp: int = 0
 var shield_hp: int = 0  ## Absorbs damage before HP (from start_shield)
 var is_defending: bool = false
 var is_dead: bool = false
+var auto_revive_used: bool = false
+var first_hit_evasion_used: bool = false
 
 # Status effects: Array of {data: StatusEffectData, remaining_turns: int, stacks: int}
 var status_effects: Array = []
@@ -58,6 +60,15 @@ static func from_character(
 	var computed: Dictionary = inv.get_computed_stats() if inv else {"stats": {}, "tool_states": {}}
 	var equip_stats: Dictionary = computed.get("stats", {})
 	entity.tool_modifier_states = computed.get("tool_states", {})
+
+	# Merge granted_effects from equipped items into passive_special_effects
+	if inv:
+		var placed_items: Array = inv.get_all_placed_items()
+		for pi_idx in range(placed_items.size()):
+			var placed: GridInventory.PlacedItem = placed_items[pi_idx]
+			for eff in placed.item_data.granted_effects:
+				if eff not in entity.passive_special_effects:
+					entity.passive_special_effects.append(eff)
 
 	# Compute max HP/MP: base + equipment + passive flat + passive percent
 	var hp_flat: float = float(char_data.max_hp) + equip_stats.get(Enums.Stat.MAX_HP, 0.0)
@@ -202,6 +213,72 @@ func has_force_aoe() -> bool:
 	return false
 
 
+func has_innate_force_aoe() -> bool:
+	## Returns true if any equipped ACTIVE_TOOL has innate_force_aoe.
+	if not is_player or not grid_inventory:
+		return false
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and placed.item_data.innate_force_aoe:
+			return true
+	return false
+
+
+func get_item_lifesteal_percent() -> float:
+	## Returns the highest innate_lifesteal_percent from equipped ACTIVE_TOOLs.
+	if not is_player or not grid_inventory:
+		return 0.0
+	var best: float = 0.0
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			best = maxf(best, placed.item_data.innate_lifesteal_percent)
+	return best
+
+
+func get_extra_hit_count() -> int:
+	## Returns the max extra_hit_count across equipped ACTIVE_TOOLs.
+	if not is_player or not grid_inventory:
+		return 0
+	var best: int = 0
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and placed.item_data.extra_hit_count > best:
+			best = placed.item_data.extra_hit_count
+	return best
+
+
+func get_extra_hit_damage_fraction() -> float:
+	## Returns the extra_hit_damage_fraction from the weapon with the most extra hits.
+	if not is_player or not grid_inventory:
+		return 0.0
+	var best_count: int = 0
+	var fraction: float = 0.5
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and placed.item_data.extra_hit_count > best_count:
+			best_count = placed.item_data.extra_hit_count
+			fraction = placed.item_data.extra_hit_damage_fraction
+	return fraction
+
+
+func get_on_kill_heal_percent() -> float:
+	## Returns the highest on_kill_heal_percent from equipped ACTIVE_TOOLs.
+	if not is_player or not grid_inventory:
+		return 0.0
+	var best: float = 0.0
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			best = maxf(best, placed.item_data.on_kill_heal_percent)
+	return best
+
+
 func get_primary_tool_modifier_state() -> ToolModifierState:
 	## Returns the ToolModifierState for the primary weapon (first ACTIVE_TOOL).
 	if not is_player or not grid_inventory:
@@ -288,7 +365,11 @@ func take_damage(amount: int) -> int:
 	current_hp -= actual
 	if current_hp <= 0:
 		current_hp = 0
-		is_dead = true
+		if not auto_revive_used and has_passive_effect(PassiveEffects.AUTO_REVIVE):
+			auto_revive_used = true
+			current_hp = maxi(int(float(max_hp) * PassiveEffects.AUTO_REVIVE_HP_PERCENT), 1)
+		else:
+			is_dead = true
 	return actual
 
 
