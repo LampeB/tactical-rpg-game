@@ -1,10 +1,12 @@
 extends Control
 ## Abilities screen showing all available and locked skills for a character.
 ## Displays element points from equipped gems and the skills they unlock.
+## Includes filter bar, selection highlighting, and element requirement squares.
 
 @onready var _bg: ColorRect = $BG
 @onready var _element_bar: HBoxContainer = $VBox/ElementBar
-@onready var _skill_list: VBoxContainer = $VBox/Content/LeftPanel/ScrollContainer/SkillList
+@onready var _filter_bar: HBoxContainer = $VBox/Content/LeftPanel/LeftVBox/FilterBar
+@onready var _skill_list: VBoxContainer = $VBox/Content/LeftPanel/LeftVBox/ScrollContainer/SkillList
 @onready var _detail_header: HBoxContainer = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader
 @onready var _detail_icon: TextureRect = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader/DetailIcon
 @onready var _detail_name: Label = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader/DetailName
@@ -14,14 +16,30 @@ extends Control
 @onready var _left_panel: PanelContainer = $VBox/Content/LeftPanel
 @onready var _right_panel: PanelContainer = $VBox/Content/RightPanel
 
+# Filter state
+enum FilterState { NEUTRAL, INCLUDE, EXCLUDE }
+var _element_filters: Array = []
+var _filter_squares: Array = []
+
+# Selection state
 var _selected_skill: SkillData = null
 var _selected_entry: ElementSkillEntry = null
 var _selected_unlocked: bool = false
+
+# Cached data for rebuilding
+var _cached_char_data: CharacterData = null
+var _cached_element_points: Dictionary = {}
 
 
 func _ready() -> void:
 	_style_panels()
 	_show_empty_detail()
+
+	# Initialize filters
+	_element_filters.resize(7)
+	for fi in range(7):
+		_element_filters[fi] = FilterState.NEUTRAL
+	_build_filter_bar()
 
 
 func setup_embedded(character_id: String) -> void:
@@ -30,6 +48,9 @@ func setup_embedded(character_id: String) -> void:
 		return
 	var inv: GridInventory = GameManager.party.grid_inventories.get(character_id)
 	var element_points: Dictionary = inv.get_element_points() if inv else {}
+
+	_cached_char_data = char_data
+	_cached_element_points = element_points
 
 	_update_element_bar(element_points)
 	_update_skill_list(char_data, element_points)
@@ -77,6 +98,93 @@ func _update_element_bar(element_points: Dictionary) -> void:
 		_element_bar.add_child(container)
 
 
+# === Filter Bar ===
+
+func _build_filter_bar() -> void:
+	_filter_squares.clear()
+	for fi in range(7):
+		var elem: int = fi
+		var elem_color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+		var elem_name: String = Enums.get_element_name(elem as Enums.Element)
+
+		var square := PanelContainer.new()
+		square.custom_minimum_size = Vector2(24, 24)
+		square.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		square.tooltip_text = elem_name
+		_update_filter_square_style(square, elem_color, FilterState.NEUTRAL)
+
+		var lbl := Label.new()
+		lbl.text = elem_name.left(2)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		UIThemes.style_label(lbl, 10, elem_color)
+		square.add_child(lbl)
+
+		square.gui_input.connect(_on_filter_square_input.bind(fi))
+		_filter_bar.add_child(square)
+		_filter_squares.append(square)
+
+
+func _on_filter_square_input(event: InputEvent, elem_idx: int) -> void:
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+
+	var current: int = _element_filters[elem_idx]
+
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		if current == FilterState.INCLUDE:
+			_element_filters[elem_idx] = FilterState.NEUTRAL
+		else:
+			_element_filters[elem_idx] = FilterState.INCLUDE
+	elif event.button_index == MOUSE_BUTTON_RIGHT:
+		if current == FilterState.EXCLUDE:
+			_element_filters[elem_idx] = FilterState.NEUTRAL
+		else:
+			_element_filters[elem_idx] = FilterState.EXCLUDE
+
+	# Update visual state of all filter squares
+	for fi in range(7):
+		var elem_color: Color = Constants.ELEMENT_COLORS.get(fi, Color.WHITE)
+		_update_filter_square_style(_filter_squares[fi], elem_color, _element_filters[fi] as FilterState)
+
+	# Rebuild skill list with new filters
+	if _cached_char_data:
+		_update_skill_list(_cached_char_data, _cached_element_points)
+
+
+func _update_filter_square_style(square: PanelContainer, color: Color, state: FilterState) -> void:
+	var sq_style := StyleBoxFlat.new()
+	sq_style.corner_radius_top_left = 3
+	sq_style.corner_radius_top_right = 3
+	sq_style.corner_radius_bottom_left = 3
+	sq_style.corner_radius_bottom_right = 3
+
+	match state:
+		FilterState.NEUTRAL:
+			sq_style.bg_color = color.darkened(0.7)
+			sq_style.border_color = color.darkened(0.3)
+			sq_style.border_width_left = 1
+			sq_style.border_width_right = 1
+			sq_style.border_width_top = 1
+			sq_style.border_width_bottom = 1
+		FilterState.INCLUDE:
+			sq_style.bg_color = color.darkened(0.3)
+			sq_style.border_color = color
+			sq_style.border_width_left = 2
+			sq_style.border_width_right = 2
+			sq_style.border_width_top = 2
+			sq_style.border_width_bottom = 2
+		FilterState.EXCLUDE:
+			sq_style.bg_color = Color(0.1, 0.1, 0.1, 0.8)
+			sq_style.border_color = Color(0.4, 0.2, 0.2)
+			sq_style.border_width_left = 1
+			sq_style.border_width_right = 1
+			sq_style.border_width_top = 1
+			sq_style.border_width_bottom = 1
+
+	square.add_theme_stylebox_override("panel", sq_style)
+
+
 # === Skill List ===
 
 func _update_skill_list(char_data: CharacterData, element_points: Dictionary) -> void:
@@ -95,18 +203,22 @@ func _update_skill_list(char_data: CharacterData, element_points: Dictionary) ->
 	var unlocked_entries: Array[ElementSkillEntry] = []
 	var locked_entries: Array[ElementSkillEntry] = []
 	if table:
+		var innate_ids: Array[String] = []
+		for skill in innate_skills:
+			innate_ids.append(skill.id)
 		for entry in table.entries:
 			if entry.skill == null:
+				continue
+			if entry.skill.id in innate_ids:
 				continue
 			if table._meets_requirements(element_points, entry.required_points):
 				unlocked_entries.append(entry)
 			else:
 				locked_entries.append(entry)
 
-	# Remove innate duplicates from unlocked (innate takes priority)
-	var innate_ids: Array[String] = []
-	for skill in innate_skills:
-		innate_ids.append(skill.id)
+	# Apply element filters to element skills
+	var filtered_unlocked: Array[ElementSkillEntry] = _apply_filter(unlocked_entries)
+	var filtered_locked: Array[ElementSkillEntry] = _apply_filter(locked_entries)
 
 	# --- Innate Section ---
 	if not innate_skills.is_empty():
@@ -116,11 +228,6 @@ func _update_skill_list(char_data: CharacterData, element_points: Dictionary) ->
 			_skill_list.add_child(row)
 
 	# --- Unlocked Section ---
-	var filtered_unlocked: Array[ElementSkillEntry] = []
-	for entry in unlocked_entries:
-		if entry.skill.id not in innate_ids:
-			filtered_unlocked.append(entry)
-
 	if not filtered_unlocked.is_empty():
 		_add_section_header("Unlocked Skills")
 		for entry in filtered_unlocked:
@@ -128,12 +235,40 @@ func _update_skill_list(char_data: CharacterData, element_points: Dictionary) ->
 			_skill_list.add_child(row)
 
 	# --- Locked Section ---
-	if not locked_entries.is_empty():
+	if not filtered_locked.is_empty():
 		_add_section_header("Locked Skills")
-		for entry in locked_entries:
-			if entry.skill.id not in innate_ids:
-				var row: PanelContainer = _build_skill_row(entry.skill, false, false, entry)
-				_skill_list.add_child(row)
+		for entry in filtered_locked:
+			var row: PanelContainer = _build_skill_row(entry.skill, false, false, entry)
+			_skill_list.add_child(row)
+
+
+func _apply_filter(entries: Array[ElementSkillEntry]) -> Array[ElementSkillEntry]:
+	var has_include: bool = false
+	for fi in range(7):
+		if _element_filters[fi] == FilterState.INCLUDE:
+			has_include = true
+			break
+
+	var result: Array[ElementSkillEntry] = []
+	for entry in entries:
+		var dominated_by_exclude: bool = false
+		var matches_include: bool = false
+
+		for elem_key in entry.required_points:
+			var elem: int = elem_key
+			if elem >= 0 and elem < 7:
+				if _element_filters[elem] == FilterState.EXCLUDE:
+					dominated_by_exclude = true
+					break
+				if _element_filters[elem] == FilterState.INCLUDE:
+					matches_include = true
+
+		if dominated_by_exclude:
+			continue
+		if has_include and not matches_include:
+			continue
+		result.append(entry)
+	return result
 
 
 func _add_section_header(text: String) -> void:
@@ -145,44 +280,52 @@ func _add_section_header(text: String) -> void:
 
 func _build_skill_row(skill: SkillData, is_unlocked: bool, is_innate: bool, entry: ElementSkillEntry) -> PanelContainer:
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(0, 36)
+	card.custom_minimum_size = Vector2(0, 28)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.12, 0.18, 0.9) if is_unlocked else Color(0.08, 0.08, 0.12, 0.7)
-	style.corner_radius_top_left = 3
-	style.corner_radius_top_right = 3
-	style.corner_radius_bottom_left = 3
-	style.corner_radius_bottom_right = 3
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	style.content_margin_top = 4
-	style.content_margin_bottom = 4
+	var is_selected: bool = (_selected_skill != null and skill.id == _selected_skill.id)
 
-	# Left border color: element color for element skills, blue for innate
-	if is_innate:
+	var style := StyleBoxFlat.new()
+	if is_selected:
+		style.bg_color = Color(0.2, 0.25, 0.4, 0.95)
+		style.border_color = Color(0.5, 0.7, 1.0)
+		style.border_width_left = 3
+		style.border_width_right = 1
+		style.border_width_top = 1
+		style.border_width_bottom = 1
+	elif is_innate:
+		style.bg_color = Color(0.12, 0.12, 0.18, 0.9)
 		style.border_color = Constants.COLOR_TEXT_EMPHASIS
 		style.border_width_left = 3
-	elif is_unlocked and entry:
-		# Use the primary element color
-		var primary_elem: int = _get_primary_element(entry)
+	elif is_unlocked:
+		var primary_elem: int = _get_primary_element(entry) if entry else 0
 		var border_col: Color = Constants.ELEMENT_COLORS.get(primary_elem, Color.WHITE)
+		style.bg_color = Color(0.12, 0.12, 0.18, 0.9)
 		style.border_color = border_col
 		style.border_width_left = 3
 	else:
+		style.bg_color = Color(0.08, 0.08, 0.12, 0.6)
 		style.border_color = Color(0.3, 0.3, 0.35)
 		style.border_width_left = 2
 
+	style.corner_radius_top_left = 2
+	style.corner_radius_top_right = 2
+	style.corner_radius_bottom_left = 2
+	style.corner_radius_bottom_right = 2
+	style.content_margin_left = 6
+	style.content_margin_right = 6
+	style.content_margin_top = 3
+	style.content_margin_bottom = 3
 	card.add_theme_stylebox_override("panel", style)
 
 	var hbox := HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
+	hbox.add_theme_constant_override("separation", 4)
 
 	# Skill icon (small)
 	if skill.icon:
 		var icon_rect := TextureRect.new()
 		icon_rect.texture = skill.icon
-		icon_rect.custom_minimum_size = Vector2(24, 24)
+		icon_rect.custom_minimum_size = Vector2(20, 20)
 		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		if not is_unlocked:
 			icon_rect.modulate = Color(0.5, 0.5, 0.5, 0.6)
@@ -193,24 +336,39 @@ func _build_skill_row(skill: SkillData, is_unlocked: bool, is_innate: bool, entr
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if is_innate:
 		name_label.text = skill.display_name
-		UIThemes.style_label(name_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_EMPHASIS)
 	elif is_unlocked:
 		name_label.text = skill.display_name
-		UIThemes.style_label(name_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_PRIMARY)
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_PRIMARY)
 	else:
 		name_label.text = skill.display_name
-		UIThemes.style_label(name_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_FADED)
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
 	hbox.add_child(name_label)
 
-	# MP cost or lock indicator
-	var info_label := Label.new()
-	if is_unlocked:
-		info_label.text = "%d MP" % skill.mp_cost if skill.mp_cost > 0 else ""
-		UIThemes.style_label(info_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
-	else:
-		info_label.text = "Locked"
-		UIThemes.style_label(info_label, Constants.FONT_SIZE_TINY, Color(0.6, 0.3, 0.3))
-	hbox.add_child(info_label)
+	# Element requirement squares (for non-innate skills)
+	if entry and not entry.required_points.is_empty():
+		for elem_key in entry.required_points:
+			var elem: int = elem_key
+			var pts: int = entry.required_points[elem_key]
+			var elem_color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+			hbox.add_child(_make_element_square(pts, elem_color, is_unlocked))
+	elif is_innate:
+		var tag := Label.new()
+		tag.text = "innate"
+		UIThemes.style_label(tag, 10, Color(0.5, 0.7, 1.0, 0.7))
+		hbox.add_child(tag)
+
+	# MP cost
+	if is_unlocked and skill.mp_cost > 0:
+		var mp_label := Label.new()
+		mp_label.text = "%d MP" % skill.mp_cost
+		UIThemes.style_label(mp_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
+		hbox.add_child(mp_label)
+	elif not is_unlocked:
+		var lock_label := Label.new()
+		lock_label.text = "Locked"
+		UIThemes.style_label(lock_label, Constants.FONT_SIZE_TINY, Color(0.6, 0.3, 0.3))
+		hbox.add_child(lock_label)
 
 	card.add_child(hbox)
 
@@ -220,12 +378,53 @@ func _build_skill_row(skill: SkillData, is_unlocked: bool, is_innate: bool, entr
 	return card
 
 
+func _make_element_square(pts: int, color: Color, is_unlocked: bool) -> PanelContainer:
+	var square := PanelContainer.new()
+	square.custom_minimum_size = Vector2(20, 20)
+	var sq_style := StyleBoxFlat.new()
+	if is_unlocked:
+		sq_style.bg_color = color.darkened(0.5)
+		sq_style.border_color = color
+	else:
+		sq_style.bg_color = color.darkened(0.7)
+		sq_style.border_color = color.darkened(0.4)
+	sq_style.border_width_left = 1
+	sq_style.border_width_right = 1
+	sq_style.border_width_top = 1
+	sq_style.border_width_bottom = 1
+	sq_style.corner_radius_top_left = 2
+	sq_style.corner_radius_top_right = 2
+	sq_style.corner_radius_bottom_left = 2
+	sq_style.corner_radius_bottom_right = 2
+	square.add_theme_stylebox_override("panel", sq_style)
+	var lbl := Label.new()
+	lbl.text = str(pts)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	if is_unlocked:
+		UIThemes.style_label(lbl, 10, color)
+	else:
+		UIThemes.style_label(lbl, 10, color.darkened(0.3))
+	square.add_child(lbl)
+	return square
+
+
 func _on_skill_row_input(event: InputEvent, skill: SkillData, entry: ElementSkillEntry, is_unlocked: bool) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_selected_skill = skill
-		_selected_entry = entry
-		_selected_unlocked = is_unlocked
-		_update_detail_panel(skill, entry, is_unlocked)
+		if _selected_skill != null and _selected_skill.id == skill.id:
+			# Deselect
+			_selected_skill = null
+			_selected_entry = null
+			_show_empty_detail()
+		else:
+			_selected_skill = skill
+			_selected_entry = entry
+			_selected_unlocked = is_unlocked
+			_update_detail_panel(skill, entry, is_unlocked)
+
+		# Rebuild list to update highlight
+		if _cached_char_data:
+			_update_skill_list(_cached_char_data, _cached_element_points)
 
 
 # === Detail Panel ===

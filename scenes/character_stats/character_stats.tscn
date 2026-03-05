@@ -171,6 +171,11 @@ text = "Inventory"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 
+[node name="ElementBar" type="HBoxContainer" parent="VBox/Content/CenterPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
 [node name="GridCentering" type="CenterContainer" parent="VBox/Content/CenterPanel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -192,9 +197,9 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
-[node name="PassivesHeader" type="Label" parent="VBox/Content/RightPanel/VBox/TopSlot"]
+[node name="SkillsHeader" type="Label" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
-text = "Unlocked Passives"
+text = "Skills"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
@@ -202,14 +207,15 @@ theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 [node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
 
-[node name="PassivesScroll" type="ScrollContainer" parent="VBox/Content/RightPanel/VBox/TopSlot"]
+[node name="SkillsScroll" type="ScrollContainer" parent="VBox/Content/RightPanel/VBox/TopSlot"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="PassivesList" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll"]
+[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4
 
 [node name="ItemTooltip" parent="VBox/Content/RightPanel/VBox/TopSlot" instance=ExtResource("5_tooltip")]
 visible = false
