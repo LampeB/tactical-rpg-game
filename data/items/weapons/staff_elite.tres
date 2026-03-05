@@ -26,5 +26,4 @@ hand_slots_required = 2
 shape = ExtResource("5_2j3wd")
 stat_modifiers = Array[ExtResource("6_k8um2")]([SubResource("Resource_3dctn")])
 magical_power = 9
-granted_skills = Array[ExtResource("2_0dv4x")]([ExtResource("1_2j3wd"), ExtResource("2_ax4cr")])
 base_price = 145

@@ -550,10 +550,7 @@ def generate_tres(weapon: dict, rarity: dict) -> str:
     if mag_power > 0:
         res_lines.append(f"magical_power = {mag_power}")
 
-    # Granted skills
-    if skill_eids:
-        skill_refs = ", ".join(f'ExtResource("{eid}")' for eid in skill_eids)
-        res_lines.append(f'granted_skills = Array[ExtResource("{eid_skill_data}")]([{skill_refs}])')
+    # NOTE: granted_skills removed — skills now come from element points system
 
     res_lines.append(f"base_price = {price}")
 

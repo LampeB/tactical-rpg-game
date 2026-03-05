@@ -25,5 +25,4 @@ hand_slots_required = 1
 armor_slot = 5
 shape = ExtResource("5_aram3")
 stat_modifiers = Array[ExtResource("3_zdfm7")]([SubResource("Resource_06mip")])
-granted_skills = Array[ExtResource("4_ezkl5")]([ExtResource("7_06bmo")])
 base_price = 82

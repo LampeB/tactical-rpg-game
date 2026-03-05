@@ -29,5 +29,4 @@ rarity = 3
 hand_slots_required = 1
 shape = ExtResource("4_nlhad")
 stat_modifiers = Array[ExtResource("5_vu3q1")]([SubResource("Resource_vu3q1"), SubResource("Resource_vq45w")])
-granted_skills = Array[ExtResource("2_nlhad")]([ExtResource("1_mks32")])
 base_price = 106

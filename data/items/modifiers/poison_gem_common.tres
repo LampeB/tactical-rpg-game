@@ -52,4 +52,5 @@ icon = ExtResource("5")
 item_type = 2
 shape = ExtResource("4")
 conditional_modifier_rules = Array[ExtResource("3")]([SubResource("Resource_kfrfu"), SubResource("Resource_i1xrh"), SubResource("Resource_pwto4")])
+element_points = { 4: 3 }
 base_price = 35

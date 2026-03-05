@@ -484,10 +484,7 @@ def generate_tres(item: dict) -> str:
     if item.get("magical_power", 0) > 0:
         res_lines.append(f"magical_power = {item['magical_power']}")
 
-    # Granted skills
-    if skill_eids:
-        skill_refs = ", ".join(f'ExtResource("{eid}")' for eid in skill_eids)
-        res_lines.append(f'granted_skills = Array[ExtResource("{eid_skill_data}")]([{skill_refs}])')
+    # NOTE: granted_skills removed — skills now come from element points system
 
     # Innate status effect
     if eid_innate_status:

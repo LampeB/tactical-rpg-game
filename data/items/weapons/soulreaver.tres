@@ -24,6 +24,5 @@ hand_slots_required = 1
 shape = ExtResource("3_tzril")
 stat_modifiers = Array[ExtResource("2_43gid")]([SubResource("Resource_ay7sd")])
 base_power = 22
-granted_skills = Array[ExtResource("5_dosbd")]([ExtResource("6_x2jbk"), ExtResource("7_7xzzg")])
 innate_lifesteal_percent = 0.15
 base_price = 520

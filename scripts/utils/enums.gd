@@ -76,6 +76,16 @@ enum DamageType {
 	MAGICAL,
 }
 
+enum Element {
+	FIRE,
+	WATER,
+	AIR,
+	EARTH,
+	PLANT,
+	LIGHT,
+	DARK,
+}
+
 # === COMBAT ===
 
 enum CombatAction {
@@ -255,4 +265,35 @@ static func get_weapon_type_name(wtype: WeaponType) -> String:
 		WeaponType.MELEE: return "Melee Weapons"
 		WeaponType.RANGED: return "Ranged Weapons"
 		WeaponType.MAGIC: return "Magic Weapons"
+	return "Unknown"
+
+
+static func get_element_name(element: Element) -> String:
+	match element:
+		Element.FIRE: return "Fire"
+		Element.WATER: return "Water"
+		Element.AIR: return "Air"
+		Element.EARTH: return "Earth"
+		Element.PLANT: return "Plant"
+		Element.LIGHT: return "Light"
+		Element.DARK: return "Dark"
+	return "Unknown"
+
+
+static func get_target_type_name(target: TargetType) -> String:
+	match target:
+		TargetType.SELF: return "Self"
+		TargetType.SINGLE_ALLY: return "Single Ally"
+		TargetType.SINGLE_ENEMY: return "Single Enemy"
+		TargetType.ALL_ALLIES: return "All Allies"
+		TargetType.ALL_ENEMIES: return "All Enemies"
+		TargetType.ALL: return "Everyone"
+	return "Unknown"
+
+
+static func get_skill_usage_name(skill_usage: SkillUsage) -> String:
+	match skill_usage:
+		SkillUsage.COMBAT: return "Combat"
+		SkillUsage.MENU: return "Overworld"
+		SkillUsage.BOTH: return "Combat & Overworld"
 	return "Unknown"

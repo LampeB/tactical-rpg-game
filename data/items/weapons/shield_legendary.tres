@@ -29,5 +29,4 @@ rarity = 4
 hand_slots_required = 1
 shape = ExtResource("4_yqi1s")
 stat_modifiers = Array[ExtResource("5_j5ge4")]([SubResource("Resource_j5ge4"), SubResource("Resource_6u6sk")])
-granted_skills = Array[ExtResource("2_yqi1s")]([ExtResource("1_u1ayc")])
 base_price = 144

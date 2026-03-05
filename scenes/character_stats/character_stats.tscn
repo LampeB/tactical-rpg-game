@@ -147,19 +147,6 @@ show_percentage = false
 [node name="HSeparator1" type="HSeparator" parent="VBox/Content/LeftPanel/VBox"]
 layout_mode = 2
 
-[node name="SkillsHeader" type="Label" parent="VBox/Content/LeftPanel/VBox"]
-layout_mode = 2
-text = "Skills"
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
-
-[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="HSeparator2" type="HSeparator" parent="VBox/Content/LeftPanel/VBox"]
-layout_mode = 2
-
 [node name="StatRows" type="VBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3

@@ -31,7 +31,6 @@ target_weapon_type = 2
 stat_bonuses = Array[ExtResource("2_ixoep")]([SubResource("Resource_fw5nb")])
 status_effect = ExtResource("3_ic3a0")
 status_effect_chance = 0.255
-granted_skills = Array[ExtResource("2_ic3a0")]([ExtResource("4_cka1w")])
 
 [sub_resource type="Resource" id="Resource_4rerv"]
 script = ExtResource("2_ixoep")
@@ -55,4 +54,5 @@ item_type = 2
 rarity = 2
 shape = ExtResource("7_17baj")
 conditional_modifier_rules = Array[ExtResource("1_nn1kw")]([SubResource("Resource_reika"), SubResource("Resource_17baj"), SubResource("Resource_l3atx")])
+element_points = { 2: 3 }
 base_price = 61

@@ -71,6 +71,10 @@ extends Resource
 ## Percentage of max HP healed on kill (0.0–1.0).
 @export var on_kill_heal_percent: float = 0.0
 
+@export_group("Element Points")
+## Element points this item contributes. Keys are Enums.Element (int), values are point amounts.
+@export var element_points: Dictionary = {}
+
 @export_group("Economy")
 @export var base_price: int = 10
 

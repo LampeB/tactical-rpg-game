@@ -31,7 +31,6 @@ shape = ExtResource("3_xvint")
 stat_modifiers = Array[ExtResource("2_cdxel")]([SubResource("Resource_237fw"), SubResource("Resource_tq4fi")])
 base_power = 18
 magical_power = 12
-granted_skills = Array[ExtResource("5_1nx0d")]([ExtResource("6_mflo4")])
 innate_status_effect = ExtResource("7_pn78f")
 innate_status_effect_chance = 0.3
 base_price = 560

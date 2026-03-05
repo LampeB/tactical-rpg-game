@@ -1,0 +1,113 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/character_skills/character_skills.gd" id="1_script"]
+
+[node name="CharacterSkills" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="BG" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.06, 0.14, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 8.0
+offset_right = -16.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="ElementBar" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HSeparator" type="HSeparator" parent="VBox"]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LeftPanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.35
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox/Content/LeftPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SkillList" type="VBoxContainer" parent="VBox/Content/LeftPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="RightPanel" type="PanelContainer" parent="VBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.65
+
+[node name="Margin" type="MarginContainer" parent="VBox/Content/RightPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="DetailVBox" type="VBoxContainer" parent="VBox/Content/RightPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DetailHeader" type="HBoxContainer" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DetailIcon" type="TextureRect" parent="VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader"]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+stretch_mode = 5
+
+[node name="DetailName" type="Label" parent="VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+
+[node name="DetailStats" type="VBoxContainer" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HSeparator2" type="HSeparator" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+
+[node name="DetailDesc" type="Label" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 3
+
+[node name="HSeparator3" type="HSeparator" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+
+[node name="DetailRequirements" type="VBoxContainer" parent="VBox/Content/RightPanel/Margin/DetailVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4

@@ -288,11 +288,7 @@ func get_tool_modifier_state(tool_placed: PlacedItem) -> ToolModifierState:
 							"crit_stacks": rule.status_crit_stacks,
 						})
 
-				# Conditional skills (no duplicates)
-				for k in range(rule.granted_skills.size()):
-					var skill: SkillData = rule.granted_skills[k]
-					if skill not in state.conditional_skills:
-						state.conditional_skills.append(skill)
+				# NOTE: granted_skills removed — skills now come from element points system
 
 				# AoE flag (any rule with force_aoe enables it)
 				if rule.force_aoe:
@@ -381,6 +377,23 @@ func get_computed_stats() -> Dictionary:
 		"stats": stats,
 		"tool_states": tool_states
 	}
+
+
+# === Element Points ===
+
+## Returns total element points from all placed MODIFIER items.
+## Keys are Enums.Element (int), values are summed point amounts.
+## Points are position-independent — gems contribute regardless of adjacency.
+func get_element_points() -> Dictionary:
+	var points: Dictionary = {}
+	for i in range(placed_items.size()):
+		var placed: PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.MODIFIER:
+			for elem_key in placed.item_data.element_points:
+				var elem: int = elem_key
+				var val: int = placed.item_data.element_points[elem_key]
+				points[elem] = points.get(elem, 0) + val
+	return points
 
 
 # === Internal Helpers ===

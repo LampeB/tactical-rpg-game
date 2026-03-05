@@ -72,6 +72,26 @@ const RARITY_COLORS := {
 	Enums.Rarity.UNIQUE: Color(0.6, 0.2, 0.8),         # Purple
 }
 
+const ELEMENT_COLORS := {
+	Enums.Element.FIRE: Color(1.0, 0.3, 0.1),
+	Enums.Element.WATER: Color(0.2, 0.5, 1.0),
+	Enums.Element.AIR: Color(0.6, 0.9, 0.3),
+	Enums.Element.EARTH: Color(0.7, 0.5, 0.2),
+	Enums.Element.PLANT: Color(0.2, 0.8, 0.3),
+	Enums.Element.LIGHT: Color(1.0, 0.95, 0.5),
+	Enums.Element.DARK: Color(0.5, 0.2, 0.7),
+}
+
+const ELEMENT_NAMES := {
+	Enums.Element.FIRE: "Fire",
+	Enums.Element.WATER: "Water",
+	Enums.Element.AIR: "Air",
+	Enums.Element.EARTH: "Earth",
+	Enums.Element.PLANT: "Plant",
+	Enums.Element.LIGHT: "Light",
+	Enums.Element.DARK: "Dark",
+}
+
 const RARITY_NAMES := {
 	Enums.Rarity.COMMON: "Common",
 	Enums.Rarity.UNCOMMON: "Uncommon",

@@ -29,6 +29,5 @@ hand_slots_required = 1
 armor_slot = 5
 shape = ExtResource("3_xfwt1")
 stat_modifiers = Array[ExtResource("2_jldkf")]([SubResource("Resource_woc1b"), SubResource("Resource_5jb7v")])
-granted_skills = Array[ExtResource("5_8ro0i")]([ExtResource("6_4wpfj")])
 granted_effects = Array[String](["auto_revive"])
 base_price = 500

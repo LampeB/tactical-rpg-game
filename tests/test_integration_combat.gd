@@ -716,33 +716,34 @@ func test_melee_vs_magic_magical_damage_differs() -> void:
 
 	add_success(test_name)
 
-func test_fire_gem_staff_grants_skill() -> void:
-	var test_name := "Fire gem + staff grants Fire Bolt skill"
+func test_fire_gem_element_points_unlock_skill() -> void:
+	var test_name := "Fire gem element points unlock Fire Bolt via element system"
 
 	var fire_gem: ItemData = load("res://data/items/modifiers/fire_gem_common.tres")
 	if not fire_gem:
 		add_failure(test_name, "Failed to load fire gem")
 		return
 
-	var magic_rule: ConditionalModifierRule = null
+	if fire_gem.element_points.is_empty():
+		add_failure(test_name, "Fire gem has no element points")
+		return
 
-	for i in range(fire_gem.conditional_modifier_rules.size()):
-		var rule: ConditionalModifierRule = fire_gem.conditional_modifier_rules[i]
-		if rule.target_weapon_type == Enums.WeaponType.MAGIC:
-			magic_rule = rule
+	# Fire gem should have FIRE (0) points
+	var fire_pts: int = fire_gem.element_points.get(Enums.Element.FIRE, 0)
+	if fire_pts <= 0:
+		add_failure(test_name, "Fire gem has no FIRE element points")
+		return
+
+	# With enough fire points, Fire Bolt should be unlocked
+	var unlocked: Array[SkillData] = ElementSkillSystem.get_unlocked_skills(fire_gem.element_points)
+	var has_fire_bolt: bool = false
+	for skill in unlocked:
+		if "fire" in skill.id.to_lower():
+			has_fire_bolt = true
 			break
 
-	if not magic_rule:
-		add_failure(test_name, "Missing magic rule")
-		return
-
-	if magic_rule.granted_skills.is_empty():
-		add_failure(test_name, "Magic rule grants no skills")
-		return
-
-	var skill: SkillData = magic_rule.granted_skills[0]
-	if "fire" not in skill.id.to_lower() and "bolt" not in skill.id.to_lower():
-		add_failure(test_name, "Skill doesn't appear to be Fire Bolt: %s" % skill.id)
+	if not has_fire_bolt:
+		add_failure(test_name, "Fire Bolt not unlocked with %d FIRE points" % fire_pts)
 		return
 
 	add_success(test_name)
