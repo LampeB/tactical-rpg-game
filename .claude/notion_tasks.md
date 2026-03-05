@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 163 -->
+<\!-- Total tasks: 173 -->
 <\!-- Last updated: 2026-03-04 -->
 
 ## Prerequisites
@@ -49,6 +49,7 @@
 | Name | Notion ID |
 |---|---|
 | Create enemy variety (15-20 types with unique skills, bosses) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
+| Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
@@ -70,11 +71,6 @@
 
 ## Items
 
-### In Progress
-| Name | Notion ID |
-|---|---|
-| In-game backpack tier editor (visual grid editor for designers) | 3197700f-d0fb-8124-9842-e3065f25a15f |
-
 ### Todo
 | Name | Notion ID |
 |---|---|
@@ -95,6 +91,7 @@
 | Display current backpack tier on inventory screen | 3197700f-d0fb-8178-a211-efdfadb30b57 |
 | Escalating Spatial Rune cost per backpack tier | 3197700f-d0fb-81a9-b074-eb3cd5e7da38 |
 | Expand backpack tiers to 10 with growing shapes | 3197700f-d0fb-815f-b03e-c9829e725cee |
+| In-game backpack tier editor (visual grid editor for designers) | 3197700f-d0fb-8124-9842-e3065f25a15f |
 | Balance item stats across all tiers | 3147700f-d0fb-81ab-9b39-f75c2f232060 |
 | Block percentage property for weapons | 3147700f-d0fb-81c7-950b-f01963d9df36 |
 | Custom modifier reach patterns for gems | 3147700f-d0fb-818a-b7eb-e2ab083a4726 |
@@ -122,7 +119,11 @@
 | Name | Notion ID |
 |---|---|
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
+| Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
 | Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
+| Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
+| Shadow quality setting in graphics options (off/low/medium/high) | 31a7700f-d0fb-81e6-8234-ffbe8e29cc12 |
+| UI scale option in settings | 31a7700f-d0fb-8119-8d48-fe49d5aa3000 |
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
 | Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
@@ -136,6 +137,7 @@
 | Auto-fill ingredients in crafting recipes | 3187700f-d0fb-81df-bb9d-f87b59bec21c |
 | Highlight matching inventory/stash items when hovering a recipe ingredient | 3187700f-d0fb-814c-b7b4-c76366ceb13c |
 | Quick indicator showing if player can craft a recipe (has all ingredients) | 3187700f-d0fb-810f-bea5-f407af15a305 |
+| Scale inventory grid UI to support 25x25 backpack sizes | 3197700f-d0fb-81d7-ab44-f163e6492f40 |
 | Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
 | Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
 | Cascading parse error from misaligned indentation in item_ | 3147700f-d0fb-81da-a238-da97d9ce20ed |
@@ -164,12 +166,14 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
+| Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
 | Name | Notion ID |
@@ -233,8 +237,11 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
+| Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
+| In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
 | Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
 
 ### Done

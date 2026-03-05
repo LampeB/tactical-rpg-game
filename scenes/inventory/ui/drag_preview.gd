@@ -1,7 +1,7 @@
 extends Control
 ## Floating ghost preview that follows the mouse while dragging an item.
 
-const CELL_SIZE: int = Constants.GRID_CELL_SIZE
+var cell_size: int = Constants.GRID_CELL_SIZE  ## Synced from GridPanel on drag start.
 
 var item_data: ItemData
 var current_rotation: int = 0
@@ -94,13 +94,13 @@ func _rebuild_shape() -> void:
 		max_pos.x = maxi(max_pos.x, cell.x)
 		max_pos.y = maxi(max_pos.y, cell.y)
 
-	var bbox_size: Vector2 = Vector2((max_pos.x - min_pos.x + 1) * CELL_SIZE, (max_pos.y - min_pos.y + 1) * CELL_SIZE)
-	_center_offset_px = Vector2(_anchor_cell) * CELL_SIZE + Vector2(CELL_SIZE / 2.0, CELL_SIZE / 2.0)
+	var bbox_size: Vector2 = Vector2((max_pos.x - min_pos.x + 1) * cell_size, (max_pos.y - min_pos.y + 1) * cell_size)
+	_center_offset_px = Vector2(_anchor_cell) * cell_size + Vector2(cell_size / 2.0, cell_size / 2.0)
 
 	# Position icon to cover bounding box — set expand mode before texture
 	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_icon.position = Vector2(min_pos.x * CELL_SIZE, min_pos.y * CELL_SIZE)
+	_icon.position = Vector2(min_pos.x * cell_size, min_pos.y * cell_size)
 	_icon.size = bbox_size
 	_icon.pivot_offset = bbox_size / 2.0
 	_icon.rotation = current_rotation * PI / 2.0
@@ -109,17 +109,18 @@ func _rebuild_shape() -> void:
 	var rarity_color: Color = Constants.RARITY_COLORS.get(item_data.rarity, Color.WHITE)
 	for cell in cells:
 		var panel: PanelContainer = PanelContainer.new()
-		panel.position = Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
-		panel.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		panel.position = Vector2(cell.x * cell_size, cell.y * cell_size)
+		panel.custom_minimum_size = Vector2(cell_size, cell_size)
 		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		var style: StyleBoxFlat = StyleBoxFlat.new()
 		style.bg_color = Color.TRANSPARENT
 		style.border_color = rarity_color
-		style.border_width_left = 2 if not cells.has(cell + Vector2i(-1, 0)) else 0
-		style.border_width_right = 2 if not cells.has(cell + Vector2i(1, 0)) else 0
-		style.border_width_top = 2 if not cells.has(cell + Vector2i(0, -1)) else 0
-		style.border_width_bottom = 2 if not cells.has(cell + Vector2i(0, 1)) else 0
+		var bw: int = maxi(1, cell_size / 24)
+		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0
+		style.border_width_right = bw if not cells.has(cell + Vector2i(1, 0)) else 0
+		style.border_width_top = bw if not cells.has(cell + Vector2i(0, -1)) else 0
+		style.border_width_bottom = bw if not cells.has(cell + Vector2i(0, 1)) else 0
 		panel.add_theme_stylebox_override("panel", style)
 
 		_shape_container.add_child(panel)

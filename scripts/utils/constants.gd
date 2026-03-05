@@ -2,7 +2,7 @@ class_name Constants
 ## Central constants and magic numbers for the game.
 
 # === GRID ===
-const GRID_CELL_SIZE := 48          ## Pixel size of one inventory cell
+const GRID_CELL_SIZE := 25          ## Pixel size of one inventory cell
 const GRID_MAX_WIDTH := 12          ## Maximum grid width
 const GRID_MAX_HEIGHT := 12         ## Maximum grid height
 

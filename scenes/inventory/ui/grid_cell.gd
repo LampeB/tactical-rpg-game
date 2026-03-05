@@ -1,5 +1,5 @@
 extends Control
-## A single 48x48 inventory grid cell with state-driven coloring.
+## A single inventory grid cell with state-driven coloring. Size set by Constants.GRID_CELL_SIZE.
 
 enum CellState {
 	EMPTY,
@@ -42,6 +42,12 @@ var cell_state: CellState = CellState.EMPTY
 
 @onready var _background: ColorRect = $Background
 @onready var _border: ColorRect = $Border
+
+
+func _ready() -> void:
+	var sz := Vector2(Constants.GRID_CELL_SIZE, Constants.GRID_CELL_SIZE)
+	custom_minimum_size = sz
+	size = sz
 
 
 func setup(pos: Vector2i) -> void:

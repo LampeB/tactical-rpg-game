@@ -4,7 +4,7 @@ extends Control
 ## Left-click a cell to raise its tier, right-click to lower it.
 
 const GRID_SIZE := 25
-const CELL_PX := 24
+const CELL_PX := 36
 const SYMBOLS: Array[String] = [
 	"x", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a",
 ]
@@ -22,13 +22,7 @@ const SYMBOL_COLORS: Dictionary = {
 	"9": Color(0.5, 0.1, 0.7, 0.9),
 	"a": Color(0.3, 0.1, 0.8, 0.9),
 }
-const SYMBOL_TO_TIER: Dictionary = {
-	"0": 0, "1": 0,
-	"2": 1, "3": 2, "4": 3, "5": 4, "6": 5,
-	"7": 6, "8": 7, "9": 8, "a": 9,
-}
 const TIER_DIR := "res://data/backpack_tiers/"
-const SCRIPT_PATH := "res://scripts/resources/backpack_tier_config.gd"
 
 var _matrix: Array = []  # Array[Array[String]] — 25x25
 var _cell_panels: Dictionary = {}  # Vector2i -> PanelContainer
@@ -129,7 +123,7 @@ func _build_ui() -> void:
 		return a_char.display_name < b_char.display_name
 	)
 	for character: CharacterData in characters:
-		if character.backpack_tiers.is_empty():
+		if not character.backpack_data:
 			continue
 		var btn := Button.new()
 		btn.text = character.display_name
@@ -234,6 +228,7 @@ func _build_grid_cells() -> void:
 			panel.custom_minimum_size = Vector2(CELL_PX, CELL_PX)
 			panel.position = Vector2(grid_x * CELL_PX, grid_y * CELL_PX)
 			panel.size = Vector2(CELL_PX, CELL_PX)
+			panel.clip_contents = true
 			panel.mouse_filter = Control.MOUSE_FILTER_STOP
 
 			var style := StyleBoxFlat.new()
@@ -247,8 +242,9 @@ func _build_grid_cells() -> void:
 			lbl.text = "x"
 			lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			lbl.anchors_preset = Control.PRESET_FULL_RECT
 			lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			lbl.add_theme_font_size_override("font_size", 10)
+			lbl.add_theme_font_size_override("font_size", 9)
 			lbl.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
 			panel.add_child(lbl)
 
@@ -272,24 +268,20 @@ func _init_matrix() -> void:
 
 func _load_from_character(char_id: String) -> void:
 	var character: CharacterData = CharacterDatabase.get_character(char_id)
-	if not character:
+	if not character or not character.backpack_data:
+		_init_matrix()
+		_refresh_all_cells()
+		_update_stats()
 		return
 	_init_matrix()
-	for config: BackpackTierConfig in character.backpack_tiers:
-		var tier_idx: int = config.tier_index
-		for cell_i in range(config.new_cells.size()):
-			var cell: Vector2i = config.new_cells[cell_i]
-			if cell.x < 0 or cell.x >= GRID_SIZE or cell.y < 0 or cell.y >= GRID_SIZE:
-				continue
-			if tier_idx == 0:
-				if cell_i < config.auto_unlock_count:
-					_matrix[cell.y][cell.x] = "0"
-				else:
-					_matrix[cell.y][cell.x] = "1"
-			elif tier_idx >= 1 and tier_idx <= 8:
-				_matrix[cell.y][cell.x] = str(tier_idx + 1)
-			elif tier_idx == 9:
-				_matrix[cell.y][cell.x] = "a"
+	var bd: BackpackData = character.backpack_data
+	for y in range(GRID_SIZE):
+		for x in range(GRID_SIZE):
+			var val: int = bd.cell_tiers[y * GRID_SIZE + x]
+			if val >= 0 and val < SYMBOLS.size() - 1:
+				_matrix[y][x] = SYMBOLS[val + 1]  # 0→"0", 1→"1", ..., 10→"a"
+			else:
+				_matrix[y][x] = "x"
 	_refresh_all_cells()
 	_update_stats()
 
@@ -422,94 +414,80 @@ func _save_character(char_id: String) -> void:
 	if not character:
 		return
 
-	# Group cells by tier from matrix
-	var tier_cells: Dictionary = {}  # tier_index -> {"auto": Array[Vector2i], "purchasable": Array[Vector2i]}
-	for t in range(10):
-		tier_cells[t] = {"auto": [] as Array[Vector2i], "purchasable": [] as Array[Vector2i]}
+	# Build or update BackpackData
+	var bd: BackpackData = character.backpack_data
+	if not bd:
+		bd = BackpackData.new()
+		character.backpack_data = bd
 
-	for row_y in range(GRID_SIZE):
-		for col_x in range(GRID_SIZE):
-			var sym: String = _matrix[row_y][col_x]
-			if sym == "x":
-				continue
-			var pos := Vector2i(col_x, row_y)
-			if sym == "0":
-				tier_cells[0]["auto"].append(pos)
-			elif sym == "1":
-				tier_cells[0]["purchasable"].append(pos)
+	# Write the grid from matrix
+	var grid := PackedInt32Array()
+	grid.resize(GRID_SIZE * GRID_SIZE)
+	for y in range(GRID_SIZE):
+		for x in range(GRID_SIZE):
+			var sym: String = _matrix[y][x]
+			var sym_idx: int = SYMBOLS.find(sym)
+			if sym_idx <= 0:
+				grid[y * GRID_SIZE + x] = -1  # "x" or unknown → void
 			else:
-				var matched_tier: int = SYMBOL_TO_TIER.get(sym, -1)
-				if matched_tier >= 0:
-					tier_cells[matched_tier]["purchasable"].append(pos)
+				grid[y * GRID_SIZE + x] = sym_idx - 1  # "0"→0, "1"→1, ..., "a"→10
+	bd.cell_tiers = grid
 
-	# Build and save configs
-	var tier_script: Script = load(SCRIPT_PATH)
+	# Preserve existing tier metadata; fill defaults for missing tiers
+	var names := PackedStringArray()
+	var gold := PackedInt32Array()
+	var runes := PackedInt32Array()
+	var costs: Array = []
 	for tier_idx in range(10):
-		var data: Dictionary = tier_cells[tier_idx]
-		var auto_cells: Array[Vector2i] = data["auto"]
-		var purchasable_cells: Array[Vector2i] = data["purchasable"]
-		var new_cells: Array[Vector2i] = []
-		new_cells.append_array(auto_cells)
-		new_cells.append_array(purchasable_cells)
-		var auto_count: int = auto_cells.size()
-		var purchasable_count: int = purchasable_cells.size()
-
-		# Get existing config for metadata (display_name, costs, etc.)
-		var existing: BackpackTierConfig = null
-		if tier_idx < character.backpack_tiers.size():
-			existing = character.backpack_tiers[tier_idx]
-
-		var config := BackpackTierConfig.new()
-		config.set_script(tier_script)
-		config.tier_index = tier_idx
-		config.auto_unlock_count = auto_count
-
-		if existing:
-			config.display_name = existing.display_name
-			config.unlock_gold_cost = existing.unlock_gold_cost
-			config.unlock_rune_count = existing.unlock_rune_count
+		if tier_idx < bd.tier_names.size():
+			names.append(bd.tier_names[tier_idx])
 		else:
-			config.display_name = "Tier %d" % (tier_idx + 1)
-			config.unlock_gold_cost = 0
-			config.unlock_rune_count = tier_idx
+			names.append("Tier %d" % (tier_idx + 1))
+		if tier_idx < bd.tier_unlock_gold.size():
+			gold.append(bd.tier_unlock_gold[tier_idx])
+		else:
+			gold.append(0)
+		if tier_idx < bd.tier_unlock_runes.size():
+			runes.append(bd.tier_unlock_runes[tier_idx])
+		else:
+			runes.append(tier_idx)
 
-		config.new_cells = new_cells
-
-		# Rebuild cell_costs array
-		var cell_costs: Array[int] = []
-		if existing and purchasable_count > 0:
-			var old_costs: Array[int] = existing.cell_costs
-			for ci in range(purchasable_count):
-				if ci < old_costs.size():
-					cell_costs.append(old_costs[ci])
-				elif not old_costs.is_empty():
-					cell_costs.append(old_costs[old_costs.size() - 1])
+		# Count purchasable cells for this tier to maintain cell_costs length
+		var purchasable_count := 0
+		for y in range(GRID_SIZE):
+			for x in range(GRID_SIZE):
+				var val: int = grid[y * GRID_SIZE + x]
+				if tier_idx == 0:
+					if val == 1:
+						purchasable_count += 1
 				else:
-					cell_costs.append(50)
-		elif purchasable_count > 0:
-			for _ci in range(purchasable_count):
-				cell_costs.append(50)
-		config.cell_costs = cell_costs
+					if val == tier_idx + 1:
+						purchasable_count += 1
 
-		var filename: String = "%s_tier%d.tres" % [char_id, tier_idx + 1]
-		var save_path: String = TIER_DIR + filename
-		var err: int = ResourceSaver.save(config, save_path)
-		if err != OK:
-			push_warning("Failed to save %s (error %d)" % [save_path, err])
+		var old_costs: Array[int] = []
+		if tier_idx < bd.tier_cell_costs.size():
+			old_costs.assign(bd.tier_cell_costs[tier_idx])
+		var new_costs: Array[int] = []
+		for ci in range(purchasable_count):
+			if ci < old_costs.size():
+				new_costs.append(old_costs[ci])
+			elif not old_costs.is_empty():
+				new_costs.append(old_costs[old_costs.size() - 1])
+			else:
+				new_costs.append(50)
+		costs.append(new_costs)
 
-	# Reload character tiers from disk
-	_reload_character_tiers(character)
+	bd.tier_names = names
+	bd.tier_unlock_gold = gold
+	bd.tier_unlock_runes = runes
+	bd.tier_cell_costs = costs
+	bd.invalidate_cache()
 
-
-func _reload_character_tiers(character: CharacterData) -> void:
-	var tiers: Array[BackpackTierConfig] = []
-	for tier_idx in range(10):
-		var filename: String = "%s_tier%d.tres" % [character.id, tier_idx + 1]
-		var path: String = TIER_DIR + filename
-		var config: BackpackTierConfig = load(path) as BackpackTierConfig
-		if config:
-			tiers.append(config)
-	character.backpack_tiers.assign(tiers)
+	# Save the single BackpackData file
+	var save_path: String = TIER_DIR + char_id + ".tres"
+	var err: int = ResourceSaver.save(bd, save_path)
+	if err != OK:
+		push_warning("Failed to save %s (error %d)" % [save_path, err])
 
 
 # ── Navigation ───────────────────────────────────────────────────────

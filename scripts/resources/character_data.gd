@@ -21,11 +21,18 @@ extends Resource
 @export var magical_defense: int = 10
 
 @export_group("Inventory")
-## The grid template this character uses for inventory (fallback when backpack_tiers is empty).
+## The grid template this character uses for inventory (fallback when backpack_data is null).
 @export var grid_template: GridTemplate
-## Ordered array of BackpackTierConfig (index 0 = Tier 1 … index 5 = Tier 6).
-## When populated, this drives inventory size instead of grid_template directly.
-@export var backpack_tiers: Array[BackpackTierConfig] = []
+## Single-file backpack layout. Contains the 25×25 grid + per-tier metadata.
+@export var backpack_data: BackpackData
+
+## Computed getter — generates BackpackTierConfig objects from backpack_data.
+## All runtime code accesses tiers through this property.
+var backpack_tiers: Array[BackpackTierConfig]:
+	get:
+		if backpack_data:
+			return backpack_data.get_tier_configs()
+		return []
 
 @export_group("Passive Tree")
 ## Node IDs in the unified skill tree where this character can start unlocking.
