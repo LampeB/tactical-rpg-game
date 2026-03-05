@@ -1,17 +1,17 @@
 extends Control
-## Unified character hub. Combines Stats and Skills views
+## Unified character hub. Combines Stats, Passives, and Skills views
 ## into one screen with shared character tabs and view switching.
 ## Stats view includes the inventory grid and stash.
 
-enum ViewType { STATS, SKILLS, ABILITIES }
+enum ViewType { STATS, PASSIVES, SKILLS }
 
 @onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
 @onready var _character_tabs: HBoxContainer = $VBox/CharacterTabs
 @onready var _stats_tab: Button = $VBox/ViewTabs/StatsTab
-@onready var _skills_tab: Button = $VBox/ViewTabs/SkillsTab
-@onready var _abilities_tab: Button = $VBox/ViewTabs/AbilitiesTab
+@onready var _passives_tab: Button = $VBox/ViewTabs/SkillsTab
+@onready var _skills_tab: Button = $VBox/ViewTabs/AbilitiesTab
 @onready var _view_container: Control = $VBox/ViewContainer
 
 var _current_character_id: String = ""
@@ -19,19 +19,19 @@ var _current_view: ViewType = ViewType.STATS
 
 # Sub-scene instances
 var _stats_view: Control = null
+var _passives_view: Control = null
 var _skills_view: Control = null
-var _abilities_view: Control = null
 
 # Track which views need a character refresh when shown
-var _dirty_views: Dictionary = {ViewType.STATS: false, ViewType.SKILLS: false, ViewType.ABILITIES: false}
+var _dirty_views: Dictionary = {ViewType.STATS: false, ViewType.PASSIVES: false, ViewType.SKILLS: false}
 
 
 func _ready() -> void:
 	_bg.color = UIColors.BG_CHARACTER_HUB
 	_back_btn.pressed.connect(_on_back)
 	_stats_tab.pressed.connect(_on_view_tab.bind(ViewType.STATS))
+	_passives_tab.pressed.connect(_on_view_tab.bind(ViewType.PASSIVES))
 	_skills_tab.pressed.connect(_on_view_tab.bind(ViewType.SKILLS))
-	_abilities_tab.pressed.connect(_on_view_tab.bind(ViewType.ABILITIES))
 
 	# Character tabs
 	if GameManager.party:
@@ -48,8 +48,8 @@ func _ready() -> void:
 
 	# Instance sub-scenes
 	_stats_view = _instance_view("res://scenes/character_stats/character_stats.tscn")
-	_skills_view = _instance_view("res://scenes/passive_tree/passive_tree.tscn")
-	_abilities_view = _instance_view("res://scenes/character_skills/character_skills.tscn")
+	_passives_view = _instance_view("res://scenes/passive_tree/passive_tree.tscn")
+	_skills_view = _instance_view("res://scenes/character_skills/character_skills.tscn")
 
 	# Select first character and show stats view
 	if GameManager.party and not GameManager.party.squad.is_empty():
@@ -65,8 +65,8 @@ func _ready() -> void:
 func _setup_views() -> void:
 	if not _current_character_id.is_empty():
 		_stats_view.setup_embedded(_current_character_id)
+		_passives_view.setup_embedded(_current_character_id)
 		_skills_view.setup_embedded(_current_character_id)
-		_abilities_view.setup_embedded(_current_character_id)
 	_switch_view(ViewType.STATS)
 	TutorialManager.show_tutorial("first_inventory")
 
@@ -96,14 +96,14 @@ func _switch_view(view_name: ViewType) -> void:
 	_current_view = view_name
 
 	_stats_view.visible = (view_name == ViewType.STATS)
+	_passives_view.visible = (view_name == ViewType.PASSIVES)
 	_skills_view.visible = (view_name == ViewType.SKILLS)
-	_abilities_view.visible = (view_name == ViewType.ABILITIES)
 
 	_stats_tab.button_pressed = (view_name == ViewType.STATS)
+	_passives_tab.button_pressed = (view_name == ViewType.PASSIVES)
 	_skills_tab.button_pressed = (view_name == ViewType.SKILLS)
-	_abilities_tab.button_pressed = (view_name == ViewType.ABILITIES)
 
-	if view_name == ViewType.SKILLS:
+	if view_name == ViewType.PASSIVES:
 		TutorialManager.show_tutorial("first_skill_tree")
 
 	# Refresh the view if it was marked dirty
@@ -115,8 +115,8 @@ func _switch_view(view_name: ViewType) -> void:
 func _get_view(view_name: ViewType) -> Control:
 	match view_name:
 		ViewType.STATS: return _stats_view
+		ViewType.PASSIVES: return _passives_view
 		ViewType.SKILLS: return _skills_view
-		ViewType.ABILITIES: return _abilities_view
 	return _stats_view
 
 
@@ -129,7 +129,7 @@ func _on_character_selected(character_id: String) -> void:
 	_get_view(_current_view).setup_embedded(character_id)
 
 	# Mark other views as dirty so they refresh when shown
-	for view_name in [ViewType.STATS, ViewType.SKILLS]:
+	for view_name in [ViewType.STATS, ViewType.PASSIVES, ViewType.SKILLS]:
 		if view_name != _current_view:
 			_dirty_views[view_name] = true
 
@@ -145,17 +145,17 @@ func _on_data_changed(_arg1: Variant, _arg2: Variant, dirty_view: ViewType) -> v
 
 
 func _on_data_changed_any(_character_id: String) -> void:
-	## Inventory changed — stats and abilities views need refresh.
+	## Inventory changed — stats and skills views need refresh.
 	if not _current_character_id.is_empty():
 		if _current_view == ViewType.STATS:
 			_stats_view.setup_embedded(_current_character_id)
-			_dirty_views[ViewType.ABILITIES] = true
-		elif _current_view == ViewType.ABILITIES:
-			_abilities_view.setup_embedded(_current_character_id)
+			_dirty_views[ViewType.SKILLS] = true
+		elif _current_view == ViewType.SKILLS:
+			_skills_view.setup_embedded(_current_character_id)
 			_dirty_views[ViewType.STATS] = true
 		else:
 			_dirty_views[ViewType.STATS] = true
-			_dirty_views[ViewType.ABILITIES] = true
+			_dirty_views[ViewType.SKILLS] = true
 
 
 # === Navigation ===
