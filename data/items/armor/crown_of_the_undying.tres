@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_wb1o4"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_7e3c3"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_xe2cl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/helmet_unique.png" id="4_bgog9"]
+
+[sub_resource type="Resource" id="Resource_e6v84"]
+script = ExtResource("2_7e3c3")
+stat = 0
+value = 25.0
+
+[sub_resource type="Resource" id="Resource_3d37d"]
+script = ExtResource("2_7e3c3")
+stat = 5
+value = 5.0
+
+[resource]
+script = ExtResource("1_wb1o4")
+id = "crown_of_the_undying"
+display_name = "Crown of the Undying"
+description = "A crown of bone and blackened iron. Each kill feeds the wearer's shield with stolen vitality."
+icon = ExtResource("4_bgog9")
+item_type = 1
+category = 7
+rarity = 5
+armor_slot = 7
+shape = ExtResource("3_xe2cl")
+stat_modifiers = Array[ExtResource("2_7e3c3")]([SubResource("Resource_e6v84"), SubResource("Resource_3d37d")])
+granted_effects = Array[String](["damage_shield_on_kill"])
+base_price = 400

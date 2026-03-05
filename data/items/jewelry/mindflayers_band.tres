@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_vx03t"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_ne1om"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_g27ar"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_unique.png" id="4_wpklz"]
+
+[sub_resource type="Resource" id="Resource_xo1ow"]
+script = ExtResource("2_ne1om")
+stat = 1
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_63ftj"]
+script = ExtResource("2_ne1om")
+stat = 6
+value = 5.0
+
+[resource]
+script = ExtResource("1_vx03t")
+id = "mindflayers_band"
+display_name = "Mindflayer's Band"
+description = "A tentacled ring of alien metal. It drains magical essence from the fallen."
+icon = ExtResource("4_wpklz")
+item_type = 1
+category = 13
+rarity = 5
+armor_slot = 13
+shape = ExtResource("3_g27ar")
+stat_modifiers = Array[ExtResource("2_ne1om")]([SubResource("Resource_xo1ow"), SubResource("Resource_63ftj")])
+granted_effects = Array[String](["mp_on_kill"])
+base_price = 380

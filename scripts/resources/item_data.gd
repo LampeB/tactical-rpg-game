@@ -57,6 +57,20 @@ extends Resource
 ## For consumables: the skill triggered on use.
 @export var use_skill: SkillData
 
+@export_group("Legendary Effects")
+## PassiveEffects string IDs granted by this item (merged into CombatEntity at battle start).
+@export var granted_effects: Array[String] = []
+## Number of extra hits on basic attack (each deals extra_hit_damage_fraction of normal damage).
+@export var extra_hit_count: int = 0
+## Damage fraction for each extra hit (0.0–1.0).
+@export var extra_hit_damage_fraction: float = 0.5
+## If true, basic attacks from this weapon always splash to all enemies.
+@export var innate_force_aoe: bool = false
+## Percentage of damage healed on each hit (0.0–1.0).
+@export var innate_lifesteal_percent: float = 0.0
+## Percentage of max HP healed on kill (0.0–1.0).
+@export var on_kill_heal_percent: float = 0.0
+
 @export_group("Economy")
 @export var base_price: int = 10
 

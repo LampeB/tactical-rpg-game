@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_ml199"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_9thdm"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x4.tres" id="3_llxnv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_unique.png" id="4_a1zk7"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_07tpp"]
+[ext_resource type="Resource" path="res://data/skills/chain_lightning.tres" id="6_8y6oq"]
+[ext_resource type="Resource" path="res://data/status_effects/shocked.tres" id="7_wlsiz"]
+
+[sub_resource type="Resource" id="Resource_szfo6"]
+script = ExtResource("2_9thdm")
+stat = 6
+value = 20.0
+
+[resource]
+script = ExtResource("1_ml199")
+id = "stormcaller"
+display_name = "Stormcaller"
+description = "A staff crackling with captured lightning. Every strike arcs to all foes, and it commands the storm itself."
+icon = ExtResource("4_a1zk7")
+category = 3
+rarity = 5
+hand_slots_required = 2
+shape = ExtResource("3_llxnv")
+stat_modifiers = Array[ExtResource("2_9thdm")]([SubResource("Resource_szfo6")])
+magical_power = 28
+granted_skills = Array[ExtResource("5_07tpp")]([ExtResource("6_8y6oq")])
+innate_status_effect = ExtResource("7_wlsiz")
+innate_status_effect_chance = 0.4
+innate_force_aoe = true
+base_price = 600

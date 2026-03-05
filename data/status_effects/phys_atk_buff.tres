@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/status_effect_data.gd" id="1_sed"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_sm"]
+
+[sub_resource type="Resource" id="Resource_atkmod"]
+script = ExtResource("2_sm")
+stat = 4
+value = 8.0
+
+[resource]
+script = ExtResource("1_sed")
+id = "phys_atk_buff"
+display_name = "Battle Fury"
+description = "Physical Attack increased by 8."
+category = 2
+duration = 3
+stat_modifiers = Array[ExtResource("2_sm")]([SubResource("Resource_atkmod")])

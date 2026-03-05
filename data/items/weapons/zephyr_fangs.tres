@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_p8v4a"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_rov1v"]
+[ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3_l8iq4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_unique.png" id="4_8m1xl"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_6rs5n"]
+[ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="6_3v02b"]
+
+[sub_resource type="Resource" id="Resource_9fngc"]
+script = ExtResource("2_rov1v")
+stat = 4
+value = 12.0
+
+[sub_resource type="Resource" id="Resource_921cl"]
+script = ExtResource("2_rov1v")
+stat = 2
+value = 10.0
+
+[resource]
+script = ExtResource("1_p8v4a")
+id = "zephyr_fangs"
+display_name = "Zephyr Fangs"
+description = "Twin daggers forged from wind-touched steel. They bite twice more after each strike."
+icon = ExtResource("4_8m1xl")
+category = 4
+rarity = 5
+hand_slots_required = 1
+shape = ExtResource("3_l8iq4")
+stat_modifiers = Array[ExtResource("2_rov1v")]([SubResource("Resource_9fngc"), SubResource("Resource_921cl")])
+base_power = 14
+granted_skills = Array[ExtResource("5_6rs5n")]([ExtResource("6_3v02b")])
+extra_hit_count = 2
+extra_hit_damage_fraction = 0.4
+base_price = 500

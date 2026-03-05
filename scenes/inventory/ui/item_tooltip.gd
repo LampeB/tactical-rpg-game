@@ -160,6 +160,30 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 					var skill: SkillData = state.conditional_skills[sk]
 					_add_modifier_label("%sGrants: %s" % [indent, skill.display_name], Color(0.6, 1.0, 0.6))
 
+	# Legendary effects section
+	var has_legendary: bool = not item.granted_effects.is_empty() \
+		or item.extra_hit_count > 0 \
+		or item.innate_force_aoe \
+		or item.innate_lifesteal_percent > 0.0 \
+		or item.on_kill_heal_percent > 0.0
+	if has_legendary:
+		_modifier_section.visible = true
+		var legend_color := Color(1.0, 0.84, 0.0)
+		_add_header_label("Legendary Effect:", legend_color)
+		for eff in item.granted_effects:
+			_add_modifier_label("  " + PassiveEffects.get_description(eff), legend_color)
+		if item.extra_hit_count > 0:
+			var pct: int = int(item.extra_hit_damage_fraction * 100)
+			_add_modifier_label("  +%d extra hit(s) at %d%% damage" % [item.extra_hit_count, pct], legend_color)
+		if item.innate_force_aoe:
+			_add_modifier_label("  Attacks hit all enemies", legend_color)
+		if item.innate_lifesteal_percent > 0.0:
+			var ls_pct: int = int(item.innate_lifesteal_percent * 100)
+			_add_modifier_label("  Lifesteal: heal %d%% of damage dealt" % ls_pct, legend_color)
+		if item.on_kill_heal_percent > 0.0:
+			var heal_pct: int = int(item.on_kill_heal_percent * 100)
+			_add_modifier_label("  On kill: heal %d%% of max HP" % heal_pct, legend_color)
+
 	# Description
 	_description_label.text = item.description
 	_description_label.visible = not item.description.is_empty()

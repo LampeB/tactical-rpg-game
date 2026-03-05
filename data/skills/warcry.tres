@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/status_effects/phys_atk_buff.tres" id="2_buff"]
+
+[resource]
+script = ExtResource("1")
+id = "warcry"
+display_name = "Warcry"
+description = "A thunderous battle cry that empowers all allies, boosting their Physical Attack for 3 turns."
+usage = 0
+mp_cost = 8
+cooldown_turns = 3
+target_type = 3
+physical_scaling = 0.0
+magical_scaling = 0.0
+applied_statuses = Array[ExtResource("2_buff")]([ExtResource("2_buff")])
+heal_amount = 0
+heal_percent = 0.0

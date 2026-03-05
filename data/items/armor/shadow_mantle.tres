@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xvkak"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_6sp9w"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_r1qv9"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_unique.png" id="4_6gkw8"]
+
+[sub_resource type="Resource" id="Resource_62kom"]
+script = ExtResource("2_6sp9w")
+stat = 5
+value = 10.0
+
+[sub_resource type="Resource" id="Resource_l1yi7"]
+script = ExtResource("2_6sp9w")
+stat = 7
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_vdyxz"]
+script = ExtResource("2_6sp9w")
+stat = 2
+value = 5.0
+
+[resource]
+script = ExtResource("1_xvkak")
+id = "shadow_mantle"
+display_name = "Shadow Mantle"
+description = "Woven from midnight silk and enchanted shadow. The first blow against its wearer always misses."
+icon = ExtResource("4_6gkw8")
+item_type = 1
+category = 8
+rarity = 5
+armor_slot = 8
+shape = ExtResource("3_r1qv9")
+stat_modifiers = Array[ExtResource("2_6sp9w")]([SubResource("Resource_62kom"), SubResource("Resource_l1yi7"), SubResource("Resource_vdyxz")])
+granted_effects = Array[String](["first_hit_evasion"])
+base_price = 480

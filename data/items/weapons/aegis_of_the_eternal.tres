@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jspzn"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_jldkf"]
+[ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_xfwt1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_unique.png" id="4_e7bed"]
+[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_8ro0i"]
+[ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="6_4wpfj"]
+
+[sub_resource type="Resource" id="Resource_woc1b"]
+script = ExtResource("2_jldkf")
+stat = 5
+value = 20.0
+
+[sub_resource type="Resource" id="Resource_5jb7v"]
+script = ExtResource("2_jldkf")
+stat = 0
+value = 30.0
+
+[resource]
+script = ExtResource("1_jspzn")
+id = "aegis_of_the_eternal"
+display_name = "Aegis of the Eternal"
+description = "A shield of starforged metal that refuses to let its bearer fall. Once per battle, it defies death itself."
+icon = ExtResource("4_e7bed")
+category = 5
+rarity = 5
+hand_slots_required = 1
+armor_slot = 5
+shape = ExtResource("3_xfwt1")
+stat_modifiers = Array[ExtResource("2_jldkf")]([SubResource("Resource_woc1b"), SubResource("Resource_5jb7v")])
+granted_skills = Array[ExtResource("5_8ro0i")]([ExtResource("6_4wpfj")])
+granted_effects = Array[String](["auto_revive"])
+base_price = 500

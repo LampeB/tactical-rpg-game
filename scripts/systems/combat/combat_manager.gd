@@ -165,6 +165,18 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 	_increment_turn_time(source)
 
+	# First-hit evasion (guaranteed dodge, once per battle)
+	if not target.first_hit_evasion_used and target.has_passive_effect(PassiveEffects.FIRST_HIT_EVASION):
+		target.first_hit_evasion_used = true
+		log_message.emit("%s's shadow cloak deflects %s's attack!" % [target.entity_name, source.entity_name], Color(0.4, 0.9, 1.0))
+		var dodge_result: Dictionary = {
+			"source": source, "target": target,
+			"action_type": Enums.CombatAction.ATTACK,
+			"actual_damage": 0, "dodged": true,
+		}
+		action_resolved.emit(dodge_result)
+		return dodge_result
+
 	# Evasion check
 	if target.has_passive_effect(PassiveEffects.EVASION):
 		if randf() < PassiveEffects.EVASION_CHANCE:
@@ -179,6 +191,14 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 
 	# Calculate and apply primary damage
 	var result: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
+
+	# Execute threshold — bonus damage to low-HP targets
+	if source.has_passive_effect(PassiveEffects.EXECUTE_THRESHOLD):
+		var hp_pct: float = float(target.current_hp) / float(maxi(target.max_hp, 1))
+		if hp_pct <= PassiveEffects.EXECUTE_THRESHOLD_HP_PERCENT:
+			result.amount = int(float(result.amount) * PassiveEffects.EXECUTE_BONUS_DAMAGE)
+			log_message.emit("%s senses weakness — execute bonus!" % source.entity_name, Color(1.0, 0.2, 0.2))
+
 	log_message.emit("[DAMAGE] Calculated: %d, crit: %s" % [result.amount, str(result.is_crit)], Color(0.6, 0.6, 0.6))
 	var target_was_alive: bool = not target.is_dead
 	var actual: int = target.take_damage(result.amount)
@@ -193,14 +213,44 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 		Color(1.0, 0.3, 0.3) if result.is_crit else Color.WHITE,
 	)
 
+	# Auto-revive detection
+	if not target.is_dead and target.auto_revive_used and target.current_hp > 0 and actual >= result.amount:
+		log_message.emit("%s survives a lethal blow and revives at %d HP!" % [target.entity_name, target.current_hp], Color(1.0, 0.84, 0.0))
+
 	# Secondary effects
 	result["splash_results"] = _apply_aoe_splash(source, target)
 	_apply_status_procs(source, target, result, actual, target_was_alive)
 	_apply_post_attack_effects(source, target, result, actual)
 
+	# Multi-hit from item (extra hits at reduced damage)
+	var extra_hits: int = source.get_extra_hit_count()
+	if extra_hits > 0 and not target.is_dead and actual > 0:
+		var fraction: float = source.get_extra_hit_damage_fraction()
+		for _hit in range(extra_hits):
+			if target.is_dead:
+				break
+			var extra_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
+			var reduced: int = maxi(int(float(extra_dmg.amount) * fraction), 1)
+			var extra_actual: int = target.take_damage(reduced)
+			actual += extra_actual
+			result["actual_damage"] = actual
+			log_message.emit(
+				"%s strikes again for %d damage!" % [source.entity_name, extra_actual],
+				Color(1.0, 0.7, 0.3),
+			)
+
 	if target.is_dead:
 		log_message.emit("%s has been defeated!" % target.entity_name, Color(1.0, 0.5, 0.5))
 		entity_died.emit(target)
+		_apply_on_kill_effects(source, target)
+
+	# On-kill effects for AoE splash kills
+	var splash_results: Array = result.get("splash_results", [])
+	for sr_idx in range(splash_results.size()):
+		var sr: Dictionary = splash_results[sr_idx]
+		var splash_tgt: CombatEntity = sr.target
+		if splash_tgt.is_dead:
+			_apply_on_kill_effects(source, splash_tgt)
 
 	# Counter-attack
 	if actual > 0 and target.has_passive_effect(PassiveEffects.COUNTER_ATTACK) and not target.is_dead and not source.is_dead:
@@ -220,7 +270,7 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 func _apply_aoe_splash(source: CombatEntity, primary_target: CombatEntity) -> Array:
 	## Splash damage to all other enemies when source has force_aoe.
 	var splash_results: Array = []
-	if not source.is_player or not source.has_force_aoe():
+	if not source.is_player or (not source.has_force_aoe() and not source.has_innate_force_aoe()):
 		return splash_results
 
 	log_message.emit("[AOE] %s has force_aoe — splashing to all enemies!" % source.entity_name, Color(1.0, 0.6, 0.2))
@@ -282,6 +332,9 @@ func _apply_post_attack_effects(source: CombatEntity, target: CombatEntity, resu
 			lifesteal_pct = 0.10
 		elif source.has_passive_effect(PassiveEffects.LIFESTEAL_5):
 			lifesteal_pct = 0.05
+		var item_ls: float = source.get_item_lifesteal_percent()
+		if item_ls > 0.0:
+			lifesteal_pct = maxf(lifesteal_pct, item_ls)
 		if lifesteal_pct > 0.0:
 			var heal_amount: int = maxi(int(float(actual) * lifesteal_pct), 1)
 			var healed: int = source.heal(heal_amount)
@@ -296,6 +349,31 @@ func _apply_post_attack_effects(source: CombatEntity, target: CombatEntity, resu
 			if source.is_dead:
 				log_message.emit("%s has been defeated by thorns!" % source.entity_name, Color(1.0, 0.5, 0.5))
 				entity_died.emit(source)
+
+
+func _apply_on_kill_effects(source: CombatEntity, _target: CombatEntity) -> void:
+	## Apply on-kill effects to the source when a target dies.
+	if source.is_dead:
+		return
+
+	# On-kill heal from weapon
+	var heal_pct: float = source.get_on_kill_heal_percent()
+	if heal_pct > 0.0:
+		var heal_amount: int = maxi(int(float(source.max_hp) * heal_pct), 1)
+		var healed: int = source.heal(heal_amount)
+		if healed > 0:
+			log_message.emit("%s devours the fallen — restores %d HP!" % [source.entity_name, healed], Color(0.6, 1.0, 0.6))
+
+	# Damage shield on kill
+	if source.has_passive_effect(PassiveEffects.DAMAGE_SHIELD_ON_KILL):
+		source.shield_hp += PassiveEffects.DAMAGE_SHIELD_ON_KILL_AMOUNT
+		log_message.emit("%s gains a %d HP shield!" % [source.entity_name, PassiveEffects.DAMAGE_SHIELD_ON_KILL_AMOUNT], Color(0.4, 0.8, 1.0))
+
+	# MP on kill
+	if source.has_passive_effect(PassiveEffects.MP_ON_KILL):
+		var restored: int = source.restore_mp(PassiveEffects.MP_ON_KILL_AMOUNT)
+		if restored > 0:
+			log_message.emit("%s absorbs %d MP from the fallen!" % [source.entity_name, restored], Color(0.4, 0.6, 1.0))
 
 
 func execute_defend(source: CombatEntity) -> Dictionary:
