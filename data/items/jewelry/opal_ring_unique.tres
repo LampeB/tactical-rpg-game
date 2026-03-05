@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_3vdwj"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_vzt61"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_oy22d"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_unique.png" id="4_01h3b"]
+
+[sub_resource type="Resource" id="Resource_htxv7"]
+script = ExtResource("2_vzt61")
+stat = 2
+value = 20.0
+
+[resource]
+script = ExtResource("1_3vdwj")
+id = "opal_ring_unique"
+display_name = "Opal Ring"
+description = "An iridescent opal shifting with inner fire. Quickens reflexes and footwork."
+icon = ExtResource("4_01h3b")
+item_type = 1
+category = 13
+rarity = 5
+armor_slot = 13
+shape = ExtResource("3_oy22d")
+stat_modifiers = Array[ExtResource("2_vzt61")]([SubResource("Resource_htxv7")])
+base_price = 384

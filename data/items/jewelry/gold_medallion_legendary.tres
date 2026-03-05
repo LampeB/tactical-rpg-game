@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_yw7du"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_o48gw"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_sreir"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_common.png" id="4_eqo5c"]
+
+[sub_resource type="Resource" id="Resource_hnr9x"]
+script = ExtResource("2_o48gw")
+stat = 5
+value = 15.0
+
+[sub_resource type="Resource" id="Resource_154iw"]
+script = ExtResource("2_o48gw")
+stat = 0
+value = 45.0
+
+[resource]
+script = ExtResource("1_yw7du")
+id = "gold_medallion_legendary"
+display_name = "Gold Medallion"
+description = "A heavy gold medallion engraved with wards. A bulwark against harm."
+icon = ExtResource("4_eqo5c")
+item_type = 1
+category = 12
+rarity = 4
+armor_slot = 12
+shape = ExtResource("3_sreir")
+stat_modifiers = Array[ExtResource("2_o48gw")]([SubResource("Resource_hnr9x"), SubResource("Resource_154iw")])
+base_price = 540

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_oblma"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_ngg2o"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_vp36l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_rare.png" id="4_9jwtb"]
+
+[sub_resource type="Resource" id="Resource_ojd63"]
+script = ExtResource("2_ngg2o")
+stat = 6
+value = 14.0
+
+[resource]
+script = ExtResource("1_oblma")
+id = "sapphire_ring_rare"
+display_name = "Sapphire Ring"
+description = "A deep blue sapphire that hums with arcane resonance. Amplifies spellcraft."
+icon = ExtResource("4_9jwtb")
+item_type = 1
+category = 13
+rarity = 2
+armor_slot = 13
+shape = ExtResource("3_vp36l")
+stat_modifiers = Array[ExtResource("2_ngg2o")]([SubResource("Resource_ojd63")])
+base_price = 163

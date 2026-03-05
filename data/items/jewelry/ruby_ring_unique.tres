@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_mtkoq"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_tnd1w"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_c58es"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_unique.png" id="4_g26q2"]
+
+[sub_resource type="Resource" id="Resource_5tp28"]
+script = ExtResource("2_tnd1w")
+stat = 4
+value = 32.0
+
+[resource]
+script = ExtResource("1_mtkoq")
+id = "ruby_ring_unique"
+display_name = "Ruby Ring"
+description = "A blood-red ruby set in gold. Its wearer strikes with savage force."
+icon = ExtResource("4_g26q2")
+item_type = 1
+category = 13
+rarity = 5
+armor_slot = 13
+shape = ExtResource("3_c58es")
+stat_modifiers = Array[ExtResource("2_tnd1w")]([SubResource("Resource_5tp28")])
+base_price = 384

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_1ef3k"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_6jgd2"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_79q5h"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_legendary.png" id="4_5nam8"]
+
+[sub_resource type="Resource" id="Resource_3wz9k"]
+script = ExtResource("2_6jgd2")
+stat = 8
+value = 15.0
+
+[resource]
+script = ExtResource("1_1ef3k")
+id = "diamond_ring_legendary"
+display_name = "Diamond Ring"
+description = "A flawless diamond that catches every glint of light. Sharpens the killer instinct."
+icon = ExtResource("4_5nam8")
+item_type = 1
+category = 13
+rarity = 4
+armor_slot = 13
+shape = ExtResource("3_79q5h")
+stat_modifiers = Array[ExtResource("2_6jgd2")]([SubResource("Resource_3wz9k")])
+base_price = 288

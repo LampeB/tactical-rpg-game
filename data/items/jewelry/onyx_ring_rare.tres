@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_w638n"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_c303m"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="3_uur7a"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_rare.png" id="4_tsjp2"]
+
+[sub_resource type="Resource" id="Resource_yok9z"]
+script = ExtResource("2_c303m")
+stat = 5
+value = 11.0
+
+[resource]
+script = ExtResource("1_w638n")
+id = "onyx_ring_rare"
+display_name = "Onyx Ring"
+description = "A jet-black onyx that absorbs impact. Hardens the skin against blows."
+icon = ExtResource("4_tsjp2")
+item_type = 1
+category = 13
+rarity = 2
+armor_slot = 13
+shape = ExtResource("3_uur7a")
+stat_modifiers = Array[ExtResource("2_c303m")]([SubResource("Resource_yok9z")])
+base_price = 163

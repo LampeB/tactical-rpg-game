@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_d3f3y"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_lqito"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_p76d3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_common.png" id="4_sfjzd"]
+
+[sub_resource type="Resource" id="Resource_g4fwc"]
+script = ExtResource("2_lqito")
+stat = 2
+value = 6.0
+
+[sub_resource type="Resource" id="Resource_9f01n"]
+script = ExtResource("2_lqito")
+stat = 3
+value = 6.0
+
+[resource]
+script = ExtResource("1_d3f3y")
+id = "silver_chain_uncommon"
+display_name = "Silver Chain"
+description = "A delicate silver chain that jingles faintly. Its wearer moves with uncanny grace."
+icon = ExtResource("4_sfjzd")
+item_type = 1
+category = 12
+rarity = 1
+armor_slot = 12
+shape = ExtResource("3_p76d3")
+stat_modifiers = Array[ExtResource("2_lqito")]([SubResource("Resource_g4fwc"), SubResource("Resource_9f01n")])
+base_price = 234

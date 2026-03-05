@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_9cona"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_b1r80"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_imtdb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_common.png" id="4_ro32u"]
+
+[sub_resource type="Resource" id="Resource_k57ei"]
+script = ExtResource("2_b1r80")
+stat = 4
+value = 8.0
+
+[sub_resource type="Resource" id="Resource_fg1f0"]
+script = ExtResource("2_b1r80")
+stat = 6
+value = 8.0
+
+[resource]
+script = ExtResource("1_9cona")
+id = "amber_pendant_uncommon"
+display_name = "Amber Pendant"
+description = "Ancient amber encasing a trapped spark. Empowers both blade and spell alike."
+icon = ExtResource("4_ro32u")
+item_type = 1
+category = 12
+rarity = 1
+armor_slot = 12
+shape = ExtResource("3_imtdb")
+stat_modifiers = Array[ExtResource("2_b1r80")]([SubResource("Resource_k57ei"), SubResource("Resource_fg1f0")])
+base_price = 234

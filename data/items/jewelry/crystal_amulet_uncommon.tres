@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_khfek"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_t7zz1"]
+[ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="3_m2dzs"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ring_common.png" id="4_a9div"]
+
+[sub_resource type="Resource" id="Resource_czu7z"]
+script = ExtResource("2_t7zz1")
+stat = 0
+value = 28.0
+
+[sub_resource type="Resource" id="Resource_7469z"]
+script = ExtResource("2_t7zz1")
+stat = 1
+value = 14.0
+
+[resource]
+script = ExtResource("1_khfek")
+id = "crystal_amulet_uncommon"
+display_name = "Crystal Amulet"
+description = "A prismatic crystal amulet that bolsters body and mind in equal measure."
+icon = ExtResource("4_a9div")
+item_type = 1
+category = 12
+rarity = 1
+armor_slot = 12
+shape = ExtResource("3_m2dzs")
+stat_modifiers = Array[ExtResource("2_t7zz1")]([SubResource("Resource_czu7z"), SubResource("Resource_7469z")])
+base_price = 234

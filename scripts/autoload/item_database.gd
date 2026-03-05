@@ -12,6 +12,7 @@ const ITEM_DIRS: Array[String] = [
 	"res://data/items/consumables/",
 	"res://data/items/modifiers/",
 	"res://data/items/blueprints/",
+	"res://data/items/jewelry/",
 ]
 
 func _ready() -> void:
