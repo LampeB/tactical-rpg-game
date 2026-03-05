@@ -33,9 +33,12 @@ func setup(entity: CombatEntity) -> void:
 
 	add_child(_model)
 
-	# Face enemies toward players
-	if not entity.is_player:
-		_model.rotation.y = PI
+	# Face units toward opponents along the X axis.
+	# Voxel models default to facing -Z; rotate to face ±X for side-view layout.
+	if entity.is_player:
+		_model.rotation.y = -PI / 2.0  # Face +X (toward enemies)
+	else:
+		_model.rotation.y = PI / 2.0   # Face -X (toward players)
 
 	# Attach idle breathing animator
 	_animator = ModelAnimator.new()
