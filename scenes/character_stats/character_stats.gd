@@ -1,6 +1,6 @@
 extends Control
 ## Character stat screen with inventory grid and stash.
-## Shows character info, skills, stat breakdown, inventory grid, unlocked passives, and stash.
+## Shows character info, stat breakdown, inventory grid, skills panel, and stash.
 
 @onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
@@ -23,11 +23,14 @@ extends Control
 @onready var _inventory_label: Label = $VBox/Content/CenterPanel/VBox/InventoryLabel
 @onready var _grid_panel: Control = $VBox/Content/CenterPanel/VBox/GridCentering/GridPanel
 
+# Center panel - element bar
+@onready var _element_bar: HBoxContainer = $VBox/Content/CenterPanel/VBox/ElementBar
+
 # Right panel
-@onready var _passives_header: Label = $VBox/Content/RightPanel/VBox/TopSlot/PassivesHeader
-@onready var _passives_sep: HSeparator = $VBox/Content/RightPanel/VBox/TopSlot/HSeparator
-@onready var _passives_scroll: ScrollContainer = $VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll
-@onready var _passives_list: VBoxContainer = $VBox/Content/RightPanel/VBox/TopSlot/PassivesScroll/PassivesList
+@onready var _skills_header: Label = $VBox/Content/RightPanel/VBox/TopSlot/SkillsHeader
+@onready var _skills_sep: HSeparator = $VBox/Content/RightPanel/VBox/TopSlot/HSeparator
+@onready var _skills_scroll: ScrollContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll
+@onready var _skills_list: VBoxContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll/SkillsList
 @onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/VBox/TopSlot/ItemTooltip
 @onready var _stash_panel: PanelContainer = $VBox/Content/RightPanel/VBox/StashPanel
 
@@ -171,7 +174,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed:
 			_tooltips_enabled = false
 			_item_tooltip.hide_tooltip()
-			_show_passives_section()
+			_show_skills_section()
 		else:
 			_tooltips_enabled = true
 			if _last_hovered_grid_pos != null:
@@ -179,10 +182,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				if inv:
 					var placed: GridInventory.PlacedItem = inv.get_item_at(_last_hovered_grid_pos)
 					if placed:
-						_hide_passives_section()
+						_hide_skills_section()
 						_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 			elif _last_hovered_stash_item != null:
-				_hide_passives_section()
+				_hide_skills_section()
 				_item_tooltip.show_for_item(_last_hovered_stash_item, null, null, _last_hovered_stash_global_pos)
 		get_viewport().set_input_as_handled()
 		return
@@ -239,7 +242,7 @@ func _on_character_selected(character_id: String) -> void:
 
 	_update_left_panel(char_data, inv, passive_bonuses)
 	_update_center_panel(inv)
-	_update_right_panel(character_id, tree)
+	_update_skills_panel(char_data, inv)
 	if GameManager.party:
 		_stash_panel.refresh(GameManager.party.stash)
 
@@ -410,8 +413,9 @@ func _update_center_panel(inv: GridInventory) -> void:
 	if inv and _grid_panel.has_method("setup"):
 		_grid_panel.setup(inv)
 	_update_tier_display()
+	_update_element_bar(inv)
 	_item_tooltip.hide_tooltip()
-	_show_passives_section()
+	_show_skills_section()
 
 
 func _update_tier_display() -> void:
@@ -425,61 +429,107 @@ func _update_tier_display() -> void:
 		_inventory_label.text = "Inventory"
 
 
-# === Right Panel: Unlocked Passives ===
+# === Right Panel: Skills (simple list of current loadout skills) ===
 
-func _update_right_panel(character_id: String, tree: PassiveTreeData) -> void:
-	_clear_children(_passives_list)
+func _update_skills_panel(char_data: CharacterData, inv: GridInventory) -> void:
+	_clear_children(_skills_list)
 
-	if not tree:
-		return
+	var element_points: Dictionary = inv.get_element_points() if inv else {}
 
-	var unlocked: Array = GameManager.party.get_unlocked_passives(character_id)
-	for i in range(unlocked.size()):
-		var node_id: String = unlocked[i]
-		var node: PassiveNodeData = tree.get_node_by_id(node_id)
-		if not node:
-			continue
+	# Innate skills
+	for skill in char_data.innate_skills:
+		if skill is SkillData:
+			_skills_list.add_child(_build_skill_row(skill, true))
 
-		# Node name label
-		var name_label: Label = Label.new()
-		name_label.text = node.display_name
-		UIThemes.style_label(name_label, Constants.FONT_SIZE_DETAIL, Constants.COLOR_TEXT_HEADER)
-		_passives_list.add_child(name_label)
-
-		# Stat bonuses
-		for j in range(node.stat_modifiers.size()):
-			var mod: StatModifier = node.stat_modifiers[j]
-			var stat_name: String = STAT_NAMES.get(mod.stat, "Unknown")
-			var value_str: String
-			if mod.modifier_type == Enums.ModifierType.FLAT:
-				value_str = "+%d %s" % [int(mod.value), stat_name]
-			else:
-				value_str = "+%d%% %s" % [int(mod.value), stat_name]
-
-			var bonus_label: Label = Label.new()
-			bonus_label.text = "• %s" % value_str
-			UIThemes.style_label(bonus_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SUCCESS)
-			_passives_list.add_child(bonus_label)
-
-		# Special effect
-		if not node.special_effect_id.is_empty():
-			var effect_label: Label = Label.new()
-			effect_label.text = "• %s" % PassiveEffects.get_description(node.special_effect_id)
-			UIThemes.style_label(effect_label, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_EMPHASIS)
-			_passives_list.add_child(effect_label)
+	# Element-unlocked skills
+	var table: ElementSkillTable = ElementSkillSystem.get_table()
+	if table:
+		var innate_ids: Array[String] = []
+		for skill in char_data.innate_skills:
+			if skill is SkillData:
+				innate_ids.append(skill.id)
+		var unlocked: Array[SkillData] = table.get_unlocked_skills(element_points)
+		for skill in unlocked:
+			if skill.id not in innate_ids:
+				_skills_list.add_child(_build_skill_row(skill, false))
 
 
-func _show_passives_section() -> void:
-	_passives_header.visible = true
-	_passives_sep.visible = true
-	_passives_scroll.visible = true
+func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 4)
+
+	var name_label := Label.new()
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.text = skill.display_name
+	if is_innate:
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_EMPHASIS)
+	else:
+		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_PRIMARY)
+	hbox.add_child(name_label)
+
+	if skill.mp_cost > 0:
+		var mp_label := Label.new()
+		mp_label.text = "%d MP" % skill.mp_cost
+		UIThemes.style_label(mp_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
+		hbox.add_child(mp_label)
+
+	return hbox
+
+
+# === Element Bar (Center Panel) ===
+
+func _update_element_bar(inv: GridInventory) -> void:
+	_clear_children(_element_bar)
+	var element_points: Dictionary = inv.get_element_points() if inv else {}
+
+	for elem_idx in range(7):
+		var elem: int = elem_idx
+		var pts: int = element_points.get(elem, 0)
+		var elem_color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+
+		var square := PanelContainer.new()
+		square.custom_minimum_size = Vector2(26, 26)
+		var sq_style := StyleBoxFlat.new()
+		sq_style.corner_radius_top_left = 3
+		sq_style.corner_radius_top_right = 3
+		sq_style.corner_radius_bottom_left = 3
+		sq_style.corner_radius_bottom_right = 3
+		if pts > 0:
+			sq_style.bg_color = elem_color.darkened(0.5)
+			sq_style.border_color = elem_color
+		else:
+			sq_style.bg_color = Color(0.1, 0.1, 0.12, 0.6)
+			sq_style.border_color = elem_color.darkened(0.5)
+		sq_style.border_width_left = 1
+		sq_style.border_width_right = 1
+		sq_style.border_width_top = 1
+		sq_style.border_width_bottom = 1
+		square.add_theme_stylebox_override("panel", sq_style)
+		square.tooltip_text = Enums.get_element_name(elem as Enums.Element)
+
+		var lbl := Label.new()
+		lbl.text = str(pts)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		if pts > 0:
+			UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, elem_color)
+		else:
+			UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
+		square.add_child(lbl)
+		_element_bar.add_child(square)
+
+
+func _show_skills_section() -> void:
+	_skills_header.visible = true
+	_skills_sep.visible = true
+	_skills_scroll.visible = true
 	_item_tooltip.visible = false
 
 
-func _hide_passives_section() -> void:
-	_passives_header.visible = false
-	_passives_sep.visible = false
-	_passives_scroll.visible = false
+func _hide_skills_section() -> void:
+	_skills_header.visible = false
+	_skills_sep.visible = false
+	_skills_scroll.visible = false
 
 
 # === Grid Interaction ===
@@ -539,7 +589,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 		_last_hovered_stash_item = null
 		_grid_panel.highlight_modifier_connections(placed)
 		if _tooltips_enabled:
-			_hide_passives_section()
+			_hide_skills_section()
 			_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 	elif not inv.grid_template.is_cell_active(grid_pos):
 		# Hovering an inactive cell — show purchase info if the cell is buyable.
@@ -550,20 +600,20 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 				var cost := BackpackUpgradeSystem.get_next_cell_cost(char_data, state)
 				_grid_panel.set_cell_purchasable(grid_pos)
 				if _tooltips_enabled:
-					_hide_passives_section()
+					_hide_skills_section()
 					_item_tooltip.show_for_cell_purchase(cost, GameManager.gold >= cost, get_global_mouse_position())
 				return
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_grid_panel.clear_highlights()
 		_item_tooltip.hide_tooltip()
-		_show_passives_section()
+		_show_skills_section()
 	else:
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_grid_panel.clear_highlights()
 		_item_tooltip.hide_tooltip()
-		_show_passives_section()
+		_show_skills_section()
 
 
 func _on_hover_exited() -> void:
@@ -571,7 +621,7 @@ func _on_hover_exited() -> void:
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
 		_item_tooltip.hide_tooltip()
-		_show_passives_section()
+		_show_skills_section()
 		_grid_panel.clear_highlights()
 
 
@@ -595,7 +645,7 @@ func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 		_last_hovered_stash_global_pos = global_pos
 		_last_hovered_grid_pos = null
 		if _tooltips_enabled:
-			_hide_passives_section()
+			_hide_skills_section()
 			_item_tooltip.show_for_item(item, null, null, global_pos)
 
 
@@ -1071,6 +1121,8 @@ func _refresh_left_panel() -> void:
 	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(_current_character_id, tree)
 	_update_left_panel(char_data, inv, passive_bonuses)
+	_update_skills_panel(char_data, inv)
+	_update_element_bar(inv)
 
 
 # === Helper Functions ===

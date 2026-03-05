@@ -50,12 +50,20 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.35
 
-[node name="ScrollContainer" type="ScrollContainer" parent="VBox/Content/LeftPanel"]
+[node name="LeftVBox" type="VBoxContainer" parent="VBox/Content/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FilterBar" type="HBoxContainer" parent="VBox/Content/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox/Content/LeftPanel/LeftVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="SkillList" type="VBoxContainer" parent="VBox/Content/LeftPanel/ScrollContainer"]
+[node name="SkillList" type="VBoxContainer" parent="VBox/Content/LeftPanel/LeftVBox/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
