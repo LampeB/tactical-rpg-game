@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 173 -->
-<\!-- Last updated: 2026-03-04 -->
+<\!-- Total tasks: 174 -->
+<\!-- Last updated: 2026-03-05 -->
 
 ## Prerequisites
 
@@ -97,6 +97,7 @@
 | Custom modifier reach patterns for gems | 3147700f-d0fb-818a-b7eb-e2ab083a4726 |
 | Expand weapon variety (new types, innate effects, custom shapes) | 3147700f-d0fb-8180-9e85-e834807b386f |
 | Fire gem conditional modifier system | 3147700f-d0fb-81a8-b1ac-d16bb32fad6a |
+| Gem design document with reach patterns and tradeoff gems | 31a7700f-d0fb-81f2-871e-c8cc5bd4db83 |
 | Hand slot restrictions and weapon hand requirements | 3147700f-d0fb-8129-9675-e03c4ec008bc |
 | In-game item editor | 3147700f-d0fb-8155-ab6d-eab88cd8ed20 |
 | Item and reach pattern rotation with sprite rotation | 3147700f-d0fb-81bd-8eeb-fc40ffd1e6e4 |
@@ -242,7 +243,6 @@
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
-| Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
 
 ### Done
 | Name | Notion ID |
@@ -252,6 +252,7 @@
 | Full GDScript warning cleanup (~50+ warnings fixed) | 3147700f-d0fb-8176-bc39-ee92449e85f4 |
 | Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Multiple save slots (5-10) with metadata | 3147700f-d0fb-81a1-a075-f7cb35bbae6f |
+| Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
 
 ## Map Editor
 
