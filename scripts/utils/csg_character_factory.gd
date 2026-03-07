@@ -48,6 +48,8 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 	var multipart := _try_load_multipart_vox("res://assets/voxels/enemies/%s" % enemy_data.id)
 	if multipart:
 		multipart.scale = Vector3.ONE * enemy_data.model_scale
+		# Scale the auto-grounding offset to match model scale
+		multipart.position.y *= enemy_data.model_scale
 		_add_name_label(multipart, enemy_data.display_name, _get_model_top(multipart) + 0.3)
 		return multipart
 	# Try single-file voxel model
@@ -267,7 +269,30 @@ static func _try_load_multipart_vox(base_dir: String) -> Node3D:
 			root.remove_child(child_node)
 			parent_node.add_child(child_node)
 
+	# Auto-ground: shift model so lowest mesh point sits at Y=0
+	var min_y := _compute_model_min_y(root)
+	if min_y != INF and absf(min_y) > 0.001:
+		root.position.y -= min_y
+
 	return root
+
+
+static func _compute_model_min_y(node: Node3D, parent_y: float = 0.0) -> float:
+	## Recursively finds the lowest Y coordinate across all meshes in the model.
+	var current_y := parent_y + node.position.y
+	var min_y: float = INF
+
+	for child in node.get_children():
+		if child is MeshInstance3D and child.mesh:
+			var mesh_y: float = current_y + child.position.y
+			var aabb: AABB = child.mesh.get_aabb()
+			var bottom_y: float = mesh_y + aabb.position.y
+			min_y = minf(min_y, bottom_y)
+		elif child is Node3D:
+			var child_min := _compute_model_min_y(child, current_y)
+			min_y = minf(min_y, child_min)
+
+	return min_y
 
 
 static func _try_load_vox(path: String) -> Node3D:
@@ -327,29 +352,39 @@ static func _add_name_label(root: Node3D, display_name: String, y_offset: float)
 
 
 static func _get_model_top(model: Node3D) -> float:
-	var max_y := 1.0
+	## Returns the highest Y point in the model's local space for name label placement.
+	## Excludes the model root's own position since labels are children of root.
+	var max_y: float = -INF
 	for child in model.get_children():
+		var child_max := _compute_model_max_y(child)
+		max_y = maxf(max_y, child_max)
+	if max_y == -INF:
+		max_y = 1.0
+	return max_y
+
+
+static func _compute_model_max_y(node: Node3D, parent_y: float = 0.0) -> float:
+	## Recursively finds the highest Y coordinate across all meshes/shapes.
+	var current_y := parent_y + node.position.y
+	var max_y: float = -INF
+
+	for child in node.get_children():
 		if child is MeshInstance3D and child.mesh:
+			var mesh_y: float = current_y + child.position.y
 			var aabb: AABB = child.mesh.get_aabb()
-			var top: float = child.position.y + aabb.position.y + aabb.size.y
-			if top > max_y:
-				max_y = top
+			var top_y: float = mesh_y + aabb.position.y + aabb.size.y
+			max_y = maxf(max_y, top_y)
 		elif child is CSGShape3D:
-			var top: float = child.position.y
+			var top_y: float = current_y + child.position.y
 			if child is CSGSphere3D:
-				top += (child as CSGSphere3D).radius
+				top_y += (child as CSGSphere3D).radius
 			elif child is CSGBox3D:
-				top += (child as CSGBox3D).size.y * 0.5
+				top_y += (child as CSGBox3D).size.y * 0.5
 			elif child is CSGCylinder3D:
-				top += (child as CSGCylinder3D).height * 0.5
-			if top > max_y:
-				max_y = top
+				top_y += (child as CSGCylinder3D).height * 0.5
+			max_y = maxf(max_y, top_y)
 		elif child is Node3D:
-			# Check grandchildren (multi-part voxel models: root > pivot > Mesh)
-			for grandchild in child.get_children():
-				if grandchild is MeshInstance3D and grandchild.mesh:
-					var aabb: AABB = grandchild.mesh.get_aabb()
-					var top: float = child.position.y + grandchild.position.y + aabb.position.y + aabb.size.y
-					if top > max_y:
-						max_y = top
+			var child_max := _compute_model_max_y(child, current_y)
+			max_y = maxf(max_y, child_max)
+
 	return max_y

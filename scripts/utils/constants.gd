@@ -50,6 +50,11 @@ const ENEMY_PATROL_DISTANCE := 3.0  ## World units
 const ENEMY_DETECTION_RADIUS := 1.5 ## World units (sphere)
 const SAFE_DISTANCE := 2.5          ## Min distance from enemy after battle
 const PUSH_DISTANCE := 3.0          ## How far to push player from enemy
+const ENEMY_SAFE_ZONE_MARGIN := 1.0  ## Extra buffer around safe zones (world units)
+## Rect2 zones enemies cannot enter (x, z, width, depth). Checked as 2D (x,z).
+const ENEMY_SAFE_ZONES := [
+	Rect2(2, 2, 19, 17),   # Town area (x:3-20, z:3-18) with 1-unit margin
+]
 
 # === 3D CAMERA ===
 const CAMERA_ORBIT_SPEED := 0.3			## Degrees per pixel of mouse movement
