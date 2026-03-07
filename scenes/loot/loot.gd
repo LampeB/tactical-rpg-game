@@ -21,6 +21,7 @@ const DEFAULT_LOOT_GRID_HEIGHT: int = 5
 @onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/ItemTooltip
 @onready var _drag_preview: Control = $DragLayer/DragPreview
 @onready var _loot_count_label: Label = $VBox/BottomBar/LootCountLabel
+@onready var _take_all_btn: Button = $VBox/BottomBar/TakeAllButton
 @onready var _continue_btn: Button = $VBox/BottomBar/ContinueButton
 
 # --- State ---
@@ -60,6 +61,7 @@ var _pending_consumable_stash_index: int = -1
 func _ready() -> void:
 	_bg.color = UIColors.BG_LOOT
 	_continue_btn.pressed.connect(_on_continue)
+	_take_all_btn.pressed.connect(_on_take_all)
 
 	# Use persistent grid inventories from Party
 	if GameManager.party:
@@ -748,21 +750,26 @@ func _update_loot_count() -> void:
 	var inv_count: int = _inventory_items_on_loot_grid.size()
 	var loot_count: int = total_on_grid - inv_count
 
+	var stash_has_room: bool = GameManager.party.stash.size() < Constants.MAX_STASH_SLOTS
+
 	if total_on_grid == 0 or loot_count == 0:
 		_loot_info_label.text = "All items collected!"
 		_loot_info_label.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))
 		_loot_count_label.text = ""
 		_continue_btn.disabled = (inv_count > 0)
+		_take_all_btn.disabled = true
 	elif inv_count > 0:
 		_loot_info_label.text = "%d inventory item(s) must be returned" % inv_count
 		_loot_info_label.add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
 		_loot_count_label.text = "%d item(s) remaining" % loot_count
 		_continue_btn.disabled = true
+		_take_all_btn.disabled = not stash_has_room
 	else:
 		_loot_info_label.text = "%d item(s) remaining (will be lost)" % loot_count
 		_loot_info_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.2))
 		_loot_count_label.text = ""
 		_continue_btn.disabled = false
+		_take_all_btn.disabled = loot_count == 0 or not stash_has_room
 
 
 func _shake_loot_grid() -> void:
@@ -773,6 +780,43 @@ func _shake_loot_grid() -> void:
 	tween.tween_property(target, "position", original_pos + Vector2(-5, 0), 0.05)
 	tween.tween_property(target, "position", original_pos + Vector2(5, 0), 0.05)
 	tween.tween_property(target, "position", original_pos, 0.05)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Stash All
+# ════════════════════════════════════════════════════════════════════════════
+
+func _on_take_all() -> void:
+	if _drag_state == DragState.DRAGGING:
+		_cancel_drag()
+
+	var placed_items: Array = _loot_inventory.get_all_placed_items()
+	var stashed_count: int = 0
+	var skipped_count: int = 0
+
+	# Collect loot items (skip inventory items temporarily on the loot grid)
+	var to_stash: Array = []
+	for placed in placed_items:
+		if _inventory_items_on_loot_grid.has(placed):
+			continue
+		to_stash.append(placed)
+
+	for placed in to_stash:
+		if GameManager.party.add_to_stash(placed.item_data):
+			_loot_inventory.remove_item(placed)
+			stashed_count += 1
+		else:
+			skipped_count += 1
+			break  # Stash full, stop trying
+
+	_loot_grid_panel.refresh()
+	_stash_panel.refresh(GameManager.party.stash)
+	_update_loot_count()
+
+	if skipped_count > 0:
+		EventBus.show_message.emit("Stash full! %d item(s) couldn't be stashed." % skipped_count)
+	elif stashed_count > 0:
+		EventBus.show_message.emit("Stashed %d item(s)." % stashed_count)
 
 
 # ════════════════════════════════════════════════════════════════════════════
