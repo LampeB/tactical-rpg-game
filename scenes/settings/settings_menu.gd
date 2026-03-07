@@ -1,14 +1,18 @@
 extends Control
-## Settings menu for configuring game options and keybindings.
+## Settings menu with Display and Controls tabs.
 
 @onready var _bg: ColorRect = $ColorRect
-@onready var _keybind_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/ScrollContainer/KeybindContainer
+@onready var _tab_container: TabContainer = $Panel/MarginContainer/VBoxContainer/TabContainer
+@onready var _display_settings: VBoxContainer = $Panel/MarginContainer/VBoxContainer/TabContainer/Display/DisplaySettings
+@onready var _keybind_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/TabContainer/Controls/ScrollContainer/KeybindContainer
 @onready var _rebind_popup: Panel = $RebindPopup
 @onready var _rebind_label: Label = $RebindPopup/MarginContainer/VBoxContainer/Label
 @onready var _rebind_key_label: Label = $RebindPopup/MarginContainer/VBoxContainer/KeyLabel
+@onready var _reset_all_btn: Button = $Panel/MarginContainer/VBoxContainer/ButtonContainer/ResetAllButton
 
 var _waiting_for_input: bool = false
 var _current_action: String = ""
+var _resolution_button: OptionButton = null
 
 # Friendly names for actions
 const ACTION_NAMES := {
@@ -23,19 +27,99 @@ const ACTION_NAMES := {
 	"fast_travel": "Fast Travel",
 }
 
+const WINDOW_MODE_NAMES := ["Windowed", "Borderless Fullscreen", "Exclusive Fullscreen"]
+
 
 func _ready() -> void:
 	_bg.color = UIColors.BG_SETTINGS
+	_build_display_tab()
 	_populate_keybinds()
 	_rebind_popup.hide()
+	_update_reset_button_visibility()
 
+
+# ─── Display Tab ─────────────────────────────────────────────────────────────
+
+func _build_display_tab() -> void:
+	# Window mode row
+	var mode_row := _create_setting_row("Window Mode")
+	var mode_btn := OptionButton.new()
+	mode_btn.custom_minimum_size = Vector2(250, 0)
+	for i in WINDOW_MODE_NAMES.size():
+		mode_btn.add_item(WINDOW_MODE_NAMES[i], i)
+	mode_btn.selected = DisplayManager.window_mode
+	mode_btn.item_selected.connect(_on_window_mode_changed)
+	mode_row.add_child(mode_btn)
+	_display_settings.add_child(mode_row)
+
+	# Resolution row
+	var res_row := _create_setting_row("Resolution")
+	_resolution_button = OptionButton.new()
+	_resolution_button.custom_minimum_size = Vector2(250, 0)
+	_populate_resolutions()
+	_resolution_button.item_selected.connect(_on_resolution_changed)
+	res_row.add_child(_resolution_button)
+	_display_settings.add_child(res_row)
+
+	# VSync row
+	var vsync_row := _create_setting_row("VSync")
+	var vsync_btn := CheckButton.new()
+	vsync_btn.button_pressed = DisplayManager.vsync_enabled
+	vsync_btn.toggled.connect(_on_vsync_toggled)
+	vsync_row.add_child(vsync_btn)
+	_display_settings.add_child(vsync_row)
+
+	_update_resolution_enabled()
+
+
+func _create_setting_row(label_text: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 20)
+	var lbl := Label.new()
+	lbl.text = label_text
+	lbl.custom_minimum_size = Vector2(200, 0)
+	row.add_child(lbl)
+	return row
+
+
+func _populate_resolutions() -> void:
+	_resolution_button.clear()
+	var resolutions := DisplayManager.get_available_resolutions()
+	var selected_idx := 0
+	for i in resolutions.size():
+		var res := resolutions[i]
+		_resolution_button.add_item("%d x %d" % [res.x, res.y], i)
+		if res == DisplayManager.resolution:
+			selected_idx = i
+	_resolution_button.selected = selected_idx
+
+
+func _update_resolution_enabled() -> void:
+	# Resolution only matters in windowed mode
+	_resolution_button.disabled = DisplayManager.window_mode != 0
+
+
+func _on_window_mode_changed(idx: int) -> void:
+	DisplayManager.set_window_mode(idx)
+	_update_resolution_enabled()
+
+
+func _on_resolution_changed(idx: int) -> void:
+	var resolutions := DisplayManager.get_available_resolutions()
+	if idx < resolutions.size():
+		var res := resolutions[idx]
+		DisplayManager.set_resolution(res.x, res.y)
+
+
+func _on_vsync_toggled(enabled: bool) -> void:
+	DisplayManager.set_vsync(enabled)
+
+
+# ─── Controls Tab ────────────────────────────────────────────────────────────
 
 func _populate_keybinds() -> void:
-	# Clear existing children
 	for child in _keybind_container.get_children():
 		child.queue_free()
-
-	# Create rows for each action
 	for action_name in ACTION_NAMES.keys():
 		var row := _create_keybind_row(action_name)
 		_keybind_container.add_child(row)
@@ -45,27 +129,23 @@ func _create_keybind_row(action_name: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 20)
 
-	# Action name label
 	var name_label := Label.new()
 	name_label.text = ACTION_NAMES[action_name]
 	name_label.custom_minimum_size = Vector2(200, 0)
 	row.add_child(name_label)
 
-	# Current key label
 	var key_label := Label.new()
 	key_label.text = InputManager.get_action_key_name(action_name)
 	key_label.custom_minimum_size = Vector2(150, 0)
 	key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	row.add_child(key_label)
 
-	# Rebind button
 	var rebind_btn := Button.new()
 	rebind_btn.text = "Rebind"
 	rebind_btn.custom_minimum_size = Vector2(100, 0)
 	rebind_btn.pressed.connect(_on_rebind_pressed.bind(action_name, key_label))
 	row.add_child(rebind_btn)
 
-	# Reset button
 	var reset_btn := Button.new()
 	reset_btn.text = "Reset"
 	reset_btn.custom_minimum_size = Vector2(100, 0)
@@ -78,7 +158,6 @@ func _create_keybind_row(action_name: String) -> HBoxContainer:
 func _on_rebind_pressed(action_name: String, _key_label: Label) -> void:
 	_current_action = action_name
 	_waiting_for_input = true
-
 	_rebind_label.text = "Press a key for:\n%s" % ACTION_NAMES[action_name]
 	_rebind_key_label.text = ""
 	_rebind_popup.show()
@@ -92,23 +171,25 @@ func _on_reset_pressed(action_name: String, key_label: Label) -> void:
 func _input(event: InputEvent) -> void:
 	if not _waiting_for_input:
 		return
-
 	if event is InputEventKey and event.pressed:
-		# Apply the new binding
 		InputManager.rebind_action(_current_action, event)
-
-		# Update UI
 		_rebind_key_label.text = "Bound to: %s" % OS.get_keycode_string(event.keycode)
-
-		# Close popup after a short delay
 		await get_tree().create_timer(0.5).timeout
 		_waiting_for_input = false
 		_rebind_popup.hide()
-
-		# Refresh the keybind list
 		_populate_keybinds()
-
 		get_viewport().set_input_as_handled()
+
+
+# ─── Shared ──────────────────────────────────────────────────────────────────
+
+func _on_tab_changed(_tab: int) -> void:
+	_update_reset_button_visibility()
+
+
+func _update_reset_button_visibility() -> void:
+	# Only show "Reset All to Defaults" on the Controls tab
+	_reset_all_btn.visible = _tab_container.current_tab == 1
 
 
 func _on_reset_all_pressed() -> void:

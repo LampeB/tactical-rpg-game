@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 174 -->
-<\!-- Last updated: 2026-03-05 -->
+<\!-- Total tasks: 176 -->
+<\!-- Last updated: 2026-03-07 -->
 
 ## Prerequisites
 
@@ -74,14 +74,14 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
-| Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
-| Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
+| Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
 | Armor slot system (helmet, chestplate, gloves, legs, boots) | 3147700f-d0fb-8128-a032-dac89055321a |
+| Create jewelry items (necklaces, rings with various effects) | 3147700f-d0fb-811c-90c9-f225ed1b7f0d |
 | Backpack tier upgrade system (6 tiers, custom shapes, Weaver NPC) | 3147700f-d0fb-8144-8820-ec459d66c111 |
 | Backpack upgrade feedback prompt (success/failure message) | 3197700f-d0fb-81dc-af51-d998b928d381 |
 | Create armor items with subtypes per slot (5 slots × 4 weight classes) | 3147700f-d0fb-8159-a100-e41b635b055b |
@@ -121,15 +121,12 @@
 |---|---|
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
-| Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
-| Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
 | Shadow quality setting in graphics options (off/low/medium/high) | 31a7700f-d0fb-81e6-8234-ffbe8e29cc12 |
 | UI scale option in settings | 31a7700f-d0fb-8119-8d48-fe49d5aa3000 |
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
-| Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
+| Take All button on loot screen (enabled when items fit in stash) | 31c7700f-d0fb-8129-8021-cdc40ee4a0c3 |
 
 ### Done
 | Name | Notion ID |
@@ -160,7 +157,19 @@
 | Stash sorting and filtering (by type, rarity; primary + secondary sort) | 3147700f-d0fb-8177-b8a8-f2c7956f3ad3 |
 | Stat screen per character | 3147700f-d0fb-81fd-8c8c-c66fcafd3574 |
 | Tooltip doesn't disappear in blacksmith interface | 3147700f-d0fb-8122-8a64-da9a1102d7fe |
+| Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
 | Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
+
+### In Progress
+| Name | Notion ID |
+|---|---|
+| Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
+
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
+| Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
 
 ## World
 
@@ -174,6 +183,7 @@
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
+| Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
