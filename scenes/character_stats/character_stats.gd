@@ -32,7 +32,10 @@ extends Control
 @onready var _skills_scroll: ScrollContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll
 @onready var _skills_list: VBoxContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll/SkillsList
 @onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/VBox/TopSlot/ItemTooltip
+@onready var _top_slot: Control = $VBox/Content/RightPanel/VBox/TopSlot
 @onready var _stash_panel: PanelContainer = $VBox/Content/RightPanel/VBox/StashPanel
+
+var _skill_tooltip: PanelContainer = null
 
 # Drag layer
 @onready var _drag_preview: Control = $DragLayer/DragPreview
@@ -156,6 +159,10 @@ func _ready() -> void:
 	_item_tooltip.embedded = true
 	_item_tooltip.visible = false
 	_drag_preview.visible = false
+
+	# Skill tooltip — floating overlay positioned near cursor
+	_skill_tooltip = _create_skill_tooltip()
+	add_child(_skill_tooltip)
 
 	# Placement hint label — always in the tree to avoid layout reflow
 	_placement_hint_label = Label.new()
@@ -458,11 +465,12 @@ func _update_skills_panel(char_data: CharacterData, inv: GridInventory) -> void:
 func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 4)
-	hbox.mouse_filter = Control.MOUSE_FILTER_PASS
+	hbox.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	var name_label := Label.new()
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.text = skill.display_name
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if is_innate:
 		UIThemes.style_label(name_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_EMPHASIS)
 	else:
@@ -472,47 +480,164 @@ func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
 	if skill.mp_cost > 0:
 		var mp_label := Label.new()
 		mp_label.text = "%d MP" % skill.mp_cost
+		mp_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		UIThemes.style_label(mp_label, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
 		hbox.add_child(mp_label)
 
-	# Build tooltip text
-	hbox.tooltip_text = _build_skill_tooltip(skill, is_innate)
+	hbox.mouse_entered.connect(_on_skill_hovered.bind(skill, is_innate))
+	hbox.mouse_exited.connect(_on_skill_exited)
 
 	return hbox
 
 
-func _build_skill_tooltip(skill: SkillData, is_innate: bool) -> String:
-	var lines: PackedStringArray = []
-	lines.append(skill.display_name)
+func _create_skill_tooltip() -> PanelContainer:
+	var panel := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.10, 0.16, 0.90)
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_left = 4
+	style.corner_radius_bottom_right = 4
+	style.border_color = Color(0.3, 0.35, 0.5, 0.6)
+	style.border_width_left = 1
+	style.border_width_right = 1
+	style.border_width_top = 1
+	style.border_width_bottom = 1
+	panel.add_theme_stylebox_override("panel", style)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.z_index = 10
+	var margin := MarginContainer.new()
+	UIThemes.set_uniform_margins(margin, 10)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 3)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(vbox)
+	panel.visible = false
+	return panel
+
+
+func _show_skill_tooltip(skill: SkillData, is_innate: bool) -> void:
+	var vbox: VBoxContainer = _skill_tooltip.get_child(0).get_child(0)
+	for child in vbox.get_children():
+		child.queue_free()
+
+	# Name
+	var name_lbl := Label.new()
+	name_lbl.text = skill.display_name
+	var name_color: Color = Constants.COLOR_TEXT_EMPHASIS if is_innate else Color.WHITE
+	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_BODY, name_color)
+	vbox.add_child(name_lbl)
+
+	# Innate tag
 	if is_innate:
-		lines.append("(Innate)")
+		var tag := Label.new()
+		tag.text = "Innate"
+		UIThemes.style_label(tag, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
+		vbox.add_child(tag)
 
+	# Separator
+	vbox.add_child(HSeparator.new())
+
+	# MP cost
 	if skill.mp_cost > 0:
-		lines.append("MP: %d" % skill.mp_cost)
+		_add_skill_stat_label(vbox, "MP Cost", "%d" % skill.mp_cost, Constants.COLOR_MP)
 	elif skill.use_all_mp:
-		lines.append("MP: All remaining")
+		_add_skill_stat_label(vbox, "MP Cost", "All remaining", Constants.COLOR_MP)
 
-	lines.append("Target: %s" % Enums.get_target_type_name(skill.target_type))
+	# Target
+	_add_skill_stat_label(vbox, "Target", Enums.get_target_type_name(skill.target_type), Constants.COLOR_TEXT_FADED)
 
+	# Cooldown
 	if skill.cooldown_turns > 0:
-		lines.append("Cooldown: %d turn(s)" % skill.cooldown_turns)
+		_add_skill_stat_label(vbox, "Cooldown", "%d turn(s)" % skill.cooldown_turns, Constants.COLOR_TEXT_FADED)
 
+	# Damage scaling + estimated damage
 	if skill.has_damage():
 		if skill.physical_scaling > 0.0:
-			lines.append("Phys Scaling: %.1fx" % skill.physical_scaling)
+			_add_skill_stat_label(vbox, "Phys Scaling", "%.1fx" % skill.physical_scaling, Constants.COLOR_DAMAGE)
 		if skill.magical_scaling > 0.0:
-			lines.append("Mag Scaling: %.1fx" % skill.magical_scaling)
+			_add_skill_stat_label(vbox, "Mag Scaling", "%.1fx" % skill.magical_scaling, Color(0.5, 0.6, 1.0))
+		# Estimated raw damage (no defense, no crit)
+		var est: int = _estimate_skill_damage(skill)
+		if est > 0:
+			_add_skill_stat_label(vbox, "Est. Damage", "~%d" % est, Color(1.0, 0.85, 0.4))
 
+	# Healing
 	if skill.heal_amount > 0:
-		lines.append("Heals: %d HP" % skill.heal_amount)
+		_add_skill_stat_label(vbox, "Heals", "%d HP" % skill.heal_amount, Constants.COLOR_HEAL)
 	if skill.heal_percent > 0.0:
-		lines.append("Heals: %d%% max HP" % int(skill.heal_percent * 100))
+		_add_skill_stat_label(vbox, "Heals", "%d%% max HP" % int(skill.heal_percent * 100), Constants.COLOR_HEAL)
 
+	# Status effects
+	if not skill.applied_statuses.is_empty():
+		var sep2 := HSeparator.new()
+		vbox.add_child(sep2)
+		for status in skill.applied_statuses:
+			if status is StatusEffectData:
+				var status_lbl := Label.new()
+				status_lbl.text = "Applies: %s" % status.display_name
+				UIThemes.style_label(status_lbl, Constants.FONT_SIZE_TINY, Color(1.0, 0.8, 0.3))
+				vbox.add_child(status_lbl)
+
+	# Description
 	if not skill.description.is_empty():
-		lines.append("")
-		lines.append(skill.description)
+		var desc_sep := HSeparator.new()
+		vbox.add_child(desc_sep)
+		var desc := Label.new()
+		desc.text = skill.description
+		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc.custom_minimum_size = Vector2(180, 0)
+		UIThemes.style_label(desc, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
+		vbox.add_child(desc)
 
-	return "\n".join(lines)
+	_skill_tooltip.reset_size()
+	# Position tooltip to the left of the right panel
+	var panel_rect: Rect2 = _top_slot.get_global_rect()
+	var tip_size: Vector2 = _skill_tooltip.size
+	var pos_x: float = panel_rect.position.x - tip_size.x - 8
+	var pos_y: float = clampf(get_global_mouse_position().y - tip_size.y * 0.5, 0, size.y - tip_size.y)
+	_skill_tooltip.global_position = Vector2(pos_x, pos_y)
+	_skill_tooltip.visible = true
+
+
+func _add_skill_stat_label(container: VBoxContainer, stat_name: String, value_text: String, value_color: Color) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var name_lbl := Label.new()
+	name_lbl.text = stat_name
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_SECONDARY)
+	row.add_child(name_lbl)
+	var val_lbl := Label.new()
+	val_lbl.text = value_text
+	UIThemes.style_label(val_lbl, Constants.FONT_SIZE_TINY, value_color)
+	row.add_child(val_lbl)
+	container.add_child(row)
+
+
+func _estimate_skill_damage(skill: SkillData) -> int:
+	if not _cached_char_data or not _cached_inv:
+		return 0
+	var entity: CombatEntity = CombatEntity.from_character(_cached_char_data, _cached_inv, _cached_passive_bonuses)
+	var phys_power: float = float(entity.get_total_weapon_physical_power())
+	var phys_stat: float = entity.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK)
+	var passive_phys: float = entity.get_effective_stat(Enums.Stat.PHYSICAL_SCALING) / 100.0
+	var phys_raw: float = (phys_power + phys_stat) * maxf(skill.physical_scaling + passive_phys, 0.0)
+	var mag_power: float = float(entity.get_total_weapon_magical_power())
+	var mag_stat: float = entity.get_effective_stat(Enums.Stat.MAGICAL_ATTACK)
+	var passive_mag: float = entity.get_effective_stat(Enums.Stat.MAGICAL_SCALING) / 100.0
+	var mag_raw: float = (mag_power + mag_stat) * maxf(skill.magical_scaling + passive_mag, 0.0)
+	return maxi(int(phys_raw + mag_raw), 1)
+
+
+func _on_skill_hovered(skill: SkillData, is_innate: bool) -> void:
+	_show_skill_tooltip(skill, is_innate)
+
+
+func _on_skill_exited() -> void:
+	_skill_tooltip.visible = false
 
 
 # === Element Bar (Center Panel) ===
@@ -567,12 +692,16 @@ func _show_skills_section() -> void:
 	_skills_sep.visible = true
 	_skills_scroll.visible = true
 	_item_tooltip.visible = false
+	if _skill_tooltip:
+		_skill_tooltip.visible = false
 
 
 func _hide_skills_section() -> void:
 	_skills_header.visible = false
 	_skills_sep.visible = false
 	_skills_scroll.visible = false
+	if _skill_tooltip:
+		_skill_tooltip.visible = false
 
 
 # === Grid Interaction ===

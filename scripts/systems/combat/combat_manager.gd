@@ -300,14 +300,18 @@ func _apply_status_procs(source: CombatEntity, target: CombatEntity, result: Dic
 	if not modifier_state:
 		return
 	for proc in modifier_state.status_procs:
-		if randf() < proc.chance:
+		var effect_name: String = Enums.get_status_effect_name(proc.type)
+		var roll: float = randf()
+		var chance_pct: int = int(proc.chance * 100)
+		if roll < proc.chance:
 			var stacks: int = proc.crit_stacks if result.is_crit else proc.stacks
 			var status_template: StatusEffect = _get_status_effect_template(proc.type)
 			if status_template:
 				target.apply_gem_status_effect(status_template, stacks)
-				var effect_name: String = Enums.get_status_effect_name(proc.type)
 				var crit_tag: String = " (CRIT — %d stacks)" % stacks if result.is_crit else " (+%d stack)" % stacks
-				log_message.emit("%s is afflicted with %s%s" % [target.entity_name, effect_name, crit_tag], Color(1.0, 0.6, 0.2))
+				log_message.emit("%s proc! %s is afflicted with %s%s" % [effect_name, target.entity_name, effect_name, crit_tag], Color(1.0, 0.6, 0.2))
+		else:
+			log_message.emit("%s failed to proc (%d%%)" % [effect_name, chance_pct], Constants.COLOR_TEXT_FADED)
 
 
 func _apply_post_attack_effects(source: CombatEntity, target: CombatEntity, result: Dictionary, actual: int) -> void:
@@ -445,6 +449,7 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 				if status is StatusEffectData:
 					target.apply_status(status)
 					target_result["status_applied"] = status.display_name
+					log_message.emit("%s is afflicted with %s!" % [target.entity_name, status.display_name], Color(1.0, 0.6, 0.2))
 
 			result.target_results.append(target_result)
 
