@@ -304,7 +304,9 @@ func _play_lunge_anim(lunge_dir: float) -> void:
 		tween.set_parallel(true)
 		tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
 		if _right_forearm:
-			tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+			tween.tween_property(_right_forearm, "rotation:x", 2.2, 0.20)
+		if _chest:
+			tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 		tween.set_parallel(false)
 		tween.tween_interval(0.3)
 		# Return
@@ -337,7 +339,9 @@ func _play_slash_anim(_lunge_dir: float) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
 	if _right_forearm:
-		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+		tween.tween_property(_right_forearm, "rotation:x", 2.2, 0.20)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 
 	# Hold so pose is visible
@@ -362,7 +366,9 @@ func _play_bash_anim(_lunge_dir: float) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
 	if _right_forearm:
-		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+		tween.tween_property(_right_forearm, "rotation:x", 2.2, 0.20)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
 	tween.set_parallel(true)
@@ -383,7 +389,9 @@ func _play_shoot_anim(_lunge_dir: float) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
 	if _right_forearm:
-		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+		tween.tween_property(_right_forearm, "rotation:x", 2.2, 0.20)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
 	tween.set_parallel(true)
@@ -404,7 +412,9 @@ func _play_cast_anim() -> void:
 	tween.set_parallel(true)
 	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
 	if _right_forearm:
-		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+		tween.tween_property(_right_forearm, "rotation:x", 2.2, 0.20)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
 	tween.set_parallel(true)
@@ -434,6 +444,7 @@ func _tween_reset_all(tween: Tween, duration: float) -> void:
 		tween.tween_property(_left_hand, "rotation:x", 0.0, duration)
 	if _chest:
 		tween.tween_property(_chest, "rotation:x", 0.0, duration)
+		tween.tween_property(_chest, "rotation:y", 0.0, duration)
 	if _belly:
 		tween.tween_property(_belly, "rotation:x", 0.0, duration)
 	if _left_thigh:
