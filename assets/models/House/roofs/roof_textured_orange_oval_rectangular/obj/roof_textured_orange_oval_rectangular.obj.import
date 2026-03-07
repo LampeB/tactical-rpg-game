@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://kvn2yhmvmu7a"
+path="res://.godot/imported/roof_textured_orange_oval_rectangular.obj-90bef91cbac71c598832a8006bc1782d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/roof_textured_orange_oval_rectangular.obj-90bef91cbac71c598832a8006bc1782d.mesh"]
+
+source_file="res://assets/models/House/roofs/roof_textured_orange_oval_rectangular/obj/roof_textured_orange_oval_rectangular.obj"
+dest_files=["res://.godot/imported/roof_textured_orange_oval_rectangular.obj-90bef91cbac71c598832a8006bc1782d.mesh", "res://.godot/imported/roof_textured_orange_oval_rectangular.obj-90bef91cbac71c598832a8006bc1782d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

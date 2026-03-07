@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cfjjof4p4rfo5"
+path="res://.godot/imported/weapon_bow.obj-51c9924faafe5b47b4be498040689435.mesh"
+
+[deps]
+
+files=["res://.godot/imported/weapon_bow.obj-51c9924faafe5b47b4be498040689435.mesh"]
+
+source_file="res://assets/models/Weapons and tools/weapon_bow/obj/weapon_bow.obj"
+dest_files=["res://.godot/imported/weapon_bow.obj-51c9924faafe5b47b4be498040689435.mesh", "res://.godot/imported/weapon_bow.obj-51c9924faafe5b47b4be498040689435.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

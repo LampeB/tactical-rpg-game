@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bkbemt6l14ko"
+path="res://.godot/imported/window_textured_big_blue_green.obj-4980a2c70f301ff4d1b5bbe3edecc110.mesh"
+
+[deps]
+
+files=["res://.godot/imported/window_textured_big_blue_green.obj-4980a2c70f301ff4d1b5bbe3edecc110.mesh"]
+
+source_file="res://assets/models/House/windows/window_textured_big_blue_green/obj/window_textured_big_blue_green.obj"
+dest_files=["res://.godot/imported/window_textured_big_blue_green.obj-4980a2c70f301ff4d1b5bbe3edecc110.mesh", "res://.godot/imported/window_textured_big_blue_green.obj-4980a2c70f301ff4d1b5bbe3edecc110.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dh85ic1b11175"
+path="res://.godot/imported/canopy_2.obj-7898d590b16b83720cb309c45d1bb624.mesh"
+
+[deps]
+
+files=["res://.godot/imported/canopy_2.obj-7898d590b16b83720cb309c45d1bb624.mesh"]
+
+source_file="res://assets/models/Nature/canopies/canopy_2/obj/canopy_2.obj"
+dest_files=["res://.godot/imported/canopy_2.obj-7898d590b16b83720cb309c45d1bb624.mesh", "res://.godot/imported/canopy_2.obj-7898d590b16b83720cb309c45d1bb624.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
