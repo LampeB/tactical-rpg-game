@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 176 -->
+<\!-- Total tasks: 177 -->
 <\!-- Last updated: 2026-03-07 -->
 
 ## Prerequisites
@@ -53,7 +53,6 @@
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
-| Restrict roaming enemies from entering town/NPC areas | 3147700f-d0fb-81af-9c68-e10347a8d3e9 |
 
 ### Done
 | Name | Notion ID |
@@ -65,6 +64,7 @@
 | KO'd characters still play animations / act during battle | 3147700f-d0fb-8101-b64d-e663c1304ba2 |
 | Persist HP/Mana after fights | 3147700f-d0fb-8119-8955-f25b43a7be3a |
 | Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
+| Restrict roaming enemies from entering town/NPC areas | 3147700f-d0fb-81af-9c68-e10347a8d3e9 |
 | Runtime errors: typed array assignment from Variant | 3147700f-d0fb-81de-886d-db067f32a2a2 |
 | Use skills/items outside of combat (healing) | 3147700f-d0fb-8171-8223-c3f36449a4f2 |
 | Visible roaming enemies (Chrono Trigger style) | 3147700f-d0fb-8128-86b2-d501c34afda8 |
@@ -178,7 +178,6 @@
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
-| Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
 | Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
@@ -186,6 +185,7 @@
 | Name | Notion ID |
 |---|---|
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
+| Fix NPC/enemy ground positioning (auto-grounding + terrain offset) | 31c7700f-d0fb-81a9-8a92-eb792748e73e |
 | FF6-style overworld with WASD movement and camera follow | 3147700f-d0fb-8199-84ab-fd7b81806a26 |
 | In-game skill tree editor | 3147700f-d0fb-81e3-9f0b-d127387d464f |
 | Lake location debug heal (full HP/MP) | 3147700f-d0fb-81a7-acd5-d6fc7fbd5cb6 |
@@ -194,6 +194,7 @@
 | Multiple save slots with ring buffer history and auto-save (v5) | 3147700f-d0fb-8193-8014-e7962d0b616b |
 | Passive skill tree (gold-based unlocks) | 3147700f-d0fb-8193-aa88-c621abf57896 |
 | Procedural walk/idle animations (ModelAnimator) | 3167700f-d0fb-81c4-9b93-d8fa5e1062a5 |
+| Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
 | Save/load system | 3147700f-d0fb-81da-b76d-df2d3a042f5f |
 
 ## Audio

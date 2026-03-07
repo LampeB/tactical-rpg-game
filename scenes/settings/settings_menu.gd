@@ -28,6 +28,8 @@ const ACTION_NAMES := {
 }
 
 const WINDOW_MODE_NAMES := ["Windowed", "Borderless Fullscreen", "Exclusive Fullscreen"]
+const SHADOW_QUALITY_NAMES := ["Off", "Low", "Medium", "High"]
+const UI_SCALE_LABELS := ["75%", "100%", "125%", "150%"]
 
 
 func _ready() -> void:
@@ -68,6 +70,45 @@ func _build_display_tab() -> void:
 	vsync_btn.toggled.connect(_on_vsync_toggled)
 	vsync_row.add_child(vsync_btn)
 	_display_settings.add_child(vsync_row)
+
+	# Brightness row
+	var bright_row := _create_setting_row("Brightness")
+	var bright_slider := HSlider.new()
+	bright_slider.custom_minimum_size = Vector2(200, 0)
+	bright_slider.min_value = 0.5
+	bright_slider.max_value = 1.5
+	bright_slider.step = 0.05
+	bright_slider.value = DisplayManager.brightness
+	var bright_label := Label.new()
+	bright_label.text = "%.2f" % DisplayManager.brightness
+	bright_label.custom_minimum_size = Vector2(40, 0)
+	bright_slider.value_changed.connect(_on_brightness_changed.bind(bright_label))
+	bright_row.add_child(bright_slider)
+	bright_row.add_child(bright_label)
+	_display_settings.add_child(bright_row)
+
+	# Shadow quality row
+	var shadow_row := _create_setting_row("Shadow Quality")
+	var shadow_btn := OptionButton.new()
+	shadow_btn.custom_minimum_size = Vector2(250, 0)
+	for idx in SHADOW_QUALITY_NAMES.size():
+		shadow_btn.add_item(SHADOW_QUALITY_NAMES[idx], idx)
+	shadow_btn.selected = DisplayManager.shadow_quality
+	shadow_btn.item_selected.connect(_on_shadow_quality_changed)
+	shadow_row.add_child(shadow_btn)
+	_display_settings.add_child(shadow_row)
+
+	# UI Scale row
+	var scale_row := _create_setting_row("UI Scale")
+	var scale_btn := OptionButton.new()
+	scale_btn.custom_minimum_size = Vector2(250, 0)
+	for idx in UI_SCALE_LABELS.size():
+		scale_btn.add_item(UI_SCALE_LABELS[idx], idx)
+	var scale_idx := DisplayManager.UI_SCALE_OPTIONS.find(DisplayManager.ui_scale)
+	scale_btn.selected = maxi(scale_idx, 0)
+	scale_btn.item_selected.connect(_on_ui_scale_changed)
+	scale_row.add_child(scale_btn)
+	_display_settings.add_child(scale_row)
 
 	_update_resolution_enabled()
 
@@ -113,6 +154,20 @@ func _on_resolution_changed(idx: int) -> void:
 
 func _on_vsync_toggled(enabled: bool) -> void:
 	DisplayManager.set_vsync(enabled)
+
+
+func _on_brightness_changed(value: float, value_label: Label) -> void:
+	value_label.text = "%.2f" % value
+	DisplayManager.set_brightness(value)
+
+
+func _on_shadow_quality_changed(idx: int) -> void:
+	DisplayManager.set_shadow_quality(idx)
+
+
+func _on_ui_scale_changed(idx: int) -> void:
+	if idx >= 0 and idx < DisplayManager.UI_SCALE_OPTIONS.size():
+		DisplayManager.set_ui_scale(DisplayManager.UI_SCALE_OPTIONS[idx])
 
 
 # ─── Controls Tab ────────────────────────────────────────────────────────────
