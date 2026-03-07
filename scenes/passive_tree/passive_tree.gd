@@ -220,10 +220,9 @@ func _remove_pending_with_dependents(node_id: String) -> void:
 
 func _recalculate_pending_cost() -> void:
 	_pending_total_cost = 0
+	var already_unlocked: int = GameManager.party.get_unlocked_passives(_current_character_id).size()
 	for i in range(_pending_unlocks.size()):
-		var node: PassiveNodeData = _current_tree.get_node_by_id(_pending_unlocks[i])
-		if node:
-			_pending_total_cost += node.gold_cost
+		_pending_total_cost += Constants.get_passive_cost(already_unlocked + i)
 
 
 func _show_node_info(node_id: String) -> void:
@@ -258,14 +257,18 @@ func _show_node_info(node_id: String) -> void:
 	# Cost / status
 	var is_unlocked: bool = GameManager.party.is_passive_unlocked(_current_character_id, node_id)
 	var is_pending: bool = _pending_unlocks.has(node_id)
+	var already_unlocked: int = GameManager.party.get_unlocked_passives(_current_character_id).size()
 	if is_unlocked:
 		_node_cost_label.text = "UNLOCKED"
 		_node_cost_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_SUCCESS)
 	elif is_pending:
-		_node_cost_label.text = "PENDING (%d Gold)" % node.gold_cost
+		var pending_idx: int = _pending_unlocks.find(node_id)
+		var pending_cost: int = Constants.get_passive_cost(already_unlocked + pending_idx)
+		_node_cost_label.text = "PENDING (%d Gold)" % pending_cost
 		_node_cost_label.add_theme_color_override("font_color", Color(0.3, 0.7, 1.0))
 	else:
-		_node_cost_label.text = "Cost: %d Gold" % node.gold_cost
+		var next_cost: int = Constants.get_passive_cost(already_unlocked + _pending_unlocks.size())
+		_node_cost_label.text = "Cost: %d Gold" % next_cost
 		_node_cost_label.remove_theme_color_override("font_color")
 
 	# Prerequisites
@@ -293,12 +296,14 @@ func _update_pending_ui() -> void:
 
 	_pending_vbox.visible = true
 
-	# Build list of queued node names
+	# Build list of queued node names with escalating costs
 	var names: Array = []
+	var already_unlocked: int = GameManager.party.get_unlocked_passives(_current_character_id).size()
 	for i in range(_pending_unlocks.size()):
 		var node: PassiveNodeData = _current_tree.get_node_by_id(_pending_unlocks[i])
 		if node:
-			names.append("• %s (%d g)" % [node.display_name, node.gold_cost])
+			var cost: int = Constants.get_passive_cost(already_unlocked + i)
+			names.append("• %s (%d g)" % [node.display_name, cost])
 	_pending_list_label.text = "\n".join(names)
 
 	_pending_cost_label.text = "Total: %d Gold" % _pending_total_cost
