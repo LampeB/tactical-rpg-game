@@ -309,6 +309,15 @@ func _play_lunge_anim(lunge_dir: float) -> void:
 			tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 		tween.set_parallel(false)
 		tween.tween_interval(0.3)
+		# Punch — arm forward, forearm extends, chest twists opposite
+		tween.set_parallel(true)
+		tween.tween_property(_right_arm, "rotation:x", 1.0, 0.10)
+		if _right_forearm:
+			tween.tween_property(_right_forearm, "rotation:x", 0.0, 0.10)
+		if _chest:
+			tween.tween_property(_chest, "rotation:y", 0.2, 0.10)
+		tween.set_parallel(false)
+		tween.tween_interval(0.15)
 		# Return
 		tween.set_parallel(true)
 		_tween_reset_all(tween, 0.15)
@@ -347,6 +356,16 @@ func _play_slash_anim(_lunge_dir: float) -> void:
 	# Hold so pose is visible
 	tween.tween_interval(0.3)
 
+	# Punch — arm forward, forearm extends, chest twists opposite
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 1.0, 0.10)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 0.0, 0.10)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", 0.2, 0.10)
+	tween.set_parallel(false)
+	tween.tween_interval(0.15)
+
 	# Return
 	tween.set_parallel(true)
 	_tween_reset_all(tween, 0.15)
@@ -371,6 +390,15 @@ func _play_bash_anim(_lunge_dir: float) -> void:
 		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
+	# Punch — arm forward, forearm extends, chest twists opposite
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 1.0, 0.10)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 0.0, 0.10)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", 0.2, 0.10)
+	tween.set_parallel(false)
+	tween.tween_interval(0.15)
 	tween.set_parallel(true)
 	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
@@ -394,6 +422,15 @@ func _play_shoot_anim(_lunge_dir: float) -> void:
 		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
+	# Punch — arm forward, forearm extends, chest twists opposite
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 1.0, 0.10)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 0.0, 0.10)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", 0.2, 0.10)
+	tween.set_parallel(false)
+	tween.tween_interval(0.15)
 	tween.set_parallel(true)
 	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
@@ -417,6 +454,15 @@ func _play_cast_anim() -> void:
 		tween.tween_property(_chest, "rotation:y", -0.3, 0.20)
 	tween.set_parallel(false)
 	tween.tween_interval(0.3)
+	# Punch — arm forward, forearm extends, chest twists opposite
+	tween.set_parallel(true)
+	tween.tween_property(_right_arm, "rotation:x", 1.0, 0.10)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 0.0, 0.10)
+	if _chest:
+		tween.tween_property(_chest, "rotation:y", 0.2, 0.10)
+	tween.set_parallel(false)
+	tween.tween_interval(0.15)
 	tween.set_parallel(true)
 	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
