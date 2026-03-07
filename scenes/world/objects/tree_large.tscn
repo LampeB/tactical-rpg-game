@@ -1,28 +1,20 @@
 [gd_scene load_steps=4 format=3 uid="uid://ezfzjkz1bh2op"]
 
-[sub_resource type="StandardMaterial3D" id="1"]
-albedo_color = Color(0.4, 0.25, 0.1, 1)
-
-[sub_resource type="StandardMaterial3D" id="2"]
-albedo_color = Color(0.2, 0.5, 0.15, 1)
+[ext_resource type="PackedScene" path="res://assets/models/Nature/trunks/trunk_0/trunk_0.glb" id="trunk"]
+[ext_resource type="PackedScene" path="res://assets/models/Nature/canopies/canopy_0/canopy_0.glb" id="canopy"]
 
 [sub_resource type="BoxShape3D" id="3"]
-size = Vector3(0.6, 2.0, 0.6)
+size = Vector3(2.4, 9.0, 2.4)
 
 [node name="TreeLarge" type="StaticBody3D"]
 collision_mask = 0
 
-[node name="Trunk" type="CSGCylinder3D" parent="."]
-radius = 0.2
-height = 2.5
-position = Vector3(0, 1.25, 0)
-material = SubResource("1")
+[node name="Trunk" parent="." instance=ExtResource("trunk")]
+transform = Transform3D(1.02, 0, 0, 0, 1.02, 0, 0, 0, 1.02, 0, 0, 0)
 
-[node name="Foliage" type="CSGSphere3D" parent="."]
-radius = 1.5
-position = Vector3(0, 3.5, 0)
-material = SubResource("2")
+[node name="Canopy" parent="." instance=ExtResource("canopy")]
+transform = Transform3D(1.02, 0, 0, 0, 1.02, 0, 0, 0, 1.02, 0, 9.18, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.0, 0)
+position = Vector3(0, 4.5, 0)
 shape = SubResource("3")
