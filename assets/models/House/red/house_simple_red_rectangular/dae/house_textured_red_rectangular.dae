@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4.1" xmlns="http://www.collada.org/2005/11/COLLADASchema">
+  <asset>
+    <contributor>
+      <authoring_tool>VoxelImporter</authoring_tool>
+      <comments>https://assetstore.unity.com/packages/tools/modeling/voxel-importer-62914</comments>
+    </contributor>
+    <created>2021-11-07T09:10:20.628402+01:00</created>
+    <modified>2021-11-07T09:10:20.628402+01:00</modified>
+    <revision>1.0</revision>
+    <title>house_textured_red_rectangular</title>
+    <unit meter="1" name="meter" />
+  </asset>
+  <library_effects id="Effects_n1512" name="Effects_GameObject">
+    <effect id="Effect_n181998" name="house_textured_red_rectangular_0">
+      <profile_COMMON id="Profile_n181998">
+        <newparam sid="Surface_n181998">
+          <surface type="2D">
+            <init_from>Image_n1728</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Sampler2D_n181998">
+          <sampler2D>
+            <source>Surface_n181998</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="Technique_n181998">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">1 1 1 1</color>
+            </ambient>
+            <diffuse>
+              <texture texcoord="TexCoord_n1728" texture="Sampler2D_n181998" />
+            </diffuse>
+            <specular>
+              <color sid="specular">0 0 0 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries id="Geometries_n1512" name="Geometries_GameObject">
+    <geometry id="Geometry_n1730" name="house_textured_red_rectangular">
+      <mesh>
+        <source id="VertexSource_n1730" name="house_textured_red_rectangular_vertex">
+          <float_array id="VertexArray_n1730" name="house_textured_red_rectangular_vertex" count="72">
+7.2 7.2 3.6
+7.2 0 3.6
+-7.2 0 3.6
+-7.2 7.2 3.6
+7.2 7.2 -3.6
+7.2 7.2 3.6
+-7.2 7.2 3.6
+-7.2 7.2 -3.6
+-7.2 0 -3.6
+-7.2 7.2 -3.6
+-7.2 7.2 3.6
+-7.2 0 3.6
+7.2 0 3.6
+7.2 0 -3.6
+7.2 7.2 -3.6
+7.2 7.2 3.6
+-7.2 0 -3.6
+7.2 0 -3.6
+7.2 0 3.6
+-7.2 0 3.6
+7.2 0 -3.6
+-7.2 0 -3.6
+-7.2 7.2 -3.6
+7.2 7.2 -3.6</float_array>
+          <technique_common>
+            <accessor count="24" source="#VertexArray_n1730" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="UVSource_n1730" name="house_textured_red_rectangular_uv">
+          <float_array id="UVArray_n1730" name="house_textured_red_rectangular_uv" count="48">
+0.00390625 0.2851563
+0.00390625 0.00390625
+0.5664063 0.00390625
+0.5664063 0.2851563
+0.00390625 0.2929688
+0.00390625 0.5742188
+0.5664063 0.5742188
+0.5664063 0.2929688
+0.5742188 0.00390625
+0.8554688 0.00390625
+0.8554688 0.2851563
+0.5742188 0.2851563
+0.5742188 0.2851563
+0.5742188 0.00390625
+0.8554688 0.00390625
+0.8554688 0.2851563
+0.5664063 0.2929688
+0.00390625 0.2929688
+0.00390625 0.5742188
+0.5664063 0.5742188
+0.00390625 0.00390625
+0.5664063 0.00390625
+0.5664063 0.2851563
+0.00390625 0.2851563</float_array>
+          <technique_common>
+            <accessor count="24" source="#UVArray_n1730" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="NormalSource_n1730" name="house_textured_red_rectangular_normal">
+          <float_array id="NormalArray_n1730" name="house_textured_red_rectangular_normal" count="72">
+0 0 1
+0 0 1
+0 0 1
+0 0 1
+0 1 0
+0 1 0
+0 1 0
+0 1 0
+-1 0 0
+-1 0 0
+-1 0 0
+-1 0 0
+1 0 0
+1 0 0
+1 0 0
+1 0 0
+0 -1 0
+0 -1 0
+0 -1 0
+0 -1 0
+0 0 -1
+0 0 -1
+0 0 -1
+0 0 -1</float_array>
+          <technique_common>
+            <accessor count="24" source="#NormalArray_n1730" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Vertices_n1730" name="house_textured_red_rectangular_vertices">
+          <input semantic="POSITION" source="#VertexSource_n1730" />
+        </vertices>
+        <triangles name="house_textured_red_rectangular_triangles" count="12" material="Material_n181998">
+          <input semantic="VERTEX" source="#Vertices_n1730" offset="0" set="0" />
+          <input semantic="TEXCOORD" source="#UVSource_n1730" offset="1" set="0" />
+          <input semantic="NORMAL" source="#NormalSource_n1730" offset="2" set="0" />
+          <p>
+0 0 0 2 2 2 1 1 1
+0 0 0 3 3 3 2 2 2
+4 4 4 6 6 6 5 5 5
+4 4 4 7 7 7 6 6 6
+8 8 8 10 10 10 9 9 9
+8 8 8 11 11 11 10 10 10
+14 14 14 12 12 12 13 13 13
+15 15 15 12 12 12 14 14 14
+18 18 18 16 16 16 17 17 17
+19 19 19 16 16 16 18 18 18
+22 22 22 20 20 20 21 21 21
+23 23 23 20 20 20 22 22 22</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_images id="Images_n1512" name="Images_GameObject">
+    <image id="Image_n1728" name="house_textured_red_rectangular">
+      <init_from>house_textured_red_rectangular.png</init_from>
+    </image>
+  </library_images>
+  <library_materials id="Materials_n1512" name="Materials_GameObject">
+    <material id="Material_n181998" name="house_textured_red_rectangular_0">
+      <instance_effect url="#Effect_n181998" />
+    </material>
+  </library_materials>
+  <library_visual_scenes>
+    <visual_scene id="Scene_n1512" name="Scene">
+      <node id="Node_n1514" name="GameObject" sid="Node_n1514">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#Geometry_n1730">
+          <bind_material>
+            <technique_common>
+              <instance_material target="#Material_n181998" symbol="Material_n181998">
+                <bind_vertex_input input_semantic="TEXCOORD" input_set="1" semantic="TexCoord_n1728" />
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene_n1512" />
+  </scene>
+</COLLADA>

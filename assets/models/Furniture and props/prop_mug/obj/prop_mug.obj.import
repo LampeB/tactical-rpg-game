@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://xpd2240gxy00"
+path="res://.godot/imported/prop_mug.obj-57f601a552b98115a79b6f548e6fa886.mesh"
+
+[deps]
+
+files=["res://.godot/imported/prop_mug.obj-57f601a552b98115a79b6f548e6fa886.mesh"]
+
+source_file="res://assets/models/Furniture and props/prop_mug/obj/prop_mug.obj"
+dest_files=["res://.godot/imported/prop_mug.obj-57f601a552b98115a79b6f548e6fa886.mesh", "res://.godot/imported/prop_mug.obj-57f601a552b98115a79b6f548e6fa886.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

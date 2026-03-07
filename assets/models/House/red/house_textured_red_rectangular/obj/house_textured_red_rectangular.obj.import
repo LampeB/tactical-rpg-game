@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://wdgrur2x3wtc"
+path="res://.godot/imported/house_textured_red_rectangular.obj-538f93f5a903d978520e62991902b681.mesh"
+
+[deps]
+
+files=["res://.godot/imported/house_textured_red_rectangular.obj-538f93f5a903d978520e62991902b681.mesh"]
+
+source_file="res://assets/models/House/red/house_textured_red_rectangular/obj/house_textured_red_rectangular.obj"
+dest_files=["res://.godot/imported/house_textured_red_rectangular.obj-538f93f5a903d978520e62991902b681.mesh", "res://.godot/imported/house_textured_red_rectangular.obj-538f93f5a903d978520e62991902b681.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

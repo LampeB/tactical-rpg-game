@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://d2pln8k6c88jt"
+path="res://.godot/imported/trunk_6.obj-ff64c0a1a287127bd76b1a1775620f9e.mesh"
+
+[deps]
+
+files=["res://.godot/imported/trunk_6.obj-ff64c0a1a287127bd76b1a1775620f9e.mesh"]
+
+source_file="res://assets/models/Nature/trunks/trunk_6/obj/trunk_6.obj"
+dest_files=["res://.godot/imported/trunk_6.obj-ff64c0a1a287127bd76b1a1775620f9e.mesh", "res://.godot/imported/trunk_6.obj-ff64c0a1a287127bd76b1a1775620f9e.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
