@@ -45,6 +45,10 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 1
 
+[node name="ComparisonContainer" type="VBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
 [node name="ModifierSection" type="VBoxContainer" parent="Margin/VBox"]
 visible = false
 layout_mode = 2

@@ -11,6 +11,7 @@ var embedded: bool = false
 @onready var _type_label: Label = $Margin/VBox/TypeLabel
 @onready var _price_label: Label = $Margin/VBox/PriceLabel
 @onready var _stats_container: VBoxContainer = $Margin/VBox/StatsContainer
+@onready var _comparison_container: VBoxContainer = $Margin/VBox/ComparisonContainer
 @onready var _modifier_section: VBoxContainer = $Margin/VBox/ModifierSection
 @onready var _modifier_list: VBoxContainer = $Margin/VBox/ModifierSection/ModifierList
 @onready var _description_label: Label = $Margin/VBox/DescriptionLabel
@@ -49,8 +50,9 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 	else:
 		_price_label.visible = false
 
-	# Stats
+	# Stats & comparison
 	_clear_container(_stats_container)
+	_clear_container(_comparison_container)
 	for mod in item.stat_modifiers:
 		if mod is StatModifier:
 			var label: Label = Label.new()
@@ -185,6 +187,9 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 			var heal_pct: int = int(item.on_kill_heal_percent * 100)
 			_add_modifier_label("  On kill: heal %d%% of max HP" % heal_pct, legend_color)
 
+	# Comparison vs equipped
+	_build_comparison(item, placed, grid_inv)
+
 	# Description
 	_description_label.text = item.description
 	_description_label.visible = not item.description.is_empty()
@@ -206,6 +211,7 @@ func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) ->
 		_type_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 	_price_label.visible = false
 	_clear_container(_stats_container)
+	_clear_container(_comparison_container)
 	_modifier_section.visible = false
 	_clear_container(_modifier_list)
 	_description_label.text = "Left-click to purchase." if can_afford else "Not enough gold."
@@ -228,6 +234,7 @@ func show_empty_state() -> void:
 	_type_label.text = ""
 	_price_label.visible = false
 	_clear_container(_stats_container)
+	_clear_container(_comparison_container)
 	_modifier_section.visible = false
 	_clear_container(_modifier_list)
 	_description_label.text = "Hover an item to see details"
@@ -270,3 +277,164 @@ func _add_modifier_label(text: String, color: Color) -> void:
 	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
+
+
+# ─── Comparison vs equipped ──────────────────────────────────────────────────
+
+const COLOR_UPGRADE := Color(0.3, 1.0, 0.3)
+const COLOR_DOWNGRADE := Color(1.0, 0.3, 0.3)
+const COLOR_COMPARISON_HEADER := Color(0.7, 0.7, 0.7)
+
+
+func _build_comparison(item: ItemData, placed: GridInventory.PlacedItem, grid_inv: GridInventory) -> void:
+	if not grid_inv:
+		return
+
+	# Only compare equippable items (armor and weapons)
+	var is_armor := item.item_type == Enums.ItemType.PASSIVE_GEAR
+	var is_weapon := item.item_type == Enums.ItemType.ACTIVE_TOOL
+	if not is_armor and not is_weapon:
+		return
+
+	# Collect equipped items to compare against
+	var compare_targets: Array = []  # Array of {item: ItemData, placed: PlacedItem}
+
+	if is_armor:
+		var armor_slots: Dictionary = grid_inv.get_equipped_armor_slots()
+		var slot_placed: GridInventory.PlacedItem = armor_slots.get(item.armor_slot)
+		if slot_placed and not (placed and slot_placed == placed):
+			compare_targets.append({"item": slot_placed.item_data, "placed": slot_placed, "hand": ""})
+		elif not slot_placed and not placed:
+			# Stash item, empty slot → compare vs nothing
+			compare_targets.append({"item": null, "placed": null, "hand": ""})
+	else:
+		# Weapon: collect ALL equipped weapons with hand labels (skip self)
+		var hand_names: Array[String] = ["Main Hand", "Off Hand"]
+		var weapon_index: int = 0
+		for pi_idx in range(grid_inv.placed_items.size()):
+			var pi: GridInventory.PlacedItem = grid_inv.placed_items[pi_idx]
+			if pi.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+				var hand_label: String = hand_names[weapon_index] if weapon_index < hand_names.size() else "Hand %d" % (weapon_index + 1)
+				weapon_index += 1
+				if placed and pi == placed:
+					continue
+				compare_targets.append({"item": pi.item_data, "placed": pi, "hand": hand_label})
+		# Stash weapon with no weapons equipped → compare vs empty
+		if compare_targets.is_empty() and not placed:
+			compare_targets.append({"item": null, "placed": null, "hand": ""})
+
+	if compare_targets.is_empty():
+		return
+
+	# Show comparison for each target
+	for target_idx in range(compare_targets.size()):
+		var target: Dictionary = compare_targets[target_idx]
+		var equipped_item: ItemData = target["item"]
+		var hand: String = target.get("hand", "")
+		_add_comparison_vs(item, equipped_item, hand)
+
+
+func _add_comparison_vs(hovered_item: ItemData, equipped_item: ItemData, hand: String = "") -> void:
+	## Add comparison labels for hovered_item vs one equipped_item (or null for empty slot).
+	var hovered_stats := _collect_stat_values(hovered_item)
+	var equipped_stats: Dictionary = _collect_stat_values(equipped_item) if equipped_item else {}
+
+	# Collect all stats from both items
+	var all_stats: Dictionary = {}
+	for stat_key in hovered_stats:
+		all_stats[stat_key] = true
+	for stat_key in equipped_stats:
+		all_stats[stat_key] = true
+
+	var delta_entries: Array = []
+
+	# Power comparisons
+	var hovered_phys: int = hovered_item.base_power
+	var equipped_phys: int = equipped_item.base_power if equipped_item else 0
+	if hovered_phys - equipped_phys != 0:
+		delta_entries.append({"name": "Phys Power", "delta": hovered_phys - equipped_phys, "is_pct": false})
+
+	var hovered_mag: int = hovered_item.magical_power
+	var equipped_mag: int = equipped_item.magical_power if equipped_item else 0
+	if hovered_mag - equipped_mag != 0:
+		delta_entries.append({"name": "Mag Power", "delta": hovered_mag - equipped_mag, "is_pct": false})
+
+	# Stat modifier comparisons
+	for stat_key in all_stats:
+		var stat: Enums.Stat = stat_key as Enums.Stat
+		var stat_name: String = Enums.get_stat_name(stat)
+		var hovered_flat: float = hovered_stats.get(stat, {}).get("flat", 0.0)
+		var equipped_flat: float = equipped_stats.get(stat, {}).get("flat", 0.0)
+		var hovered_pct: float = hovered_stats.get(stat, {}).get("pct", 0.0)
+		var equipped_pct: float = equipped_stats.get(stat, {}).get("pct", 0.0)
+
+		var flat_delta: float = hovered_flat - equipped_flat
+		var pct_delta: float = hovered_pct - equipped_pct
+
+		if abs(flat_delta) > 0.01:
+			delta_entries.append({"name": stat_name, "delta": flat_delta, "is_pct": false})
+		if abs(pct_delta) > 0.01:
+			delta_entries.append({"name": stat_name, "delta": pct_delta, "is_pct": true})
+
+	if delta_entries.is_empty():
+		return
+
+	# Header
+	var header_text: String
+	if equipped_item:
+		var rarity_name: String = Constants.RARITY_NAMES.get(equipped_item.rarity, "Common")
+		if hand.is_empty():
+			header_text = "vs. %s (%s):" % [equipped_item.display_name, rarity_name]
+		else:
+			header_text = "vs. %s (%s) [%s]:" % [equipped_item.display_name, rarity_name, hand]
+	else:
+		header_text = "vs. Empty Slot:"
+	var header := Label.new()
+	header.text = header_text
+	header.add_theme_font_size_override("font_size", FONT_SIZE)
+	header.add_theme_color_override("font_color", COLOR_COMPARISON_HEADER)
+	_comparison_container.add_child(header)
+
+	# Delta labels
+	for entry_idx in range(delta_entries.size()):
+		var entry: Dictionary = delta_entries[entry_idx]
+		var delta_val: float = entry["delta"]
+		var is_pct: bool = entry["is_pct"]
+		var stat_name: String = entry["name"]
+
+		var arrow: String
+		var color: Color
+		if delta_val > 0:
+			arrow = "▲"
+			color = COLOR_UPGRADE
+		else:
+			arrow = "▼"
+			color = COLOR_DOWNGRADE
+
+		var value_str: String
+		if is_pct:
+			value_str = "%s %+.0f%% %s" % [arrow, delta_val, stat_name]
+		else:
+			value_str = "%s %+.0f %s" % [arrow, delta_val, stat_name]
+
+		var lbl := Label.new()
+		lbl.text = value_str
+		lbl.add_theme_font_size_override("font_size", FONT_SIZE)
+		lbl.add_theme_color_override("font_color", color)
+		_comparison_container.add_child(lbl)
+
+
+func _collect_stat_values(item: ItemData) -> Dictionary:
+	## Returns {Enums.Stat -> {"flat": float, "pct": float}} for an item's stat_modifiers.
+	var result: Dictionary = {}
+	if not item:
+		return result
+	for mod_idx in range(item.stat_modifiers.size()):
+		var mod: StatModifier = item.stat_modifiers[mod_idx]
+		if not result.has(mod.stat):
+			result[mod.stat] = {"flat": 0.0, "pct": 0.0}
+		if mod.modifier_type == Enums.ModifierType.FLAT:
+			result[mod.stat]["flat"] += mod.value
+		else:
+			result[mod.stat]["pct"] += mod.value
+	return result

@@ -88,7 +88,8 @@ func _ready() -> void:
 
 	_stash_panel.item_clicked.connect(_on_stash_item_clicked)
 	_stash_panel.item_hovered.connect(func(item: ItemData, pos: Vector2) -> void:
-		_item_tooltip.show_for_item(item, null, null, pos, _sell_price_for(item), "Sell"))
+		var inv: GridInventory = _player_grid_inventories.get(_current_character_id)
+		_item_tooltip.show_for_item(item, null, inv, pos, _sell_price_for(item), "Sell"))
 	_stash_panel.item_exited.connect(func() -> void: _item_tooltip.hide_tooltip())
 	_stash_panel.item_discard_requested.connect(_on_stash_discard_requested)
 	_stash_panel.set_label_prefix("Stash", false)
@@ -314,7 +315,8 @@ func _on_merchant_cell_hovered(grid_pos: Vector2i) -> void:
 		var price := ShopSystem.get_buy_price(placed.item_data, _shop_data)
 		_set_hover_info("%s  —  %dg" % [placed.item_data.display_name, price],
 			Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE))
-		_item_tooltip.show_for_item(placed.item_data, null, null,
+		var inv: GridInventory = _player_grid_inventories.get(_current_character_id)
+		_item_tooltip.show_for_item(placed.item_data, null, inv,
 			get_global_mouse_position(), price, "Buy")
 	else:
 		_item_tooltip.hide_tooltip()

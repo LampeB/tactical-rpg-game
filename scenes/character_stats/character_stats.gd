@@ -186,7 +186,8 @@ func _unhandled_input(event: InputEvent) -> void:
 						_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
 			elif _last_hovered_stash_item != null:
 				_hide_skills_section()
-				_item_tooltip.show_for_item(_last_hovered_stash_item, null, null, _last_hovered_stash_global_pos)
+				var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
+				_item_tooltip.show_for_item(_last_hovered_stash_item, null, inv, _last_hovered_stash_global_pos)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -688,7 +689,8 @@ func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 		_last_hovered_grid_pos = null
 		if _tooltips_enabled:
 			_hide_skills_section()
-			_item_tooltip.show_for_item(item, null, null, global_pos)
+			var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
+			_item_tooltip.show_for_item(item, null, inv, global_pos)
 
 
 func _on_stash_background_clicked() -> void:
