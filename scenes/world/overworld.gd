@@ -15,32 +15,8 @@ const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
 const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
 const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
 
-# Decoration scenes
-const _TREE_LARGE := preload("res://scenes/world/objects/tree_large.tscn")
-const _TREE_MEDIUM := preload("res://scenes/world/objects/tree_medium.tscn")
-const _TREE_SMALL := preload("res://scenes/world/objects/tree_small.tscn")
-const _ROCK_LARGE := preload("res://scenes/world/objects/rock_large.tscn")
-const _ROCK_MEDIUM := preload("res://scenes/world/objects/rock_medium.tscn")
-const _ROCK_SMALL := preload("res://scenes/world/objects/rock_small.tscn")
-const _BUSH := preload("res://scenes/world/objects/bush.tscn")
-const _FENCE := preload("res://scenes/world/objects/fence.tscn")
-const _SIGN := preload("res://scenes/world/objects/sign.tscn")
-const _FLOWER_RED := preload("res://scenes/world/objects/flower_red.tscn")
-const _FLOWER_YELLOW := preload("res://scenes/world/objects/flower_yellow.tscn")
-const _GRASS := preload("res://scenes/world/objects/grass_tuft.tscn")
-
-# Terrain block types (indices match tools/generate_mesh_library.gd)
-enum Block { GRASS, DIRT, STONE, WATER, PATH, SAND, DARK_GRASS, SNOW }
-const BLOCK_COLORS = [
-	Color(0.35, 0.55, 0.25, 1.0),  # Grass
-	Color(0.45, 0.32, 0.18, 1.0),  # Dirt
-	Color(0.5, 0.5, 0.5, 1.0),     # Stone
-	Color(0.2, 0.4, 0.8, 0.7),     # Water
-	Color(0.6, 0.5, 0.35, 1.0),    # Path
-	Color(0.85, 0.77, 0.55, 1.0),  # Sand
-	Color(0.25, 0.4, 0.2, 1.0),    # DarkGrass
-	Color(0.9, 0.9, 0.95, 1.0),    # Snow
-]
+@export var map_id: String = "overworld"
+var _map_data: MapData
 
 var _message_timer: float = 0.0
 var _current_message: String = ""
@@ -96,11 +72,32 @@ func _ready() -> void:
 	# Snap camera to player immediately, then allow smooth follow
 	_orbit_camera.global_position = _player.global_position
 
-	# Build terrain grid (replaces CSG ground plane)
-	_build_terrain()
-
-	# Populate world with decorations (trees, rocks, bushes, etc.)
-	_populate_world()
+	# Load map data and build the world
+	_map_data = MapDatabase.get_map(map_id)
+	if _map_data:
+		MapLoader.build_terrain(_map_data, self)
+		# Create parent nodes for spawned elements
+		var enemies_node := Node3D.new()
+		enemies_node.name = "Enemies"
+		add_child(enemies_node)
+		var chests_node := Node3D.new()
+		chests_node.name = "Chests"
+		add_child(chests_node)
+		MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
+		# Gather exclusion positions for decoration scattering
+		var exclusions: Array[Vector3] = [_player.global_position]
+		for marker in _location_markers.get_children():
+			if marker is Node3D:
+				exclusions.append(marker.position)
+		for enemy in enemies_node.get_children():
+			if enemy is Node3D:
+				exclusions.append(enemy.position)
+		for child in get_children():
+			if "npc_id" in child and child is Node3D:
+				exclusions.append(child.position)
+		MapLoader.spawn_decoration_zones(_map_data, self, exclusions)
+	else:
+		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
 
 	# Enable enemy detection after scene is fully loaded and player is positioned
 	_enable_enemy_detection()
@@ -349,182 +346,3 @@ func _go_to_main_menu() -> void:
 	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
 
 
-# === Terrain ===
-
-func _build_terrain() -> void:
-	## Creates a GridMap terrain with painted zones replacing the old flat ground plane.
-	var lib := MeshLibrary.new()
-	for i in BLOCK_COLORS.size():
-		lib.create_item(i)
-		var mesh := BoxMesh.new()
-		mesh.size = Vector3(1, 1, 1)
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = BLOCK_COLORS[i]
-		if BLOCK_COLORS[i].a < 1.0:
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mesh.material = mat
-		lib.set_item_mesh(i, mesh)
-		var shape := BoxShape3D.new()
-		shape.size = Vector3(1, 1, 1)
-		lib.set_item_shapes(i, [shape, Transform3D.IDENTITY])
-
-	var grid := GridMap.new()
-	grid.name = "Terrain"
-	grid.mesh_library = lib
-	grid.cell_size = Vector3(1, 1, 1)
-	grid.collision_layer = 1
-	grid.collision_mask = 0
-	grid.position.y = -1.0  # cell_center_y offsets by +0.5; box top at Y=0
-
-	for x in range(80):
-		for z in range(50):
-			grid.set_cell_item(Vector3i(x, 0, z), _get_terrain_block(x, z))
-
-	add_child(grid)
-	DebugLogger.log_info("Built GridMap terrain: 80x50 cells", "Overworld")
-
-
-func _get_terrain_block(x: int, z: int) -> int:
-	## Returns the block type for a grid cell based on world zones.
-	# Small pond in eastern wilds
-	if x >= 56 and x <= 59 and z >= 21 and z <= 24:
-		return Block.WATER
-	# Sand beach around pond
-	if x >= 55 and x <= 60 and z >= 20 and z <= 25:
-		return Block.SAND
-	# Road from town to cave (z:15-17, x:20→36)
-	if x >= 20 and x <= 36 and z >= 15 and z <= 17:
-		return Block.PATH
-	# Town main street (x:8-11)
-	if x >= 8 and x <= 11 and z >= 3 and z <= 18:
-		return Block.PATH
-	# Cave area (x:33-50, z:10-25)
-	if x >= 33 and x <= 50 and z >= 10 and z <= 25:
-		return Block.STONE
-	# Town area (x:3-20, z:3-18)
-	if x >= 3 and x <= 20 and z >= 3 and z <= 18:
-		return Block.DIRT
-	# Forest West (x:0-15, z:20-48)
-	if x <= 15 and z >= 20 and z <= 48:
-		return Block.DARK_GRASS
-	# Forest North (x:15-65, z:35-48)
-	if x >= 15 and x <= 65 and z >= 35 and z <= 48:
-		return Block.DARK_GRASS
-	# Default: open grassland
-	return Block.GRASS
-
-
-# === World Population ===
-
-func _populate_world() -> void:
-	## Procedurally spawns trees, rocks, bushes, flowers, fences, and signs.
-	## Uses seeded RNG for deterministic placement across sessions.
-	var decorations := Node3D.new()
-	decorations.name = "Decorations"
-
-	# Gather exclusion positions from entities (keep 2.5-unit radius clear)
-	var exclusions: Array[Vector3] = [_player.global_position]
-	for marker in _location_markers.get_children():
-		if marker is Node3D:
-			exclusions.append(marker.position)
-	for enemy in $Enemies.get_children():
-		if enemy is Node3D:
-			exclusions.append(enemy.position)
-	for child in get_children():
-		if "npc_id" in child and child is Node3D:
-			exclusions.append(child.position)
-
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 42
-	var placed: Array[Vector3] = []
-
-	# Zone definitions: rect = Rect2(x, z, width, depth) in XZ plane
-	var zones: Array[Dictionary] = [
-		# Border trees (edges of 80x50 map)
-		{"rect": Rect2(1, 1, 78, 2), "objects": [_TREE_LARGE], "count": 15, "spacing": 5.0},
-		{"rect": Rect2(1, 47, 78, 2), "objects": [_TREE_LARGE], "count": 15, "spacing": 5.0},
-		{"rect": Rect2(1, 3, 2, 44), "objects": [_TREE_LARGE], "count": 8, "spacing": 5.0},
-		{"rect": Rect2(77, 3, 2, 44), "objects": [_TREE_LARGE], "count": 8, "spacing": 5.0},
-		# Forest West (x:0-15, z:20-48)
-		{"rect": Rect2(0, 20, 15, 28), "objects": [_TREE_LARGE, _TREE_LARGE, _TREE_MEDIUM, _BUSH], "count": 25, "spacing": 3.0},
-		# Forest North (x:15-65, z:35-48)
-		{"rect": Rect2(15, 35, 50, 13), "objects": [_TREE_LARGE, _TREE_MEDIUM, _TREE_SMALL, _BUSH], "count": 25, "spacing": 3.0},
-		# Town (x:4-19, z:4-18) — light decorations only
-		{"rect": Rect2(4, 4, 15, 14), "objects": [_TREE_SMALL, _FLOWER_RED, _FLOWER_YELLOW, _GRASS, _GRASS], "count": 25, "spacing": 1.5},
-		# Road edges (x:20-38, z:12-24)
-		{"rect": Rect2(20, 12, 18, 12), "objects": [_BUSH, _FLOWER_RED, _FLOWER_YELLOW, _GRASS], "count": 15, "spacing": 2.0},
-		# Cave area (x:33-50, z:10-25) — rocky terrain
-		{"rect": Rect2(33, 10, 17, 15), "objects": [_ROCK_LARGE, _ROCK_MEDIUM, _ROCK_SMALL, _ROCK_SMALL, _TREE_SMALL], "count": 18, "spacing": 2.0},
-		# Eastern wilds (x:50-78, z:2-48) — mixed wilderness
-		{"rect": Rect2(50, 2, 28, 46), "objects": [_TREE_MEDIUM, _TREE_SMALL, _ROCK_MEDIUM, _ROCK_SMALL, _BUSH], "count": 30, "spacing": 3.5},
-	]
-
-	for zone in zones:
-		var rect: Rect2 = zone["rect"]
-		var obj_list: Array = zone["objects"]
-		var count: int = zone["count"]
-		var spacing: float = zone["spacing"]
-		var placed_in_zone: int = 0
-		var attempts: int = 0
-
-		while placed_in_zone < count and attempts < count * 10:
-			attempts += 1
-			var x: float = rng.randf_range(rect.position.x, rect.position.x + rect.size.x)
-			var z: float = rng.randf_range(rect.position.y, rect.position.y + rect.size.y)
-			var pos := Vector3(x, 0, z)
-
-			if _is_valid_placement(pos, exclusions, placed, spacing):
-				var scene: PackedScene = obj_list[rng.randi_range(0, obj_list.size() - 1)]
-				var obj: Node3D = scene.instantiate()
-				obj.position = pos
-				obj.rotation.y = rng.randf_range(0, TAU)
-				decorations.add_child(obj)
-				placed.append(pos)
-				placed_in_zone += 1
-
-	# Town fences along south edge (z=3, x:4→20)
-	var fence_x: float = 4.0
-	while fence_x <= 20.0:
-		var fence_obj: Node3D = _FENCE.instantiate()
-		fence_obj.position = Vector3(fence_x, 0, 3.0)
-		decorations.add_child(fence_obj)
-		fence_x += 1.5
-
-	# Town fences along west edge (x=3, z:4→18)
-	var fence_z: float = 4.0
-	while fence_z <= 18.0:
-		var fence_obj: Node3D = _FENCE.instantiate()
-		fence_obj.position = Vector3(3.0, 0, fence_z)
-		fence_obj.rotation.y = PI / 2.0
-		decorations.add_child(fence_obj)
-		fence_z += 1.5
-
-	# Signs at key locations
-	for sign_pos in [Vector3(9, 0, 3.5), Vector3(36, 0, 20), Vector3(20, 0, 17)]:
-		var sign_obj: Node3D = _SIGN.instantiate()
-		sign_obj.position = sign_pos
-		decorations.add_child(sign_obj)
-
-	add_child(decorations)
-	DebugLogger.log_info("Populated world with %d decorations" % decorations.get_child_count(), "Overworld")
-
-
-func _is_valid_placement(pos: Vector3, exclusions: Array[Vector3], placed_list: Array[Vector3], min_spacing: float) -> bool:
-	## Returns false if pos is too close to any exclusion zone or previously placed object.
-	const EXCLUSION_RADIUS := 2.5
-	var excl_sq: float = EXCLUSION_RADIUS * EXCLUSION_RADIUS
-	var spacing_sq: float = min_spacing * min_spacing
-
-	for excl in exclusions:
-		var dx: float = pos.x - excl.x
-		var dz: float = pos.z - excl.z
-		if dx * dx + dz * dz < excl_sq:
-			return false
-
-	for p in placed_list:
-		var dx: float = pos.x - p.x
-		var dz: float = pos.z - p.z
-		if dx * dx + dz * dz < spacing_sq:
-			return false
-
-	return true

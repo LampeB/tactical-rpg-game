@@ -110,11 +110,25 @@ func _physics_process(delta: float) -> void:
 
 func _is_in_safe_zone(pos: Vector3) -> bool:
 	var pos_2d := Vector2(pos.x, pos.z)
-	for zone_idx in range(Constants.ENEMY_SAFE_ZONES.size()):
-		var zone: Rect2 = Constants.ENEMY_SAFE_ZONES[zone_idx]
+	var zones: Array = _get_safe_zones()
+	for zone_idx in range(zones.size()):
+		var zone: Rect2 = zones[zone_idx]
 		if zone.has_point(pos_2d):
 			return true
 	return false
+
+
+func _get_safe_zones() -> Array:
+	## Returns safe zones from the current map data, falling back to Constants.
+	# Enemies live under Enemies node -> parent is Overworld
+	var parent_node: Node = get_parent()
+	if parent_node:
+		parent_node = parent_node.get_parent()
+	if parent_node and parent_node.get("_map_data") != null:
+		var map: MapData = parent_node.get("_map_data") as MapData
+		if map:
+			return map.enemy_safe_zones
+	return Constants.ENEMY_SAFE_ZONES
 
 
 func _choose_random_direction() -> void:
