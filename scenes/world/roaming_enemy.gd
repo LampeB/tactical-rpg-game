@@ -80,6 +80,14 @@ func _physics_process(delta: float) -> void:
 
 	# Move in current direction (horizontal only)
 	velocity = _move_direction * move_speed
+
+	# Don't enter safe zones (town, NPC areas)
+	if _move_direction.length() > 0.01:
+		var predicted_pos := global_position + _move_direction * move_speed * delta
+		if _is_in_safe_zone(predicted_pos):
+			_move_direction = -_move_direction
+			velocity = _move_direction * move_speed
+
 	if not is_on_floor():
 		velocity.y -= 9.8 * delta
 	move_and_slide()
@@ -98,6 +106,15 @@ func _physics_process(delta: float) -> void:
 		# Head back toward start
 		var dir := (horizontal_start - horizontal_pos).normalized()
 		_move_direction = Vector3(dir.x, 0, dir.z)
+
+
+func _is_in_safe_zone(pos: Vector3) -> bool:
+	var pos_2d := Vector2(pos.x, pos.z)
+	for zone_idx in range(Constants.ENEMY_SAFE_ZONES.size()):
+		var zone: Rect2 = Constants.ENEMY_SAFE_ZONES[zone_idx]
+		if zone.has_point(pos_2d):
+			return true
+	return false
 
 
 func _choose_random_direction() -> void:

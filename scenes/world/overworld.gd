@@ -374,7 +374,7 @@ func _build_terrain() -> void:
 	grid.cell_size = Vector3(1, 1, 1)
 	grid.collision_layer = 1
 	grid.collision_mask = 0
-	grid.position.y = -0.5  # Top surface aligns with Y=0
+	grid.position.y = -1.0  # cell_center_y offsets by +0.5; box top at Y=0
 
 	for x in range(80):
 		for z in range(50):
