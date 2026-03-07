@@ -1,56 +1,162 @@
 {
-  "body": {
-    "node_name": "Body",
+  "voxel_size": 0.03,
+  "hip": {
+    "node_name": "Hip",
     "pivot": [
       0.0,
-      0.7,
+      0.96,
       0.0
     ],
     "top_pivot": false
+  },
+  "belly": {
+    "node_name": "Belly",
+    "pivot": [
+      0.0,
+      0.21,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "Hip"
+  },
+  "chest": {
+    "node_name": "Chest",
+    "pivot": [
+      0.0,
+      0.21,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "Belly"
   },
   "head": {
     "node_name": "Head",
     "pivot": [
       0.0,
-      1.7,
+      0.39,
       0.0
     ],
-    "top_pivot": false
+    "top_pivot": false,
+    "parent": "Chest"
+  },
+  "left_thigh": {
+    "node_name": "LeftThigh",
+    "pivot": [
+      -0.12,
+      -0.021,
+      0.0
+    ],
+    "top_pivot": true,
+    "parent": "Hip"
+  },
+  "right_thigh": {
+    "node_name": "RightThigh",
+    "pivot": [
+      0.12,
+      -0.021,
+      0.0
+    ],
+    "top_pivot": true,
+    "parent": "Hip"
   },
   "left_leg": {
     "node_name": "LeftLeg",
     "pivot": [
-      -0.1,
-      0.7,
+      0.0,
+      -0.42,
       0.0
     ],
-    "top_pivot": true
+    "top_pivot": true,
+    "parent": "LeftThigh"
   },
   "right_leg": {
     "node_name": "RightLeg",
     "pivot": [
-      0.1,
-      0.7,
+      0.0,
+      -0.42,
       0.0
     ],
-    "top_pivot": true
+    "top_pivot": true,
+    "parent": "RightThigh"
+  },
+  "left_foot": {
+    "node_name": "LeftFoot",
+    "pivot": [
+      0.0,
+      -0.33,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "LeftLeg"
+  },
+  "right_foot": {
+    "node_name": "RightFoot",
+    "pivot": [
+      0.0,
+      -0.33,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "RightLeg"
   },
   "left_arm": {
     "node_name": "LeftArm",
     "pivot": [
       -0.3,
-      1.5,
+      0.33,
       0.0
     ],
-    "top_pivot": true
+    "top_pivot": true,
+    "parent": "Chest"
   },
   "right_arm": {
     "node_name": "RightArm",
     "pivot": [
       0.3,
-      1.5,
+      0.33,
       0.0
     ],
-    "top_pivot": true
+    "top_pivot": true,
+    "parent": "Chest"
+  },
+  "left_forearm": {
+    "node_name": "LeftForearm",
+    "pivot": [
+      0.0,
+      -0.33,
+      0.0
+    ],
+    "top_pivot": true,
+    "parent": "LeftArm"
+  },
+  "right_forearm": {
+    "node_name": "RightForearm",
+    "pivot": [
+      0.0,
+      -0.33,
+      0.0
+    ],
+    "top_pivot": true,
+    "parent": "RightArm"
+  },
+  "left_hand": {
+    "node_name": "LeftHand",
+    "pivot": [
+      0.0,
+      -0.24,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "LeftForearm"
+  },
+  "right_hand": {
+    "node_name": "RightHand",
+    "pivot": [
+      0.0,
+      -0.24,
+      0.0
+    ],
+    "top_pivot": false,
+    "parent": "RightForearm"
   }
 }

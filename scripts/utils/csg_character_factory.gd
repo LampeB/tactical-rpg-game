@@ -208,13 +208,22 @@ static func _try_load_multipart_vox(base_dir: String) -> Node3D:
 	if assembly.is_empty():
 		return null
 
+	# Read optional voxel_size (HD models use 0.06, legacy uses default 0.1)
+	var vox_size: float = assembly.get("voxel_size", 0.1)
+
 	var root := Node3D.new()
 	root.name = "VoxCharacter"
 
+	# First pass: create all pivot nodes and attach to root
+	var pivot_nodes: Dictionary = {}  # node_name -> Node3D
 	for part_key in assembly:
-		var part_data: Dictionary = assembly[part_key]
+		var part_value: Variant = assembly[part_key]
+		if not part_value is Dictionary:
+			continue  # Skip metadata keys like "voxel_size"
+		var part_data: Dictionary = part_value
+
 		var vox_path: String = base_dir + "/" + str(part_key) + ".vox"
-		var mesh: ArrayMesh = VoxImporter.load_vox(vox_path)
+		var mesh: ArrayMesh = VoxImporter.load_vox(vox_path, vox_size)
 		if not mesh:
 			continue
 
@@ -239,6 +248,24 @@ static func _try_load_multipart_vox(base_dir: String) -> Node3D:
 			mesh_inst.position.y = -(aabb.position.y + aabb.size.y)
 
 		pivot_node.add_child(mesh_inst)
+		pivot_nodes[node_name] = pivot_node
+
+	# Second pass: re-parent child parts (hands -> arms, feet -> legs)
+	for part_key in assembly:
+		var part_value: Variant = assembly[part_key]
+		if not part_value is Dictionary:
+			continue
+		var part_data: Dictionary = part_value
+		var parent_name: String = part_data.get("parent", "")
+		if parent_name.is_empty():
+			continue
+
+		var node_name: String = part_data.get("node_name", part_key)
+		var child_node: Node3D = pivot_nodes.get(node_name)
+		var parent_node: Node3D = pivot_nodes.get(parent_name)
+		if child_node and parent_node:
+			root.remove_child(child_node)
+			parent_node.add_child(child_node)
 
 	return root
 
