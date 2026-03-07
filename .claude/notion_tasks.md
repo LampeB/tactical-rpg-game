@@ -119,19 +119,16 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
-| Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
-| Shadow quality setting in graphics options (off/low/medium/high) | 31a7700f-d0fb-81e6-8234-ffbe8e29cc12 |
-| UI scale option in settings | 31a7700f-d0fb-8119-8d48-fe49d5aa3000 |
-| Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
-| Take All button on loot screen (enabled when items fit in stash) | 31c7700f-d0fb-8129-8021-cdc40ee4a0c3 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
+| Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
+| Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
+| Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Auto-fill ingredients in crafting recipes | 3187700f-d0fb-81df-bb9d-f87b59bec21c |
 | Highlight matching inventory/stash items when hovering a recipe ingredient | 3187700f-d0fb-814c-b7b4-c76366ceb13c |
 | Quick indicator showing if player can craft a recipe (has all ingredients) | 3187700f-d0fb-810f-bea5-f407af15a305 |
@@ -155,9 +152,12 @@
 | Squad composition management | 3147700f-d0fb-8102-b0f6-ca4b09adefda |
 | Squad screen navigation fix | 3147700f-d0fb-81ff-8966-da551579994a |
 | Stash sorting and filtering (by type, rarity; primary + secondary sort) | 3147700f-d0fb-8177-b8a8-f2c7956f3ad3 |
+| Take All button on loot screen (enabled when items fit in stash) | 31c7700f-d0fb-8129-8021-cdc40ee4a0c3 |
 | Stat screen per character | 3147700f-d0fb-81fd-8c8c-c66fcafd3574 |
 | Tooltip doesn't disappear in blacksmith interface | 3147700f-d0fb-8122-8a64-da9a1102d7fe |
+| Shadow quality setting in graphics options (off/low/medium/high) | 31a7700f-d0fb-81e6-8234-ffbe8e29cc12 |
 | Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
+| UI scale option in settings | 31a7700f-d0fb-8119-8d48-fe49d5aa3000 |
 | Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
 | Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
 

@@ -1,0 +1,344 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=49 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/map_data.gd" id="script_map_data"]
+[ext_resource type="Script" path="res://scripts/resources/map_element.gd" id="script_map_element"]
+[ext_resource type="Script" path="res://scripts/resources/decoration_zone_data.gd" id="script_deco_zone"]
+
+[sub_resource type="Resource" id="1"]
+script = ExtResource("script_map_element")
+element_type = 3
+position = Vector3(9, 0, 6)
+resource_id = "res://data/locations/town_start.tres"
+
+[sub_resource type="Resource" id="2"]
+script = ExtResource("script_map_element")
+element_type = 3
+position = Vector3(38, 0, 20)
+resource_id = "res://data/locations/dungeon_cave.tres"
+
+[sub_resource type="Resource" id="3"]
+script = ExtResource("script_map_element")
+element_type = 0
+position = Vector3(18, 0, 10)
+resource_id = "blacksmith"
+
+[sub_resource type="Resource" id="4"]
+script = ExtResource("script_map_element")
+element_type = 0
+position = Vector3(9, 0, 10)
+resource_id = "merchant"
+
+[sub_resource type="Resource" id="5"]
+script = ExtResource("script_map_element")
+element_type = 0
+position = Vector3(13, 0, 15)
+resource_id = "weaver"
+
+[sub_resource type="Resource" id="6"]
+script = ExtResource("script_map_element")
+element_type = 0
+position = Vector3(13, 0, 10)
+resource_id = "doctor"
+
+[sub_resource type="Resource" id="7"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(19, 0, 12)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="8"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(25, 0, 19)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="9"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(16, 0, 22)
+resource_id = "res://data/encounters/encounter_goblins.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="10"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(34, 0, 12)
+resource_id = "res://data/encounters/encounter_goblins.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="11"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(41, 0, 22)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="12"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(30, 0, 11)
+resource_id = "res://data/encounters/encounter_minotaur.tres"
+enemy_color = Color(1, 0.3, 0.3, 1)
+patrol_distance = 3.0
+
+[sub_resource type="Resource" id="13"]
+script = ExtResource("script_map_element")
+element_type = 2
+position = Vector3(22, 0, 15)
+resource_id = "test_chest_wooden"
+
+[sub_resource type="Resource" id="14"]
+script = ExtResource("script_map_element")
+element_type = 5
+position = Vector3(9, 0, 3.5)
+resource_id = "res://scenes/world/objects/sign.tscn"
+
+[sub_resource type="Resource" id="15"]
+script = ExtResource("script_map_element")
+element_type = 5
+position = Vector3(36, 0, 20)
+resource_id = "res://scenes/world/objects/sign.tscn"
+
+[sub_resource type="Resource" id="16"]
+script = ExtResource("script_map_element")
+element_type = 5
+position = Vector3(20, 0, 17)
+resource_id = "res://scenes/world/objects/sign.tscn"
+
+[sub_resource type="Resource" id="17"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(4.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="18"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(5.5, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="19"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(7.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="20"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(8.5, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="21"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(10.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="22"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(11.5, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="23"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(13.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="24"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(14.5, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="25"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(16.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="26"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(17.5, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="27"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(19.0, 0, 3.0)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="28"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 4.0)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="29"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 5.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="30"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 7.0)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="31"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 8.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="32"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 10.0)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="33"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 11.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="34"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 13.0)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="35"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 14.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="36"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 16.0)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="37"]
+script = ExtResource("script_map_element")
+element_type = 6
+position = Vector3(3.0, 0, 17.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="38"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Top"
+rect = Rect2(1, 1, 78, 2)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+count = 15
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="39"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Bottom"
+rect = Rect2(1, 47, 78, 2)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+count = 15
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="40"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Left"
+rect = Rect2(1, 3, 2, 44)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+count = 8
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="41"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Right"
+rect = Rect2(77, 3, 2, 44)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+count = 8
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="42"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest West"
+rect = Rect2(0, 20, 15, 28)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/bush.tscn"])
+count = 25
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="43"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest North"
+rect = Rect2(15, 35, 50, 13)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/bush.tscn"])
+count = 25
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="44"]
+script = ExtResource("script_deco_zone")
+zone_name = "Town"
+rect = Rect2(4, 4, 15, 14)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_yellow.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/grass_tuft.tscn"])
+count = 25
+min_spacing = 1.5
+
+[sub_resource type="Resource" id="45"]
+script = ExtResource("script_deco_zone")
+zone_name = "Road Edges"
+rect = Rect2(20, 12, 18, 12)
+decoration_scenes = Array[String](["res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_yellow.tscn", "res://scenes/world/objects/grass_tuft.tscn"])
+count = 15
+min_spacing = 2.0
+
+[sub_resource type="Resource" id="46"]
+script = ExtResource("script_deco_zone")
+zone_name = "Cave Area"
+rect = Rect2(33, 10, 17, 15)
+decoration_scenes = Array[String](["res://scenes/world/objects/rock_large.tscn", "res://scenes/world/objects/rock_medium.tscn", "res://scenes/world/objects/rock_small.tscn", "res://scenes/world/objects/rock_small.tscn", "res://scenes/world/objects/tree_small.tscn"])
+count = 18
+min_spacing = 2.0
+
+[sub_resource type="Resource" id="47"]
+script = ExtResource("script_deco_zone")
+zone_name = "Eastern Wilds"
+rect = Rect2(50, 2, 28, 46)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/rock_medium.tscn", "res://scenes/world/objects/rock_small.tscn", "res://scenes/world/objects/bush.tscn"])
+count = 30
+min_spacing = 3.5
+
+[resource]
+script = ExtResource("script_map_data")
+id = "overworld"
+display_name = "Overworld"
+grid_width = 80
+grid_height = 50
+terrain_cells = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 3, 3, 3, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 3, 3, 3, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 3, 3, 3, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 3, 3, 3, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+player_spawn = Vector3(30, 0, 17)
+elements = Array[Resource]([SubResource("1"), SubResource("2"), SubResource("3"), SubResource("4"), SubResource("5"), SubResource("6"), SubResource("7"), SubResource("8"), SubResource("9"), SubResource("10"), SubResource("11"), SubResource("12"), SubResource("13"), SubResource("14"), SubResource("15"), SubResource("16"), SubResource("17"), SubResource("18"), SubResource("19"), SubResource("20"), SubResource("21"), SubResource("22"), SubResource("23"), SubResource("24"), SubResource("25"), SubResource("26"), SubResource("27"), SubResource("28"), SubResource("29"), SubResource("30"), SubResource("31"), SubResource("32"), SubResource("33"), SubResource("34"), SubResource("35"), SubResource("36"), SubResource("37")])
+decoration_zones = Array[Resource]([SubResource("38"), SubResource("39"), SubResource("40"), SubResource("41"), SubResource("42"), SubResource("43"), SubResource("44"), SubResource("45"), SubResource("46"), SubResource("47")])
+decoration_seed = 42
+encounter_zones = Array[Resource]([])
+connections = Array[Resource]([])
+enemy_safe_zones = Array[Rect2]([Rect2(2, 2, 19, 17)])

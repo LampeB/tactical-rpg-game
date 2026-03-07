@@ -14,6 +14,7 @@ func _ready() -> void:
 	$VBoxContainer/ItemEditorButton.pressed.connect(_on_item_editor_pressed)
 	$VBoxContainer/NpcEditorButton.pressed.connect(_on_npc_editor_pressed)
 	$VBoxContainer/BackpackEditorButton.pressed.connect(_on_backpack_editor_pressed)
+	$VBoxContainer/MapEditorButton.pressed.connect(_on_map_editor_pressed)
 	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 	_confirm_dialog.confirmed.connect(_start_new_game)
@@ -84,6 +85,10 @@ func _on_npc_editor_pressed() -> void:
 
 func _on_backpack_editor_pressed() -> void:
 	SceneManager.push_scene("res://scenes/backpack_editor/backpack_editor.tscn")
+
+
+func _on_map_editor_pressed() -> void:
+	SceneManager.push_scene("res://scenes/map_editor/map_editor.tscn")
 
 
 func _on_settings_pressed() -> void:
