@@ -314,6 +314,7 @@ func _toggle_pause_menu() -> void:
 	_pause_menu_instance.save_requested.connect(_open_save_screen)
 	_pause_menu_instance.load_requested.connect(_open_load_screen)
 	_pause_menu_instance.quest_log_requested.connect(_open_quest_log)
+	_pause_menu_instance.settings_requested.connect(_open_settings)
 	_pause_menu_instance.main_menu_requested.connect(_go_to_main_menu)
 
 
@@ -333,6 +334,12 @@ func _open_quest_log() -> void:
 	_pause_menu_instance.queue_free()
 	_pause_menu_instance = null
 	SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
+
+
+func _open_settings() -> void:
+	_pause_menu_instance.queue_free()
+	_pause_menu_instance = null
+	SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")
 
 
 func _go_to_main_menu() -> void:

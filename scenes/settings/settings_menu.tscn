@@ -54,16 +54,28 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "Keyboard Shortcuts"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer"]
+[node name="TabContainer" type="TabContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="KeybindContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/ScrollContainer"]
+[node name="Display" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="DisplaySettings" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="Controls" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer/Controls"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="KeybindContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer/Controls/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -130,3 +142,4 @@ vertical_alignment = 1
 
 [connection signal="pressed" from="Panel/MarginContainer/VBoxContainer/ButtonContainer/ResetAllButton" to="." method="_on_reset_all_pressed"]
 [connection signal="pressed" from="Panel/MarginContainer/VBoxContainer/ButtonContainer/BackButton" to="." method="_on_back_pressed"]
+[connection signal="tab_changed" from="Panel/MarginContainer/VBoxContainer/TabContainer" to="." method="_on_tab_changed"]
