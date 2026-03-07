@@ -17,7 +17,22 @@ var _animator: ModelAnimator = null
 # Cached limb references for attack animations (humanoid models only)
 var _left_arm: Node3D = null
 var _right_arm: Node3D = null
+var _left_forearm: Node3D = null
+var _right_forearm: Node3D = null
+var _left_hand: Node3D = null
+var _right_hand: Node3D = null
 var _has_limbs: bool = false
+
+# Torso and leg references for full-body attack animations
+var _hip: Node3D = null
+var _belly: Node3D = null
+var _chest: Node3D = null
+var _left_thigh: Node3D = null
+var _right_thigh: Node3D = null
+var _left_calf: Node3D = null
+var _right_calf: Node3D = null
+var _left_foot: Node3D = null
+var _right_foot: Node3D = null
 
 
 func setup(entity: CombatEntity) -> void:
@@ -45,13 +60,55 @@ func setup(entity: CombatEntity) -> void:
 	add_child(_animator)
 	_animator.setup(_model)
 
-	# Cache limb references for attack animations
-	_left_arm = _model.get_node_or_null("LeftArm")
-	_right_arm = _model.get_node_or_null("RightArm")
+	# Cache all body part references for full-body attack animations
+	_hip = _find_part(_model, "Hip")
+	if _hip:
+		# 16-part skeleton — find parts in hierarchy
+		_belly = _find_part(_hip, "Belly")
+		_chest = _find_part(_hip, "Chest")
+		var chest_or_model: Node3D = _chest if _chest else _model
+		_left_arm = _find_part(chest_or_model, "LeftArm")
+		_right_arm = _find_part(chest_or_model, "RightArm")
+		_left_thigh = _find_part(_hip, "LeftThigh")
+		_right_thigh = _find_part(_hip, "RightThigh")
+	else:
+		# 10-part or flat hierarchy
+		_left_arm = _find_part(_model, "LeftArm")
+		_right_arm = _find_part(_model, "RightArm")
+
 	_has_limbs = _left_arm != null and _right_arm != null
+	if not _has_limbs:
+		push_warning("BattleSprite: no limbs found for %s (L=%s R=%s)" % [
+			entity.entity_name,
+			str(_left_arm != null),
+			str(_right_arm != null)])
+
+	# Forearms and hands
+	if _left_arm:
+		_left_forearm = _find_part(_left_arm, "LeftForearm")
+		_left_hand = _find_part(_left_arm, "LeftHand")
+	if _right_arm:
+		_right_forearm = _find_part(_right_arm, "RightForearm")
+		_right_hand = _find_part(_right_arm, "RightHand")
+	# Calves and feet
+	if _left_thigh:
+		_left_calf = _find_part(_left_thigh, "LeftLeg")
+		_left_foot = _find_part(_left_thigh, "LeftFoot")
+	if _right_thigh:
+		_right_calf = _find_part(_right_thigh, "RightLeg")
+		_right_foot = _find_part(_right_thigh, "RightFoot")
 
 	# Build click detection area
 	_build_click_area()
+
+
+func _find_part(parent: Node3D, part_name: String) -> Node3D:
+	var node: Node = parent.get_node_or_null(part_name)
+	if not node:
+		node = parent.find_child(part_name, true, false)
+	if node is Node3D:
+		return node as Node3D
+	return null
 
 
 func _build_click_area() -> void:
@@ -91,20 +148,21 @@ func _on_area_mouse_exited() -> void:
 
 func _get_all_materials() -> Array:
 	## Collects all StandardMaterial3D instances from the model tree.
-	## Handles both flat (CSG/single-vox) and nested (multi-part vox) structures.
+	## Recursively handles nested structures (hands inside arms, feet inside legs).
 	var mats: Array = []
 	if not _model:
 		return mats
-	for child in _model.get_children():
+	_collect_materials_recursive(_model, mats)
+	return mats
+
+
+func _collect_materials_recursive(node: Node, mats: Array) -> void:
+	for child in node.get_children():
 		var mat: StandardMaterial3D = _get_node_material(child)
 		if mat:
 			mats.append(mat)
-		# Check grandchildren for multi-part models (root > pivot > Mesh)
-		for grandchild in child.get_children():
-			mat = _get_node_material(grandchild)
-			if mat:
-				mats.append(mat)
-	return mats
+		if child.get_child_count() > 0:
+			_collect_materials_recursive(child, mats)
 
 
 func _set_emission(color: Color, energy: float) -> void:
@@ -234,72 +292,60 @@ func _resume_animator() -> void:
 
 
 func _play_lunge_anim(lunge_dir: float) -> void:
-	## Default lunge: quick forward-back on X axis.
-	_pause_animator()
-	var base_x: float = position.x
-	var tween := create_tween()
-	tween.tween_property(self, "position:x", base_x + lunge_dir, 0.15)
-	tween.tween_property(self, "position:x", base_x, 0.15)
-	tween.tween_callback(func() -> void:
-		_resume_animator()
-		animation_finished.emit()
-	)
-
-
-func _play_slash_anim(lunge_dir: float) -> void:
-	## Slash: right arm swings forward, slight body lunge.
-	_pause_animator()
-	var base_x: float = position.x
-	var tween := create_tween()
-
-	# Wind up — pull arm back
-	tween.tween_property(_right_arm, "rotation:x", -0.6, 0.08)
-
-	# Swing forward + lunge
-	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.8, 0.12)
-	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.4, 0.12)
-	tween.set_parallel(false)
-
-	# Return to neutral
-	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.15)
-	tween.tween_property(self, "position:x", base_x, 0.15)
-	tween.set_parallel(false)
-
-	tween.tween_callback(func() -> void:
-		_resume_animator()
-		animation_finished.emit()
-	)
-
-
-func _play_bash_anim(lunge_dir: float) -> void:
-	## Bash: both arms raise then slam down with a small hop.
+	## Default lunge: punch with step forward.
+	## rotation.x signs: negative = arm back, positive = arm forward (model-local space).
 	_pause_animator()
 	var base_x: float = position.x
 	var base_y: float = position.y
 	var tween := create_tween()
 
-	# Raise arms + hop
+	if _has_limbs:
+		# Wind-up — arm back, forearm curls
+		tween.set_parallel(true)
+		tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
+		if _right_forearm:
+			tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+		tween.set_parallel(false)
+		tween.tween_interval(0.3)
+		# Return
+		tween.set_parallel(true)
+		_tween_reset_all(tween, 0.15)
+		tween.set_parallel(false)
+	else:
+		# No limbs — hop-lunge
+		tween.set_parallel(true)
+		tween.tween_property(self, "position:x", base_x + lunge_dir * 1.2, 0.15)
+		tween.tween_property(self, "position:y", base_y + 0.15, 0.08)
+		tween.set_parallel(false)
+		tween.set_parallel(true)
+		tween.tween_property(self, "position:x", base_x, 0.18)
+		tween.tween_property(self, "position:y", base_y, 0.18)
+		tween.set_parallel(false)
+
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
+
+
+func _play_slash_anim(_lunge_dir: float) -> void:
+	## Slash: wind-up, hold, return. Same as confirmed working test.
+	_pause_animator()
+	var tween := create_tween()
+
+	# Wind-up — arm back, forearm curls (confirmed working)
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", -1.0, 0.12)
-	tween.tween_property(_left_arm, "rotation:x", -1.0, 0.12)
-	tween.tween_property(self, "position:y", base_y + 0.15, 0.12)
+	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
 	tween.set_parallel(false)
 
-	# Slam down + lunge
-	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.5, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(_left_arm, "rotation:x", 0.5, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "position:y", base_y, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.3, 0.1)
-	tween.set_parallel(false)
+	# Hold so pose is visible
+	tween.tween_interval(0.3)
 
-	# Reset
+	# Return
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.13)
-	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.13)
-	tween.tween_property(self, "position:x", base_x, 0.13)
+	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
 
 	tween.tween_callback(func() -> void:
@@ -308,28 +354,40 @@ func _play_bash_anim(lunge_dir: float) -> void:
 	)
 
 
-func _play_shoot_anim(lunge_dir: float) -> void:
-	## Shoot: draw back then snap release forward.
+func _play_bash_anim(_lunge_dir: float) -> void:
+	## Bash: same test as all others for now.
 	_pause_animator()
-	var base_x: float = position.x
 	var tween := create_tween()
 
-	# Draw back — pull right arm back, lean body away
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.15)
-	tween.tween_property(self, "position:x", base_x - lunge_dir * 0.2, 0.15)
+	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+	tween.set_parallel(false)
+	tween.tween_interval(0.3)
+	tween.set_parallel(true)
+	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
 
-	# Release — snap arm forward, small lunge
-	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.4, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.15, 0.1)
-	tween.set_parallel(false)
+	tween.tween_callback(func() -> void:
+		_resume_animator()
+		animation_finished.emit()
+	)
 
-	# Return to neutral
+
+func _play_shoot_anim(_lunge_dir: float) -> void:
+	## Shoot: same test as all others for now.
+	_pause_animator()
+	var tween := create_tween()
+
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.1)
-	tween.tween_property(self, "position:x", base_x, 0.1)
+	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
+	tween.set_parallel(false)
+	tween.tween_interval(0.3)
+	tween.set_parallel(true)
+	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
 
 	tween.tween_callback(func() -> void:
@@ -339,54 +397,57 @@ func _play_shoot_anim(lunge_dir: float) -> void:
 
 
 func _play_cast_anim() -> void:
-	## Cast with 3 phases: channel (arms raise + glow builds), release (thrust +
-	## bright flash), recoil (small backward step + fade).
+	## Cast: same test as all others for now.
 	_pause_animator()
-	var base_x: float = position.x
-	var base_y: float = position.y
-	var lunge_dir: float = 1.0 if _entity.is_player else -1.0
 	var tween := create_tween()
 
-	# Phase 1 — Channel: arms raise, body lifts, glow builds
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", -1.2, 0.18).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_left_arm, "rotation:x", -1.2, 0.18).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "position:y", base_y + 0.1, 0.18)
+	tween.tween_property(_right_arm, "rotation:x", -0.8, 0.20)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 1.2, 0.20)
 	tween.set_parallel(false)
-	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
-	tween.tween_interval(0.08)
-	tween.tween_callback(func() -> void: _set_emission(Color(0.5, 0.7, 1.0), 0.6))
-	tween.tween_interval(0.06)
-
-	# Phase 2 — Release: arms thrust forward, bright flash, slight lunge
-	tween.tween_callback(func() -> void: _set_emission(Color(0.7, 0.85, 1.0), 1.2))
+	tween.tween_interval(0.3)
 	tween.set_parallel(true)
-	tween.tween_property(_right_arm, "rotation:x", 0.6, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(_left_arm, "rotation:x", 0.6, 0.1).set_ease(Tween.EASE_IN)
-	tween.tween_property(self, "position:x", base_x + lunge_dir * 0.25, 0.1)
-	tween.tween_property(self, "position:y", base_y, 0.1)
-	tween.set_parallel(false)
-
-	# Phase 3 — Recoil: step back, glow fades, arms settle
-	tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.3))
-	tween.set_parallel(true)
-	tween.tween_property(self, "position:x", base_x - lunge_dir * 0.1, 0.1)
-	tween.tween_property(_right_arm, "rotation:x", -0.15, 0.1)
-	tween.tween_property(_left_arm, "rotation:x", -0.15, 0.1)
-	tween.set_parallel(false)
-
-	# Settle back to neutral
-	tween.tween_callback(func() -> void: _set_emission(Color.BLACK, 0.0))
-	tween.set_parallel(true)
-	tween.tween_property(self, "position:x", base_x, 0.12)
-	tween.tween_property(_right_arm, "rotation:x", 0.0, 0.12)
-	tween.tween_property(_left_arm, "rotation:x", 0.0, 0.12)
+	_tween_reset_all(tween, 0.15)
 	tween.set_parallel(false)
 
 	tween.tween_callback(func() -> void:
 		_resume_animator()
 		animation_finished.emit()
 	)
+
+
+func _tween_reset_all(tween: Tween, duration: float) -> void:
+	## Tween all cached body parts back to rotation zero. Must be called inside
+	## a parallel tween block — caller handles set_parallel(true/false).
+	if _right_arm:
+		tween.tween_property(_right_arm, "rotation:x", 0.0, duration)
+	if _left_arm:
+		tween.tween_property(_left_arm, "rotation:x", 0.0, duration)
+	if _right_forearm:
+		tween.tween_property(_right_forearm, "rotation:x", 0.0, duration)
+	if _left_forearm:
+		tween.tween_property(_left_forearm, "rotation:x", 0.0, duration)
+	if _right_hand:
+		tween.tween_property(_right_hand, "rotation:x", 0.0, duration)
+	if _left_hand:
+		tween.tween_property(_left_hand, "rotation:x", 0.0, duration)
+	if _chest:
+		tween.tween_property(_chest, "rotation:x", 0.0, duration)
+	if _belly:
+		tween.tween_property(_belly, "rotation:x", 0.0, duration)
+	if _left_thigh:
+		tween.tween_property(_left_thigh, "rotation:x", 0.0, duration)
+	if _right_thigh:
+		tween.tween_property(_right_thigh, "rotation:x", 0.0, duration)
+	if _left_calf:
+		tween.tween_property(_left_calf, "rotation:x", 0.0, duration)
+	if _right_calf:
+		tween.tween_property(_right_calf, "rotation:x", 0.0, duration)
+	if _left_foot:
+		tween.tween_property(_left_foot, "rotation:x", 0.0, duration)
+	if _right_foot:
+		tween.tween_property(_right_foot, "rotation:x", 0.0, duration)
 
 
 func _play_cast_no_limbs() -> void:
@@ -437,17 +498,9 @@ func play_defend_animation() -> void:
 	var tween := create_tween()
 
 	if _has_limbs:
-		# Arms cross into guard pose + blue glow
-		tween.set_parallel(true)
-		tween.tween_property(_right_arm, "rotation:x", -0.8, 0.12)
-		tween.tween_property(_left_arm, "rotation:x", -0.8, 0.12)
-		tween.set_parallel(false)
+		# Blue glow guard stance (body part animations TBD)
 		tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.5))
-		# Settle to subtle guard
-		tween.set_parallel(true)
-		tween.tween_property(_right_arm, "rotation:x", -0.4, 0.15)
-		tween.tween_property(_left_arm, "rotation:x", -0.4, 0.15)
-		tween.set_parallel(false)
+		tween.tween_interval(0.12)
 	else:
 		# Squash down + blue glow
 		tween.tween_callback(func() -> void: _set_emission(Color(0.4, 0.6, 1.0), 0.5))
