@@ -26,6 +26,15 @@ const TIER_PRICE_MULTIPLIER := [1.0, 2.5, 6.0, 15.0, 40.0, 100.0]
 # === ECONOMY ===
 const STARTING_GOLD := 100
 
+# === PASSIVE SKILL TREE ===
+const PASSIVE_BASE_COST := 50        ## Gold cost of the first passive node
+const PASSIVE_COST_PER_UNLOCK := 10  ## Additional gold per already-unlocked node
+
+
+## Returns the gold cost of the Nth passive unlock (0-indexed).
+static func get_passive_cost(unlocked_count: int) -> int:
+	return PASSIVE_BASE_COST + PASSIVE_COST_PER_UNLOCK * unlocked_count
+
 # === PARTY ===
 const MAX_SQUAD_SIZE := 4           ## Active party members in combat
 const MAX_ROSTER_SIZE := 12         ## Total characters in roster

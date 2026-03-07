@@ -159,10 +159,6 @@
 | Tooltip doesn't disappear in blacksmith interface | 3147700f-d0fb-8122-8a64-da9a1102d7fe |
 | Show number of hands required on weapon card | 3147700f-d0fb-812e-af35-da5c79b9e2b9 |
 | Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
-
-### In Progress
-| Name | Notion ID |
-|---|---|
 | Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
 
 ### Canceled
@@ -249,7 +245,6 @@
 | Name | Notion ID |
 |---|---|
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
-| Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
@@ -259,6 +254,7 @@
 |---|---|
 | Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
 | Battle speed controls | 3147700f-d0fb-81c4-b2e5-d61ae1108830 |
+| Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
 | Full GDScript warning cleanup (~50+ warnings fixed) | 3147700f-d0fb-8176-bc39-ee92449e85f4 |
 | Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Multiple save slots (5-10) with metadata | 3147700f-d0fb-81a1-a075-f7cb35bbae6f |
