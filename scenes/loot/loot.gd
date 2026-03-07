@@ -278,7 +278,8 @@ func _on_loot_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	else:
 		var placed: GridInventory.PlacedItem = _loot_inventory.get_item_at(grid_pos)
 		if placed:
-			_item_tooltip.show_for_item(placed.item_data, null, null, get_global_mouse_position())
+			var inv: GridInventory = _grid_inventories.get(_current_character_id)
+			_item_tooltip.show_for_item(placed.item_data, null, inv, get_global_mouse_position())
 		else:
 			_loot_grid_panel.clear_highlights()
 			_item_tooltip.hide_tooltip()
@@ -609,7 +610,8 @@ func _on_stash_item_clicked(item: ItemData, index: int) -> void:
 
 func _on_stash_item_hovered(item: ItemData, global_pos: Vector2) -> void:
 	if _drag_state == DragState.IDLE:
-		_item_tooltip.show_for_item(item, null, null, global_pos)
+		var inv: GridInventory = _grid_inventories.get(_current_character_id)
+		_item_tooltip.show_for_item(item, null, inv, global_pos)
 
 
 func _on_stash_item_exited() -> void:
