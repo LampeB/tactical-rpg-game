@@ -103,6 +103,14 @@ func _ready() -> void:
 	else:
 		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
 
+	# Restore camera orientation from save
+	var saved_cam: Variant = GameManager.get_flag("camera_state", {})
+	if saved_cam is Dictionary and not saved_cam.is_empty():
+		_orbit_camera.restore_state(saved_cam)
+
+	# Snap camera to player immediately, then allow smooth follow
+	_orbit_camera.global_position = _player.global_position
+
 	# Auto-save on entry
 	SaveManager.auto_save()
 
@@ -111,9 +119,6 @@ func _ready() -> void:
 	occlusion.camera = _orbit_camera
 	occlusion.player = _player
 	add_child(occlusion)
-
-	# Snap camera to player immediately, then allow smooth follow
-	_orbit_camera.global_position = _player.global_position
 
 	# Enable enemy detection after scene is fully loaded and player is positioned
 	_enable_enemy_detection()
@@ -159,7 +164,9 @@ func receive_data(data: Dictionary) -> void:
 	if spawn_pos is Vector3 and spawn_pos != Vector3.ZERO:
 		_player.global_position = spawn_pos
 		GameManager.set_flag("overworld_position", spawn_pos)
+		_orbit_camera.reset_orientation()
 		_orbit_camera.global_position = spawn_pos
+		GameManager.set_flag("camera_state", _orbit_camera.get_state())
 		SaveManager.auto_save()
 
 	if data.get("from_battle", false):
@@ -218,9 +225,10 @@ func _hide_message() -> void:
 
 
 func _save_current_position() -> void:
-	## Saves the player's current position so it can be restored when returning.
+	## Saves the player's current position and camera state so they can be restored when returning.
 	if _player:
 		GameManager.set_flag("overworld_position", _player.global_position)
+		GameManager.set_flag("camera_state", _orbit_camera.get_state())
 		DebugLogger.log_info("Saved current position: %s" % _player.global_position, "Overworld")
 
 
@@ -253,8 +261,9 @@ func _on_fast_travel_selected(location: LocationData) -> void:
 			_player.global_position = marker.global_position
 			_player.enable_input(true)
 
-			# Save new position
+			# Save new position and camera state
 			GameManager.set_flag("overworld_position", _player.global_position)
+			GameManager.set_flag("camera_state", _orbit_camera.get_state())
 			SaveManager.auto_save()
 			break
 
@@ -296,8 +305,9 @@ func _push_player_from_enemies() -> void:
 		new_position.y = 0.0
 		_player.global_position = new_position
 
-		# Update saved position
+		# Update saved position (camera orientation preserved)
 		GameManager.set_flag("overworld_position", _player.global_position)
+		GameManager.set_flag("camera_state", _orbit_camera.get_state())
 
 		DebugLogger.log_info("Pushed player away from enemy (distance was %.1f)" % closest_distance, "Overworld")
 
