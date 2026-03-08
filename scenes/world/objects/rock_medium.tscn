@@ -1,19 +1,16 @@
 [gd_scene load_steps=3 format=3 uid="uid://01bbky3dfafus"]
 
-[sub_resource type="StandardMaterial3D" id="1"]
-albedo_color = Color(0.5, 0.47, 0.43, 1)
+[ext_resource type="PackedScene" uid="uid://tpbtxe5lvcyk" path="res://assets/models/Nature/rocks/rock_1/rock_1.glb" id="rock"]
 
-[sub_resource type="SphereShape3D" id="2"]
-radius = 0.45
+[sub_resource type="BoxShape3D" id="1"]
+size = Vector3(1.4, 1.6, 1.1)
 
 [node name="RockMedium" type="StaticBody3D"]
 collision_mask = 0
 
-[node name="Body" type="CSGSphere3D" parent="."]
-radius = 0.5
-position = Vector3(0, 0.35, 0)
-material = SubResource("1")
+[node name="Model" parent="." instance=ExtResource("rock")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.4, 0)
-shape = SubResource("2")
+position = Vector3(0, 0.8, 0)
+shape = SubResource("1")

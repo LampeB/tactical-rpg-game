@@ -83,7 +83,12 @@ static func spawn_elements(map_data: MapData, parent: Node3D,
 	_ensure_scenes_loaded()
 
 	for elem in map_data.elements:
-		match elem.element_type:
+		var etype: int = elem.element_type
+		# Fix mismatched types: scene/vox paths stored as NPC (editor bug, Godot default-value quirk)
+		if etype == MapElement.ElementType.NPC and not elem.resource_id.is_empty():
+			if elem.resource_id.ends_with(".tscn") or elem.resource_id.ends_with(".vox"):
+				etype = MapElement.ElementType.DECORATION
+		match etype:
 			MapElement.ElementType.LOCATION:
 				_spawn_location(elem, location_parent)
 			MapElement.ElementType.NPC:
@@ -114,6 +119,8 @@ static func _spawn_npc(elem: MapElement, parent: Node3D) -> void:
 	marker.position = elem.position
 	if elem.rotation_y != 0.0:
 		marker.rotation.y = elem.rotation_y
+	if elem.scale_factor != 1.0:
+		marker.scale = Vector3.ONE * elem.scale_factor
 	marker.npc_id = elem.resource_id
 	parent.add_child(marker)
 
@@ -127,6 +134,8 @@ static func _spawn_enemy(elem: MapElement, parent: Node3D) -> void:
 			enemy.encounter_data = enc_data
 	enemy.enemy_color = elem.enemy_color
 	enemy.patrol_distance = elem.patrol_distance
+	if elem.scale_factor != 1.0:
+		enemy.scale = Vector3.ONE * elem.scale_factor
 	parent.add_child(enemy)
 
 
@@ -136,20 +145,29 @@ static func _spawn_chest(elem: MapElement, parent: Node3D) -> void:
 	if elem.rotation_y != 0.0:
 		chest.rotation.y = elem.rotation_y
 	chest.chest_id = elem.resource_id
+	if elem.scale_factor != 1.0:
+		chest.scale = Vector3.ONE * elem.scale_factor
 	parent.add_child(chest)
 
 
 static func _spawn_decoration(elem: MapElement, parent: Node3D) -> void:
 	if elem.resource_id.is_empty():
 		return
-	var scene: PackedScene = load(elem.resource_id) as PackedScene
-	if not scene:
-		DebugLogger.log_warn("Failed to load decoration scene: %s" % elem.resource_id, "MapLoader")
-		return
-	var obj: Node3D = scene.instantiate()
+	var obj: Node3D
+	if elem.resource_id.ends_with(".vox"):
+		obj = VoxModel.new()
+		obj.vox_path = elem.resource_id
+	else:
+		var scene: PackedScene = load(elem.resource_id) as PackedScene
+		if not scene:
+			DebugLogger.log_warn("Failed to load decoration scene: %s" % elem.resource_id, "MapLoader")
+			return
+		obj = scene.instantiate()
 	obj.position = elem.position
 	if elem.rotation_y != 0.0:
 		obj.rotation.y = elem.rotation_y
+	if elem.scale_factor != 1.0:
+		obj.scale = Vector3.ONE * elem.scale_factor
 	parent.add_child(obj)
 
 
