@@ -108,6 +108,10 @@ func _ready() -> void:
 	if saved_cam is Dictionary and not saved_cam.is_empty():
 		_orbit_camera.restore_state(saved_cam)
 
+	# Restore and unpause day/night cycle
+	DayNightCycle.restore_state()
+	DayNightCycle.paused = false
+
 	# Snap camera to player immediately, then allow smooth follow
 	_orbit_camera.global_position = _player.global_position
 
@@ -229,6 +233,7 @@ func _save_current_position() -> void:
 	if _player:
 		GameManager.set_flag("overworld_position", _player.global_position)
 		GameManager.set_flag("camera_state", _orbit_camera.get_state())
+		DayNightCycle.save_state()
 		DebugLogger.log_info("Saved current position: %s" % _player.global_position, "Overworld")
 
 
