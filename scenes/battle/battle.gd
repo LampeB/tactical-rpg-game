@@ -220,25 +220,52 @@ func _sync_viewport_size() -> void:
 	_battle_camera.fov = 40.0
 	DebugLogger.log_info("Battle camera at %s, fov=%.0f" % [str(_battle_camera.position), _battle_camera.fov], "BattleView")
 
+	# Read current day/night state for lighting
+	var dn_state: Dictionary = DayNightCycle.get_lighting_state()
+	var dn_sun: float = dn_state.get("sun_energy", 1.2)
+	var sun_ratio: float = dn_sun / 1.2  # 0.0 at night, 1.0 at noon
+	DayNightCycle.paused = true  # Freeze time during battle
+
 	# Add directional light (once)
 	if not _battle_world.has_node("BattleLight"):
 		var light := DirectionalLight3D.new()
 		light.name = "BattleLight"
-		light.rotation_degrees = Vector3(-45, 30, 0)
-		light.light_energy = 1.0
+		light.rotation_degrees = Vector3(dn_state.get("sun_pitch", -45.0), dn_state.get("sun_yaw", 30.0), 0)
+		light.light_energy = maxf(dn_state.get("sun_energy", 1.0), 0.15)
+		light.light_color = dn_state.get("sun_color", Color(1.0, 0.96, 0.88))
 		light.shadow_enabled = false
 		_battle_world.add_child(light)
 
+	# Add moon light for night battles (once)
+	if not _battle_world.has_node("BattleMoon"):
+		var moon_energy: float = dn_state.get("moon_energy", 0.0)
+		if moon_energy > 0.01:
+			var moon := DirectionalLight3D.new()
+			moon.name = "BattleMoon"
+			moon.rotation_degrees = Vector3(dn_state.get("moon_pitch", -45.0), dn_state.get("moon_yaw", 90.0), 0)
+			moon.light_energy = moon_energy
+			moon.light_color = Color(0.7, 0.75, 0.9)
+			moon.shadow_enabled = false
+			_battle_world.add_child(moon)
+
 	# Add environment with ambient light (once)
 	if not _battle_world.has_node("BattleEnv"):
+		var base_bg := Color(0.15, 0.12, 0.2)
+		var night_bg := Color(0.03, 0.02, 0.06)
+		var bg_color: Color = night_bg.lerp(base_bg, sun_ratio)
+
+		var base_fog := Color(0.2, 0.18, 0.25)
+		var night_fog := Color(0.05, 0.04, 0.08)
+		var fog_color: Color = night_fog.lerp(base_fog, sun_ratio)
+
 		var env := Environment.new()
 		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-		env.ambient_light_color = Color(0.4, 0.4, 0.5)
-		env.ambient_light_energy = 0.8
+		env.ambient_light_color = dn_state.get("ambient_color", Color(0.4, 0.4, 0.5))
+		env.ambient_light_energy = maxf(dn_state.get("ambient_energy", 0.4) * 2.0, 0.3)
 		env.background_mode = Environment.BG_COLOR
-		env.background_color = Color(0.15, 0.12, 0.2)
+		env.background_color = bg_color
 		env.fog_enabled = true
-		env.fog_light_color = Color(0.2, 0.18, 0.25)
+		env.fog_light_color = fog_color
 		env.fog_density = 0.03
 		var world_env := WorldEnvironment.new()
 		world_env.name = "BattleEnv"
