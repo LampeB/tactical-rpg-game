@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 177 -->
-<\!-- Last updated: 2026-03-07 -->
+<\!-- Total tasks: 201 -->
+<\!-- Last updated: 2026-03-08 -->
 
 ## Prerequisites
 
@@ -195,6 +195,7 @@
 | Passive skill tree (gold-based unlocks) | 3147700f-d0fb-8193-aa88-c621abf57896 |
 | Procedural walk/idle animations (ModelAnimator) | 3167700f-d0fb-81c4-9b93-d8fa5e1062a5 |
 | Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
+| Camera occlusion system (fade objects blocking player view) | 31d7700f-d0fb-813f-abf0-fc09537f2b9e |
 | Save/load system | 3147700f-d0fb-81da-b76d-df2d3a042f5f |
 
 ## Audio
@@ -277,6 +278,11 @@
 | MapDatabase autoload | 3147700f-d0fb-81ab-a6f4-ea9947b348ff |
 | MapLoader runtime (convert MapData to playable scenes) | 3147700f-d0fb-81e7-b2c8-f73d0a9e46fc |
 | Property panel (map properties + per-element-type sections) | 3147700f-d0fb-8136-a690-d3203f860d02 |
+
+### Done
+| Name | Notion ID |
+|---|---|
+| Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
 
 ## 3D Migration
 

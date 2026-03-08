@@ -123,7 +123,7 @@ func _refresh() -> void:
 
 	# Name label
 	var name_lbl := Label.new()
-	name_lbl.add_theme_font_size_override("font_size", 10)
+	UIThemes.set_font_size(name_lbl, 10)
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if assigned_item:
@@ -137,7 +137,7 @@ func _refresh() -> void:
 
 	# Rarity label
 	var rarity_lbl := Label.new()
-	rarity_lbl.add_theme_font_size_override("font_size", 9)
+	UIThemes.set_font_size(rarity_lbl, 9)
 	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if assigned_item:
 		var rarity_name: String = Constants.RARITY_NAMES.get(assigned_item.rarity, "Common")

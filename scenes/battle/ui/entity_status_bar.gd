@@ -116,7 +116,7 @@ func _update_status_icons() -> void:
 		var data: StatusEffectData = effect.data
 		var label: Label = Label.new()
 		label.text = data.display_name.left(3)
-		label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
+		UIThemes.set_font_size(label, Constants.FONT_SIZE_TINY)
 		label.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
 		_status_icons.add_child(label)
 
@@ -141,7 +141,7 @@ func _update_status_icons() -> void:
 
 		var count_label := Label.new()
 		count_label.text = str(gem_effect.duration_turns)
-		count_label.add_theme_font_size_override("font_size", 10)
+		UIThemes.set_font_size(count_label, 10)
 		count_label.add_theme_color_override("font_color", Color.WHITE)
 		count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

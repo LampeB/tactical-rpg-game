@@ -20,7 +20,7 @@ func _ready() -> void:
 	_confirm_dialog.confirmed.connect(_start_new_game)
 
 	var title: Label = $VBoxContainer/Title
-	title.add_theme_font_size_override("font_size", Constants.FONT_SIZE_MENU_TITLE)
+	UIThemes.set_font_size(title, Constants.FONT_SIZE_MENU_TITLE)
 
 	_update_button_states()
 

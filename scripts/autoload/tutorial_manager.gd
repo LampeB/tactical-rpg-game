@@ -183,8 +183,10 @@ func _build_ui() -> void:
 	_body_label.fit_content = true
 	_body_label.scroll_active = false
 	_body_label.custom_minimum_size = Vector2(460, 60)
-	_body_label.add_theme_font_size_override("normal_font_size", Constants.FONT_SIZE_NORMAL)
-	_body_label.add_theme_font_size_override("bold_font_size", Constants.FONT_SIZE_NORMAL)
+	_body_label.set_meta("_base_normal_font_size", Constants.FONT_SIZE_NORMAL)
+	_body_label.add_theme_font_size_override("normal_font_size", UIThemes.scaled_font_size(Constants.FONT_SIZE_NORMAL))
+	_body_label.set_meta("_base_bold_font_size", Constants.FONT_SIZE_NORMAL)
+	_body_label.add_theme_font_size_override("bold_font_size", UIThemes.scaled_font_size(Constants.FONT_SIZE_NORMAL))
 	_body_label.add_theme_color_override("default_color", Constants.COLOR_TEXT_PRIMARY)
 	_body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_body_label)

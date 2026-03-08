@@ -23,13 +23,16 @@ var vsync_enabled: bool = true
 var brightness: float = 1.0         ## 0.5 – 1.5
 var shadow_quality: int = 2         ## 0=Off, 1=Low, 2=Medium, 3=High
 var ui_scale: int = 100             ## 75, 100, 125, 150
+var font_scale: int = 100           ## 80, 100, 120, 140
 
 const UI_SCALE_OPTIONS := [75, 100, 125, 150]
+const FONT_SCALE_OPTIONS := [80, 100, 120, 140]
 const SHADOW_ATLAS_SIZES := [512, 1024, 2048, 4096]
 
 
 func _ready() -> void:
 	load_settings()
+	get_tree().node_added.connect(_on_node_added)
 
 
 func load_settings() -> void:
@@ -61,6 +64,7 @@ func load_settings() -> void:
 	brightness = float(data.get("brightness", 1.0))
 	shadow_quality = int(data.get("shadow_quality", 2))
 	ui_scale = int(data.get("ui_scale", 100))
+	font_scale = int(data.get("font_scale", 100))
 	_apply_current()
 
 
@@ -73,6 +77,7 @@ func save_settings() -> void:
 		"brightness": brightness,
 		"shadow_quality": shadow_quality,
 		"ui_scale": ui_scale,
+		"font_scale": font_scale,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if not file:
@@ -119,6 +124,13 @@ func set_ui_scale(scale_percent: int) -> void:
 	save_settings()
 
 
+func set_font_scale(scale_percent: int) -> void:
+	font_scale = scale_percent
+	_apply_font_scale()
+	graphics_changed.emit()
+	save_settings()
+
+
 func get_available_resolutions() -> Array[Vector2i]:
 	var screen_size := DisplayServer.screen_get_size()
 	var result: Array[Vector2i] = []
@@ -136,6 +148,7 @@ func _apply_current() -> void:
 	_apply_resolution()
 	_apply_shadow_quality()
 	_apply_ui_scale()
+	_apply_font_scale()
 
 
 func _apply_window_mode() -> void:
@@ -180,6 +193,37 @@ func _apply_ui_scale() -> void:
 	var factor := ui_scale / 100.0
 	var base := Vector2i(1920, 1080)
 	get_window().content_scale_size = Vector2i(int(base.x / factor), int(base.y / factor))
+
+
+func _apply_font_scale() -> void:
+	UIThemes.font_scale = font_scale / 100.0
+	var scaled_default: int = int(16 * UIThemes.font_scale)
+	# Scale the global fallback font size
+	ThemeDB.fallback_font_size = scaled_default
+	# Also update the project's custom theme so all controls get the scaled size
+	# (theme default_font_size takes priority over ThemeDB.fallback_font_size)
+	var project_theme: Theme = load("res://assets/ui/default_theme.tres") as Theme
+	if project_theme:
+		project_theme.default_font_size = scaled_default
+	if is_inside_tree():
+		UIThemes.rescale_all(get_tree().root)
+
+
+func _on_node_added(node: Node) -> void:
+	if font_scale == 100:
+		return
+	if node is Control:
+		var ctrl: Control = node as Control
+		if ctrl.has_theme_font_size_override("font_size"):
+			if not ctrl.has_meta("_base_font_size"):
+				var current: int = ctrl.get_theme_font_size("font_size")
+				ctrl.set_meta("_base_font_size", current)
+				ctrl.add_theme_font_size_override("font_size", UIThemes.scaled_font_size(current))
+		# RichTextLabel variants
+		if ctrl.has_theme_font_size_override("normal_font_size"):
+			UIThemes._rescale_override(ctrl, "normal_font_size")
+		if ctrl.has_theme_font_size_override("bold_font_size"):
+			UIThemes._rescale_override(ctrl, "bold_font_size")
 
 
 func apply_environment(env: WorldEnvironment, sun: DirectionalLight3D) -> void:

@@ -725,13 +725,13 @@ func _refresh_sold_panel() -> void:
 		var name_lbl := Label.new()
 		name_lbl.text = entry.name
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_lbl.add_theme_font_size_override("font_size", 13)
+		UIThemes.set_font_size(name_lbl, 13)
 		row.add_child(name_lbl)
 
 		var price_lbl := Label.new()
 		price_lbl.text = "+%dg" % entry.price
 		price_lbl.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))
-		price_lbl.add_theme_font_size_override("font_size", 13)
+		UIThemes.set_font_size(price_lbl, 13)
 		row.add_child(price_lbl)
 
 		var bb_btn := Button.new()

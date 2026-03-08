@@ -220,7 +220,7 @@ func _build_icon_card(recipe: CraftingRecipeData) -> PanelContainer:
 	# Craftability indicator badge (bottom-right corner)
 	var indicator := Label.new()
 	indicator.text = "✓" if is_craftable else "✗"
-	indicator.add_theme_font_size_override("font_size", 14)
+	UIThemes.set_font_size(indicator, 14)
 	indicator.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3) if is_craftable else Color(0.7, 0.3, 0.3))
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	indicator.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM

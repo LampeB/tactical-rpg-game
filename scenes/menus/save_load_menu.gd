@@ -146,7 +146,7 @@ func _build_card(label_text: String, slot_index: int, meta: Dictionary, is_auto:
 
 		var hist_btn := Button.new()
 		hist_btn.text = "▼ %d older" % (history_count - 1)
-		hist_btn.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
+		UIThemes.set_font_size(hist_btn, Constants.FONT_SIZE_TINY)
 
 		# History panel (collapsed by default)
 		var hist_panel := VBoxContainer.new()
@@ -190,7 +190,7 @@ func _build_history_row(entry: Dictionary, history_index: int, slot_index: int, 
 
 	var btn := Button.new()
 	btn.text = "Load"
-	btn.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
+	UIThemes.set_font_size(btn, Constants.FONT_SIZE_TINY)
 	btn.pressed.connect(_on_load_slot.bind(slot_index, is_auto, history_index))
 	row.add_child(btn)
 

@@ -69,7 +69,7 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 		# Turn number
 		var number_label: Label = Label.new()
 		number_label.text = str(i + 1)
-		number_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+		UIThemes.set_font_size(number_label, Constants.FONT_SIZE_SMALL)
 		number_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
 		number_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		vbox.add_child(number_label)
@@ -77,7 +77,7 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 		# Entity name
 		var name_label: Label = Label.new()
 		name_label.text = entity.entity_name
-		name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_DETAIL)
+		UIThemes.set_font_size(name_label, Constants.FONT_SIZE_DETAIL)
 		if is_current:
 			name_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1))
 		elif entity.is_player:

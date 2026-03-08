@@ -85,7 +85,7 @@ func _create_card(char_id: String, char_data: CharacterData, tree: PassiveTreeDa
 
 	var name_label := Label.new()
 	name_label.text = char_data.display_name
-	name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+	UIThemes.set_font_size(name_label, Constants.FONT_SIZE_SMALL)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.clip_text = true
 	top_row.add_child(name_label)
@@ -106,7 +106,7 @@ func _create_card(char_id: String, char_data: CharacterData, tree: PassiveTreeDa
 	var hp_label := Label.new()
 	hp_label.name = "HPLabel"
 	hp_label.text = "%d/%d" % [current_hp, max_hp]
-	hp_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
+	UIThemes.set_font_size(hp_label, Constants.FONT_SIZE_TINY)
 	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(hp_label)
 
@@ -126,7 +126,7 @@ func _create_card(char_id: String, char_data: CharacterData, tree: PassiveTreeDa
 	var mp_label := Label.new()
 	mp_label.name = "MPLabel"
 	mp_label.text = "%d/%d" % [current_mp, max_mp]
-	mp_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TINY)
+	UIThemes.set_font_size(mp_label, Constants.FONT_SIZE_TINY)
 	mp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(mp_label)
 

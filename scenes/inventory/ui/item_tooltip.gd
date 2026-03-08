@@ -57,19 +57,19 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 		if mod is StatModifier:
 			var label: Label = Label.new()
 			label.text = mod.get_description()
-			label.add_theme_font_size_override("font_size", FONT_SIZE)
+			UIThemes.set_font_size(label, FONT_SIZE)
 			_stats_container.add_child(label)
 
 	if item.base_power > 0:
 		var phys_label: Label = Label.new()
 		phys_label.text = "Physical Power: %d" % item.base_power
-		phys_label.add_theme_font_size_override("font_size", FONT_SIZE)
+		UIThemes.set_font_size(phys_label, FONT_SIZE)
 		_stats_container.add_child(phys_label)
 
 	if item.magical_power > 0:
 		var mag_label: Label = Label.new()
 		mag_label.text = "Magical Power: %d" % item.magical_power
-		mag_label.add_theme_font_size_override("font_size", FONT_SIZE)
+		UIThemes.set_font_size(mag_label, FONT_SIZE)
 		_stats_container.add_child(mag_label)
 
 	# Modifier bonuses (for gems, show what they grant; for tools, show active gem bonuses)
@@ -266,7 +266,7 @@ func _clear_container(container: VBoxContainer) -> void:
 func _add_header_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", FONT_SIZE)
+	UIThemes.set_font_size(label, FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
 
@@ -274,7 +274,7 @@ func _add_header_label(text: String, color: Color) -> void:
 func _add_modifier_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", FONT_SIZE)
+	UIThemes.set_font_size(label, FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	_modifier_list.add_child(label)
 
@@ -391,7 +391,7 @@ func _add_comparison_vs(hovered_item: ItemData, equipped_item: ItemData, hand: S
 		header_text = "vs. Empty Slot:"
 	var header := Label.new()
 	header.text = header_text
-	header.add_theme_font_size_override("font_size", FONT_SIZE)
+	UIThemes.set_font_size(header, FONT_SIZE)
 	header.add_theme_color_override("font_color", COLOR_COMPARISON_HEADER)
 	_comparison_container.add_child(header)
 
@@ -419,7 +419,7 @@ func _add_comparison_vs(hovered_item: ItemData, equipped_item: ItemData, hand: S
 
 		var lbl := Label.new()
 		lbl.text = value_str
-		lbl.add_theme_font_size_override("font_size", FONT_SIZE)
+		UIThemes.set_font_size(lbl, FONT_SIZE)
 		lbl.add_theme_color_override("font_color", color)
 		_comparison_container.add_child(lbl)
 
