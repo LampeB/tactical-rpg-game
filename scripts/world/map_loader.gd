@@ -184,6 +184,7 @@ static func _spawn_decoration(elem: MapElement, parent: Node3D) -> void:
 		obj.rotation.y = elem.rotation_y
 	if elem.scale_factor != 1.0:
 		obj.scale = Vector3.ONE * elem.scale_factor
+	obj.add_to_group("occludable")
 	parent.add_child(obj)
 
 
@@ -219,6 +220,7 @@ static func spawn_decoration_zones(map_data: MapData, parent: Node3D,
 					var obj: Node3D = scene.instantiate()
 					obj.position = pos
 					obj.rotation.y = rng.randf_range(0, TAU)
+					obj.add_to_group("occludable")
 					decorations.add_child(obj)
 					all_placed.append(pos)
 					placed_in_zone += 1

@@ -97,6 +97,12 @@ func _ready() -> void:
 	SaveManager.auto_save()
 	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
 
+	# Camera occlusion — fade objects between camera and player
+	var occlusion := CameraOcclusion.new()
+	occlusion.camera = _orbit_camera
+	occlusion.player = _player
+	add_child(occlusion)
+
 	# Snap camera to player immediately, then allow smooth follow
 	_orbit_camera.global_position = _player.global_position
 
