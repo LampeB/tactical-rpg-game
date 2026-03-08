@@ -932,7 +932,7 @@ func _show_target_selection_popup() -> void:
 	var title: Label = Label.new()
 	title.text = "Select Target"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", Constants.FONT_SIZE_TITLE)
+	UIThemes.set_font_size(title, Constants.FONT_SIZE_TITLE)
 	vbox.add_child(title)
 
 	vbox.add_child(HSeparator.new())
@@ -1327,7 +1327,7 @@ func _make_cell(text: String, stretch: float) -> Label:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_stretch_ratio = stretch
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_SMALL)
+	UIThemes.set_font_size(label, Constants.FONT_SIZE_SMALL)
 	return label
 
 

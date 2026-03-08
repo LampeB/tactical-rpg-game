@@ -30,6 +30,7 @@ const ACTION_NAMES := {
 const WINDOW_MODE_NAMES := ["Windowed", "Borderless Fullscreen", "Exclusive Fullscreen"]
 const SHADOW_QUALITY_NAMES := ["Off", "Low", "Medium", "High"]
 const UI_SCALE_LABELS := ["75%", "100%", "125%", "150%"]
+const FONT_SCALE_LABELS := ["80%", "100%", "120%", "140%"]
 
 
 func _ready() -> void:
@@ -110,6 +111,18 @@ func _build_display_tab() -> void:
 	scale_row.add_child(scale_btn)
 	_display_settings.add_child(scale_row)
 
+	# Font Size row
+	var font_row := _create_setting_row("Font Size")
+	var font_btn := OptionButton.new()
+	font_btn.custom_minimum_size = Vector2(250, 0)
+	for idx in FONT_SCALE_LABELS.size():
+		font_btn.add_item(FONT_SCALE_LABELS[idx], idx)
+	var font_idx := DisplayManager.FONT_SCALE_OPTIONS.find(DisplayManager.font_scale)
+	font_btn.selected = maxi(font_idx, 0)
+	font_btn.item_selected.connect(_on_font_scale_changed)
+	font_row.add_child(font_btn)
+	_display_settings.add_child(font_row)
+
 	_update_resolution_enabled()
 
 
@@ -168,6 +181,11 @@ func _on_shadow_quality_changed(idx: int) -> void:
 func _on_ui_scale_changed(idx: int) -> void:
 	if idx >= 0 and idx < DisplayManager.UI_SCALE_OPTIONS.size():
 		DisplayManager.set_ui_scale(DisplayManager.UI_SCALE_OPTIONS[idx])
+
+
+func _on_font_scale_changed(idx: int) -> void:
+	if idx >= 0 and idx < DisplayManager.FONT_SCALE_OPTIONS.size():
+		DisplayManager.set_font_scale(DisplayManager.FONT_SCALE_OPTIONS[idx])
 
 
 # ─── Controls Tab ────────────────────────────────────────────────────────────

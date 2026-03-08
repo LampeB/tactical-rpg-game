@@ -9,19 +9,19 @@ func setup(amount: int, popup_type: Enums.PopupType = Enums.PopupType.DAMAGE) ->
 		Enums.PopupType.DAMAGE:
 			text = str(amount)
 			add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
-			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP)
+			UIThemes.set_font_size(self, Constants.FONT_SIZE_POPUP)
 		Enums.PopupType.CRIT:
 			text = "%d!" % amount
 			add_theme_color_override("font_color", Constants.COLOR_CRIT)
-			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP_CRIT)
+			UIThemes.set_font_size(self, Constants.FONT_SIZE_POPUP_CRIT)
 		Enums.PopupType.HEAL:
 			text = "+%d" % amount
 			add_theme_color_override("font_color", Constants.COLOR_HEAL)
-			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP)
+			UIThemes.set_font_size(self, Constants.FONT_SIZE_POPUP)
 		Enums.PopupType.BLOCKED:
 			text = "%d Blocked" % amount
 			add_theme_color_override("font_color", Constants.COLOR_BLOCKED)
-			add_theme_font_size_override("font_size", Constants.FONT_SIZE_POPUP)
+			UIThemes.set_font_size(self, Constants.FONT_SIZE_POPUP)
 
 	# Add slight random horizontal offset
 	_velocity.x = randf_range(-20, 20)

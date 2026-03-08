@@ -228,7 +228,7 @@ func _clockwise_angle(offset: Vector2i) -> float:
 func _add_star_at_cell(cell_pos: Vector2i) -> void:
 	var star: Label = Label.new()
 	star.text = "*"
-	star.add_theme_font_size_override("font_size", maxi(10, cell_size - 8))
+	UIThemes.set_font_size(star, maxi(10, cell_size - 8))
 	star.add_theme_color_override("font_color", Color(1.0, 0.9, 0.2))
 	star.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
 	star.add_theme_constant_override("shadow_offset_x", 1)

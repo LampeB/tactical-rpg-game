@@ -57,7 +57,7 @@ func _ready() -> void:
 		_message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_message_label.set_anchors_preset(Control.PRESET_CENTER)
 		_message_label.position = Vector2(0, -200)
-		_message_label.add_theme_font_size_override("font_size", 24)
+		UIThemes.set_font_size(_message_label, 24)
 		_message_label.add_theme_color_override("font_color", Color.YELLOW)
 		_message_label.add_theme_color_override("font_outline_color", Color.BLACK)
 		_message_label.add_theme_constant_override("outline_size", 4)

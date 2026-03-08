@@ -941,7 +941,7 @@ func _show_defeat_screen() -> void:
 	var title_lbl := Label.new()
 	title_lbl.text = "Defeat"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_lbl.add_theme_font_size_override("font_size", 28)
+	UIThemes.set_font_size(title_lbl, 28)
 	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
 	vbox.add_child(title_lbl)
 

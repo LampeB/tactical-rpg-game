@@ -359,7 +359,7 @@ func _populate_summary() -> void:
 
 		var name_label: Label = Label.new()
 		name_label.text = node.display_name
-		name_label.add_theme_font_size_override("font_size", Constants.FONT_SIZE_HEADER)
+		UIThemes.set_font_size(name_label, Constants.FONT_SIZE_HEADER)
 		name_label.add_theme_color_override("font_color", Constants.COLOR_TEXT_HEADER)
 		row.add_child(name_label)
 
