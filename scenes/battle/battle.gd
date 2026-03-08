@@ -69,6 +69,12 @@ var _pending_item: ItemData = null
 var _log_lines: Array[String] = []
 const BATTLE_LOG_PATH := "res://battle_log.txt"
 
+# Battle background context
+var _fight_position: Vector3 = Vector3.ZERO
+var _map_id: String = ""
+var _arena_center: Vector3 = Vector3.ZERO  ## World position of the battle arena on the map
+var _arena_rotation_y: float = 0.0  ## Y-axis rotation of the battle arena
+
 
 func _clear_pending_action() -> void:
 	_pending_action_type = -1
@@ -96,6 +102,10 @@ func receive_data(data: Dictionary) -> void:
 	if data.has("grid_inventories"):
 		_grid_inventories = data["grid_inventories"]
 		DebugLogger.log_info("Received %d grid inventories" % _grid_inventories.size(), "Battle")
+	if data.has("fight_position"):
+		_fight_position = data["fight_position"]
+	if data.has("map_id"):
+		_map_id = data["map_id"]
 	_start_battle.call_deferred()
 
 
@@ -186,12 +196,27 @@ func _letter(index: int) -> String:
 
 
 func _sync_viewport_size() -> void:
-	## Set up 3D battle camera and lighting.
+	## Set up 3D battle camera, lighting, and background.
 	_sub_viewport.physics_object_picking = true
 
-	# Position camera for a slightly elevated view of the battlefield
-	_battle_camera.position = Vector3(0, 3, 6)
-	_battle_camera.look_at(Vector3(0, 0.5, 0))
+	# Build 3D battle background from map data (once) — must come first to set _arena_center
+	if not _battle_world.has_node("BattleBackground") and not _map_id.is_empty():
+		var map_data: MapData = MapDatabase.get_map(_map_id)
+		if map_data:
+			var battle_area: BattleAreaData = MapLoader.find_nearest_battle_area(map_data, _fight_position)
+			if battle_area:
+				_arena_center = battle_area.position
+				_arena_rotation_y = battle_area.rotation_y
+				var bg: Node3D = MapLoader.build_battle_background(map_data, battle_area)
+				_battle_world.add_child(bg)
+				DebugLogger.log_info("Built battle background from area: %s" % battle_area.area_name, "BattleView")
+
+	# Position camera relative to arena center, rotated by arena orientation
+	var cam_offset := Vector3(0, 3, 6)
+	var rotated_cam_offset := cam_offset.rotated(Vector3.UP, _arena_rotation_y)
+	_battle_camera.position = _arena_center + rotated_cam_offset
+	var look_offset := Vector3(0, 0.5, 0).rotated(Vector3.UP, _arena_rotation_y)
+	_battle_camera.look_at(_arena_center + look_offset)
 	_battle_camera.fov = 40.0
 	DebugLogger.log_info("Battle camera at %s, fov=%.0f" % [str(_battle_camera.position), _battle_camera.fov], "BattleView")
 
@@ -210,6 +235,11 @@ func _sync_viewport_size() -> void:
 		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 		env.ambient_light_color = Color(0.4, 0.4, 0.5)
 		env.ambient_light_energy = 0.8
+		env.background_mode = Environment.BG_COLOR
+		env.background_color = Color(0.15, 0.12, 0.2)
+		env.fog_enabled = true
+		env.fog_light_color = Color(0.2, 0.18, 0.25)
+		env.fog_density = 0.03
 		var world_env := WorldEnvironment.new()
 		world_env.name = "BattleEnv"
 		world_env.environment = env
@@ -266,9 +296,11 @@ func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) 
 	var sprite: Node3D = BattleSpriteScene.instantiate()
 	_battle_world.add_child(sprite)
 
-	# Position at battle slot in 3D world space
+	# Position at battle slot in 3D world space, rotated and offset by arena center
 	var positions: Array[Vector3] = PLAYER_POSITIONS if is_player else ENEMY_POSITIONS
-	sprite.position = positions[slot_index % positions.size()]
+	var slot_offset: Vector3 = positions[slot_index % positions.size()]
+	sprite.position = _arena_center + slot_offset.rotated(Vector3.UP, _arena_rotation_y)
+	sprite.rotation.y = _arena_rotation_y  # Rotate so models face each other along rotated axis
 
 	var side: String = "player" if is_player else "enemy"
 	DebugLogger.log_info("Sprite placed: %s [%s slot %d] at %s" % [entity.entity_name, side, slot_index, str(sprite.position)], "BattleView")

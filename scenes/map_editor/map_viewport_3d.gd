@@ -18,8 +18,13 @@ signal connection_placed(position: Vector3)
 signal connection_clicked(index: int)
 signal connection_moved(index: int, new_pos: Vector3)
 signal connection_drag_ended(index: int, end_pos: Vector3)
+signal battle_area_placed(position: Vector3)
+signal battle_area_clicked(index: int)
+signal battle_area_moved(index: int, new_pos: Vector3)
+signal battle_area_drag_ended(index: int, end_pos: Vector3)
+signal battle_area_rotated(index: int, new_rotation_y: float)
 
-enum Tool { SELECT, PAINT, PLACE, SCATTER, CONNECTION }
+enum Tool { SELECT, PAINT, PLACE, SCATTER, CONNECTION, BATTLE_AREA }
 enum BrushShape { SQUARE, CIRCLE }
 
 ## Current active tool.
@@ -115,6 +120,18 @@ var _scatter_preview_parent: Node3D = null
 var _scatter_preview_items: Array[Dictionary] = []
 var _scatter_has_preview: bool = false
 
+# --- Battle Area state ---
+var _battle_area_nodes: Array[Node3D] = []
+var _battle_area_parent: Node3D = null
+var _battle_area_ghost: Node3D = null
+var selected_battle_area_index: int = -1:
+	set(value):
+		selected_battle_area_index = value
+		_update_battle_area_highlight()
+var _battle_area_highlight: Node3D = null
+var _is_dragging_battle_area: bool = false
+var _battle_area_drag_start_pos: Vector3 = Vector3.ZERO
+
 # --- Connection state ---
 var _connection_nodes: Array[Node3D] = []
 var _connection_parent: Node3D = null
@@ -191,6 +208,17 @@ func _ready() -> void:
 	_connection_ghost = _create_connection_marker_visual("", Color(0.2, 0.5, 1.0, 0.3))
 	_connection_ghost.name = "ConnectionGhost"
 	_connection_ghost.visible = false
+
+	# Battle area parent
+	_battle_area_parent = Node3D.new()
+	_battle_area_parent.name = "BattleAreas"
+	_editor_world.add_child(_battle_area_parent)
+
+	# Battle area ghost (circle preview on hover)
+	_battle_area_ghost = _create_battle_area_marker_visual("", Color(1.0, 0.6, 0.1, 0.3))
+	_battle_area_ghost.name = "BattleAreaGhost"
+	_battle_area_ghost.visible = false
+	_editor_world.add_child(_battle_area_ghost)
 	_editor_world.add_child(_connection_ghost)
 
 	# Brush preview (paint tool cursor)
@@ -275,6 +303,9 @@ func set_map(data: MapData) -> void:
 	# Spawn connection visuals
 	refresh_connections()
 
+	# Spawn battle area visuals
+	refresh_battle_areas()
+
 	# Center camera on map
 	var cx: float = map_data.grid_width * 0.5
 	var cz: float = map_data.grid_height * 0.5
@@ -291,6 +322,9 @@ func _clear_3d_world() -> void:
 
 	# Clear scatter state
 	clear_scatter_zone()
+
+	# Clear battle area state
+	_clear_battle_area_nodes()
 
 	# Clear connections
 	_clear_connection_nodes()
@@ -790,6 +824,8 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 				if active_tool == Tool.PLACE:
 					_place_rotation -= PI / 8.0
 					_ghost_preview.rotation.y = _place_rotation
+				elif active_tool == Tool.BATTLE_AREA and selected_battle_area_index >= 0:
+					_rotate_selected_battle_area(-PI / 8.0)
 				elif selected_element_index >= 0:
 					_rotate_selected_element(-PI / 8.0)
 			else:
@@ -800,6 +836,8 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 				if active_tool == Tool.PLACE:
 					_place_rotation += PI / 8.0
 					_ghost_preview.rotation.y = _place_rotation
+				elif active_tool == Tool.BATTLE_AREA and selected_battle_area_index >= 0:
+					_rotate_selected_battle_area(PI / 8.0)
 				elif selected_element_index >= 0:
 					_rotate_selected_element(PI / 8.0)
 			else:
@@ -846,6 +884,8 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 					_update_scatter_zone_visual()
 		Tool.CONNECTION:
 			_handle_connection_hover(event.position)
+		Tool.BATTLE_AREA:
+			_handle_battle_area_hover(event.position)
 
 	# Emit hover position for status bar
 	var hit: Dictionary = _raycast_terrain(event.position)
@@ -892,6 +932,8 @@ func _on_left_press(screen_pos: Vector2) -> void:
 					_update_scatter_zone_visual()
 		Tool.CONNECTION:
 			_on_connection_left_press(screen_pos)
+		Tool.BATTLE_AREA:
+			_on_battle_area_left_press(screen_pos)
 
 
 func _on_left_release(screen_pos: Vector2) -> void:
@@ -910,6 +952,10 @@ func _on_left_release(screen_pos: Vector2) -> void:
 			_compute_scatter_rect()
 			_update_scatter_zone_visual()
 		scatter_zone_drawn.emit(_scatter_zone_rect)
+	if _is_dragging_battle_area and selected_battle_area_index >= 0:
+		_is_dragging_battle_area = false
+		if selected_battle_area_index < _battle_area_nodes.size():
+			battle_area_drag_ended.emit(selected_battle_area_index, _battle_area_nodes[selected_battle_area_index].position)
 	if _is_dragging_connection and selected_connection_index >= 0:
 		_is_dragging_connection = false
 		if selected_connection_index < _connection_nodes.size():
@@ -1066,14 +1112,15 @@ func _update_scatter_zone_visual() -> void:
 	_editor_world.add_child(_scatter_zone_border)
 
 
-func _add_border_strip(width: float, depth: float, height: float, pos: Vector3, mat: StandardMaterial3D) -> void:
+func _add_border_strip(width: float, depth: float, height: float, pos: Vector3, mat: StandardMaterial3D, parent: Node3D = null) -> void:
 	var mesh_inst := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = Vector3(width, height, depth)
 	mesh_inst.mesh = box
 	mesh_inst.material_override = mat
 	mesh_inst.position = pos
-	_scatter_zone_border.add_child(mesh_inst)
+	var target: Node3D = parent if parent else _scatter_zone_border
+	target.add_child(mesh_inst)
 
 
 func generate_scatter_preview(seed_val: int, count: int, min_spacing: float,
@@ -1145,6 +1192,243 @@ func clear_scatter_zone() -> void:
 
 func get_scatter_preview_items() -> Array[Dictionary]:
 	return _scatter_preview_items
+
+
+# === Battle Area tool ===
+
+func _create_battle_area_marker_visual(label_text: String, color: Color = Color(1.0, 0.6, 0.1, 0.7)) -> Node3D:
+	## Creates a circle marker showing the arena radius, with an optional label.
+	var root := Node3D.new()
+
+	# Circle ring (torus approximated with cylinder ring segments)
+	var segments: int = 48
+	var radius: float = BattleAreaData.ARENA_RADIUS
+	var ring_mat := StandardMaterial3D.new()
+	ring_mat.albedo_color = color
+	ring_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ring_mat.no_depth_test = true
+
+	for seg_i in range(segments):
+		var angle_a: float = (float(seg_i) / segments) * TAU
+		var angle_b: float = (float(seg_i + 1) / segments) * TAU
+		var pa := Vector3(cos(angle_a) * radius, 0.05, sin(angle_a) * radius)
+		var pb := Vector3(cos(angle_b) * radius, 0.05, sin(angle_b) * radius)
+		var seg_len: float = pa.distance_to(pb)
+		var mid: Vector3 = (pa + pb) * 0.5
+		var seg_mesh := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(seg_len, 0.08, 0.08)
+		seg_mesh.mesh = box
+		seg_mesh.material_override = ring_mat
+		seg_mesh.position = mid
+		seg_mesh.rotation.y = -atan2(pb.z - pa.z, pb.x - pa.x)
+		root.add_child(seg_mesh)
+
+	# Semi-transparent fill disc
+	var disc := MeshInstance3D.new()
+	var disc_mesh := CylinderMesh.new()
+	disc_mesh.top_radius = radius
+	disc_mesh.bottom_radius = radius
+	disc_mesh.height = 0.02
+	disc.mesh = disc_mesh
+	var disc_mat := StandardMaterial3D.new()
+	disc_mat.albedo_color = Color(color.r, color.g, color.b, 0.08)
+	disc_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	disc_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	disc_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	disc_mat.no_depth_test = true
+	disc.material_override = disc_mat
+	disc.position.y = 0.03
+	root.add_child(disc)
+
+	# Center pole (so it's clickable/visible)
+	var pole := MeshInstance3D.new()
+	var pole_mesh := CylinderMesh.new()
+	pole_mesh.top_radius = 0.15
+	pole_mesh.bottom_radius = 0.15
+	pole_mesh.height = 3.0
+	pole.mesh = pole_mesh
+	var pole_mat := StandardMaterial3D.new()
+	pole_mat.albedo_color = Color(color.r, color.g, color.b, minf(color.a + 0.2, 1.0))
+	pole_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	pole_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	pole.material_override = pole_mat
+	pole.position.y = 1.5
+	root.add_child(pole)
+
+	# Combatant position indicators (player = blue, enemy = red)
+	var player_positions: Array[Vector3] = [
+		Vector3(-3.0, 0, 0.0), Vector3(-4.0, 0, 1.0),
+		Vector3(-3.5, 0, -1.0), Vector3(-5.0, 0, 0.5),
+	]
+	var enemy_positions: Array[Vector3] = [
+		Vector3(3.0, 0, 0.0), Vector3(4.0, 0, 1.0),
+		Vector3(3.5, 0, -1.0), Vector3(5.0, 0, 0.5),
+	]
+	var player_mat := StandardMaterial3D.new()
+	player_mat.albedo_color = Color(0.3, 0.5, 1.0, 0.6)
+	player_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	player_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var enemy_mat := StandardMaterial3D.new()
+	enemy_mat.albedo_color = Color(1.0, 0.3, 0.3, 0.6)
+	enemy_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	enemy_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	for p_pos in player_positions:
+		var capsule_mesh := CapsuleMesh.new()
+		capsule_mesh.radius = 0.25
+		capsule_mesh.height = 1.2
+		var capsule_inst := MeshInstance3D.new()
+		capsule_inst.mesh = capsule_mesh
+		capsule_inst.material_override = player_mat
+		capsule_inst.position = Vector3(p_pos.x, 0.6, p_pos.z)
+		root.add_child(capsule_inst)
+	for e_pos in enemy_positions:
+		var capsule_mesh := CapsuleMesh.new()
+		capsule_mesh.radius = 0.25
+		capsule_mesh.height = 1.2
+		var capsule_inst := MeshInstance3D.new()
+		capsule_inst.mesh = capsule_mesh
+		capsule_inst.material_override = enemy_mat
+		capsule_inst.position = Vector3(e_pos.x, 0.6, e_pos.z)
+		root.add_child(capsule_inst)
+
+	# Label
+	if not label_text.is_empty():
+		var label_3d := Label3D.new()
+		label_3d.text = label_text
+		label_3d.font_size = 48
+		label_3d.pixel_size = 0.02
+		label_3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label_3d.no_depth_test = true
+		label_3d.modulate = Color(1.0, 0.8, 0.3)
+		label_3d.position = Vector3(0, 3.5, 0)
+		root.add_child(label_3d)
+
+	return root
+
+
+func refresh_battle_areas() -> void:
+	## Rebuilds all battle area marker visuals from map_data.
+	_clear_battle_area_nodes()
+	if not map_data:
+		return
+	for bi in range(map_data.battle_areas.size()):
+		var area: BattleAreaData = map_data.battle_areas[bi]
+		var label_text: String = area.area_name if not area.area_name.is_empty() else "Battle %d" % (bi + 1)
+		var node: Node3D = _create_battle_area_marker_visual(label_text)
+		node.position = area.position
+		node.rotation.y = area.rotation_y
+		node.set_meta("editor_battle_area_index", bi)
+		# Add editor collision for raycasting (layer 18 = bit 17)
+		var body := StaticBody3D.new()
+		body.collision_layer = 1 << 17
+		body.collision_mask = 0
+		var col_shape := CollisionShape3D.new()
+		var col_box := BoxShape3D.new()
+		col_box.size = Vector3(1.5, 3.5, 1.5)
+		col_shape.shape = col_box
+		col_shape.position = Vector3(0, 1.75, 0)
+		body.add_child(col_shape)
+		node.add_child(body)
+		_battle_area_parent.add_child(node)
+		_battle_area_nodes.append(node)
+
+
+func _clear_battle_area_nodes() -> void:
+	for node in _battle_area_nodes:
+		if is_instance_valid(node):
+			node.queue_free()
+	_battle_area_nodes.clear()
+	selected_battle_area_index = -1
+
+
+func _raycast_battle_areas(screen_pos: Vector2) -> int:
+	## Cast a ray to battle area markers (collision layer 18). Returns index or -1.
+	if not _camera or not _editor_world:
+		return -1
+	var from: Vector3 = _camera.project_ray_origin(screen_pos)
+	var dir: Vector3 = _camera.project_ray_normal(screen_pos)
+	var space: PhysicsDirectSpaceState3D = _editor_world.get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(from, from + dir * 200.0)
+	query.collision_mask = 1 << 17  # Battle area marker layer
+	var result: Dictionary = space.intersect_ray(query)
+	if result.is_empty():
+		return -1
+	var hit_node: Node = result.get("collider")
+	while hit_node and not hit_node.has_meta("editor_battle_area_index"):
+		hit_node = hit_node.get_parent()
+	if hit_node and hit_node.has_meta("editor_battle_area_index"):
+		return hit_node.get_meta("editor_battle_area_index") as int
+	return -1
+
+
+func _on_battle_area_left_press(screen_pos: Vector2) -> void:
+	# Try clicking an existing marker first
+	var hit_idx: int = _raycast_battle_areas(screen_pos)
+	if hit_idx >= 0:
+		selected_battle_area_index = hit_idx
+		battle_area_clicked.emit(hit_idx)
+		_is_dragging_battle_area = true
+		_battle_area_drag_start_pos = _battle_area_nodes[hit_idx].position
+		return
+	# Place a new battle area at clicked position
+	var gp: Vector3 = _raycast_ground_plane(screen_pos)
+	if gp != Vector3.INF:
+		var snapped: Vector3 = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		battle_area_placed.emit(snapped)
+
+
+@warning_ignore("confusable_local_declaration")
+func _handle_battle_area_hover(screen_pos: Vector2) -> void:
+	if _is_dragging_battle_area and selected_battle_area_index >= 0:
+		var gp: Vector3 = _raycast_ground_plane(screen_pos)
+		if gp != Vector3.INF:
+			var snapped_pos := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+			if selected_battle_area_index < _battle_area_nodes.size():
+				_battle_area_nodes[selected_battle_area_index].position = snapped_pos
+				battle_area_moved.emit(selected_battle_area_index, snapped_pos)
+	else:
+		if _battle_area_ghost:
+			var gp: Vector3 = _raycast_ground_plane(screen_pos)
+			if gp != Vector3.INF:
+				_battle_area_ghost.position = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+				_battle_area_ghost.visible = true
+			else:
+				_battle_area_ghost.visible = false
+
+
+func _update_battle_area_highlight() -> void:
+	if _battle_area_highlight and is_instance_valid(_battle_area_highlight):
+		_battle_area_highlight.queue_free()
+		_battle_area_highlight = null
+	if selected_battle_area_index < 0 or selected_battle_area_index >= _battle_area_nodes.size():
+		return
+	var node: Node3D = _battle_area_nodes[selected_battle_area_index]
+	var box := BoxMesh.new()
+	box.size = Vector3(0.6, 0.6, 0.6)
+	_battle_area_highlight = MeshInstance3D.new()
+	(_battle_area_highlight as MeshInstance3D).mesh = box
+	_battle_area_highlight.position = Vector3(0, 3.5, 0)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(1.0, 1.0, 0.3, 0.8)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	(_battle_area_highlight as MeshInstance3D).material_override = mat
+	node.add_child(_battle_area_highlight)
+
+
+func _rotate_selected_battle_area(angle_delta: float) -> void:
+	if selected_battle_area_index < 0 or selected_battle_area_index >= _battle_area_nodes.size():
+		return
+	var node: Node3D = _battle_area_nodes[selected_battle_area_index]
+	node.rotation.y += angle_delta
+	battle_area_rotated.emit(selected_battle_area_index, node.rotation.y)
+
+
+func update_battle_area_ghost_visibility() -> void:
+	if _battle_area_ghost:
+		_battle_area_ghost.visible = active_tool == Tool.BATTLE_AREA and selected_battle_area_index < 0
 
 
 # === Connection tool ===

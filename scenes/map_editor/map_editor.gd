@@ -276,6 +276,7 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 		{"name": "Place", "tool": MapViewport3D.Tool.PLACE},
 		{"name": "Scatter", "tool": MapViewport3D.Tool.SCATTER},
 		{"name": "Connect", "tool": MapViewport3D.Tool.CONNECTION},
+		{"name": "Battle", "tool": MapViewport3D.Tool.BATTLE_AREA},
 	]
 	for info in tools_info:
 		var btn := Button.new()
@@ -476,6 +477,11 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 	_viewport_3d.drag_started.connect(_on_drag_started)
 	_viewport_3d.drag_ended.connect(_on_drag_ended)
 	_viewport_3d.scatter_zone_drawn.connect(_on_scatter_zone_drawn)
+	_viewport_3d.battle_area_placed.connect(_on_battle_area_placed)
+	_viewport_3d.battle_area_clicked.connect(_on_battle_area_clicked)
+	_viewport_3d.battle_area_moved.connect(_on_battle_area_moved)
+	_viewport_3d.battle_area_drag_ended.connect(_on_battle_area_drag_ended)
+	_viewport_3d.battle_area_rotated.connect(_on_battle_area_rotated)
 	_viewport_3d.connection_placed.connect(_on_connection_placed)
 	_viewport_3d.connection_clicked.connect(_on_connection_clicked)
 	_viewport_3d.connection_moved.connect(_on_connection_moved)
@@ -561,6 +567,8 @@ func _select_map(map_id: String) -> void:
 		_build_scatter_panel()
 	elif _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
 		_build_connection_list_panel()
+	elif _viewport_3d.active_tool == MapViewport3D.Tool.BATTLE_AREA:
+		_build_battle_area_panel()
 	else:
 		_build_map_properties()
 
@@ -577,6 +585,7 @@ func _set_active_tool(tool_type: int) -> void:
 	# Capture previous tool state before switching
 	var was_scatter: bool = _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER
 	var was_connection: bool = _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION
+	var was_battle_area: bool = _viewport_3d.active_tool == MapViewport3D.Tool.BATTLE_AREA
 
 	# Clean up when leaving scatter mode
 	if was_scatter and tool_type != MapViewport3D.Tool.SCATTER:
@@ -584,6 +593,9 @@ func _set_active_tool(tool_type: int) -> void:
 	# Clean up when leaving connection mode
 	if was_connection and tool_type != MapViewport3D.Tool.CONNECTION:
 		_viewport_3d.selected_connection_index = -1
+	# Clean up when leaving battle area mode
+	if was_battle_area and tool_type != MapViewport3D.Tool.BATTLE_AREA:
+		_viewport_3d.selected_battle_area_index = -1
 
 	_viewport_3d.active_tool = tool_type as MapViewport3D.Tool
 	for t_key in _tool_buttons:
@@ -598,12 +610,15 @@ func _set_active_tool(tool_type: int) -> void:
 	# Show/hide ghost previews based on tool
 	_viewport_3d.update_ghost_visibility()
 	_viewport_3d.update_connection_ghost_visibility()
+	_viewport_3d.update_battle_area_ghost_visibility()
 	# Show appropriate panel
 	if tool_type == MapViewport3D.Tool.SCATTER:
 		_build_scatter_panel()
 	elif tool_type == MapViewport3D.Tool.CONNECTION:
 		_build_connection_list_panel()
-	elif was_scatter or was_connection:
+	elif tool_type == MapViewport3D.Tool.BATTLE_AREA:
+		_build_battle_area_panel()
+	elif was_scatter or was_connection or was_battle_area:
 		_build_map_properties()
 
 
@@ -1465,6 +1480,136 @@ func _on_scatter_cancel() -> void:
 		_scatter_accept_btn.disabled = true
 
 
+# === Battle Area tool ===
+
+func _build_battle_area_panel() -> void:
+	_clear_property_panel()
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		_add_label("Select a map first.")
+		return
+	_add_section_header("Battle Areas")
+	_add_label("Click map to place a battle area.\nDrag markers to reposition.")
+	_add_separator()
+
+	if map.battle_areas.is_empty():
+		_add_label("(no battle areas)")
+	else:
+		for bi in range(map.battle_areas.size()):
+			var area: BattleAreaData = map.battle_areas[bi]
+			var btn := Button.new()
+			var label_text: String = area.area_name if not area.area_name.is_empty() else "(unnamed)"
+			label_text += " (%.0f, %.0f)" % [area.position.x, area.position.z]
+			btn.text = "%d. %s" % [bi + 1, label_text]
+			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var captured_bi: int = bi
+			btn.pressed.connect(func() -> void:
+				_viewport_3d.selected_battle_area_index = captured_bi
+				_build_battle_area_properties(captured_bi)
+			)
+			_property_vbox.add_child(btn)
+
+
+func _build_battle_area_properties(idx: int) -> void:
+	_clear_property_panel()
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map or idx < 0 or idx >= map.battle_areas.size():
+		_build_battle_area_panel()
+		return
+	var area: BattleAreaData = map.battle_areas[idx]
+	_add_section_header("Battle Area #%d" % (idx + 1))
+	_add_separator()
+
+	# Name
+	_add_label("Name:")
+	var name_edit := LineEdit.new()
+	name_edit.text = area.area_name
+	name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_edit.placeholder_text = "e.g. Forest Clearing"
+	var captured_idx: int = idx
+	name_edit.text_changed.connect(func(new_text: String) -> void:
+		area.area_name = new_text
+		_mark_dirty()
+		_viewport_3d.refresh_battle_areas()
+		_viewport_3d.selected_battle_area_index = captured_idx
+	)
+	_property_vbox.add_child(name_edit)
+
+	# Position info (read-only)
+	_add_label("Position: (%.1f, %.1f)" % [area.position.x, area.position.z])
+	_add_label("Rotation: %.0f°" % rad_to_deg(area.rotation_y))
+	_add_label("Arena radius: %.1f" % BattleAreaData.ARENA_RADIUS)
+	_add_label("Ctrl+Scroll to rotate.")
+
+	_add_separator()
+
+	# Back button
+	var back_btn := Button.new()
+	back_btn.text = "Back to list"
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.pressed.connect(func() -> void:
+		_viewport_3d.selected_battle_area_index = -1
+		_build_battle_area_panel()
+	)
+	_property_vbox.add_child(back_btn)
+
+	# Delete button
+	var del_btn := Button.new()
+	del_btn.text = "Delete"
+	del_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	del_btn.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+	del_btn.pressed.connect(func() -> void:
+		map.battle_areas.remove_at(captured_idx)
+		_mark_dirty()
+		_viewport_3d.refresh_battle_areas()
+		_build_battle_area_panel()
+	)
+	_property_vbox.add_child(del_btn)
+
+
+func _on_battle_area_placed(pos: Vector3) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		return
+	var area := BattleAreaData.new()
+	area.area_name = "Battle Area %d" % (map.battle_areas.size() + 1)
+	area.position = pos
+	map.battle_areas.append(area)
+	_mark_dirty()
+	_viewport_3d.refresh_battle_areas()
+	_build_battle_area_panel()
+	_show_status("Placed battle area at (%.0f, %.0f)" % [pos.x, pos.z], Color(0.2, 0.8, 0.3))
+
+
+func _on_battle_area_clicked(area_index: int) -> void:
+	_viewport_3d.selected_battle_area_index = area_index
+	_build_battle_area_properties(area_index)
+
+
+func _on_battle_area_moved(area_index: int, new_pos: Vector3) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if map and area_index >= 0 and area_index < map.battle_areas.size():
+		map.battle_areas[area_index].position = new_pos
+		_mark_dirty()
+
+
+func _on_battle_area_drag_ended(area_index: int, end_pos: Vector3) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if map and area_index >= 0 and area_index < map.battle_areas.size():
+		map.battle_areas[area_index].position = end_pos
+		_mark_dirty()
+		_build_battle_area_properties(area_index)
+
+
+func _on_battle_area_rotated(area_index: int, new_rotation_y: float) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if map and area_index >= 0 and area_index < map.battle_areas.size():
+		map.battle_areas[area_index].rotation_y = new_rotation_y
+		_mark_dirty()
+		_build_battle_area_properties(area_index)
+
+
 # === Connection tool ===
 
 func _build_connection_list_panel() -> void:
@@ -2075,6 +2220,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_5:
 			_set_active_tool(MapViewport3D.Tool.CONNECTION)
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_6:
+			_set_active_tool(MapViewport3D.Tool.BATTLE_AREA)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
 			if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
