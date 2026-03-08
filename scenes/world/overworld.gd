@@ -23,6 +23,7 @@ var _message_timer: float = 0.0
 var _current_message: String = ""
 var _pause_menu_instance: Control = null
 var _party_hud: HBoxContainer = null
+var _terrain_grid: GridMap = null
 
 
 func _ready() -> void:
@@ -76,7 +77,14 @@ func _ready() -> void:
 	_map_data = MapDatabase.get_map(map_id)
 	if _map_data:
 		GameManager.current_location_name = _map_data.display_name if not _map_data.display_name.is_empty() else map_id.capitalize()
-		MapLoader.build_terrain(_map_data, self)
+		# Use cached terrain if available, otherwise build from scratch
+		var cached: GridMap = MapCache.get_terrain(map_id)
+		if cached:
+			add_child(cached)
+			_terrain_grid = cached
+			DebugLogger.log_info("Using cached terrain for map: %s" % map_id, "Overworld")
+		else:
+			_terrain_grid = MapLoader.build_terrain(_map_data, self)
 		# Create parent nodes for spawned elements
 		var enemies_node := Node3D.new()
 		enemies_node.name = "Enemies"
@@ -90,12 +98,13 @@ func _ready() -> void:
 		_connection_markers.name = "ConnectionMarkers"
 		add_child(_connection_markers)
 		MapLoader.spawn_connections(_map_data, _connection_markers)
+		# Preload terrain for adjacent maps in background
+		MapCache.preload_adjacent.call_deferred(map_id)
 	else:
 		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
 
 	# Auto-save on entry
 	SaveManager.auto_save()
-	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
 
 	# Camera occlusion — fade objects between camera and player
 	var occlusion := CameraOcclusion.new()
@@ -310,6 +319,15 @@ func _apply_battle_cooldown() -> void:
 			re._can_trigger_battle = true
 
 	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")
+
+
+func _notification(what: int) -> void:
+	## Cache terrain before this scene is freed (replace_scene / main menu).
+	## Does NOT fire on push_scene (scene is stashed, not freed).
+	if what == NOTIFICATION_PREDELETE:
+		if _terrain_grid and is_instance_valid(_terrain_grid):
+			MapCache.store_terrain(map_id, _terrain_grid)
+			_terrain_grid = null
 
 
 # === Pause Menu ===

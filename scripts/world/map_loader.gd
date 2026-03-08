@@ -48,7 +48,16 @@ static func _ensure_scenes_loaded() -> void:
 
 
 static func build_terrain(map_data: MapData, parent: Node3D) -> GridMap:
-	## Creates and populates a GridMap from map_data terrain cells.
+	## Creates and populates a GridMap from map_data terrain cells, adds it to parent.
+	var grid: GridMap = build_terrain_node(map_data)
+	parent.add_child(grid)
+	DebugLogger.log_info("Built GridMap terrain: %dx%d cells" % [map_data.grid_width, map_data.grid_height], "MapLoader")
+	return grid
+
+
+static func build_terrain_node(map_data: MapData) -> GridMap:
+	## Creates a detached GridMap from map_data terrain cells (not added to any parent).
+	## Used by MapCache for background preloading.
 	var lib := MeshLibrary.new()
 	for i in BLOCK_COLORS.size():
 		lib.create_item(i)
@@ -76,8 +85,6 @@ static func build_terrain(map_data: MapData, parent: Node3D) -> GridMap:
 		for z in range(map_data.grid_height):
 			grid.set_cell_item(Vector3i(x, 0, z), map_data.get_terrain_at(x, z))
 
-	parent.add_child(grid)
-	DebugLogger.log_info("Built GridMap terrain: %dx%d cells" % [map_data.grid_width, map_data.grid_height], "MapLoader")
 	return grid
 
 
