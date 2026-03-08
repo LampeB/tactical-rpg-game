@@ -119,3 +119,19 @@ func set_fixed_mode(yaw: float, pitch: float, distance: float) -> void:
 	_target_yaw = yaw
 	_target_pitch = pitch
 	_target_distance = distance
+
+
+## Returns current camera state as a Dictionary for saving.
+func get_state() -> Dictionary:
+	return {"yaw": _target_yaw, "pitch": _target_pitch, "distance": _target_distance}
+
+
+## Restores camera state from a Dictionary (snaps immediately).
+func restore_state(state: Dictionary) -> void:
+	_yaw = state.get("yaw", initial_yaw)
+	_pitch = state.get("pitch", initial_pitch)
+	_distance = state.get("distance", initial_distance)
+	_target_yaw = _yaw
+	_target_pitch = _pitch
+	_target_distance = _distance
+	_apply_transform()
