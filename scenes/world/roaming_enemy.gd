@@ -182,10 +182,13 @@ func _trigger_battle() -> void:
 	GameManager.set_flag("defeated_enemy_" + enemy_id, true)
 	DebugLogger.log_info("Marking enemy as defeated: %s" % enemy_id, "RoamingEnemy")
 
-	# Trigger battle
+	# Trigger battle with map context for background
+	var fight_pos: Vector3 = player.global_position if player else global_position
 	SceneManager.push_scene("res://scenes/battle/battle.tscn", {
 		"encounter": encounter_data,
 		"grid_inventories": GameManager.party.grid_inventories if GameManager.party else {},
+		"fight_position": fight_pos,
+		"map_id": GameManager.current_map_id,
 	})
 
 	# Remove enemy from map (despawn after battle)

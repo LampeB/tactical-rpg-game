@@ -58,17 +58,8 @@ static func build_terrain(map_data: MapData, parent: Node3D) -> GridMap:
 static func build_terrain_node(map_data: MapData) -> GridMap:
 	## Creates a detached GridMap from map_data terrain cells (not added to any parent).
 	## Used by MapCache for background preloading.
-	var lib := MeshLibrary.new()
+	var lib := _create_mesh_library()
 	for i in BLOCK_COLORS.size():
-		lib.create_item(i)
-		var mesh := BoxMesh.new()
-		mesh.size = Vector3(1, 1, 1)
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = BLOCK_COLORS[i]
-		if BLOCK_COLORS[i].a < 1.0:
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mesh.material = mat
-		lib.set_item_mesh(i, mesh)
 		var col_shape := BoxShape3D.new()
 		col_shape.size = Vector3(1, 1, 1)
 		lib.set_item_shapes(i, [col_shape, Transform3D.IDENTITY])
@@ -261,3 +252,150 @@ static func _is_valid_placement(pos: Vector3, exclusions: Array[Vector3],
 static func get_safe_zones(map_data: MapData) -> Array[Rect2]:
 	## Returns enemy safe zones from map data.
 	return map_data.enemy_safe_zones
+
+
+# === Battle Background ===
+
+## Scene path substrings for blocking decorations removed from the battle arena circle.
+const _BATTLE_BLOCKING_PATTERNS: Array[String] = [
+	"trunk", "canop", "tree_", "rock", "bush",
+	"house", "fence", "door", "roof", "window",
+	"chest", "lamppost", "statue",
+	"table", "chair", "bed", "couch", "desk", "wardrobe",
+]
+
+
+static func build_battle_background(map_data: MapData, battle_area: BattleAreaData) -> Node3D:
+	## Builds the full map as a 3D battle background, clearing large decorations
+	## within the arena circle around the battle area position.
+	var root := Node3D.new()
+	root.name = "BattleBackground"
+
+	var arena_pos: Vector3 = battle_area.position
+	var arena_radius_sq: float = BattleAreaData.ARENA_RADIUS * BattleAreaData.ARENA_RADIUS
+
+	# --- Full terrain GridMap ---
+	var lib := _create_mesh_library()
+	var grid := GridMap.new()
+	grid.name = "BattleTerrain"
+	grid.mesh_library = lib
+	grid.cell_size = Vector3(1, 1, 1)
+	grid.collision_layer = 0
+	grid.collision_mask = 0
+
+	for x in range(map_data.grid_width):
+		for z in range(map_data.grid_height):
+			grid.set_cell_item(Vector3i(x, 0, z), map_data.get_terrain_at(x, z))
+
+	grid.position.y = -1.0  # cell top at Y=0
+	root.add_child(grid)
+
+	# --- Placed decorations (skip blocking ones inside arena) ---
+	for elem in map_data.elements:
+		var etype: int = elem.element_type
+		if etype == MapElement.ElementType.NPC and not elem.resource_id.is_empty():
+			if elem.resource_id.ends_with(".tscn") or elem.resource_id.ends_with(".vox"):
+				etype = MapElement.ElementType.DECORATION
+		if etype != MapElement.ElementType.DECORATION and etype != MapElement.ElementType.SIGN and etype != MapElement.ElementType.FENCE:
+			continue
+		# Inside arena circle: skip blocking decorations
+		if _is_in_arena(elem.position, arena_pos, arena_radius_sq) and _is_blocking_decoration(elem.resource_id):
+			continue
+		var obj: Node3D = _instantiate_decoration(elem.resource_id)
+		if not obj:
+			continue
+		obj.position = elem.position
+		if elem.rotation_y != 0.0:
+			obj.rotation.y = elem.rotation_y
+		if elem.scale_factor != 1.0:
+			obj.scale = Vector3.ONE * elem.scale_factor
+		root.add_child(obj)
+
+	# --- Procedural decorations (skip blocking ones inside arena) ---
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_data.decoration_seed
+	for zone in map_data.decoration_zones:
+		if zone.decoration_scenes.is_empty():
+			continue
+		var placed_in_zone: int = 0
+		var attempts: int = 0
+		var max_attempts: int = zone.count * 10
+		while placed_in_zone < zone.count and attempts < max_attempts:
+			attempts += 1
+			var x: float = rng.randf_range(zone.rect.position.x, zone.rect.position.x + zone.rect.size.x)
+			var z: float = rng.randf_range(zone.rect.position.y, zone.rect.position.y + zone.rect.size.y)
+			var scene_path: String = zone.decoration_scenes[rng.randi_range(0, zone.decoration_scenes.size() - 1)]
+			var rot_y: float = rng.randf_range(0, TAU)
+			# Inside arena circle: skip blocking decorations
+			var pos := Vector3(x, 0, z)
+			if _is_in_arena(pos, arena_pos, arena_radius_sq) and _is_blocking_decoration(scene_path):
+				placed_in_zone += 1
+				continue
+			var scene: PackedScene = load(scene_path) as PackedScene
+			if scene:
+				var obj: Node3D = scene.instantiate()
+				obj.position = pos
+				obj.rotation.y = rot_y
+				root.add_child(obj)
+			placed_in_zone += 1
+
+	return root
+
+
+static func find_nearest_battle_area(map_data: MapData, fight_pos: Vector3) -> BattleAreaData:
+	## Returns the battle area closest to the fight position, or null if none exist.
+	if map_data.battle_areas.is_empty():
+		return null
+	var best: BattleAreaData = null
+	var best_dist: float = INF
+	for area in map_data.battle_areas:
+		var dist: float = fight_pos.distance_squared_to(area.position)
+		if dist < best_dist:
+			best_dist = dist
+			best = area
+	return best
+
+
+static func _create_mesh_library() -> MeshLibrary:
+	## Creates the standard terrain MeshLibrary (shared between overworld and battle).
+	var lib := MeshLibrary.new()
+	for i in BLOCK_COLORS.size():
+		lib.create_item(i)
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(1, 1, 1)
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = BLOCK_COLORS[i]
+		if BLOCK_COLORS[i].a < 1.0:
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mesh.material = mat
+		lib.set_item_mesh(i, mesh)
+	return lib
+
+
+static func _is_in_arena(pos: Vector3, arena_center: Vector3, radius_sq: float) -> bool:
+	var dx: float = pos.x - arena_center.x
+	var dz: float = pos.z - arena_center.z
+	return dx * dx + dz * dz <= radius_sq
+
+
+static func _is_blocking_decoration(scene_path: String) -> bool:
+	## Returns true if the decoration is large enough to block combat view.
+	var lower: String = scene_path.to_lower()
+	for pattern in _BATTLE_BLOCKING_PATTERNS:
+		if lower.contains(pattern):
+			return true
+	return false
+
+
+static func _instantiate_decoration(resource_id: String) -> Node3D:
+	## Loads and instantiates a decoration from its resource path.
+	if resource_id.is_empty():
+		return null
+	if resource_id.ends_with(".vox"):
+		var vox := VoxModel.new()
+		vox.vox_path = resource_id
+		return vox
+	var scene: PackedScene = load(resource_id) as PackedScene
+	if not scene:
+		return null
+	return scene.instantiate()

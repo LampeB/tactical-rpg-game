@@ -29,6 +29,9 @@ extends Resource
 @export_group("Connections")
 @export var connections: Array[MapConnection] = []
 
+@export_group("Battle Areas")
+@export var battle_areas: Array[BattleAreaData] = []
+
 @export_group("Safe Zones")
 ## Rect2 zones where enemies cannot patrol (x, z, width, depth).
 @export var enemy_safe_zones: Array[Rect2] = []
