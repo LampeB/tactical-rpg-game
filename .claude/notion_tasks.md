@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 201 -->
+<\!-- Total tasks: 202 -->
 <\!-- Last updated: 2026-03-08 -->
 
 ## Prerequisites
@@ -128,6 +128,7 @@
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
+| Font size accessibility setting (global scaling) | 31d7700f-d0fb-81ff-b44d-cbeffb97162f |
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
 | Auto-fill ingredients in crafting recipes | 3187700f-d0fb-81df-bb9d-f87b59bec21c |
 | Highlight matching inventory/stash items when hovering a recipe ingredient | 3187700f-d0fb-814c-b7b4-c76366ceb13c |
