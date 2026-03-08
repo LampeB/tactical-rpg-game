@@ -13,20 +13,46 @@ var _dirty_ids: Dictionary = {}    # id -> true
 var _bg: ColorRect
 var _search_edit: LineEdit
 var _map_list_vbox: VBoxContainer
-var _canvas: MapCanvas
+var _viewport_3d: MapViewport3D
+var _asset_palette: AssetPalette
 var _property_vbox: VBoxContainer
 var _status_label: Label
 var _save_btn: Button
 var _save_all_btn: Button
 var _tool_buttons: Dictionary = {}  # Tool enum -> Button
 var _terrain_palette: HBoxContainer
+var _eraser_btn: Button
+var _brush_controls: HBoxContainer
 var _element_picker: OptionButton
-var _zoom_label: Label
+var _place_options: HBoxContainer
+var _place_scale_spin: SpinBox
+var _place_random_rot_cb: CheckBox
+var _place_random_scale_cb: CheckBox
+var _place_random_scale_min_spin: SpinBox
+var _place_random_scale_max_spin: SpinBox
 var _coord_label: Label
 var _unsaved_dialog: ConfirmationDialog
 
+# Scatter tool UI
+var _scatter_status_label: Label
+var _scatter_seed_spin: SpinBox
+var _scatter_count_spin: SpinBox
+var _scatter_spacing_spin: SpinBox
+var _scatter_asset_checkboxes: Dictionary = {}  # path -> CheckBox
+var _scatter_asset_list_vbox: VBoxContainer
+var _scatter_search_edit: LineEdit
+var _scatter_generate_btn: Button
+var _scatter_accept_btn: Button
+
 # Cached decoration scene list
 var _decoration_scene_names: Array[String] = []
+
+# Undo / Redo
+const MAX_UNDO := 50
+var _undo_stack: Array[Dictionary] = []
+var _redo_stack: Array[Dictionary] = []
+var _current_paint_action: Dictionary = {}  # accumulates cells during a stroke
+var _drag_original_pos: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
@@ -128,7 +154,7 @@ func _build_ui() -> void:
 
 	# Hint bar
 	var hint := Label.new()
-	hint.text = "Middle-click: Pan | Scroll: Zoom | Left-click: Paint/Select/Place | Del: Delete element | Ctrl+S: Save"
+	hint.text = "Left-click: Tool action | Right-drag: Orbit | Middle-drag: Pan | Scroll: Zoom | Del: Delete | Ctrl+Z/Y: Undo/Redo | Ctrl+S: Save | 1-4: Tools"
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	main_vbox.add_child(hint)
@@ -214,6 +240,17 @@ func _build_left_panel(parent: HBoxContainer) -> void:
 
 	_rebuild_map_list()
 
+	# Separator before asset palette
+	var palette_sep := HSeparator.new()
+	palette_sep.add_theme_constant_override("separation", 8)
+	vbox.add_child(palette_sep)
+
+	# Asset Palette
+	_asset_palette = AssetPalette.new()
+	_asset_palette.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_asset_palette.asset_selected.connect(_on_asset_selected)
+	vbox.add_child(_asset_palette)
+
 
 func _build_center_panel(parent: HBoxContainer) -> void:
 	var panel := PanelContainer.new()
@@ -232,15 +269,16 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 
 	# Tool buttons
 	var tools_info: Array[Dictionary] = [
-		{"name": "Select", "tool": MapCanvas.Tool.SELECT},
-		{"name": "Paint", "tool": MapCanvas.Tool.PAINT},
-		{"name": "Place", "tool": MapCanvas.Tool.PLACE},
+		{"name": "Select", "tool": MapViewport3D.Tool.SELECT},
+		{"name": "Paint", "tool": MapViewport3D.Tool.PAINT},
+		{"name": "Place", "tool": MapViewport3D.Tool.PLACE},
+		{"name": "Scatter", "tool": MapViewport3D.Tool.SCATTER},
 	]
 	for info in tools_info:
 		var btn := Button.new()
 		btn.text = info["name"]
 		btn.toggle_mode = true
-		btn.button_pressed = info["tool"] == MapCanvas.Tool.SELECT
+		btn.button_pressed = info["tool"] == MapViewport3D.Tool.SELECT
 		var tool_val: int = info["tool"]
 		btn.pressed.connect(func() -> void: _set_active_tool(tool_val))
 		toolbar.add_child(btn)
@@ -260,6 +298,28 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 	palette_label.add_theme_font_size_override("font_size", 13)
 	_terrain_palette.add_child(palette_label)
 
+	# Eraser button
+	_eraser_btn = Button.new()
+	_eraser_btn.text = "X"
+	_eraser_btn.tooltip_text = "Eraser (remove terrain)"
+	_eraser_btn.custom_minimum_size = Vector2(28, 28)
+	_eraser_btn.toggle_mode = true
+	var eraser_style := StyleBoxFlat.new()
+	eraser_style.bg_color = Color(0.3, 0.15, 0.15)
+	eraser_style.set_corner_radius_all(4)
+	eraser_style.set_content_margin_all(0)
+	_eraser_btn.add_theme_stylebox_override("normal", eraser_style)
+	var eraser_pressed := StyleBoxFlat.new()
+	eraser_pressed.bg_color = Color(0.5, 0.15, 0.15)
+	eraser_pressed.set_corner_radius_all(4)
+	eraser_pressed.set_content_margin_all(0)
+	eraser_pressed.border_color = Color.WHITE
+	eraser_pressed.set_border_width_all(3)
+	_eraser_btn.add_theme_stylebox_override("pressed", eraser_pressed)
+	_eraser_btn.pressed.connect(func() -> void: _set_paint_block(-1))
+	_terrain_palette.add_child(_eraser_btn)
+
+	# Block color buttons
 	for i in range(MapLoader.BLOCK_COLORS.size()):
 		var color_btn := Button.new()
 		color_btn.custom_minimum_size = Vector2(28, 28)
@@ -282,38 +342,137 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 		color_btn.pressed.connect(func() -> void: _set_paint_block(block_idx))
 		_terrain_palette.add_child(color_btn)
 
+	# Brush controls (size + shape)
+	_brush_controls = HBoxContainer.new()
+	_brush_controls.add_theme_constant_override("separation", 4)
+	_brush_controls.visible = false
+	toolbar.add_child(_brush_controls)
+
+	var size_label := Label.new()
+	size_label.text = "Size:"
+	size_label.add_theme_font_size_override("font_size", 13)
+	_brush_controls.add_child(size_label)
+
+	var size_spin := SpinBox.new()
+	size_spin.min_value = 1
+	size_spin.max_value = 5
+	size_spin.step = 1
+	size_spin.value = 1
+	size_spin.custom_minimum_size.x = 60
+	size_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d.brush_size = int(val)
+	)
+	_brush_controls.add_child(size_spin)
+
+	var shape_label := Label.new()
+	shape_label.text = "Shape:"
+	shape_label.add_theme_font_size_override("font_size", 13)
+	_brush_controls.add_child(shape_label)
+
+	var shape_picker := OptionButton.new()
+	shape_picker.add_item("Square")
+	shape_picker.add_item("Circle")
+	shape_picker.item_selected.connect(func(idx: int) -> void:
+		_viewport_3d.brush_shape = idx as MapViewport3D.BrushShape
+	)
+	_brush_controls.add_child(shape_picker)
+
 	# Element picker (visible when Place tool active)
 	_element_picker = OptionButton.new()
 	_element_picker.visible = false
 	for type_name in MapElement.ElementType.keys():
 		_element_picker.add_item(type_name.capitalize().replace("_", " "))
 	_element_picker.item_selected.connect(func(idx: int) -> void:
-		_canvas.place_element_type = idx
+		_viewport_3d.place_element_type = idx
 	)
 	toolbar.add_child(_element_picker)
+
+	# Placement options (visible when Place tool active)
+	_place_options = HBoxContainer.new()
+	_place_options.add_theme_constant_override("separation", 4)
+	_place_options.visible = false
+	toolbar.add_child(_place_options)
+
+	var pscale_label := Label.new()
+	pscale_label.text = "Scale:"
+	pscale_label.add_theme_font_size_override("font_size", 13)
+	_place_options.add_child(pscale_label)
+
+	_place_scale_spin = SpinBox.new()
+	_place_scale_spin.min_value = 0.01
+	_place_scale_spin.max_value = 10.0
+	_place_scale_spin.step = 0.01
+	_place_scale_spin.value = 1.0
+	_place_scale_spin.custom_minimum_size.x = 70
+	_place_scale_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d._place_scale = val
+		_viewport_3d._apply_ghost_scale()
+	)
+	_place_options.add_child(_place_scale_spin)
+
+	_place_random_rot_cb = CheckBox.new()
+	_place_random_rot_cb.text = "Rand Rot"
+	_place_random_rot_cb.add_theme_font_size_override("font_size", 12)
+	_place_random_rot_cb.toggled.connect(func(pressed: bool) -> void:
+		_viewport_3d._place_random_rotation = pressed
+	)
+	_place_options.add_child(_place_random_rot_cb)
+
+	_place_random_scale_cb = CheckBox.new()
+	_place_random_scale_cb.text = "Rand Scale"
+	_place_random_scale_cb.add_theme_font_size_override("font_size", 12)
+	_place_random_scale_cb.toggled.connect(func(pressed: bool) -> void:
+		_viewport_3d._place_random_scale = pressed
+		_place_random_scale_min_spin.visible = pressed
+		_place_random_scale_max_spin.visible = pressed
+	)
+	_place_options.add_child(_place_random_scale_cb)
+
+	_place_random_scale_min_spin = SpinBox.new()
+	_place_random_scale_min_spin.min_value = 0.01
+	_place_random_scale_min_spin.max_value = 10.0
+	_place_random_scale_min_spin.step = 0.01
+	_place_random_scale_min_spin.value = 0.5
+	_place_random_scale_min_spin.custom_minimum_size.x = 70
+	_place_random_scale_min_spin.tooltip_text = "Min scale"
+	_place_random_scale_min_spin.visible = false
+	_place_random_scale_min_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d._place_random_scale_min = val
+	)
+	_place_options.add_child(_place_random_scale_min_spin)
+
+	_place_random_scale_max_spin = SpinBox.new()
+	_place_random_scale_max_spin.min_value = 0.01
+	_place_random_scale_max_spin.max_value = 10.0
+	_place_random_scale_max_spin.step = 0.01
+	_place_random_scale_max_spin.value = 1.5
+	_place_random_scale_max_spin.custom_minimum_size.x = 70
+	_place_random_scale_max_spin.tooltip_text = "Max scale"
+	_place_random_scale_max_spin.visible = false
+	_place_random_scale_max_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d._place_random_scale_max = val
+	)
+	_place_options.add_child(_place_random_scale_max_spin)
 
 	var toolbar_spacer := Control.new()
 	toolbar_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	toolbar.add_child(toolbar_spacer)
 
-	_zoom_label = Label.new()
-	_zoom_label.text = "Zoom: 50%"
-	_zoom_label.add_theme_font_size_override("font_size", 13)
-	toolbar.add_child(_zoom_label)
+	# 3D Viewport (replaces old 2D MapCanvas)
+	_viewport_3d = MapViewport3D.new()
+	vbox.add_child(_viewport_3d)
 
-	# Canvas
-	_canvas = MapCanvas.new()
-	_canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_child(_canvas)
-
-	# Connect canvas signals
-	_canvas.cell_painted.connect(_on_cell_painted)
-	_canvas.element_clicked.connect(_on_element_clicked)
-	_canvas.element_moved.connect(_on_element_moved)
-	_canvas.element_placed.connect(_on_element_placed)
-	_canvas.hover_changed.connect(_on_hover_changed)
-	_canvas.zoom_changed.connect(_on_zoom_changed)
+	# Connect viewport signals
+	_viewport_3d.cell_painted.connect(_on_cell_painted)
+	_viewport_3d.element_clicked.connect(_on_element_clicked)
+	_viewport_3d.element_moved.connect(_on_element_moved)
+	_viewport_3d.element_rotated.connect(_on_element_rotated)
+	_viewport_3d.element_placed.connect(_on_element_placed)
+	_viewport_3d.hover_changed.connect(_on_hover_changed)
+	_viewport_3d.paint_stroke_ended.connect(_on_paint_stroke_ended)
+	_viewport_3d.drag_started.connect(_on_drag_started)
+	_viewport_3d.drag_ended.connect(_on_drag_ended)
+	_viewport_3d.scatter_zone_drawn.connect(_on_scatter_zone_drawn)
 
 	# Status bar
 	_coord_label = Label.new()
@@ -383,12 +542,18 @@ func _rebuild_map_list() -> void:
 func _select_map(map_id: String) -> void:
 	_selected_map_id = map_id
 	_selected_element_idx = -1
+	_undo_stack.clear()
+	_redo_stack.clear()
+	_current_paint_action = {}
 	var map: MapData = _maps.get(map_id)
 	if map:
-		_canvas.set_map(map)
-		_canvas.selected_element_index = -1
+		_viewport_3d.set_map(map)
+		_viewport_3d.selected_element_index = -1
 	_rebuild_map_list()
-	_build_map_properties()
+	if _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
+		_build_scatter_panel()
+	else:
+		_build_map_properties()
 
 
 func _mark_dirty() -> void:
@@ -400,31 +565,80 @@ func _mark_dirty() -> void:
 # === Tool switching ===
 
 func _set_active_tool(tool_type: int) -> void:
-	_canvas.active_tool = tool_type as MapCanvas.Tool
+	# Clean up scatter state when leaving scatter mode
+	var was_scatter: bool = _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER
+	if was_scatter and tool_type != MapViewport3D.Tool.SCATTER:
+		_viewport_3d.clear_scatter_zone()
+
+	_viewport_3d.active_tool = tool_type as MapViewport3D.Tool
 	for t_key in _tool_buttons:
 		var btn: Button = _tool_buttons[t_key]
 		btn.button_pressed = (t_key == tool_type)
-	_terrain_palette.visible = (tool_type == MapCanvas.Tool.PAINT)
-	_element_picker.visible = (tool_type == MapCanvas.Tool.PLACE)
+	var is_paint: bool = (tool_type == MapViewport3D.Tool.PAINT)
+	_terrain_palette.visible = is_paint
+	_brush_controls.visible = is_paint
+	var is_place: bool = (tool_type == MapViewport3D.Tool.PLACE)
+	_element_picker.visible = is_place
+	_place_options.visible = is_place
+	# Show/hide ghost preview based on tool
+	_viewport_3d.update_ghost_visibility()
+	# Show scatter panel or map properties
+	if tool_type == MapViewport3D.Tool.SCATTER:
+		_build_scatter_panel()
+	elif was_scatter:
+		_build_map_properties()
 
 
 func _set_paint_block(block_idx: int) -> void:
-	_canvas.paint_block = block_idx
-	# Update palette button states
+	_viewport_3d.paint_block = block_idx
+	# Update eraser toggle
+	_eraser_btn.button_pressed = (block_idx == -1)
+	# Update block color button states (children after label + eraser = offset 2)
 	var buttons: Array[Node] = _terrain_palette.get_children()
 	for i in range(buttons.size()):
-		if buttons[i] is Button:
+		if buttons[i] is Button and buttons[i] != _eraser_btn:
 			var btn: Button = buttons[i]
-			btn.button_pressed = (i - 1 == block_idx)  # -1 because label is first child
+			btn.button_pressed = (i - 2 == block_idx)  # -2 for label + eraser
 
 
-# === Canvas callbacks ===
+func _on_asset_selected(path: String, is_vox: bool) -> void:
+	_viewport_3d.set_place_asset(path, is_vox)
+	_set_active_tool(MapViewport3D.Tool.PLACE)
+	# Auto-set element type based on asset
+	var inferred_type: int = _infer_element_type(path)
+	_viewport_3d.place_element_type = inferred_type
+	_element_picker.select(inferred_type)
+
+
+static func _infer_element_type(path: String) -> int:
+	## Infers the MapElement.ElementType from a resource path.
+	var fname: String = path.get_file().get_basename()
+	if fname == "sign":
+		return MapElement.ElementType.SIGN
+	if fname == "fence":
+		return MapElement.ElementType.FENCE
+	if path.ends_with(".tscn") or path.ends_with(".vox"):
+		return MapElement.ElementType.DECORATION
+	return MapElement.ElementType.NPC
+
+
+# === Viewport callbacks ===
 
 func _on_cell_painted(grid_pos: Vector2i, block_type: int) -> void:
 	var map: MapData = _maps.get(_selected_map_id)
-	if map:
-		map.set_terrain_at(grid_pos.x, grid_pos.y, block_type)
-		_mark_dirty()
+	if not map:
+		return
+	# Record old value for undo (only first time this cell is painted in this stroke)
+	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
+	if not _current_paint_action.has("cells"):
+		_current_paint_action = { "type": "paint", "cells": {} }
+	if not _current_paint_action["cells"].has(key):
+		var old_val: int = map.get_terrain_at(grid_pos.x, grid_pos.y)
+		_current_paint_action["cells"][key] = { "pos": grid_pos, "old": old_val, "new": block_type }
+	else:
+		_current_paint_action["cells"][key]["new"] = block_type
+	map.set_terrain_at(grid_pos.x, grid_pos.y, block_type)
+	_mark_dirty()
 
 
 func _on_element_clicked(element_index: int) -> void:
@@ -439,9 +653,30 @@ func _on_element_moved(element_index: int, new_pos: Vector3) -> void:
 	var map: MapData = _maps.get(_selected_map_id)
 	if map and element_index >= 0 and element_index < map.elements.size():
 		map.elements[element_index].position = new_pos
+
+
+func _on_element_rotated(element_index: int, new_rotation_y: float) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if map and element_index >= 0 and element_index < map.elements.size():
+		var old_rotation: float = map.elements[element_index].rotation_y
+		map.elements[element_index].rotation_y = new_rotation_y
 		_mark_dirty()
 		if _selected_element_idx == element_index:
 			_build_element_properties(element_index)
+		# Batch consecutive rotations on the same element into one undo action
+		if not _undo_stack.is_empty():
+			var last: Dictionary = _undo_stack.back()
+			if last.get("type") == "rotate" and last.get("element_index") == element_index:
+				last["new_rotation"] = new_rotation_y
+				_redo_stack.clear()
+				return
+		if old_rotation != new_rotation_y:
+			_push_undo({
+				"type": "rotate",
+				"element_index": element_index,
+				"old_rotation": old_rotation,
+				"new_rotation": new_rotation_y,
+			})
 
 
 func _on_element_placed(world_pos: Vector2) -> void:
@@ -449,25 +684,77 @@ func _on_element_placed(world_pos: Vector2) -> void:
 	if not map:
 		return
 	var elem := MapElement.new()
-	elem.element_type = _canvas.place_element_type as MapElement.ElementType
+	elem.element_type = _viewport_3d.place_element_type as MapElement.ElementType
 	elem.position = Vector3(snappedf(world_pos.x, 0.5), 0, snappedf(world_pos.y, 0.5))
 
-	# Set default resource_id based on type
-	match elem.element_type:
-		MapElement.ElementType.SIGN:
-			elem.resource_id = "res://scenes/world/objects/sign.tscn"
-		MapElement.ElementType.FENCE:
-			elem.resource_id = "res://scenes/world/objects/fence.tscn"
-		MapElement.ElementType.DECORATION:
-			if not _decoration_scene_names.is_empty():
-				elem.resource_id = DECORATION_SCENES_DIR + _decoration_scene_names[0] + ".tscn"
+	# Rotation: random or manual
+	if _viewport_3d._place_random_rotation:
+		elem.rotation_y = _viewport_3d._rng.randf_range(0, TAU)
+	else:
+		elem.rotation_y = _viewport_3d._place_rotation
+
+	# Scale: random between min/max or fixed
+	if _viewport_3d._place_random_scale:
+		elem.scale_factor = _viewport_3d._rng.randf_range(
+			_viewport_3d._place_random_scale_min,
+			_viewport_3d._place_random_scale_max
+		)
+	else:
+		elem.scale_factor = _viewport_3d._place_scale
+
+	# Use selected asset from palette if available
+	var palette_path: String = _asset_palette.get_selected_path()
+	if not palette_path.is_empty():
+		elem.resource_id = palette_path
+		# Ensure element type matches asset (safety net)
+		if elem.element_type == MapElement.ElementType.NPC and (palette_path.ends_with(".tscn") or palette_path.ends_with(".vox")):
+			elem.element_type = _infer_element_type(palette_path) as MapElement.ElementType
+	else:
+		# Fallback defaults
+		match elem.element_type:
+			MapElement.ElementType.SIGN:
+				elem.resource_id = "res://scenes/world/objects/sign.tscn"
+			MapElement.ElementType.FENCE:
+				elem.resource_id = "res://scenes/world/objects/fence.tscn"
+			MapElement.ElementType.DECORATION:
+				if not _decoration_scene_names.is_empty():
+					elem.resource_id = DECORATION_SCENES_DIR + _decoration_scene_names[0] + ".tscn"
 
 	map.elements.append(elem)
 	_mark_dirty()
-	_canvas.selected_element_index = map.elements.size() - 1
-	_selected_element_idx = map.elements.size() - 1
+	var new_idx: int = map.elements.size() - 1
+	_viewport_3d.add_element_visual(elem, new_idx)
+	_viewport_3d.selected_element_index = new_idx
+	_selected_element_idx = new_idx
 	_build_element_properties(_selected_element_idx)
-	_canvas.queue_redraw()
+	_push_undo({
+		"type": "place",
+		"element_index": new_idx,
+		"element_data": elem.duplicate(),
+	})
+
+
+func _on_paint_stroke_ended() -> void:
+	if _current_paint_action.has("cells") and not _current_paint_action["cells"].is_empty():
+		var cells_dict: Dictionary = _current_paint_action["cells"]
+		var cells_array: Array = cells_dict.values()
+		_push_undo({ "type": "paint", "cells": cells_array })
+	_current_paint_action = {}
+
+
+func _on_drag_started(_element_index: int, start_pos: Vector3) -> void:
+	_drag_original_pos = start_pos
+
+
+func _on_drag_ended(element_index: int, end_pos: Vector3) -> void:
+	if _drag_original_pos != end_pos:
+		_push_undo({
+			"type": "move",
+			"element_index": element_index,
+			"old_pos": _drag_original_pos,
+			"new_pos": end_pos,
+		})
+		_mark_dirty()
 
 
 func _on_hover_changed(grid_pos: Vector2i) -> void:
@@ -481,10 +768,6 @@ func _on_hover_changed(grid_pos: Vector2i) -> void:
 			_coord_label.text = "X: %d  Z: %d  [out of bounds]" % [grid_pos.x, grid_pos.y]
 	else:
 		_coord_label.text = "X: --  Z: --"
-
-
-func _on_zoom_changed(zoom_level: float) -> void:
-	_zoom_label.text = "Zoom: %d%%" % int(zoom_level * 100)
 
 
 # === Property Panel ===
@@ -563,7 +846,6 @@ func _build_map_properties() -> void:
 	spawn_x.value_changed.connect(func(val: float) -> void:
 		map.player_spawn.x = val
 		_mark_dirty()
-		_canvas.queue_redraw()
 	)
 	_property_vbox.add_child(spawn_x)
 
@@ -577,7 +859,6 @@ func _build_map_properties() -> void:
 	spawn_z.value_changed.connect(func(val: float) -> void:
 		map.player_spawn.z = val
 		_mark_dirty()
-		_canvas.queue_redraw()
 	)
 	_property_vbox.add_child(spawn_z)
 
@@ -612,10 +893,12 @@ func _build_element_properties(idx: int) -> void:
 	pos_x.step = 0.5
 	pos_x.value = elem.position.x
 	pos_x.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var captured_idx: int = idx
 	pos_x.value_changed.connect(func(val: float) -> void:
 		elem.position.x = val
 		_mark_dirty()
-		_canvas.queue_redraw()
+		if captured_idx < _viewport_3d._element_nodes.size():
+			_viewport_3d._element_nodes[captured_idx].position.x = val
 	)
 	_property_vbox.add_child(pos_x)
 
@@ -629,7 +912,8 @@ func _build_element_properties(idx: int) -> void:
 	pos_z.value_changed.connect(func(val: float) -> void:
 		elem.position.z = val
 		_mark_dirty()
-		_canvas.queue_redraw()
+		if captured_idx < _viewport_3d._element_nodes.size():
+			_viewport_3d._element_nodes[captured_idx].position.z = val
 	)
 	_property_vbox.add_child(pos_z)
 
@@ -643,8 +927,25 @@ func _build_element_properties(idx: int) -> void:
 	rot_spin.value_changed.connect(func(val: float) -> void:
 		elem.rotation_y = val
 		_mark_dirty()
+		if captured_idx < _viewport_3d._element_nodes.size():
+			_viewport_3d._element_nodes[captured_idx].rotation.y = val
 	)
 	_property_vbox.add_child(rot_spin)
+
+	_add_label("Scale:")
+	var scale_spin := SpinBox.new()
+	scale_spin.min_value = 0.1
+	scale_spin.max_value = 10.0
+	scale_spin.step = 0.1
+	scale_spin.value = elem.scale_factor
+	scale_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_spin.value_changed.connect(func(val: float) -> void:
+		elem.scale_factor = val
+		_mark_dirty()
+		if captured_idx < _viewport_3d._element_nodes.size():
+			_viewport_3d._element_nodes[captured_idx].scale = Vector3.ONE * val
+	)
+	_property_vbox.add_child(scale_spin)
 
 	_add_separator()
 	_add_section_header("Reference")
@@ -680,8 +981,8 @@ func _build_element_properties(idx: int) -> void:
 	var delete_btn := Button.new()
 	delete_btn.text = "Delete Element"
 	delete_btn.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
-	var captured_idx: int = idx
-	delete_btn.pressed.connect(func() -> void: _delete_element(captured_idx))
+	var del_idx: int = idx
+	delete_btn.pressed.connect(func() -> void: _delete_element(del_idx))
 	_property_vbox.add_child(delete_btn)
 
 
@@ -844,17 +1145,466 @@ func _build_decoration_picker(elem: MapElement) -> void:
 	_property_vbox.add_child(picker)
 
 
+# === Scatter Tool ===
+
+func _build_scatter_panel() -> void:
+	_clear_property_panel()
+	_add_section_header("Scatter Tool")
+
+	# Status / instructions
+	_scatter_status_label = Label.new()
+	_scatter_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_scatter_status_label.add_theme_font_size_override("font_size", 13)
+	_property_vbox.add_child(_scatter_status_label)
+	_update_scatter_status()
+
+	_add_separator()
+	_add_section_header("Parameters")
+
+	# Seed row
+	var seed_hbox := HBoxContainer.new()
+	seed_hbox.add_theme_constant_override("separation", 4)
+	_property_vbox.add_child(seed_hbox)
+
+	var seed_label := Label.new()
+	seed_label.text = "Seed:"
+	seed_label.add_theme_font_size_override("font_size", 13)
+	seed_hbox.add_child(seed_label)
+
+	_scatter_seed_spin = SpinBox.new()
+	_scatter_seed_spin.min_value = 0
+	_scatter_seed_spin.max_value = 999999
+	_scatter_seed_spin.step = 1
+	_scatter_seed_spin.value = 42
+	_scatter_seed_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	seed_hbox.add_child(_scatter_seed_spin)
+
+	var randomize_btn := Button.new()
+	randomize_btn.text = "Rand"
+	randomize_btn.tooltip_text = "Randomize seed"
+	randomize_btn.pressed.connect(func() -> void:
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		_scatter_seed_spin.value = rng.randi_range(0, 999999)
+	)
+	seed_hbox.add_child(randomize_btn)
+
+	# Count
+	_add_label("Count:")
+	_scatter_count_spin = SpinBox.new()
+	_scatter_count_spin.min_value = 1
+	_scatter_count_spin.max_value = 500
+	_scatter_count_spin.step = 1
+	_scatter_count_spin.value = 20
+	_scatter_count_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_property_vbox.add_child(_scatter_count_spin)
+
+	# Min spacing
+	_add_label("Min Spacing:")
+	_scatter_spacing_spin = SpinBox.new()
+	_scatter_spacing_spin.min_value = 0.5
+	_scatter_spacing_spin.max_value = 10.0
+	_scatter_spacing_spin.step = 0.5
+	_scatter_spacing_spin.value = 2.0
+	_scatter_spacing_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_property_vbox.add_child(_scatter_spacing_spin)
+
+	_add_separator()
+	_add_section_header("Assets to Scatter")
+
+	# Search filter
+	_scatter_search_edit = LineEdit.new()
+	_scatter_search_edit.placeholder_text = "Filter assets..."
+	_scatter_search_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scatter_search_edit.text_changed.connect(func(_t: String) -> void:
+		_rebuild_scatter_asset_list()
+	)
+	_property_vbox.add_child(_scatter_search_edit)
+
+	# Select All / Deselect All
+	var sel_hbox := HBoxContainer.new()
+	sel_hbox.add_theme_constant_override("separation", 4)
+	_property_vbox.add_child(sel_hbox)
+
+	var select_all_btn := Button.new()
+	select_all_btn.text = "Select All"
+	select_all_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	select_all_btn.pressed.connect(func() -> void:
+		for cb_key in _scatter_asset_checkboxes:
+			(_scatter_asset_checkboxes[cb_key] as CheckBox).button_pressed = true
+	)
+	sel_hbox.add_child(select_all_btn)
+
+	var deselect_all_btn := Button.new()
+	deselect_all_btn.text = "Deselect All"
+	deselect_all_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	deselect_all_btn.pressed.connect(func() -> void:
+		for cb_key in _scatter_asset_checkboxes:
+			(_scatter_asset_checkboxes[cb_key] as CheckBox).button_pressed = false
+	)
+	sel_hbox.add_child(deselect_all_btn)
+
+	# Scrollable asset checkbox list
+	var asset_scroll := ScrollContainer.new()
+	asset_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	asset_scroll.custom_minimum_size.y = 150
+	asset_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_property_vbox.add_child(asset_scroll)
+
+	_scatter_asset_list_vbox = VBoxContainer.new()
+	_scatter_asset_list_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scatter_asset_list_vbox.add_theme_constant_override("separation", 1)
+	asset_scroll.add_child(_scatter_asset_list_vbox)
+
+	_rebuild_scatter_asset_list()
+
+	_add_separator()
+
+	# Action buttons
+	_scatter_generate_btn = Button.new()
+	_scatter_generate_btn.text = "Generate Preview"
+	_scatter_generate_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scatter_generate_btn.pressed.connect(_on_scatter_generate)
+	_property_vbox.add_child(_scatter_generate_btn)
+
+	var action_hbox := HBoxContainer.new()
+	action_hbox.add_theme_constant_override("separation", 4)
+	_property_vbox.add_child(action_hbox)
+
+	_scatter_accept_btn = Button.new()
+	_scatter_accept_btn.text = "Accept"
+	_scatter_accept_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scatter_accept_btn.add_theme_color_override("font_color", Color(0.3, 0.9, 0.3))
+	_scatter_accept_btn.pressed.connect(_on_scatter_accept)
+	_scatter_accept_btn.disabled = true
+	action_hbox.add_child(_scatter_accept_btn)
+
+	var cancel_btn := Button.new()
+	cancel_btn.text = "Cancel"
+	cancel_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cancel_btn.add_theme_color_override("font_color", Color(0.9, 0.3, 0.3))
+	cancel_btn.pressed.connect(_on_scatter_cancel)
+	action_hbox.add_child(cancel_btn)
+
+	var clear_zone_btn := Button.new()
+	clear_zone_btn.text = "Clear Zone"
+	clear_zone_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	clear_zone_btn.pressed.connect(func() -> void:
+		_viewport_3d.clear_scatter_zone()
+		_update_scatter_status()
+		_scatter_accept_btn.disabled = true
+	)
+	_property_vbox.add_child(clear_zone_btn)
+
+
+@warning_ignore("confusable_local_declaration")
+func _rebuild_scatter_asset_list() -> void:
+	# Preserve checked state
+	var was_checked: Dictionary = {}
+	for cb_path in _scatter_asset_checkboxes:
+		was_checked[cb_path] = (_scatter_asset_checkboxes[cb_path] as CheckBox).button_pressed
+
+	for child in _scatter_asset_list_vbox.get_children():
+		child.queue_free()
+	_scatter_asset_checkboxes.clear()
+
+	var filter_text: String = ""
+	if _scatter_search_edit:
+		filter_text = _scatter_search_edit.text.strip_edges().to_lower()
+
+	var assets: Array[Dictionary] = _get_scatter_assets()
+	for asset in assets:
+		var asset_name: String = asset["name"]
+		if not filter_text.is_empty() and filter_text not in asset_name.to_lower():
+			continue
+		var cb := CheckBox.new()
+		cb.text = asset_name
+		cb.add_theme_font_size_override("font_size", 12)
+		cb.button_pressed = was_checked.get(asset["path"], false)
+		_scatter_asset_list_vbox.add_child(cb)
+		_scatter_asset_checkboxes[asset["path"]] = cb
+
+
+@warning_ignore("confusable_local_declaration")
+func _get_scatter_assets() -> Array[Dictionary]:
+	var assets: Array[Dictionary] = []
+	# Scan scenes
+	var scene_dir := DirAccess.open(DECORATION_SCENES_DIR)
+	if scene_dir:
+		scene_dir.list_dir_begin()
+		var fname := scene_dir.get_next()
+		while fname != "":
+			if not scene_dir.current_is_dir() and fname.ends_with(".tscn"):
+				assets.append({"name": fname.get_basename(), "path": DECORATION_SCENES_DIR + fname})
+			fname = scene_dir.get_next()
+		scene_dir.list_dir_end()
+	# Scan voxels
+	var vox_dir := DirAccess.open(AssetPalette.VOXELS_DIR)
+	if vox_dir:
+		vox_dir.list_dir_begin()
+		var fname := vox_dir.get_next()
+		while fname != "":
+			if not vox_dir.current_is_dir() and fname.ends_with(".vox"):
+				assets.append({"name": fname.get_basename() + " (vox)", "path": AssetPalette.VOXELS_DIR + fname})
+			fname = vox_dir.get_next()
+		vox_dir.list_dir_end()
+	assets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return a["name"].naturalcasecmp_to(b["name"]) < 0
+	)
+	return assets
+
+
+func _update_scatter_status() -> void:
+	if not _scatter_status_label:
+		return
+	if not _viewport_3d._scatter_zone_defined:
+		_scatter_status_label.text = "Click and drag on the map to draw a scatter zone."
+		_scatter_status_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	elif _viewport_3d._scatter_has_preview:
+		var item_count: int = _viewport_3d.get_scatter_preview_items().size()
+		_scatter_status_label.text = "Preview: %d items. Accept or Cancel." % item_count
+		_scatter_status_label.add_theme_color_override("font_color", Color(0.3, 0.9, 0.6))
+	else:
+		var r: Rect2 = _viewport_3d._scatter_zone_rect
+		_scatter_status_label.text = "Zone: %.1f x %.1f\nSelect assets and click Generate." % [r.size.x, r.size.y]
+		_scatter_status_label.add_theme_color_override("font_color", Color(0.5, 0.8, 1.0))
+
+
+func _on_scatter_zone_drawn(_rect: Rect2) -> void:
+	_update_scatter_status()
+
+
+func _on_scatter_generate() -> void:
+	if not _viewport_3d._scatter_zone_defined:
+		_show_status("Draw a zone first!", Color(0.9, 0.7, 0.3))
+		return
+
+	var selected_paths: Array[String] = []
+	for asset_path in _scatter_asset_checkboxes:
+		var cb: CheckBox = _scatter_asset_checkboxes[asset_path]
+		if cb.button_pressed:
+			selected_paths.append(asset_path)
+
+	if selected_paths.is_empty():
+		_show_status("Select at least one asset!", Color(0.9, 0.7, 0.3))
+		return
+
+	var seed_val: int = int(_scatter_seed_spin.value)
+	var count_val: int = int(_scatter_count_spin.value)
+	var spacing_val: float = _scatter_spacing_spin.value
+
+	var items: Array[Dictionary] = _viewport_3d.generate_scatter_preview(
+		seed_val, count_val, spacing_val, selected_paths
+	)
+
+	_scatter_accept_btn.disabled = items.is_empty()
+	_update_scatter_status()
+	_show_status("Generated %d preview items" % items.size(), Color(0.2, 0.8, 0.3))
+
+
+func _on_scatter_accept() -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		return
+
+	var items: Array[Dictionary] = _viewport_3d.get_scatter_preview_items()
+	if items.is_empty():
+		return
+
+	# Convert each preview item to a permanent MapElement
+	var start_idx: int = map.elements.size()
+	var stored_items: Array[Dictionary] = []
+
+	for item_data in items:
+		var elem := MapElement.new()
+		elem.element_type = MapElement.ElementType.DECORATION
+		elem.position = item_data["position"]
+		elem.rotation_y = item_data["rotation_y"]
+		elem.resource_id = item_data["asset_path"]
+		map.elements.append(elem)
+		stored_items.append(item_data.duplicate())
+
+	# Push batch undo action
+	_push_undo({
+		"type": "scatter",
+		"start_index": start_idx,
+		"count": stored_items.size(),
+		"elements": stored_items,
+	})
+
+	# Clear preview and zone, rebuild element visuals
+	_viewport_3d.clear_scatter_zone()
+	_viewport_3d.refresh_elements()
+	_mark_dirty()
+	_build_scatter_panel()
+	_show_status("Placed %d scatter items" % stored_items.size(), Color(0.2, 0.8, 0.3))
+
+
+func _on_scatter_cancel() -> void:
+	_viewport_3d.clear_scatter_preview()
+	_update_scatter_status()
+	if _scatter_accept_btn:
+		_scatter_accept_btn.disabled = true
+
+
+# === Undo / Redo ===
+
+func _push_undo(action: Dictionary) -> void:
+	_undo_stack.append(action)
+	if _undo_stack.size() > MAX_UNDO:
+		_undo_stack.pop_front()
+	_redo_stack.clear()
+
+
+func _undo() -> void:
+	if _undo_stack.is_empty():
+		return
+	var action: Dictionary = _undo_stack.pop_back()
+	_apply_action(action, true)
+	_redo_stack.append(action)
+
+
+func _redo() -> void:
+	if _redo_stack.is_empty():
+		return
+	var action: Dictionary = _redo_stack.pop_back()
+	_apply_action(action, false)
+	_undo_stack.append(action)
+
+
+@warning_ignore("confusable_local_declaration")
+func _apply_action(action: Dictionary, is_undo: bool) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		return
+	var action_type: String = action.get("type", "")
+	match action_type:
+		"paint":
+			var cells: Array = action["cells"]
+			for cell_data in cells:
+				var pos: Vector2i = cell_data["pos"]
+				var val: int
+				if is_undo:
+					val = cell_data["old"]
+				else:
+					val = cell_data["new"]
+				map.set_terrain_at(pos.x, pos.y, val)
+				_viewport_3d.set_terrain_cell(pos, val)
+		"move":
+			var elem_idx: int = action["element_index"]
+			var target_pos: Vector3
+			if is_undo:
+				target_pos = action["old_pos"]
+			else:
+				target_pos = action["new_pos"]
+			if elem_idx >= 0 and elem_idx < map.elements.size():
+				map.elements[elem_idx].position = target_pos
+				if elem_idx < _viewport_3d._element_nodes.size():
+					_viewport_3d._element_nodes[elem_idx].position = target_pos
+				if _selected_element_idx == elem_idx:
+					_build_element_properties(elem_idx)
+		"rotate":
+			var elem_idx: int = action["element_index"]
+			var target_rot: float
+			if is_undo:
+				target_rot = action["old_rotation"]
+			else:
+				target_rot = action["new_rotation"]
+			if elem_idx >= 0 and elem_idx < map.elements.size():
+				map.elements[elem_idx].rotation_y = target_rot
+				if elem_idx < _viewport_3d._element_nodes.size():
+					_viewport_3d._element_nodes[elem_idx].rotation.y = target_rot
+				if _selected_element_idx == elem_idx:
+					_build_element_properties(elem_idx)
+		"place":
+			var elem_idx: int = action["element_index"]
+			if is_undo:
+				if elem_idx >= 0 and elem_idx < map.elements.size():
+					map.elements.remove_at(elem_idx)
+					_selected_element_idx = -1
+					_viewport_3d.selected_element_index = -1
+					_viewport_3d.refresh_elements()
+					_build_map_properties()
+			else:
+				var elem: MapElement = action["element_data"].duplicate()
+				if elem_idx <= map.elements.size():
+					map.elements.insert(elem_idx, elem)
+				else:
+					map.elements.append(elem)
+				_viewport_3d.refresh_elements()
+				_viewport_3d.selected_element_index = elem_idx
+				_selected_element_idx = elem_idx
+				_build_element_properties(elem_idx)
+		"delete":
+			var elem_idx: int = action["element_index"]
+			if is_undo:
+				var elem: MapElement = action["element_data"].duplicate()
+				if elem_idx <= map.elements.size():
+					map.elements.insert(elem_idx, elem)
+				else:
+					map.elements.append(elem)
+				_viewport_3d.refresh_elements()
+				_viewport_3d.selected_element_index = elem_idx
+				_selected_element_idx = elem_idx
+				_build_element_properties(elem_idx)
+			else:
+				if elem_idx >= 0 and elem_idx < map.elements.size():
+					map.elements.remove_at(elem_idx)
+					_selected_element_idx = -1
+					_viewport_3d.selected_element_index = -1
+					_viewport_3d.refresh_elements()
+					_build_map_properties()
+		"scatter":
+			var start_idx: int = action["start_index"]
+			var count_val: int = action["count"]
+			if is_undo:
+				# Remove the batch (backwards to preserve indices)
+				for i in range(count_val):
+					var remove_idx: int = start_idx + count_val - 1 - i
+					if remove_idx >= 0 and remove_idx < map.elements.size():
+						map.elements.remove_at(remove_idx)
+				_selected_element_idx = -1
+				_viewport_3d.selected_element_index = -1
+				_viewport_3d.refresh_elements()
+				if _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
+					_build_scatter_panel()
+				else:
+					_build_map_properties()
+			else:
+				# Re-insert the elements
+				var elements_data: Array = action["elements"]
+				for i in range(elements_data.size()):
+					var item_data: Dictionary = elements_data[i]
+					var elem := MapElement.new()
+					elem.element_type = MapElement.ElementType.DECORATION
+					elem.position = item_data["position"]
+					elem.rotation_y = item_data["rotation_y"]
+					elem.resource_id = item_data["asset_path"]
+					if start_idx + i <= map.elements.size():
+						map.elements.insert(start_idx + i, elem)
+					else:
+						map.elements.append(elem)
+				_viewport_3d.refresh_elements()
+	_mark_dirty()
+
+
 # === Element operations ===
 
 func _delete_element(idx: int) -> void:
 	var map: MapData = _maps.get(_selected_map_id)
 	if not map or idx < 0 or idx >= map.elements.size():
 		return
+	var deleted_elem: MapElement = map.elements[idx].duplicate()
+	_push_undo({
+		"type": "delete",
+		"element_index": idx,
+		"element_data": deleted_elem,
+	})
 	map.elements.remove_at(idx)
 	_selected_element_idx = -1
-	_canvas.selected_element_index = -1
+	_viewport_3d.selected_element_index = -1
 	_mark_dirty()
-	_canvas.queue_redraw()
+	_viewport_3d.refresh_elements()
 	_build_map_properties()
 
 
@@ -894,7 +1644,7 @@ func _on_delete_map() -> void:
 	_maps.erase(_selected_map_id)
 	_dirty_ids.erase(_selected_map_id)
 	_selected_map_id = ""
-	_canvas.set_map(null)
+	_viewport_3d.set_map(null)
 	_rebuild_map_list()
 	_build_map_properties()
 
@@ -978,7 +1728,13 @@ func _show_status(text: String, color: Color) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.ctrl_pressed and event.keycode == KEY_S:
+		if event.ctrl_pressed and event.keycode == KEY_Z:
+			_undo()
+			get_viewport().set_input_as_handled()
+		elif event.ctrl_pressed and event.keycode == KEY_Y:
+			_redo()
+			get_viewport().set_input_as_handled()
+		elif event.ctrl_pressed and event.keycode == KEY_S:
 			_on_save_map()
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_DELETE:
@@ -986,11 +1742,21 @@ func _unhandled_input(event: InputEvent) -> void:
 				_delete_element(_selected_element_idx)
 				get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_1:
-			_set_active_tool(MapCanvas.Tool.SELECT)
+			_set_active_tool(MapViewport3D.Tool.SELECT)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_2:
-			_set_active_tool(MapCanvas.Tool.PAINT)
+			_set_active_tool(MapViewport3D.Tool.PAINT)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_3:
-			_set_active_tool(MapCanvas.Tool.PLACE)
+			_set_active_tool(MapViewport3D.Tool.PLACE)
 			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_4:
+			_set_active_tool(MapViewport3D.Tool.SCATTER)
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_ESCAPE:
+			if _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
+				_viewport_3d.clear_scatter_zone()
+				_update_scatter_status()
+				if _scatter_accept_btn:
+					_scatter_accept_btn.disabled = true
+				get_viewport().set_input_as_handled()

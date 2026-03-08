@@ -84,18 +84,6 @@ func _ready() -> void:
 		chests_node.name = "Chests"
 		add_child(chests_node)
 		MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
-		# Gather exclusion positions for decoration scattering
-		var exclusions: Array[Vector3] = [_player.global_position]
-		for marker in _location_markers.get_children():
-			if marker is Node3D:
-				exclusions.append(marker.position)
-		for enemy in enemies_node.get_children():
-			if enemy is Node3D:
-				exclusions.append(enemy.position)
-		for child in get_children():
-			if "npc_id" in child and child is Node3D:
-				exclusions.append(child.position)
-		MapLoader.spawn_decoration_zones(_map_data, self, exclusions)
 	else:
 		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
 

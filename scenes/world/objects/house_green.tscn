@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" uid="uid://bvymbarevevxq" path="res://assets/models/House/green/house_textured_green_cube/house_textured_green_cube.glb" id="house"]
+[ext_resource type="PackedScene" uid="uid://2uf3k1iy3rvv" path="res://assets/models/House/roofs/roof_textured_orange_oval_cube/roof_textured_orange_oval_cube.glb" id="roof"]
+
+[sub_resource type="BoxShape3D" id="1"]
+size = Vector3(4.3, 4.3, 4.3)
+
+[node name="HouseGreen" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="Body" parent="." instance=ExtResource("house")]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0, 0)
+
+[node name="Roof" parent="." instance=ExtResource("roof")]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 4.32, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 2.15, 0)
+shape = SubResource("1")

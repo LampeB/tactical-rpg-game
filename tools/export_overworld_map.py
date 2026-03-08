@@ -21,14 +21,32 @@ def get_terrain_block(x: int, z: int) -> int:
     # Sand beach around pond
     if 55 <= x <= 60 and 20 <= z <= 25:
         return SAND
+    # Stream from pond toward cave (z:18-21, x:50->55)
+    if 50 <= x <= 55 and 19 <= z <= 20:
+        return WATER
+    # Stream bank
+    if 49 <= x <= 56 and 18 <= z <= 21:
+        return SAND
     # Road from town to cave (z:15-17, x:20->36)
     if 20 <= x <= 36 and 15 <= z <= 17:
         return PATH
     # Town main street (x:8-11)
     if 8 <= x <= 11 and 3 <= z <= 18:
         return PATH
+    # Town cross street (z:10-11, x:5->18)
+    if 5 <= x <= 18 and 10 <= z <= 11:
+        return PATH
+    # Town square (x:8-12, z:3-6)
+    if 8 <= x <= 12 and 3 <= z <= 6:
+        return PATH
     # Cave area (x:33-50, z:10-25)
     if 33 <= x <= 50 and 10 <= z <= 25:
+        return STONE
+    # Snow-capped peaks (northeast corner)
+    if 65 <= x <= 78 and 2 <= z <= 10:
+        return SNOW
+    # Mountain foothills
+    if 60 <= x <= 78 and 2 <= z <= 12:
         return STONE
     # Town area (x:3-20, z:3-18)
     if 3 <= x <= 20 and 3 <= z <= 18:
@@ -139,6 +157,60 @@ ELEMENTS = [
         "pos": (20, 0, 17),
         "resource_id": "res://scenes/world/objects/sign.tscn",
     },
+    # Houses — town buildings
+    {
+        "type": 4,  # DECORATION
+        "pos": (5, 0, 8),
+        "rotation_y": 1.5707963,  # PI/2 — facing street
+        "resource_id": "res://scenes/world/objects/house_blue.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (15, 0, 6),
+        "resource_id": "res://scenes/world/objects/house_red.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (16, 0, 14),
+        "resource_id": "res://scenes/world/objects/house_green.tscn",
+    },
+    # Lampposts — along town main street
+    {
+        "type": 4,  # DECORATION
+        "pos": (9.5, 0, 5),
+        "resource_id": "res://scenes/world/objects/lamppost.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (9.5, 0, 9),
+        "resource_id": "res://scenes/world/objects/lamppost.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (9.5, 0, 13),
+        "resource_id": "res://scenes/world/objects/lamppost.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (9.5, 0, 17),
+        "resource_id": "res://scenes/world/objects/lamppost.tscn",
+    },
+    # Campfires
+    {
+        "type": 4,  # DECORATION
+        "pos": (10, 0, 4.5),
+        "resource_id": "res://scenes/world/objects/campfire.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (28, 0, 16),
+        "resource_id": "res://scenes/world/objects/campfire.tscn",
+    },
+    {
+        "type": 4,  # DECORATION
+        "pos": (45, 0, 18),
+        "resource_id": "res://scenes/world/objects/campfire.tscn",
+    },
 ]
 
 # Town fences along south edge (z=3, x:4->20, spacing=1.5)
@@ -163,76 +235,134 @@ while z <= 18.0:
     })
     z += 1.5
 
+# Town fences along east edge (x=20, z:4->18, spacing=1.5, rotation=PI/2)
+z = 4.0
+while z <= 18.0:
+    ELEMENTS.append({
+        "type": 6,  # FENCE
+        "pos": (20.0, 0, z),
+        "rotation_y": 1.5707963,  # PI/2
+        "resource_id": "res://scenes/world/objects/fence.tscn",
+    })
+    z += 1.5
+
+# Town fences along north edge (z=18, x:4->20, spacing=1.5)
+x = 4.0
+while x <= 20.0:
+    ELEMENTS.append({
+        "type": 6,  # FENCE
+        "pos": (x, 0, 18.0),
+        "rotation_y": 0.0,
+        "resource_id": "res://scenes/world/objects/fence.tscn",
+    })
+    x += 1.5
+
 
 # === Decoration zones (from overworld.gd::_populate_world) ===
 
 SCENE_PATH = "res://scenes/world/objects/"
 DECORATION_ZONES = [
+    # === Map borders — dense tree walls ===
     {
         "name": "Border Top",
         "rect": (1, 1, 78, 2),
-        "scenes": [f"{SCENE_PATH}tree_large.tscn"],
-        "count": 15,
-        "spacing": 5.0,
+        "scenes": [f"{SCENE_PATH}tree_large.tscn", f"{SCENE_PATH}tree_medium.tscn"],
+        "count": 18,
+        "spacing": 4.5,
     },
     {
         "name": "Border Bottom",
         "rect": (1, 47, 78, 2),
-        "scenes": [f"{SCENE_PATH}tree_large.tscn"],
-        "count": 15,
-        "spacing": 5.0,
+        "scenes": [f"{SCENE_PATH}tree_large.tscn", f"{SCENE_PATH}tree_medium.tscn"],
+        "count": 18,
+        "spacing": 4.5,
     },
     {
         "name": "Border Left",
         "rect": (1, 3, 2, 44),
         "scenes": [f"{SCENE_PATH}tree_large.tscn"],
-        "count": 8,
-        "spacing": 5.0,
+        "count": 10,
+        "spacing": 4.5,
     },
     {
         "name": "Border Right",
         "rect": (77, 3, 2, 44),
         "scenes": [f"{SCENE_PATH}tree_large.tscn"],
-        "count": 8,
-        "spacing": 5.0,
+        "count": 10,
+        "spacing": 4.5,
     },
+    # === Forest West — dense mixed forest ===
     {
-        "name": "Forest West",
+        "name": "Forest West Trees",
         "rect": (0, 20, 15, 28),
         "scenes": [
             f"{SCENE_PATH}tree_large.tscn",
             f"{SCENE_PATH}tree_large.tscn",
             f"{SCENE_PATH}tree_medium.tscn",
-            f"{SCENE_PATH}bush.tscn",
+            f"{SCENE_PATH}tree_small.tscn",
         ],
-        "count": 25,
+        "count": 30,
         "spacing": 3.0,
     },
     {
-        "name": "Forest North",
+        "name": "Forest West Undergrowth",
+        "rect": (0, 20, 15, 28),
+        "scenes": [
+            f"{SCENE_PATH}bush.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}flower_white.tscn",
+        ],
+        "count": 20,
+        "spacing": 2.0,
+    },
+    # === Forest North — mixed forest ===
+    {
+        "name": "Forest North Trees",
         "rect": (15, 35, 50, 13),
         "scenes": [
             f"{SCENE_PATH}tree_large.tscn",
             f"{SCENE_PATH}tree_medium.tscn",
             f"{SCENE_PATH}tree_small.tscn",
-            f"{SCENE_PATH}bush.tscn",
         ],
-        "count": 25,
+        "count": 30,
         "spacing": 3.0,
     },
     {
-        "name": "Town",
+        "name": "Forest North Undergrowth",
+        "rect": (15, 35, 50, 13),
+        "scenes": [
+            f"{SCENE_PATH}bush.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}rock_small.tscn",
+        ],
+        "count": 18,
+        "spacing": 2.5,
+    },
+    # === Town — gardens and flowers ===
+    {
+        "name": "Town Gardens",
+        "rect": (4, 4, 15, 14),
+        "scenes": [
+            f"{SCENE_PATH}flower_red.tscn",
+            f"{SCENE_PATH}flower_yellow.tscn",
+            f"{SCENE_PATH}flower_white.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+        ],
+        "count": 30,
+        "spacing": 1.5,
+    },
+    {
+        "name": "Town Trees",
         "rect": (4, 4, 15, 14),
         "scenes": [
             f"{SCENE_PATH}tree_small.tscn",
-            f"{SCENE_PATH}flower_red.tscn",
-            f"{SCENE_PATH}flower_yellow.tscn",
-            f"{SCENE_PATH}grass_tuft.tscn",
-            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}tree_medium.tscn",
         ],
-        "count": 25,
-        "spacing": 1.5,
+        "count": 6,
+        "spacing": 4.0,
     },
+    # === Road — scattered vegetation ===
     {
         "name": "Road Edges",
         "rect": (20, 12, 18, 12),
@@ -240,36 +370,87 @@ DECORATION_ZONES = [
             f"{SCENE_PATH}bush.tscn",
             f"{SCENE_PATH}flower_red.tscn",
             f"{SCENE_PATH}flower_yellow.tscn",
+            f"{SCENE_PATH}flower_white.tscn",
             f"{SCENE_PATH}grass_tuft.tscn",
         ],
-        "count": 15,
+        "count": 20,
         "spacing": 2.0,
     },
+    # === Cave Area — rocky terrain ===
     {
-        "name": "Cave Area",
+        "name": "Cave Rocks",
         "rect": (33, 10, 17, 15),
         "scenes": [
             f"{SCENE_PATH}rock_large.tscn",
             f"{SCENE_PATH}rock_medium.tscn",
             f"{SCENE_PATH}rock_small.tscn",
             f"{SCENE_PATH}rock_small.tscn",
-            f"{SCENE_PATH}tree_small.tscn",
         ],
-        "count": 18,
+        "count": 20,
         "spacing": 2.0,
     },
     {
-        "name": "Eastern Wilds",
-        "rect": (50, 2, 28, 46),
+        "name": "Cave Sparse Trees",
+        "rect": (33, 10, 17, 15),
+        "scenes": [
+            f"{SCENE_PATH}tree_small.tscn",
+            f"{SCENE_PATH}bush.tscn",
+        ],
+        "count": 8,
+        "spacing": 3.5,
+    },
+    # === Eastern Wilds — open grassland with scattered features ===
+    {
+        "name": "Eastern Wilds Trees",
+        "rect": (50, 2, 28, 32),
         "scenes": [
             f"{SCENE_PATH}tree_medium.tscn",
             f"{SCENE_PATH}tree_small.tscn",
+            f"{SCENE_PATH}tree_large.tscn",
+        ],
+        "count": 18,
+        "spacing": 5.0,
+    },
+    {
+        "name": "Eastern Wilds Ground",
+        "rect": (50, 2, 28, 32),
+        "scenes": [
             f"{SCENE_PATH}rock_medium.tscn",
             f"{SCENE_PATH}rock_small.tscn",
             f"{SCENE_PATH}bush.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}flower_yellow.tscn",
         ],
-        "count": 30,
-        "spacing": 3.5,
+        "count": 25,
+        "spacing": 3.0,
+    },
+    # === Pond area — lush vegetation ===
+    {
+        "name": "Pond Edge",
+        "rect": (53, 19, 9, 8),
+        "scenes": [
+            f"{SCENE_PATH}flower_red.tscn",
+            f"{SCENE_PATH}flower_yellow.tscn",
+            f"{SCENE_PATH}flower_white.tscn",
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}bush.tscn",
+        ],
+        "count": 15,
+        "spacing": 1.5,
+    },
+    # === Central grasslands — between town and cave ===
+    {
+        "name": "Central Grasslands",
+        "rect": (20, 20, 15, 15),
+        "scenes": [
+            f"{SCENE_PATH}grass_tuft.tscn",
+            f"{SCENE_PATH}flower_red.tscn",
+            f"{SCENE_PATH}flower_white.tscn",
+            f"{SCENE_PATH}bush.tscn",
+            f"{SCENE_PATH}tree_small.tscn",
+        ],
+        "count": 15,
+        "spacing": 2.5,
     },
 ]
 

@@ -12,11 +12,14 @@ enum ElementType {
 	FENCE,       ## A fence segment scene
 }
 
-@export var element_type: ElementType = ElementType.DECORATION
+## Default is NPC (0) so Godot always serializes non-NPC types to .tres files.
+## (Godot omits properties matching the script default; sub-resources load with int-default 0.)
+@export var element_type: ElementType = ElementType.NPC
 
 @export_group("Position")
 @export var position: Vector3 = Vector3.ZERO
 @export var rotation_y: float = 0.0
+@export var scale_factor: float = 1.0
 
 @export_group("Reference")
 ## Meaning depends on element_type:

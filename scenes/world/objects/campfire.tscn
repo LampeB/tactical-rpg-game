@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://cjitpddevqems" path="res://assets/models/Furniture and props/prop_campfire/prop_campfire.glb" id="fire"]
+
+[node name="Campfire" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("fire")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+
+[node name="Light" type="OmniLight3D" parent="."]
+position = Vector3(0, 1.5, 0)
+light_color = Color(1.0, 0.6, 0.2, 1.0)
+light_energy = 2.0
+omni_range = 10.0
+omni_attenuation = 1.5

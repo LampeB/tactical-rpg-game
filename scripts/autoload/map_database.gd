@@ -23,7 +23,7 @@ func _load_all_maps() -> void:
 	while file_name != "":
 		if not dir.current_is_dir() and file_name.ends_with(".tres"):
 			var full_path := MAP_DIR + file_name
-			var map_data := load(full_path) as MapData
+			var map_data := ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_REPLACE) as MapData
 			if map_data:
 				if map_data.id.is_empty():
 					map_data.id = file_name.get_basename()

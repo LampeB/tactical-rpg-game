@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://bao00dudp0lte" path="res://assets/models/Nature/flower_white_tulip/flower_white_tulip.glb" id="flower"]
+
+[node name="FlowerWhite" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("flower")]
+transform = Transform3D(2.0, 0, 0, 0, 2.0, 0, 0, 0, 2.0, 0, 0, 0)
