@@ -17,6 +17,7 @@ const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
 
 @export var map_id: String = "overworld"
 var _map_data: MapData
+var _connection_markers: Node3D
 
 var _message_timer: float = 0.0
 var _current_message: String = ""
@@ -25,6 +26,10 @@ var _party_hud: HBoxContainer = null
 
 
 func _ready() -> void:
+	# Use current map from GameManager if game is in progress (handles map transitions + save/load)
+	if GameManager.is_game_started:
+		map_id = GameManager.current_map_id
+
 	# Camera setup — follow the player
 	_orbit_camera.set_follow_target(_player)
 
@@ -64,17 +69,13 @@ func _ready() -> void:
 	_party_hud.set_script(_PARTY_HUD_SCRIPT)
 	$UI/HUD.add_child(_party_hud)
 
-	# Auto-save on entry
-	GameManager.current_location_name = "Overworld"
-	SaveManager.auto_save()
-	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
-
-	# Snap camera to player immediately, then allow smooth follow
-	_orbit_camera.global_position = _player.global_position
+	# Track current map in GameManager
+	GameManager.current_map_id = map_id
 
 	# Load map data and build the world
 	_map_data = MapDatabase.get_map(map_id)
 	if _map_data:
+		GameManager.current_location_name = _map_data.display_name if not _map_data.display_name.is_empty() else map_id.capitalize()
 		MapLoader.build_terrain(_map_data, self)
 		# Create parent nodes for spawned elements
 		var enemies_node := Node3D.new()
@@ -84,8 +85,20 @@ func _ready() -> void:
 		chests_node.name = "Chests"
 		add_child(chests_node)
 		MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
+		# Spawn connection markers
+		_connection_markers = Node3D.new()
+		_connection_markers.name = "ConnectionMarkers"
+		add_child(_connection_markers)
+		MapLoader.spawn_connections(_map_data, _connection_markers)
 	else:
 		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
+
+	# Auto-save on entry
+	SaveManager.auto_save()
+	DebugLogger.log_info("Auto-saved at: %s" % _player.global_position, "Overworld")
+
+	# Snap camera to player immediately, then allow smooth follow
+	_orbit_camera.global_position = _player.global_position
 
 	# Enable enemy detection after scene is fully loaded and player is positioned
 	_enable_enemy_detection()
@@ -121,10 +134,18 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func receive_data(data: Dictionary) -> void:
-	## Called by SceneManager after returning from another scene.
+	## Called by SceneManager after returning from another scene or arriving via map transition.
 	# Refresh party HUD (HP/MP may have changed in battle, shop, dialogue, etc.)
 	if _party_hud:
 		_party_hud.rebuild()
+
+	# Handle spawn position from map connection transitions
+	var spawn_pos: Variant = data.get("spawn_position", null)
+	if spawn_pos is Vector3 and spawn_pos != Vector3.ZERO:
+		_player.global_position = spawn_pos
+		GameManager.set_flag("overworld_position", spawn_pos)
+		_orbit_camera.global_position = spawn_pos
+		SaveManager.auto_save()
 
 	if data.get("from_battle", false):
 		# Push player away from any nearby enemies to prevent immediate re-engagement

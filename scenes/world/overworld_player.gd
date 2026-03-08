@@ -124,6 +124,10 @@ func _on_location_entered(area: Area3D) -> void:
 		_current_location_area = area
 		var loc_data: LocationData = area.get_location_data()
 		EventBus.location_prompt_visible.emit(true, loc_data.display_name)
+	elif area.has_method("get_display_name"):
+		# ConnectionMarker — map transition point
+		_current_location_area = area
+		EventBus.location_prompt_visible.emit(true, area.get_display_name())
 
 
 func _on_location_exited(area: Area3D) -> void:

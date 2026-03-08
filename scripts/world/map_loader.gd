@@ -24,12 +24,14 @@ const _LOCATION_MARKER := "res://scenes/world/location_marker.tscn"
 const _NPC_MARKER := "res://scenes/world/npc_marker.tscn"
 const _ROAMING_ENEMY := "res://scenes/world/roaming_enemy.tscn"
 const _CHEST_MARKER := "res://scenes/world/chest_marker.tscn"
+const _CONNECTION_MARKER := "res://scenes/world/connection_marker.tscn"
 
 # Cached preloads for markers
 static var _location_marker_scene: PackedScene
 static var _npc_marker_scene: PackedScene
 static var _roaming_enemy_scene: PackedScene
 static var _chest_marker_scene: PackedScene
+static var _connection_marker_scene: PackedScene
 
 
 static func _ensure_scenes_loaded() -> void:
@@ -41,6 +43,8 @@ static func _ensure_scenes_loaded() -> void:
 		_roaming_enemy_scene = load(_ROAMING_ENEMY)
 	if not _chest_marker_scene:
 		_chest_marker_scene = load(_CHEST_MARKER)
+	if not _connection_marker_scene:
+		_connection_marker_scene = load(_CONNECTION_MARKER)
 
 
 static func build_terrain(map_data: MapData, parent: Node3D) -> GridMap:
@@ -101,6 +105,18 @@ static func spawn_elements(map_data: MapData, parent: Node3D,
 				_spawn_decoration(elem, parent)
 
 	DebugLogger.log_info("Spawned %d elements" % map_data.elements.size(), "MapLoader")
+
+
+static func spawn_connections(map_data: MapData, parent: Node3D) -> void:
+	## Instantiates ConnectionMarker nodes for each MapConnection in the map data.
+	_ensure_scenes_loaded()
+	for conn in map_data.connections:
+		var marker: Node3D = _connection_marker_scene.instantiate()
+		marker.position = conn.position
+		marker.connection_data = conn
+		parent.add_child(marker)
+	if map_data.connections.size() > 0:
+		DebugLogger.log_info("Spawned %d connections" % map_data.connections.size(), "MapLoader")
 
 
 static func _spawn_location(elem: MapElement, parent: Node3D) -> void:
