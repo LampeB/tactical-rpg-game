@@ -53,6 +53,8 @@ var _undo_stack: Array[Dictionary] = []
 var _redo_stack: Array[Dictionary] = []
 var _current_paint_action: Dictionary = {}  # accumulates cells during a stroke
 var _drag_original_pos: Vector3 = Vector3.ZERO
+var _connection_drag_original_pos: Vector3 = Vector3.ZERO
+var _selected_connection_idx: int = -1
 
 
 func _ready() -> void:
@@ -154,7 +156,7 @@ func _build_ui() -> void:
 
 	# Hint bar
 	var hint := Label.new()
-	hint.text = "Left-click: Tool action | Right-drag: Orbit | Middle-drag: Pan | Scroll: Zoom | Del: Delete | Ctrl+Z/Y: Undo/Redo | Ctrl+S: Save | 1-4: Tools"
+	hint.text = "Left-click: Tool action | Right-drag: Orbit | Middle-drag: Pan | Scroll: Zoom | Del: Delete | Ctrl+Z/Y: Undo/Redo | Ctrl+S: Save | 1-5: Tools"
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	main_vbox.add_child(hint)
@@ -273,6 +275,7 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 		{"name": "Paint", "tool": MapViewport3D.Tool.PAINT},
 		{"name": "Place", "tool": MapViewport3D.Tool.PLACE},
 		{"name": "Scatter", "tool": MapViewport3D.Tool.SCATTER},
+		{"name": "Connect", "tool": MapViewport3D.Tool.CONNECTION},
 	]
 	for info in tools_info:
 		var btn := Button.new()
@@ -473,6 +476,10 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 	_viewport_3d.drag_started.connect(_on_drag_started)
 	_viewport_3d.drag_ended.connect(_on_drag_ended)
 	_viewport_3d.scatter_zone_drawn.connect(_on_scatter_zone_drawn)
+	_viewport_3d.connection_placed.connect(_on_connection_placed)
+	_viewport_3d.connection_clicked.connect(_on_connection_clicked)
+	_viewport_3d.connection_moved.connect(_on_connection_moved)
+	_viewport_3d.connection_drag_ended.connect(_on_connection_drag_ended)
 
 	# Status bar
 	_coord_label = Label.new()
@@ -552,6 +559,8 @@ func _select_map(map_id: String) -> void:
 	_rebuild_map_list()
 	if _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
 		_build_scatter_panel()
+	elif _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+		_build_connection_list_panel()
 	else:
 		_build_map_properties()
 
@@ -565,10 +574,16 @@ func _mark_dirty() -> void:
 # === Tool switching ===
 
 func _set_active_tool(tool_type: int) -> void:
-	# Clean up scatter state when leaving scatter mode
+	# Capture previous tool state before switching
 	var was_scatter: bool = _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER
+	var was_connection: bool = _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION
+
+	# Clean up when leaving scatter mode
 	if was_scatter and tool_type != MapViewport3D.Tool.SCATTER:
 		_viewport_3d.clear_scatter_zone()
+	# Clean up when leaving connection mode
+	if was_connection and tool_type != MapViewport3D.Tool.CONNECTION:
+		_viewport_3d.selected_connection_index = -1
 
 	_viewport_3d.active_tool = tool_type as MapViewport3D.Tool
 	for t_key in _tool_buttons:
@@ -580,12 +595,15 @@ func _set_active_tool(tool_type: int) -> void:
 	var is_place: bool = (tool_type == MapViewport3D.Tool.PLACE)
 	_element_picker.visible = is_place
 	_place_options.visible = is_place
-	# Show/hide ghost preview based on tool
+	# Show/hide ghost previews based on tool
 	_viewport_3d.update_ghost_visibility()
-	# Show scatter panel or map properties
+	_viewport_3d.update_connection_ghost_visibility()
+	# Show appropriate panel
 	if tool_type == MapViewport3D.Tool.SCATTER:
 		_build_scatter_panel()
-	elif was_scatter:
+	elif tool_type == MapViewport3D.Tool.CONNECTION:
+		_build_connection_list_panel()
+	elif was_scatter or was_connection:
 		_build_map_properties()
 
 
@@ -1447,6 +1465,238 @@ func _on_scatter_cancel() -> void:
 		_scatter_accept_btn.disabled = true
 
 
+# === Connection tool ===
+
+func _build_connection_list_panel() -> void:
+	_clear_property_panel()
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		_add_label("Select a map first.")
+		return
+	_add_section_header("Connections")
+	_add_label("Click map to place a connection point.")
+	_add_separator()
+	if map.connections.is_empty():
+		_add_label("(no connections)")
+	else:
+		for ci in range(map.connections.size()):
+			var conn: MapConnection = map.connections[ci]
+			var btn := Button.new()
+			var label_text: String = conn.display_name if not conn.display_name.is_empty() else "(unnamed)"
+			if not conn.target_map_id.is_empty():
+				label_text += " → " + conn.target_map_id
+			btn.text = "%d. %s" % [ci + 1, label_text]
+			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			var captured_ci: int = ci
+			btn.pressed.connect(func() -> void:
+				_viewport_3d.selected_connection_index = captured_ci
+				_selected_connection_idx = captured_ci
+				_build_connection_properties(captured_ci)
+			)
+			_property_vbox.add_child(btn)
+
+
+func _build_connection_properties(idx: int) -> void:
+	_clear_property_panel()
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map or idx < 0 or idx >= map.connections.size():
+		_build_connection_list_panel()
+		return
+	var conn: MapConnection = map.connections[idx]
+	_add_section_header("Connection #%d" % idx)
+	_add_separator()
+
+	# Display Name
+	_add_label("Display Name:")
+	var name_edit := LineEdit.new()
+	name_edit.text = conn.display_name
+	name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_edit.placeholder_text = "e.g. Enter Dark Cave"
+	var captured_idx: int = idx
+	name_edit.text_changed.connect(func(new_text: String) -> void:
+		conn.display_name = new_text
+		_mark_dirty()
+		_viewport_3d.refresh_connections()
+		_viewport_3d.selected_connection_index = captured_idx
+	)
+	_property_vbox.add_child(name_edit)
+
+	# Target Map
+	_add_label("Target Map:")
+	var map_picker := OptionButton.new()
+	map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	map_picker.add_item("(none)")
+	var all_map_ids: Array = _maps.keys()
+	all_map_ids.sort()
+	var selected_map_idx: int = 0
+	for mi in range(all_map_ids.size()):
+		var mid: String = all_map_ids[mi]
+		map_picker.add_item(mid)
+		if mid == conn.target_map_id:
+			selected_map_idx = mi + 1  # +1 for "(none)" at index 0
+	map_picker.select(selected_map_idx)
+	map_picker.item_selected.connect(func(sel_idx: int) -> void:
+		if sel_idx == 0:
+			conn.target_map_id = ""
+		else:
+			conn.target_map_id = all_map_ids[sel_idx - 1]
+		_mark_dirty()
+		_viewport_3d.refresh_connections()
+		_viewport_3d.selected_connection_index = captured_idx
+	)
+	_property_vbox.add_child(map_picker)
+
+	_add_separator()
+	_add_section_header("Target Spawn")
+
+	_add_label("X:")
+	var spawn_x := SpinBox.new()
+	spawn_x.min_value = -10
+	spawn_x.max_value = 200
+	spawn_x.step = 0.5
+	spawn_x.value = conn.target_spawn.x
+	spawn_x.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spawn_x.value_changed.connect(func(val: float) -> void:
+		conn.target_spawn.x = val
+		_mark_dirty()
+	)
+	_property_vbox.add_child(spawn_x)
+
+	_add_label("Z:")
+	var spawn_z := SpinBox.new()
+	spawn_z.min_value = -10
+	spawn_z.max_value = 200
+	spawn_z.step = 0.5
+	spawn_z.value = conn.target_spawn.z
+	spawn_z.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spawn_z.value_changed.connect(func(val: float) -> void:
+		conn.target_spawn.z = val
+		_mark_dirty()
+	)
+	_property_vbox.add_child(spawn_z)
+
+	_add_separator()
+	_add_section_header("Unlock")
+
+	_add_label("Unlock Flag:")
+	var flag_edit := LineEdit.new()
+	flag_edit.text = conn.unlock_flag
+	flag_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	flag_edit.placeholder_text = "empty = always open"
+	flag_edit.text_changed.connect(func(new_text: String) -> void:
+		conn.unlock_flag = new_text
+		_mark_dirty()
+	)
+	_property_vbox.add_child(flag_edit)
+
+	_add_separator()
+	_add_section_header("Position")
+	_add_label("X: %.1f  Z: %.1f" % [conn.position.x, conn.position.z])
+
+	_add_separator()
+	# Delete button
+	var delete_btn := Button.new()
+	delete_btn.text = "Delete Connection"
+	delete_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	delete_btn.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+	delete_btn.pressed.connect(func() -> void: _delete_connection(captured_idx))
+	_property_vbox.add_child(delete_btn)
+
+	# Back to list button
+	var back_btn := Button.new()
+	back_btn.text = "Back to List"
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.pressed.connect(func() -> void:
+		_viewport_3d.selected_connection_index = -1
+		_selected_connection_idx = -1
+		_build_connection_list_panel()
+	)
+	_property_vbox.add_child(back_btn)
+
+
+func _on_connection_placed(pos: Vector3) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map:
+		return
+	var conn := MapConnection.new()
+	conn.position = pos
+	conn.display_name = "Connection"
+	map.connections.append(conn)
+	var new_idx: int = map.connections.size() - 1
+	_mark_dirty()
+	_viewport_3d.refresh_connections()
+	_viewport_3d.selected_connection_index = new_idx
+	_selected_connection_idx = new_idx
+	_build_connection_properties(new_idx)
+	_push_undo({
+		"type": "add_connection",
+		"index": new_idx,
+		"connection_data": {
+			"position": conn.position,
+			"target_map_id": conn.target_map_id,
+			"target_spawn": conn.target_spawn,
+			"display_name": conn.display_name,
+			"unlock_flag": conn.unlock_flag,
+		},
+	})
+
+
+func _on_connection_clicked(conn_index: int) -> void:
+	_selected_connection_idx = conn_index
+	if conn_index >= 0:
+		_build_connection_properties(conn_index)
+		_connection_drag_original_pos = _viewport_3d._connection_nodes[conn_index].position
+	else:
+		_build_connection_list_panel()
+
+
+func _on_connection_moved(conn_index: int, new_pos: Vector3) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if map and conn_index >= 0 and conn_index < map.connections.size():
+		map.connections[conn_index].position = new_pos
+
+
+func _on_connection_drag_ended(conn_index: int, end_pos: Vector3) -> void:
+	if _connection_drag_original_pos != end_pos:
+		_push_undo({
+			"type": "move_connection",
+			"index": conn_index,
+			"old_pos": _connection_drag_original_pos,
+			"new_pos": end_pos,
+		})
+		var map: MapData = _maps.get(_selected_map_id)
+		if map and conn_index >= 0 and conn_index < map.connections.size():
+			map.connections[conn_index].position = end_pos
+		_mark_dirty()
+		if _selected_connection_idx == conn_index:
+			_build_connection_properties(conn_index)
+
+
+func _delete_connection(idx: int) -> void:
+	var map: MapData = _maps.get(_selected_map_id)
+	if not map or idx < 0 or idx >= map.connections.size():
+		return
+	var conn: MapConnection = map.connections[idx]
+	_push_undo({
+		"type": "delete_connection",
+		"index": idx,
+		"connection_data": {
+			"position": conn.position,
+			"target_map_id": conn.target_map_id,
+			"target_spawn": conn.target_spawn,
+			"display_name": conn.display_name,
+			"unlock_flag": conn.unlock_flag,
+		},
+	})
+	map.connections.remove_at(idx)
+	_selected_connection_idx = -1
+	_viewport_3d.selected_connection_index = -1
+	_mark_dirty()
+	_viewport_3d.refresh_connections()
+	_build_connection_list_panel()
+
+
 # === Undo / Redo ===
 
 func _push_undo(action: Dictionary) -> void:
@@ -1585,6 +1835,73 @@ func _apply_action(action: Dictionary, is_undo: bool) -> void:
 					else:
 						map.elements.append(elem)
 				_viewport_3d.refresh_elements()
+		"add_connection":
+			var conn_idx: int = action["index"]
+			if is_undo:
+				if conn_idx >= 0 and conn_idx < map.connections.size():
+					map.connections.remove_at(conn_idx)
+				_selected_connection_idx = -1
+				_viewport_3d.selected_connection_index = -1
+				_viewport_3d.refresh_connections()
+				if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+					_build_connection_list_panel()
+			else:
+				var conn_data: Dictionary = action["connection_data"]
+				var conn := MapConnection.new()
+				conn.position = conn_data["position"]
+				conn.target_map_id = conn_data["target_map_id"]
+				conn.target_spawn = conn_data["target_spawn"]
+				conn.display_name = conn_data["display_name"]
+				conn.unlock_flag = conn_data["unlock_flag"]
+				if conn_idx <= map.connections.size():
+					map.connections.insert(conn_idx, conn)
+				else:
+					map.connections.append(conn)
+				_viewport_3d.refresh_connections()
+				_viewport_3d.selected_connection_index = conn_idx
+				_selected_connection_idx = conn_idx
+				if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+					_build_connection_properties(conn_idx)
+		"delete_connection":
+			var conn_idx: int = action["index"]
+			if is_undo:
+				var conn_data: Dictionary = action["connection_data"]
+				var conn := MapConnection.new()
+				conn.position = conn_data["position"]
+				conn.target_map_id = conn_data["target_map_id"]
+				conn.target_spawn = conn_data["target_spawn"]
+				conn.display_name = conn_data["display_name"]
+				conn.unlock_flag = conn_data["unlock_flag"]
+				if conn_idx <= map.connections.size():
+					map.connections.insert(conn_idx, conn)
+				else:
+					map.connections.append(conn)
+				_viewport_3d.refresh_connections()
+				_viewport_3d.selected_connection_index = conn_idx
+				_selected_connection_idx = conn_idx
+				if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+					_build_connection_properties(conn_idx)
+			else:
+				if conn_idx >= 0 and conn_idx < map.connections.size():
+					map.connections.remove_at(conn_idx)
+				_selected_connection_idx = -1
+				_viewport_3d.selected_connection_index = -1
+				_viewport_3d.refresh_connections()
+				if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+					_build_connection_list_panel()
+		"move_connection":
+			var conn_idx: int = action["index"]
+			var target_pos: Vector3
+			if is_undo:
+				target_pos = action["old_pos"]
+			else:
+				target_pos = action["new_pos"]
+			if conn_idx >= 0 and conn_idx < map.connections.size():
+				map.connections[conn_idx].position = target_pos
+				_viewport_3d.refresh_connections()
+				_viewport_3d.selected_connection_index = conn_idx
+				if _selected_connection_idx == conn_idx:
+					_build_connection_properties(conn_idx)
 	_mark_dirty()
 
 
@@ -1738,7 +2055,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_save_map()
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_DELETE:
-			if _selected_element_idx >= 0:
+			if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION and _selected_connection_idx >= 0:
+				_delete_connection(_selected_connection_idx)
+				get_viewport().set_input_as_handled()
+			elif _selected_element_idx >= 0:
 				_delete_element(_selected_element_idx)
 				get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_1:
@@ -1753,8 +2073,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_4:
 			_set_active_tool(MapViewport3D.Tool.SCATTER)
 			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_5:
+			_set_active_tool(MapViewport3D.Tool.CONNECTION)
+			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
-			if _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
+			if _viewport_3d.active_tool == MapViewport3D.Tool.CONNECTION:
+				_viewport_3d.selected_connection_index = -1
+				_selected_connection_idx = -1
+				_build_connection_list_panel()
+				get_viewport().set_input_as_handled()
+			elif _viewport_3d.active_tool == MapViewport3D.Tool.SCATTER:
 				_viewport_3d.clear_scatter_zone()
 				_update_scatter_status()
 				if _scatter_accept_btn:

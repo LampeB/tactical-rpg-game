@@ -14,8 +14,12 @@ signal paint_stroke_ended()
 signal drag_started(element_index: int, start_pos: Vector3)
 signal drag_ended(element_index: int, end_pos: Vector3)
 signal scatter_zone_drawn(rect: Rect2)
+signal connection_placed(position: Vector3)
+signal connection_clicked(index: int)
+signal connection_moved(index: int, new_pos: Vector3)
+signal connection_drag_ended(index: int, end_pos: Vector3)
 
-enum Tool { SELECT, PAINT, PLACE, SCATTER }
+enum Tool { SELECT, PAINT, PLACE, SCATTER, CONNECTION }
 enum BrushShape { SQUARE, CIRCLE }
 
 ## Current active tool.
@@ -111,6 +115,18 @@ var _scatter_preview_parent: Node3D = null
 var _scatter_preview_items: Array[Dictionary] = []
 var _scatter_has_preview: bool = false
 
+# --- Connection state ---
+var _connection_nodes: Array[Node3D] = []
+var _connection_parent: Node3D = null
+var _connection_ghost: Node3D = null
+var selected_connection_index: int = -1:
+	set(value):
+		selected_connection_index = value
+		_update_connection_highlight()
+var _connection_highlight: Node3D = null
+var _is_dragging_connection: bool = false
+var _connection_drag_start_pos: Vector3 = Vector3.ZERO
+
 
 func _ready() -> void:
 	stretch = true
@@ -165,6 +181,17 @@ func _ready() -> void:
 	_scatter_preview_parent = Node3D.new()
 	_scatter_preview_parent.name = "ScatterPreview"
 	_editor_world.add_child(_scatter_preview_parent)
+
+	# Connection parent
+	_connection_parent = Node3D.new()
+	_connection_parent.name = "Connections"
+	_editor_world.add_child(_connection_parent)
+
+	# Connection ghost (placement preview)
+	_connection_ghost = _create_connection_marker_visual("", Color(0.2, 0.5, 1.0, 0.3))
+	_connection_ghost.name = "ConnectionGhost"
+	_connection_ghost.visible = false
+	_editor_world.add_child(_connection_ghost)
 
 	# Brush preview (paint tool cursor)
 	_brush_preview_mat = StandardMaterial3D.new()
@@ -245,6 +272,9 @@ func set_map(data: MapData) -> void:
 	# Spawn element visuals
 	_rebuild_elements()
 
+	# Spawn connection visuals
+	refresh_connections()
+
 	# Center camera on map
 	var cx: float = map_data.grid_width * 0.5
 	var cz: float = map_data.grid_height * 0.5
@@ -261,6 +291,9 @@ func _clear_3d_world() -> void:
 
 	# Clear scatter state
 	clear_scatter_zone()
+
+	# Clear connections
+	_clear_connection_nodes()
 
 	# Remove elements
 	for node in _element_nodes:
@@ -811,6 +844,8 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 					_scatter_zone_end = gp
 					_compute_scatter_rect()
 					_update_scatter_zone_visual()
+		Tool.CONNECTION:
+			_handle_connection_hover(event.position)
 
 	# Emit hover position for status bar
 	var hit: Dictionary = _raycast_terrain(event.position)
@@ -855,6 +890,8 @@ func _on_left_press(screen_pos: Vector2) -> void:
 					_scatter_zone_defined = true
 					_compute_scatter_rect()
 					_update_scatter_zone_visual()
+		Tool.CONNECTION:
+			_on_connection_left_press(screen_pos)
 
 
 func _on_left_release(screen_pos: Vector2) -> void:
@@ -873,6 +910,10 @@ func _on_left_release(screen_pos: Vector2) -> void:
 			_compute_scatter_rect()
 			_update_scatter_zone_visual()
 		scatter_zone_drawn.emit(_scatter_zone_rect)
+	if _is_dragging_connection and selected_connection_index >= 0:
+		_is_dragging_connection = false
+		if selected_connection_index < _connection_nodes.size():
+			connection_drag_ended.emit(selected_connection_index, _connection_nodes[selected_connection_index].position)
 
 
 func _handle_paint_hover(screen_pos: Vector2) -> void:
@@ -1104,3 +1145,154 @@ func clear_scatter_zone() -> void:
 
 func get_scatter_preview_items() -> Array[Dictionary]:
 	return _scatter_preview_items
+
+
+# === Connection tool ===
+
+func _create_connection_marker_visual(label_text: String, color: Color = Color(0.2, 0.5, 1.0, 0.7)) -> Node3D:
+	## Create a portal pillar visual for the editor.
+	var root := Node3D.new()
+	var pillar := CSGCylinder3D.new()
+	pillar.radius = 0.3
+	pillar.height = 3.0
+	pillar.position = Vector3(0, 1.5, 0)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.emission_enabled = true
+	mat.emission = Color(color.r, color.g, color.b)
+	mat.emission_energy_multiplier = 0.5
+	pillar.material = mat
+	root.add_child(pillar)
+	if not label_text.is_empty():
+		var lbl := Label3D.new()
+		lbl.text = label_text
+		lbl.font_size = 48
+		lbl.position = Vector3(0, 3.5, 0)
+		lbl.modulate = Color(0.5, 0.8, 1.0)
+		lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		lbl.outline_size = 8
+		root.add_child(lbl)
+	return root
+
+
+func refresh_connections() -> void:
+	## Rebuild all connection visuals from map_data.connections.
+	_clear_connection_nodes()
+	if not map_data:
+		return
+	for ci in range(map_data.connections.size()):
+		var conn: MapConnection = map_data.connections[ci]
+		var label_text: String = conn.display_name
+		if not conn.target_map_id.is_empty():
+			label_text += " → " + conn.target_map_id
+		var node: Node3D = _create_connection_marker_visual(label_text)
+		node.name = "Connection_%d" % ci
+		node.position = conn.position
+		node.set_meta("editor_connection_index", ci)
+		# Add editor collision for raycasting (layer 17 = bit 16)
+		var body := StaticBody3D.new()
+		body.collision_layer = 1 << 16
+		body.collision_mask = 0
+		var col_shape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(1.5, 3.5, 1.5)
+		col_shape.shape = box
+		col_shape.position = Vector3(0, 1.75, 0)
+		body.add_child(col_shape)
+		node.add_child(body)
+		_connection_parent.add_child(node)
+		_connection_nodes.append(node)
+
+
+func _clear_connection_nodes() -> void:
+	for node in _connection_nodes:
+		if is_instance_valid(node):
+			node.queue_free()
+	_connection_nodes.clear()
+	selected_connection_index = -1
+
+
+func _raycast_connections(screen_pos: Vector2) -> int:
+	## Cast a ray to connection markers (collision layer 17). Returns index or -1.
+	if not _camera or not _editor_world:
+		return -1
+	var from: Vector3 = _camera.project_ray_origin(screen_pos)
+	var dir: Vector3 = _camera.project_ray_normal(screen_pos)
+	var space: PhysicsDirectSpaceState3D = _editor_world.get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(from, from + dir * 200.0)
+	query.collision_mask = 1 << 16  # Connection marker layer
+	var result: Dictionary = space.intersect_ray(query)
+	if result.is_empty():
+		return -1
+	var hit_node: Node = result.get("collider")
+	while hit_node and not hit_node.has_meta("editor_connection_index"):
+		hit_node = hit_node.get_parent()
+	if hit_node and hit_node.has_meta("editor_connection_index"):
+		return hit_node.get_meta("editor_connection_index") as int
+	return -1
+
+
+func _on_connection_left_press(screen_pos: Vector2) -> void:
+	# Try to click an existing connection first
+	var hit_idx: int = _raycast_connections(screen_pos)
+	if hit_idx >= 0:
+		selected_connection_index = hit_idx
+		connection_clicked.emit(hit_idx)
+		_is_dragging_connection = true
+		_connection_drag_start_pos = _connection_nodes[hit_idx].position
+		return
+	# Otherwise, place a new connection at the click position
+	var gp: Vector3 = _raycast_ground_plane(screen_pos)
+	if gp != Vector3.INF:
+		var snapped := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		connection_placed.emit(snapped)
+
+
+@warning_ignore("confusable_local_declaration")
+func _handle_connection_hover(screen_pos: Vector2) -> void:
+	if _is_dragging_connection and selected_connection_index >= 0:
+		var gp: Vector3 = _raycast_ground_plane(screen_pos)
+		if gp == Vector3.INF:
+			return
+		var snapped_pos := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		if selected_connection_index < _connection_nodes.size():
+			_connection_nodes[selected_connection_index].position = snapped_pos
+			connection_moved.emit(selected_connection_index, snapped_pos)
+	else:
+		# Ghost preview follows cursor
+		if _connection_ghost:
+			var gp: Vector3 = _raycast_ground_plane(screen_pos)
+			if gp != Vector3.INF:
+				_connection_ghost.position = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+				_connection_ghost.visible = true
+			else:
+				_connection_ghost.visible = false
+
+
+func _update_connection_highlight() -> void:
+	if _connection_highlight and is_instance_valid(_connection_highlight):
+		_connection_highlight.queue_free()
+		_connection_highlight = null
+	if selected_connection_index < 0 or selected_connection_index >= _connection_nodes.size():
+		return
+	var node: Node3D = _connection_nodes[selected_connection_index]
+	if not is_instance_valid(node):
+		return
+	_connection_highlight = MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(2.0, 4.0, 2.0)
+	(_connection_highlight as MeshInstance3D).mesh = box
+	_connection_highlight.position = Vector3(0, 2.0, 0)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.3, 0.7, 1.0, 0.15)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.no_depth_test = true
+	(_connection_highlight as MeshInstance3D).material_override = mat
+	node.add_child(_connection_highlight)
+
+
+func update_connection_ghost_visibility() -> void:
+	if _connection_ghost:
+		_connection_ghost.visible = active_tool == Tool.CONNECTION and selected_connection_index < 0

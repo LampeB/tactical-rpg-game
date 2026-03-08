@@ -7,6 +7,7 @@ var gold: int = 0
 var story_flags: Dictionary = {}
 var is_game_started: bool = false
 var current_location_name: String = "Overworld"
+var current_map_id: String = "overworld"
 
 func _ready() -> void:
 	EventBus.item_database_reloaded.connect(_on_item_database_reloaded)
@@ -117,11 +118,12 @@ func new_game() -> void:
 
 ## Restore game state from a save. Called by SaveManager during deserialization.
 ## Keeps all direct property writes in one place instead of scattered in SaveManager.
-func restore_game_state(new_party: Party, new_gold: int, new_flags: Dictionary, location: String) -> void:
+func restore_game_state(new_party: Party, new_gold: int, new_flags: Dictionary, location: String, map_id: String = "overworld") -> void:
 	party = new_party
 	gold = new_gold
 	story_flags = new_flags
 	current_location_name = location
+	current_map_id = map_id
 	is_game_started = true
 	EventBus.gold_changed.emit(gold)
 
