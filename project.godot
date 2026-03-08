@@ -35,6 +35,7 @@ QuestManager="*res://scripts/autoload/quest_manager.gd"
 TutorialManager="*res://scripts/autoload/tutorial_manager.gd"
 DisplayManager="*res://scripts/autoload/display_manager.gd"
 MapDatabase="*res://scripts/autoload/map_database.gd"
+MapCache="*res://scripts/autoload/map_cache.gd"
 
 [display]
 
