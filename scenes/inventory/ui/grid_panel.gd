@@ -265,6 +265,18 @@ func highlight_upgradeable_items(dragged_item: ItemData) -> void:
 					_cells[cell].set_state(_cells[cell].CellState.UPGRADEABLE)
 
 
+func clear_upgradeable_highlights() -> void:
+	## Resets upgrade-highlighted cells back to OCCUPIED with rarity tint.
+	if not _grid_inventory:
+		return
+	for placed in _grid_inventory.get_all_placed_items():
+		for cell in placed.get_occupied_cells():
+			if _cells.has(cell) and _cells[cell].cell_state == _cells[cell].CellState.UPGRADEABLE:
+				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
+				var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+				_cells[cell].set_rarity_tint(rarity_color)
+
+
 func highlight_matching_ingredient(ingredient: CraftingIngredient) -> void:
 	## Highlights items that match a crafting ingredient (cyan tint).
 	if not _grid_inventory or not ingredient:

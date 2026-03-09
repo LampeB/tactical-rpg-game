@@ -125,7 +125,7 @@
 |---|---|
 | Fix: Shop purchase tracking uses object references instead of item IDs | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Perf: Shop per-frame highlight checks during drag (only update on state change) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c |
+| Perf: Shop per-frame highlight checks during drag (only update on state change) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c | In Progress |
 | Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
@@ -168,13 +168,13 @@
 | UI scale option in settings | 31a7700f-d0fb-8119-8d48-fe49d5aa3000 |
 | Unified screen/menu presentation (consistent pattern for all menus) | 3147700f-d0fb-81f2-bd15-d73a21e44b32 |
 | Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
+| Fix: Dialogue typewriter timer not stopped on ESC close (no fix needed — child node freed with scene) | 31e7700f-d0fb-81af-a03a-e0fb18a9d030 |
+| Fix: Empty squad crash risk in character hub (no fix needed — all access paths guarded) | 31e7700f-d0fb-8126-910c-f31a784b563e |
 
 ### Canceled
 | Name | Notion ID |
 |---|---|
 | Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
-| Fix: Dialogue typewriter timer not stopped on ESC close | 31e7700f-d0fb-81af-a03a-e0fb18a9d030 |
-| Fix: Empty squad crash risk in character hub (no bounds check on squad[0]) | 31e7700f-d0fb-8126-910c-f31a784b563e |
 | Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
 
 ## World
@@ -284,11 +284,7 @@
 | Fix: SaveManager vitals re-clamping uses fragile heuristic (add save version flag) | 31e7700f-d0fb-8107-baaf-d39753948616 |
 | Scene stashing and terrain cache for faster transitions | 31d7700f-d0fb-81c9-8e90-cd1dd0ff7d24 |
 | Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
-
-### Canceled
-| Name | Notion ID |
-|---|---|
-| Fix: Missing FileAccess error handling in autoloads (debug_logger, input_manager, display_manager) | 31e7700f-d0fb-81c0-8d5a-c79c08b113ac |
+| Fix: Missing FileAccess error handling in autoloads (no fix needed — all calls already check null) | 31e7700f-d0fb-81c0-8d5a-c79c08b113ac |
 
 ## Map Editor
 

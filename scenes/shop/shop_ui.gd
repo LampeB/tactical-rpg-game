@@ -211,9 +211,6 @@ func _process(_delta: float) -> void:
 	if _drag_source in [DragSource.PLAYER_GRID, DragSource.STASH]:
 		var over_sold := _sold_panel.get_global_rect().has_point(get_global_mouse_position())
 		_sold_panel.modulate = Color(0.6, 1.2, 0.6, 1.0) if over_sold else Color.WHITE
-	# Highlight upgradeable items on player grid and stash
-	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
-	_stash_panel.highlight_upgradeable_items(_dragged_item)
 	var over_discard: bool = _discard_zone.get_global_rect().has_point(get_global_mouse_position())
 	_highlight_discard_zone(over_discard)
 
@@ -440,6 +437,8 @@ func _start_drag_from_merchant(placed: GridInventory.PlacedItem, clicked_pos: Ve
 		anchor = clicked_pos - placed.grid_position
 	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInventory, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
@@ -461,6 +460,8 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInv
 		anchor = clicked_pos - placed.grid_position
 	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 func _start_drag_from_stash(item: ItemData, index: int) -> void:
@@ -480,6 +481,8 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 		Color(0.5, 1.0, 0.5))
 	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 func _start_drag_from_sold_panel(index: int) -> void:
@@ -501,6 +504,8 @@ func _start_drag_from_sold_panel(index: int) -> void:
 		Color(1.0, 0.84, 0.0))
 	_drag_preview.cell_size = _player_grid_panel.cell_size
 	_drag_preview.setup(_dragged_item, _drag_rotation)
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -701,6 +706,7 @@ func _end_drag() -> void:
 	_drag_preview.hide_preview()
 	_merchant_grid_panel.clear_placement_preview()
 	_player_grid_panel.clear_placement_preview()
+	_player_grid_panel.clear_upgradeable_highlights()
 	_stash_panel.clear_upgradeable_highlights()
 	_highlight_discard_zone(false)
 
