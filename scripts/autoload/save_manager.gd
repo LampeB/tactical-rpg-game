@@ -2,7 +2,7 @@ extends Node
 ## Handles serialization/deserialization of game state to/from JSON.
 ## Supports 5 manual save slots + 1 auto-save slot, each with a ring-buffer history.
 
-const SAVE_VERSION := 7
+const SAVE_VERSION := 8
 const MAX_SLOTS := 5
 const MAX_HISTORY := 5
 const AUTO_HISTORY := 3
@@ -545,25 +545,24 @@ func _build_party(data: Dictionary) -> Party:
 			"current_mp": int(vitals.get("current_mp", 0))
 		}
 
-	# Re-clamp loaded vitals against correct max (equipment-aware) to fix stale saves.
-	# If alive and HP equals base max (pre-fix ceiling), top up to equipment-aware max.
+	# Re-clamp loaded vitals against correct max (equipment-aware).
+	# For saves before version 8 (pre-fix), if HP equals base max, assume full health.
 	for char_id: String in vitals_data:
 		if party.character_vitals.has(char_id) and party.roster.has(char_id):
 			var loaded_hp: int = party.character_vitals[char_id].get("current_hp", 0)
 			var loaded_mp: int = party.character_vitals[char_id].get("current_mp", 0)
 			var max_hp: int = party.get_max_hp(char_id, tree)
 			var max_mp: int = party.get_max_mp(char_id, tree)
-			var base_hp: int = (party.roster[char_id] as CharacterData).max_hp
-			var base_mp: int = (party.roster[char_id] as CharacterData).max_mp
-			# If HP was at the old buggy ceiling (base stat), treat as full health
-			if loaded_hp > 0 and loaded_hp == base_hp and max_hp > base_hp:
-				party.character_vitals[char_id]["current_hp"] = max_hp
-			else:
-				party.character_vitals[char_id]["current_hp"] = clampi(loaded_hp, 0, max_hp)
-			if loaded_mp == base_mp and max_mp > base_mp:
-				party.character_vitals[char_id]["current_mp"] = max_mp
-			else:
-				party.character_vitals[char_id]["current_mp"] = clampi(loaded_mp, 0, max_mp)
+			if save_ver < 8:
+				var base_hp: int = (party.roster[char_id] as CharacterData).max_hp
+				var base_mp: int = (party.roster[char_id] as CharacterData).max_mp
+				# Old saves capped at base stat — treat as full health
+				if loaded_hp > 0 and loaded_hp == base_hp and max_hp > base_hp:
+					loaded_hp = max_hp
+				if loaded_mp == base_mp and max_mp > base_mp:
+					loaded_mp = max_mp
+			party.character_vitals[char_id]["current_hp"] = clampi(loaded_hp, 0, max_hp)
+			party.character_vitals[char_id]["current_mp"] = clampi(loaded_mp, 0, max_mp)
 
 	for char_id: String in party.roster:
 		if not party.character_vitals.has(char_id):

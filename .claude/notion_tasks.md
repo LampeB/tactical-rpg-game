@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 204 -->
-<\!-- Last updated: 2026-03-08 -->
+<\!-- Total tasks: 226 -->
+<\!-- Last updated: 2026-03-09 -->
 
 ## Prerequisites
 
@@ -49,6 +49,7 @@
 | Name | Notion ID |
 |---|---|
 | Create enemy variety (15-20 types with unique skills, bosses) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
+| Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
@@ -75,10 +76,12 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Refactor: Type placed_items array in GridInventory (Array[PlacedItem]) | 31e7700f-d0fb-814e-8edd-c03bb81edf39 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| Fix: InventoryUndo doesn't store to_rotation on move (undo restores wrong rotation) | 31e7700f-d0fb-81e1-adc8-d2f1d325ecbd |
 | Allow modifiers (gems) to affect armor items | 3147700f-d0fb-81d1-af2d-f10546c9ff49 |
 | Design unique legendary items with special effects | 3147700f-d0fb-816e-a5dc-f950c0edc8c2 |
 | Armor slot system (helmet, chestplate, gloves, legs, boots) | 3147700f-d0fb-8128-a032-dac89055321a |
@@ -120,7 +123,10 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Fix: Shop purchase tracking uses object references instead of item IDs | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
+| Perf: Shop per-frame highlight checks during drag (only update on state change) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c |
+| Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
 ### Done
@@ -167,6 +173,8 @@
 | Name | Notion ID |
 |---|---|
 | Damage numbers animation in combat | 3147700f-d0fb-818f-ba77-c458d030d861 |
+| Fix: Dialogue typewriter timer not stopped on ESC close | 31e7700f-d0fb-81af-a03a-e0fb18a9d030 |
+| Fix: Empty squad crash risk in character hub (no bounds check on squad[0]) | 31e7700f-d0fb-8126-910c-f31a784b563e |
 | Screen shake on critical hits | 3147700f-d0fb-81a2-aec3-c2ce33493ba1 |
 
 ## World
@@ -175,6 +183,9 @@
 | Name | Notion ID |
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
+| Perf: MapCache O(n) eviction on every insertion (use LRU or track oldest) | 31e7700f-d0fb-8133-8cbf-df15c2ba40a6 |
+| Perf: Overworld enemy group queries not cached (get_nodes_in_group called repeatedly) | 31e7700f-d0fb-81ca-bfff-df054cac4183 |
+| Refactor: Replace magic integers in MapData terrain and PassiveNodeData prerequisite_mode with enums | 31e7700f-d0fb-8196-b221-e966fc7f5a49 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
@@ -251,6 +262,12 @@
 | Name | Notion ID |
 |---|---|
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
+| Fix: TutorialManager global pause can break in-progress UI state (use process_mode isolation) | 31e7700f-d0fb-8192-958c-f2bf8c1e8a83 |
+| Perf: DisplayManager font rescaling fires on every Control node add (use theme-level scaling) | 31e7700f-d0fb-8162-99a5-fcacb779cade |
+| Perf: QuestManager iterates all quests on every inventory change (cache by objective type) | 31e7700f-d0fb-8182-be76-e7b1cf2233ea |
+| Refactor: Extract generic database loader helper (deduplicate 6 database autoloads) | 31e7700f-d0fb-812a-8a3b-f4aab2cbb191 |
+| Refactor: Move NpcRole enum from npc_data.gd to central Enums.gd | 31e7700f-d0fb-811c-af42-e77b2ce2c5fd |
+| Refactor: QuestManager verbose dictionary iteration pattern (unnecessary array copies) | 31e7700f-d0fb-8134-9dff-f377b9855f12 |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
 
@@ -264,8 +281,14 @@
 | Full GDScript warning cleanup (~50+ warnings fixed) | 3147700f-d0fb-8176-bc39-ee92449e85f4 |
 | Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Multiple save slots (5-10) with metadata | 3147700f-d0fb-81a1-a075-f7cb35bbae6f |
+| Fix: SaveManager vitals re-clamping uses fragile heuristic (add save version flag) | 31e7700f-d0fb-8107-baaf-d39753948616 |
 | Scene stashing and terrain cache for faster transitions | 31d7700f-d0fb-81c9-8e90-cd1dd0ff7d24 |
 | Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
+
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Fix: Missing FileAccess error handling in autoloads (debug_logger, input_manager, display_manager) | 31e7700f-d0fb-81c0-8d5a-c79c08b113ac |
 
 ## Map Editor
 
