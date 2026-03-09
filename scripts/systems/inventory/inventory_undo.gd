@@ -44,10 +44,12 @@ class UndoAction:
 	var from_position: Vector2i
 	var to_position: Vector2i
 	var from_rotation: int
+	var to_rotation: int
 
-	func _init(p_type: Type, p_item: ItemData, p_from: Vector2i, p_to: Vector2i, p_from_rot: int, _p_to_rot: int) -> void:
+	func _init(p_type: Type, p_item: ItemData, p_from: Vector2i, p_to: Vector2i, p_from_rot: int, p_to_rot: int) -> void:
 		type = p_type
 		item_data = p_item
 		from_position = p_from
 		to_position = p_to
 		from_rotation = p_from_rot
+		to_rotation = p_to_rot
