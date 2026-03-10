@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 226 -->
-<\!-- Last updated: 2026-03-09 -->
+<\!-- Total tasks: 233 -->
+<\!-- Last updated: 2026-03-10 -->
 
 ## Prerequisites
 
@@ -48,8 +48,10 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Create enemy variety (15-20 types with unique skills, bosses) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
+| Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
+| Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
+| Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
@@ -60,6 +62,7 @@
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
+| Create enemy variety (10 types with unique skills, loot tables, encounters) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
 | Dead characters persist death across battles (no auto-revive) | 3147700f-d0fb-81f1-8f45-fc6389364961 |
 | EncounterZoneData for enemy spawn areas | 3147700f-d0fb-8166-8fcb-f55ede7b5342 |
 | Implement defend action (damage reduction via shield/defense) | 3147700f-d0fb-81a3-853e-dd34af44a4d4 |
@@ -123,9 +126,9 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Fix: Shop purchase tracking uses object references instead of item IDs | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Perf: Shop per-frame highlight checks during drag (only update on state change) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c | In Progress |
+| Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
+| Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
 | Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
@@ -170,6 +173,8 @@
 | Display settings (fullscreen/borderless/windowed + resolution picker) | 31a7700f-d0fb-81fb-b2bb-f1070815de55 |
 | Fix: Dialogue typewriter timer not stopped on ESC close (no fix needed — child node freed with scene) | 31e7700f-d0fb-81af-a03a-e0fb18a9d030 |
 | Fix: Empty squad crash risk in character hub (no fix needed — all access paths guarded) | 31e7700f-d0fb-8126-910c-f31a784b563e |
+| Fix: Shop purchase tracking uses object references instead of item IDs (no fix needed — object refs correct for session-local buy-back) | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
+| Perf: Shop per-frame highlight checks during drag (moved to one-time call on drag start) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c |
 
 ### Canceled
 | Name | Notion ID |
@@ -183,13 +188,12 @@
 | Name | Notion ID |
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
-| Perf: MapCache O(n) eviction on every insertion (use LRU or track oldest) | 31e7700f-d0fb-8133-8cbf-df15c2ba40a6 |
-| Perf: Overworld enemy group queries not cached (get_nodes_in_group called repeatedly) | 31e7700f-d0fb-81ca-bfff-df054cac4183 |
 | Refactor: Replace magic integers in MapData terrain and PassiveNodeData prerequisite_mode with enums | 31e7700f-d0fb-8196-b221-e966fc7f5a49 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
+| Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
@@ -199,6 +203,7 @@
 |---|---|
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
 | Day/night cycle with sun/moon discs, stars, and moon phases | 31d7700f-d0fb-81ca-8369-d82f8404b36c |
+| NPC wandering patrol system (random movement within radius) | PENDING-NOTION-SYNC |
 | Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
 | Fix NPC/enemy ground positioning (auto-grounding + terrain offset) | 31c7700f-d0fb-81a9-8a92-eb792748e73e |
 | FF6-style overworld with WASD movement and camera follow | 3147700f-d0fb-8199-84ab-fd7b81806a26 |
@@ -212,6 +217,8 @@
 | Replace fixed skill tree gold cost with formula based on total unlocked | 3147700f-d0fb-814a-b361-e4cf3a502314 |
 | Camera occlusion system (fade objects blocking player view) | 31d7700f-d0fb-813f-abf0-fc09537f2b9e |
 | Save/load system | 3147700f-d0fb-81da-b76d-df2d3a042f5f |
+| Perf: MapCache O(n) eviction on every insertion (no fix needed — cache size is 3, O(1) in practice) | 31e7700f-d0fb-8133-8cbf-df15c2ba40a6 |
+| Perf: Overworld enemy group queries not cached (no fix needed — event-driven, not per-frame) | 31e7700f-d0fb-81ca-bfff-df054cac4183 |
 
 ## Audio
 
@@ -262,9 +269,6 @@
 | Name | Notion ID |
 |---|---|
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
-| Fix: TutorialManager global pause can break in-progress UI state (use process_mode isolation) | 31e7700f-d0fb-8192-958c-f2bf8c1e8a83 |
-| Perf: DisplayManager font rescaling fires on every Control node add (use theme-level scaling) | 31e7700f-d0fb-8162-99a5-fcacb779cade |
-| Perf: QuestManager iterates all quests on every inventory change (cache by objective type) | 31e7700f-d0fb-8182-be76-e7b1cf2233ea |
 | Refactor: Extract generic database loader helper (deduplicate 6 database autoloads) | 31e7700f-d0fb-812a-8a3b-f4aab2cbb191 |
 | Refactor: Move NpcRole enum from npc_data.gd to central Enums.gd | 31e7700f-d0fb-811c-af42-e77b2ce2c5fd |
 | Refactor: QuestManager verbose dictionary iteration pattern (unnecessary array copies) | 31e7700f-d0fb-8134-9dff-f377b9855f12 |
@@ -285,6 +289,9 @@
 | Scene stashing and terrain cache for faster transitions | 31d7700f-d0fb-81c9-8e90-cd1dd0ff7d24 |
 | Tutorial / onboarding for new mechanics | 3147700f-d0fb-8135-a266-d09ba2607b2a |
 | Fix: Missing FileAccess error handling in autoloads (no fix needed — all calls already check null) | 31e7700f-d0fb-81c0-8d5a-c79c08b113ac |
+| Fix: TutorialManager global pause can break in-progress UI state (no fix needed — tutorials only fire at scene init) | 31e7700f-d0fb-8192-958c-f2bf8c1e8a83 |
+| Perf: DisplayManager font rescaling fires on every Control node add (no fix needed — early-returns at default scale) | 31e7700f-d0fb-8162-99a5-fcacb779cade |
+| Perf: QuestManager iterates all quests on every inventory change (no fix needed — <30 lookups, infrequent) | 31e7700f-d0fb-8182-be76-e7b1cf2233ea |
 
 ## Map Editor
 
