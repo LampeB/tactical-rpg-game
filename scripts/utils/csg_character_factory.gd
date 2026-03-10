@@ -69,6 +69,16 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 			height = 1.2
 		elif enemy_data.id.begins_with("minotaur"):
 			height = 2.5
+		elif enemy_data.id == "troll":
+			height = 2.8
+		elif enemy_data.id == "orc":
+			height = 2.2
+		elif enemy_data.id == "forest_elemental":
+			height = 2.4
+		elif enemy_data.id == "bat":
+			height = 1.0
+		elif enemy_data.id == "wolf" or enemy_data.id == "spider":
+			height = 1.2
 		model = create_humanoid(enemy_data.model_color, height)
 	model.scale = Vector3.ONE * enemy_data.model_scale
 	_add_name_label(model, enemy_data.display_name, _get_model_top(model) + 0.3)
@@ -92,11 +102,11 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 	var color: Color = npc_data.model_color
 	# Role-based color hints
 	match npc_data.role:
-		NpcData.NpcRole.SHOPKEEPER:
+		Enums.NpcRole.SHOPKEEPER:
 			color = Color(0.55, 0.35, 0.2)   # Brown apron
-		NpcData.NpcRole.CRAFTSMAN:
+		Enums.NpcRole.CRAFTSMAN:
 			color = Color(0.4, 0.3, 0.25)    # Dark leather
-		NpcData.NpcRole.QUEST_GIVER:
+		Enums.NpcRole.QUEST_GIVER:
 			color = Color(0.8, 0.7, 0.2)     # Gold accent
 	var model := create_humanoid(color)
 	_add_name_label(model, npc_data.display_name, 2.0)
