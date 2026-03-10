@@ -15,3 +15,5 @@ physical_scaling = 1.2
 magical_scaling = 0.0
 heal_amount = 0
 heal_percent = 0.0
+vfx_type = 4
+screen_shake = true

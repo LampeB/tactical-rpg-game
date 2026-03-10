@@ -275,10 +275,21 @@ func _sync_viewport_size() -> void:
 
 # === Camera Stubs (for future use) ===
 
-func _shake_camera(_intensity: float = 5.0, _duration: float = 0.3) -> void:
-	## Stub: will shake camera for impact effects.
-	DebugLogger.log_info("Camera shake (stub): intensity=%.1f duration=%.1f" % [_intensity, _duration], "BattleView")
-	pass
+func _shake_camera(intensity: float = 0.15, duration: float = 0.3) -> void:
+	## Shake the battle camera for impact effects.
+	if not _battle_camera:
+		return
+	var original_pos: Vector3 = _battle_camera.position
+	var tween := create_tween()
+	var steps: int = int(duration / 0.04)
+	for i in range(steps):
+		var offset := Vector3(
+			randf_range(-intensity, intensity),
+			randf_range(-intensity, intensity),
+			randf_range(-intensity * 0.5, intensity * 0.5)
+		)
+		tween.tween_property(_battle_camera, "position", original_pos + offset, 0.04)
+	tween.tween_property(_battle_camera, "position", original_pos, 0.04)
 
 
 func _pan_camera_to(_target: Vector3, _duration: float = 0.5) -> void:
@@ -674,38 +685,30 @@ func _update_target_highlights(hovered_entity: CombatEntity) -> void:
 
 	var targets: Array = _get_targets_for_hover(hovered_entity)
 	if targets.is_empty():
-		var hover_bar: PanelContainer = _entity_bars.get(hovered_entity)
-		if hover_bar:
-			hover_bar.set_highlight(hover_bar.HighlightType.INVALID)
-		var hover_sprite: Node3D = _entity_sprites.get(hovered_entity)
-		if hover_sprite:
-			hover_sprite.set_highlight(false)
+		_set_entity_highlight(hovered_entity, _entity_bars.get(hovered_entity).HighlightType.INVALID, false)
 		return
 
 	for i in range(targets.size()):
 		var target: CombatEntity = targets[i]
+		var is_primary: bool = (target == hovered_entity)
 		var bar: PanelContainer = _entity_bars.get(target)
-		if bar:
-			if target == hovered_entity:
-				bar.set_highlight(bar.HighlightType.PRIMARY)
-			else:
-				bar.set_highlight(bar.HighlightType.SECONDARY)
-
-		var sprite: Node3D = _entity_sprites.get(target)
-		if sprite:
-			sprite.set_highlight(target == hovered_entity)
+		var hl_type: int = bar.HighlightType.PRIMARY if is_primary else bar.HighlightType.SECONDARY
+		_set_entity_highlight(target, hl_type, is_primary)
 
 
 func _clear_target_highlights() -> void:
 	var keys: Array = _entity_bars.keys()
 	for i in range(keys.size()):
-		var entity: CombatEntity = keys[i]
-		var bar: PanelContainer = _entity_bars[entity]
-		bar.set_highlight(bar.HighlightType.NONE)
+		_set_entity_highlight(keys[i], _entity_bars[keys[i]].HighlightType.NONE, false)
 
-		var sprite: Node3D = _entity_sprites.get(entity)
-		if sprite:
-			sprite.set_highlight(false)
+
+func _set_entity_highlight(entity: CombatEntity, highlight_type: int, sprite_active: bool) -> void:
+	var bar: PanelContainer = _entity_bars.get(entity)
+	if bar:
+		bar.set_highlight(highlight_type)
+	var sprite: Node3D = _entity_sprites.get(entity)
+	if sprite:
+		sprite.set_highlight(sprite_active)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -750,7 +753,7 @@ func _execute_player_action(targets: Array) -> void:
 	else:
 		DebugLogger.log_warn("Anim: no sprite found for attacker %s" % source.entity_name, "BattleAnim")
 
-	# Step 2: Execute combat logic
+	# Step 2: Execute combat logic + VFX
 	var result: Dictionary
 	match _pending_action_type:
 		Enums.CombatAction.ATTACK:
@@ -762,6 +765,8 @@ func _execute_player_action(targets: Array) -> void:
 				for s_r in splash_results:
 					var splash_popup_result: Dictionary = {"actual_damage": s_r.damage, "is_crit": s_r.is_crit}
 					_spawn_damage_popup(s_r.target, splash_popup_result)
+				# VFX: default slash for basic attacks
+				_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
 				# Step 3: Play target reaction
 				await _play_target_reactions(targets, result)
 
@@ -769,12 +774,14 @@ func _execute_player_action(targets: Array) -> void:
 			if _pending_skill:
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
 				_spawn_popups_for_results(result)
+				_spawn_skill_vfx(targets, _pending_skill, result)
 				await _play_target_reactions_from_results(result)
 
 		Enums.CombatAction.ITEM:
 			if _pending_skill:
 				result = _combat_manager.execute_skill(source, _pending_skill, targets)
 				_spawn_popups_for_results(result)
+				_spawn_skill_vfx(targets, _pending_skill, result)
 				await _play_target_reactions_from_results(result)
 
 				# Remove item from character's grid inventory
@@ -876,18 +883,20 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 		else:
 			DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
 
-	# Step 2: Execute combat logic
+	# Step 2: Execute combat logic + VFX
 	match action_type:
 		Enums.CombatAction.ATTACK:
 			if not targets.is_empty():
 				var result: Dictionary = _combat_manager.execute_attack(entity, targets[0])
 				_spawn_damage_popup(targets[0], result)
+				_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
 				await _play_target_reactions(targets, result)
 
 		Enums.CombatAction.SKILL:
 			if skill:
 				var result: Dictionary = _combat_manager.execute_skill(entity, skill, targets)
 				_spawn_popups_for_results(result)
+				_spawn_skill_vfx(targets, skill, result)
 				await _play_target_reactions_from_results(result)
 
 		Enums.CombatAction.DEFEND:
@@ -1033,6 +1042,45 @@ func _show_defeat_screen() -> void:
 	quit_btn.text = "Quit Game"
 	quit_btn.pressed.connect(func() -> void: get_tree().quit())
 	vbox.add_child(quit_btn)
+
+
+# === VFX Helpers ===
+
+func _spawn_vfx_on_targets(targets: Array, vfx_type: int, color: Color, is_crit: bool) -> void:
+	## Spawn a VFX effect at each target's position.
+	for i in range(targets.size()):
+		var target: CombatEntity = targets[i]
+		var sprite: Node3D = _entity_sprites.get(target)
+		if sprite and is_instance_valid(sprite):
+			var vfx_pos: Vector3 = sprite.global_position + Vector3(0, 1.0, 0)
+			BattleVFX.spawn_at(_battle_world, vfx_pos, vfx_type, color)
+	if is_crit:
+		_shake_camera(0.2, 0.3)
+
+
+func _spawn_skill_vfx(targets: Array, skill: SkillData, result: Dictionary) -> void:
+	## Spawn VFX for a skill based on its vfx_type property.
+	var vfx_type: int = skill.vfx_type
+	if vfx_type == 0:  # NONE — auto-detect from skill properties
+		if skill.heal_amount > 0 or skill.heal_percent > 0.0:
+			vfx_type = 9  # HEAL
+		elif skill.magical_scaling > 0.0:
+			vfx_type = 5  # FIRE as default magic
+		elif skill.physical_scaling >= 1.3:
+			vfx_type = 2  # POWER_SLASH for heavy physical
+		elif skill.physical_scaling > 0.0:
+			vfx_type = 1  # SLASH for light physical
+	_spawn_vfx_on_targets(targets, vfx_type, skill.vfx_color, false)
+	# Screen shake from skill property or crit
+	var has_crit: bool = false
+	var target_results: Array = result.get("target_results", [])
+	for i in range(target_results.size()):
+		var tr: Dictionary = target_results[i]
+		if tr.get("is_crit", false):
+			has_crit = true
+			break
+	if skill.screen_shake or has_crit:
+		_shake_camera(0.2 if skill.screen_shake else 0.15, 0.3)
 
 
 func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums.PopupType) -> void:

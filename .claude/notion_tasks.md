@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 233 -->
+<\!-- Total tasks: 236 -->
 <\!-- Last updated: 2026-03-10 -->
 
 ## Prerequisites
@@ -51,10 +51,12 @@
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
+| Camera behind player characters during fights (start at default, move behind party) | PENDING-NOTION-SYNC-CAMERA |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
+| Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | PENDING-NOTION-SYNC-BLOCK |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 
 ### Done
@@ -192,6 +194,7 @@
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
+| Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | PENDING-NOTION-SYNC-NPC |
 | Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
@@ -298,6 +301,7 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Allow placing map elements at different heights (terrain elevation, ups and downs) | PENDING-NOTION-SYNC-HEIGHT |
 | Canvas interaction (select, place, drag, delete) | 3147700f-d0fb-8193-af8b-fdbfba5c26ef |
 | Canvas rendering (grid, elements by type, spawn marker) | 3147700f-d0fb-8188-b1f9-cc2fec86fa6b |
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |

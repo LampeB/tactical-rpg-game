@@ -156,6 +156,22 @@ enum SkillUsage {
 	BOTH,
 }
 
+enum SkillVFX {
+	NONE,          ## No visual effect
+	SLASH,         ## White arc slash trail
+	POWER_SLASH,   ## Large orange slash with sparks
+	STAB,          ## Quick thrust trail
+	BASH,          ## Ground impact with dust
+	FIRE,          ## Fire burst / fireball impact
+	ICE,           ## Ice crystal shatter
+	LIGHTNING,     ## Electric sparks
+	DARK,          ## Purple/black wisp swirl
+	HEAL,          ## Green/white rising sparkles
+	POISON,        ## Green bubbles
+	BUFF,          ## Golden rising particles
+	EXPLOSION,     ## Large radial burst
+}
+
 # === WORLD ===
 
 enum InteractableType {
@@ -181,6 +197,36 @@ enum PricingType {
 	TIER_BASED,
 	DYNAMIC,
 	NEGOTIABLE,
+}
+
+
+# === NPC ===
+
+enum NpcRole {
+	GENERIC,
+	SHOPKEEPER,
+	QUEST_GIVER,
+	CRAFTSMAN,
+}
+
+# === TERRAIN ===
+
+enum Block {
+	GRASS,
+	DIRT,
+	STONE,
+	WATER,
+	PATH,
+	SAND,
+	DARK_GRASS,
+	SNOW,
+}
+
+# === PASSIVE TREE ===
+
+enum PrerequisiteMode {
+	ALL,   ## All prerequisites required (default)
+	ANY,   ## Any one prerequisite suffices
 }
 
 

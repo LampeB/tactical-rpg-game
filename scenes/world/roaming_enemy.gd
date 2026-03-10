@@ -64,6 +64,14 @@ func _build_enemy_model() -> void:
 		_model = root
 		add_child(_model)
 
+	# Float flying/ghost enemies above ground
+	if encounter_data and not encounter_data.enemies.is_empty():
+		var first_id: String = encounter_data.enemies[0].id
+		if first_id == "bat":
+			_model.position.y += 0.8
+		elif first_id == "wraith":
+			_model.position.y += 0.5
+
 	# Attach procedural walk/idle animator
 	_animator = ModelAnimator.new()
 	add_child(_animator)
