@@ -34,6 +34,14 @@ extends Resource
 ## Healing as percentage of max HP.
 @export var heal_percent: float = 0.0
 
+@export_group("Visuals")
+## Visual effect type played on the target(s) when this skill hits.
+@export var vfx_type: Enums.SkillVFX = Enums.SkillVFX.NONE
+## Primary color for the VFX particles. White = use default for the effect type.
+@export var vfx_color: Color = Color.WHITE
+## Whether to shake the screen on impact.
+@export var screen_shake: bool = false
+
 
 func has_damage() -> bool:
 	return physical_scaling > 0.0 or magical_scaling > 0.0 or (use_all_mp and mp_damage_ratio > 0.0)

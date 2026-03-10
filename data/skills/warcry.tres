@@ -17,3 +17,4 @@ magical_scaling = 0.0
 applied_statuses = Array[ExtResource("2_buff")]([ExtResource("2_buff")])
 heal_amount = 0
 heal_percent = 0.0
+vfx_type = 11
