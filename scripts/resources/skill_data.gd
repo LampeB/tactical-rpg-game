@@ -41,6 +41,8 @@ extends Resource
 @export var vfx_color: Color = Color.WHITE
 ## Whether to shake the screen on impact.
 @export var screen_shake: bool = false
+## Whether a projectile flies from caster to target before impact VFX.
+@export var has_projectile: bool = false
 
 
 func has_damage() -> bool:

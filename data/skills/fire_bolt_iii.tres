@@ -17,3 +17,4 @@ heal_amount = 0
 heal_percent = 0.0
 vfx_type = 5
 screen_shake = true
+has_projectile = true

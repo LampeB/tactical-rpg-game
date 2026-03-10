@@ -457,6 +457,84 @@ static func _spawn_explosion(parent: Node3D, pos: Vector3, color: Color) -> void
 	_auto_free(particles, 0.8)
 
 
+# === Projectile ===
+
+static func spawn_projectile(parent: Node3D, from_pos: Vector3, to_pos: Vector3, vfx_type: int, color_override: Color = Color.WHITE) -> float:
+	## Spawn a glowing projectile orb that flies from caster to target with a trail.
+	## Returns the flight duration so the caller can await it.
+	var color: Color = color_override
+	if color == Color.WHITE:
+		color = DEFAULT_COLORS.get(vfx_type, Color.WHITE)
+
+	var distance: float = from_pos.distance_to(to_pos)
+	var flight_time: float = clampf(distance * 0.08, 0.2, 0.6)
+
+	# Projectile core — small glowing sphere
+	var projectile := Node3D.new()
+	projectile.position = from_pos
+	parent.add_child(projectile)
+
+	var sphere := MeshInstance3D.new()
+	var sphere_mesh := SphereMesh.new()
+	sphere_mesh.radius = 0.08
+	sphere_mesh.height = 0.16
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = 4.0
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sphere_mesh.material = mat
+	sphere.mesh = sphere_mesh
+	projectile.add_child(sphere)
+
+	# Trail particles following the projectile
+	var trail := CPUParticles3D.new()
+	trail.emitting = true
+	trail.one_shot = false
+	trail.amount = 12
+	trail.lifetime = 0.3
+	trail.explosiveness = 0.0
+	trail.spread = 10.0
+	trail.direction = Vector3(0, 0, -1)
+	trail.initial_velocity_min = 0.3
+	trail.initial_velocity_max = 0.8
+	trail.gravity = Vector3.ZERO
+	trail.damping_min = 2.0
+	trail.damping_max = 4.0
+	trail.scale_amount_min = 0.02
+	trail.scale_amount_max = 0.05
+	var trail_ramp := Gradient.new()
+	trail_ramp.set_color(0, color)
+	trail_ramp.set_color(1, Color(color.r, color.g, color.b, 0.0))
+	trail.color_ramp = trail_ramp
+	var trail_mat := StandardMaterial3D.new()
+	trail_mat.albedo_color = color
+	trail_mat.emission_enabled = true
+	trail_mat.emission = color
+	trail_mat.emission_energy_multiplier = 2.5
+	trail_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trail_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	trail.mesh = _make_quad_mesh(trail_mat)
+	projectile.add_child(trail)
+
+	# Arc: raise projectile slightly in the middle of the flight
+	var mid_point: Vector3 = (from_pos + to_pos) * 0.5 + Vector3(0, 0.5, 0)
+
+	# Tween the projectile along a bezier-ish path using two segments
+	var tween: Tween = parent.create_tween()
+	tween.tween_property(projectile, "position", mid_point, flight_time * 0.5).set_ease(Tween.EASE_OUT)
+	tween.tween_property(projectile, "position", to_pos, flight_time * 0.5).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func() -> void:
+		trail.emitting = false
+		sphere.visible = false
+	)
+	# Let trail particles fade out before freeing
+	_auto_free(projectile, flight_time + 0.5)
+
+	return flight_time
+
+
 # === Utilities ===
 
 static func _make_quad_mesh(material: StandardMaterial3D) -> QuadMesh:

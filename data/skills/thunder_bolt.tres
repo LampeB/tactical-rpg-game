@@ -16,3 +16,4 @@ magical_scaling = 1.2
 heal_amount = 0
 heal_percent = 0.0
 vfx_type = 7
+has_projectile = true
