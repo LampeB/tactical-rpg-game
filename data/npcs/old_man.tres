@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Take care, old timer."
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Ah, young adventurer! These old bones have seen much in their time.", "This town was barely a crossroads when I was your age. Now look at it — merchants, a blacksmith, even a proper doctor!", "If you're heading into the wilds, watch for the wolves. They've been bolder lately."]
+choices = [SubResource("choice_bye")]
+
+[resource]
+script = ExtResource("1")
+id = "old_man"
+display_name = "Old Man Garrett"
+model_color = Color(0.6, 0.55, 0.5, 1)
+conversations = [SubResource("conv_greeting")]

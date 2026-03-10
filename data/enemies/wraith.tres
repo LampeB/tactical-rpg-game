@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/skills/soul_rend.tres" id="2_soul"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="3_ice"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_wraith.tres" id="4_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "wraith"
+display_name = "Wraith"
+description = "A restless spirit bound to the mortal plane. Its chilling touch drains the life from the living."
+max_hp = 60
+speed = 10
+physical_attack = 5
+physical_defense = 3
+magical_attack = 14
+magical_defense = 15
+model_color = Color(0.5, 0.5, 0.8, 1)
+damage_type = 1
+skills = [ExtResource("2_soul"), ExtResource("3_ice")]
+gold_reward = 28
+loot_table = ExtResource("4_loot")

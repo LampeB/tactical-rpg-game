@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/skills/backstab.tres" id="2_skill"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_bandit.tres" id="3_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "bandit"
+display_name = "Bandit"
+description = "A highway robber armed with a sharp blade and sharper instincts. Prefers ambushes and dirty tricks."
+max_hp = 50
+speed = 11
+physical_attack = 12
+physical_defense = 5
+magical_attack = 3
+magical_defense = 3
+model_color = Color(0.35, 0.3, 0.25, 1)
+damage_type = 0
+skills = [ExtResource("2_skill")]
+gold_reward = 20
+loot_table = ExtResource("3_loot")

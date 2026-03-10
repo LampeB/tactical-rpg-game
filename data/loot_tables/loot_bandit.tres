@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="item_potion"]
+[ext_resource type="Resource" path="res://data/items/weapons/dagger_common.tres" id="item_dagger"]
+[ext_resource type="Resource" path="res://data/items/weapons/bow_common.tres" id="item_bow"]
+[ext_resource type="Resource" path="res://data/items/armor/leather_chestplate_common.tres" id="item_chest"]
+
+[sub_resource type="Resource" id="entry_potion"]
+script = ExtResource("2")
+item = ExtResource("item_potion")
+drop_chance = 0.7
+
+[sub_resource type="Resource" id="entry_dagger"]
+script = ExtResource("2")
+item = ExtResource("item_dagger")
+drop_chance = 0.2
+
+[sub_resource type="Resource" id="entry_bow"]
+script = ExtResource("2")
+item = ExtResource("item_bow")
+drop_chance = 0.12
+
+[sub_resource type="Resource" id="entry_chest"]
+script = ExtResource("2")
+item = ExtResource("item_chest")
+drop_chance = 0.08
+
+[resource]
+script = ExtResource("1")
+id = "loot_bandit"
+entries = [SubResource("entry_potion"), SubResource("entry_dagger"), SubResource("entry_bow"), SubResource("entry_chest")]

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="item_potion"]
+[ext_resource type="Resource" path="res://data/items/weapons/staff_common.tres" id="item_staff"]
+[ext_resource type="Resource" path="res://data/items/modifiers/ice_gem_common.tres" id="item_ice"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_gloves_common.tres" id="item_gloves"]
+
+[sub_resource type="Resource" id="entry_potion"]
+script = ExtResource("2")
+item = ExtResource("item_potion")
+drop_chance = 0.7
+
+[sub_resource type="Resource" id="entry_staff"]
+script = ExtResource("2")
+item = ExtResource("item_staff")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_ice"]
+script = ExtResource("2")
+item = ExtResource("item_ice")
+drop_chance = 0.25
+
+[sub_resource type="Resource" id="entry_gloves"]
+script = ExtResource("2")
+item = ExtResource("item_gloves")
+drop_chance = 0.1
+
+[resource]
+script = ExtResource("1")
+id = "loot_wraith"
+entries = [SubResource("entry_potion"), SubResource("entry_staff"), SubResource("entry_ice"), SubResource("entry_gloves")]

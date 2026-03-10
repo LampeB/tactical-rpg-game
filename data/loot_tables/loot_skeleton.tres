@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
+[ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="item_potion"]
+[ext_resource type="Resource" path="res://data/items/weapons/sword_common.tres" id="item_sword"]
+[ext_resource type="Resource" path="res://data/items/weapons/shield_common.tres" id="item_shield"]
+[ext_resource type="Resource" path="res://data/items/armor/cloth_helmet_common.tres" id="item_helmet"]
+
+[sub_resource type="Resource" id="entry_potion"]
+script = ExtResource("2")
+item = ExtResource("item_potion")
+drop_chance = 0.6
+
+[sub_resource type="Resource" id="entry_sword"]
+script = ExtResource("2")
+item = ExtResource("item_sword")
+drop_chance = 0.15
+
+[sub_resource type="Resource" id="entry_shield"]
+script = ExtResource("2")
+item = ExtResource("item_shield")
+drop_chance = 0.1
+
+[sub_resource type="Resource" id="entry_helmet"]
+script = ExtResource("2")
+item = ExtResource("item_helmet")
+drop_chance = 0.12
+
+[resource]
+script = ExtResource("1")
+id = "loot_skeleton"
+entries = [SubResource("entry_potion"), SubResource("entry_sword"), SubResource("entry_shield"), SubResource("entry_helmet")]

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+
+[sub_resource type="Resource" id="choice_song"]
+script = ExtResource("3")
+text = "Sing me a tale."
+next_conversation_id = "song"
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Maybe another time."
+action = "end"
+
+[sub_resource type="Resource" id="choice_song_bye"]
+script = ExtResource("3")
+text = "A fine tune. Farewell, bard."
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Well met, traveler! I am Finnick, wandering bard and collector of tales.", "I've traveled from the frozen peaks to the sun-scorched deserts, and every land has a story worth telling.", "Care to hear one?"]
+choices = [SubResource("choice_song"), SubResource("choice_bye")]
+
+[sub_resource type="Resource" id="conv_song"]
+script = ExtResource("2")
+id = "song"
+lines = ["*clears throat*", "In shadows deep where wraiths do creep, and trolls guard ancient stone...", "A hero walked with blade in hand, to claim a land unknown!", "Through goblin's den and spider's web, past forests dark and cold...", "They fought with fire and heart's desire, for glory and for gold!"]
+choices = [SubResource("choice_song_bye")]
+
+[resource]
+script = ExtResource("1")
+id = "bard"
+display_name = "Finnick the Bard"
+model_color = Color(0.7, 0.5, 0.2, 1)
+conversations = [SubResource("conv_greeting"), SubResource("conv_song")]

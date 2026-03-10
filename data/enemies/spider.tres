@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_spider.tres" id="2_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "spider"
+display_name = "Giant Spider"
+description = "A venomous arachnid lurking in dark forests. Its bite carries a nasty toxin."
+max_hp = 40
+speed = 10
+physical_attack = 7
+physical_defense = 5
+magical_attack = 4
+magical_defense = 4
+model_color = Color(0.3, 0.25, 0.2, 1)
+damage_type = 0
+gold_reward = 12
+loot_table = ExtResource("2_loot")
