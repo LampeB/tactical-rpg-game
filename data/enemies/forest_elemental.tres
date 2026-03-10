@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/skills/thunder_bolt.tres" id="2_thunder"]
+[ext_resource type="Resource" path="res://data/skills/heal_minor.tres" id="3_heal"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_forest_elemental.tres" id="4_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "forest_elemental"
+display_name = "Forest Elemental"
+description = "A sentient manifestation of nature's fury. Roots and vines coil around a glowing emerald core."
+max_hp = 90
+speed = 7
+physical_attack = 8
+physical_defense = 12
+magical_attack = 18
+magical_defense = 14
+model_color = Color(0.3, 0.55, 0.2, 1)
+model_scale = 1.4
+damage_type = 1
+skills = [ExtResource("2_thunder"), ExtResource("3_heal")]
+gold_reward = 30
+loot_table = ExtResource("4_loot")

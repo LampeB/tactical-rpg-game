@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="2_fire"]
+[ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="3_ice"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_dark_mage.tres" id="4_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "dark_mage"
+display_name = "Dark Mage"
+description = "A corrupted sorcerer wielding forbidden magic. Its spells burn with an unnatural flame."
+max_hp = 45
+speed = 9
+physical_attack = 4
+physical_defense = 4
+magical_attack = 16
+magical_defense = 12
+model_color = Color(0.4, 0.2, 0.6, 1)
+damage_type = 1
+skills = [ExtResource("2_fire"), ExtResource("3_ice")]
+gold_reward = 22
+loot_table = ExtResource("4_loot")

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/skills/slash.tres" id="2_skill"]
+[ext_resource type="Resource" path="res://data/loot_tables/loot_skeleton.tres" id="3_loot"]
+
+[resource]
+script = ExtResource("1")
+id = "skeleton"
+display_name = "Skeleton Warrior"
+description = "The reanimated bones of a fallen soldier. It fights with the muscle memory of its former life."
+max_hp = 55
+speed = 8
+physical_attack = 10
+physical_defense = 8
+magical_attack = 2
+magical_defense = 2
+model_color = Color(0.85, 0.8, 0.7, 1)
+damage_type = 0
+skills = [ExtResource("2_skill")]
+gold_reward = 18
+loot_table = ExtResource("3_loot")

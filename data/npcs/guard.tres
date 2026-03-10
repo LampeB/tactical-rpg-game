@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Stay safe."
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Halt! Oh — you're that adventurer everyone's been talking about.", "The roads east of town have been crawling with goblins and orcs lately. Be on your guard.", "If you see anything suspicious, report to me. I keep the peace around here."]
+choices = [SubResource("choice_bye")]
+
+[resource]
+script = ExtResource("1")
+id = "guard"
+display_name = "Town Guard Brennan"
+model_color = Color(0.3, 0.35, 0.5, 1)
+conversations = [SubResource("conv_greeting")]

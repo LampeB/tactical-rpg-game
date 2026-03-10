@@ -3,7 +3,7 @@ extends RefCounted
 ## Static utility that converts a MapData resource into runtime 3D scene nodes.
 ## Used by overworld.gd to build the world from data instead of hardcoded values.
 
-# Block colors (must match overworld.gd Block enum order)
+# Block colors indexed by Enums.Block values
 const BLOCK_COLORS: Array[Color] = [
 	Color(0.35, 0.55, 0.25, 1.0),  # 0 Grass
 	Color(0.45, 0.32, 0.18, 1.0),  # 1 Dirt
@@ -136,6 +136,8 @@ static func _spawn_npc(elem: MapElement, parent: Node3D) -> void:
 	if elem.scale_factor != 1.0:
 		marker.scale = Vector3.ONE * elem.scale_factor
 	marker.npc_id = elem.resource_id
+	if elem.patrol_distance > 0.0:
+		marker.patrol_distance = elem.patrol_distance
 	parent.add_child(marker)
 
 

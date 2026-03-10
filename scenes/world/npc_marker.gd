@@ -1,16 +1,29 @@
 extends Area3D
 ## Interactable NPC on the overworld. When the player enters range and presses
 ## [interact], the dialogue UI is pushed as a new scene. (3D version)
+## Supports optional wandering patrol within a radius of the spawn point.
 
 @export var npc_id: String = ""
+## Distance the NPC wanders from its spawn point. 0 = stationary.
+@export var patrol_distance: float = 0.0
+## Walking speed when wandering.
+@export var patrol_speed: float = 1.2
 
 var _npc_data: NpcData = null
 var _player_nearby: bool = false
 var _interact_prompt: Label3D = null
 var _quest_marker: Label3D = null
+var _start_position: Vector3
+var _move_direction: Vector3 = Vector3.ZERO
+var _move_timer: float = 0.0
+var _direction_change_interval: float = 3.0
+var _model: Node3D = null
+var _animator: ModelAnimator = null
 
 
 func _ready() -> void:
+	_start_position = position
+
 	if npc_id.is_empty():
 		DebugLogger.log_warn("NpcMarker has no npc_id set", "NpcMarker")
 		return
@@ -35,13 +48,13 @@ func _ready() -> void:
 func _build_visual() -> void:
 	## Creates a 3D NPC model with name label and interact prompt.
 	# CSG character model
-	var model := CSGCharacterFactory.create_from_npc(_npc_data)
-	add_child(model)
+	_model = CSGCharacterFactory.create_from_npc(_npc_data)
+	add_child(_model)
 
 	# Attach idle breathing animator
-	var animator := ModelAnimator.new()
-	add_child(animator)
-	animator.setup(model)
+	_animator = ModelAnimator.new()
+	add_child(_animator)
+	_animator.setup(_model)
 
 	# Collision shape for body detection
 	collision_layer = 4  # interactables
@@ -63,6 +76,44 @@ func _build_visual() -> void:
 	_interact_prompt.outline_size = 6
 	_interact_prompt.visible = false
 	add_child(_interact_prompt)
+
+
+func _process(delta: float) -> void:
+	if patrol_distance <= 0.0:
+		return
+
+	_move_timer += delta
+	if _move_timer >= _direction_change_interval:
+		_move_timer = 0.0
+		_choose_random_direction()
+
+	# Move in current direction
+	if _move_direction.length() > 0.01:
+		position += _move_direction * patrol_speed * delta
+
+		# Don't wander too far from start
+		var horizontal_pos := Vector3(position.x, 0, position.z)
+		var horizontal_start := Vector3(_start_position.x, 0, _start_position.z)
+		if horizontal_pos.distance_to(horizontal_start) > patrol_distance:
+			var dir := (horizontal_start - horizontal_pos).normalized()
+			_move_direction = Vector3(dir.x, 0, dir.z)
+
+		# Face movement direction
+		if _model:
+			_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+
+	# Update walk animation
+	if _animator:
+		_animator.set_walking(_move_direction.length() > 0.1)
+
+
+func _choose_random_direction() -> void:
+	var rand := randf()
+	if rand < 0.3:  # 30% chance to stop (NPCs idle more than enemies)
+		_move_direction = Vector3.ZERO
+	else:
+		var angle := randf() * TAU
+		_move_direction = Vector3(cos(angle), 0, sin(angle))
 
 
 func _unhandled_input(event: InputEvent) -> void:
