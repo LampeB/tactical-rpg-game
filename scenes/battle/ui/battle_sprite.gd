@@ -247,6 +247,12 @@ func play_idle_animation() -> void:
 	animation_finished.emit()
 
 
+func set_walking(walking: bool) -> void:
+	## Enable or disable the walk cycle animation.
+	if _animator:
+		_animator.set_walking(walking)
+
+
 # === Attack Animation Helpers ===
 
 func _determine_attack_anim() -> AttackAnimType:

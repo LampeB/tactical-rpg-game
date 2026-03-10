@@ -57,6 +57,7 @@ var _state: BattleState = BattleState.INIT
 # Entity -> UI mappings
 var _entity_bars: Dictionary = {}  ## CombatEntity -> EntityStatusBar node
 var _entity_sprites: Dictionary = {}  ## CombatEntity -> BattleSprite (Node3D)
+var _entity_slots: Dictionary = {}  ## CombatEntity -> slot index (int)
 var _grid_inventories: Dictionary = {}  ## character_id -> GridInventory
 
 # Target selection
@@ -74,6 +75,11 @@ var _fight_position: Vector3 = Vector3.ZERO
 var _map_id: String = ""
 var _arena_center: Vector3 = Vector3.ZERO  ## World position of the battle arena on the map
 var _arena_rotation_y: float = 0.0  ## Y-axis rotation of the battle arena
+
+# Camera positions
+var _cam_home_pos: Vector3 = Vector3.ZERO  ## Behind-party camera position (home)
+var _cam_home_look: Vector3 = Vector3.ZERO  ## Behind-party look target
+var _cam_tween: Tween = null  ## Active camera tween (for cancellation)
 
 
 func _clear_pending_action() -> void:
@@ -184,9 +190,12 @@ func _start_battle() -> void:
 	_combat_manager.start_combat(_encounter_data, player_entities, enemy_entities)
 	_refresh_all_ui()
 
-	# Begin first turn
-	DebugLogger.log_info("Waiting %.1fs before first turn..." % BATTLE_START_DELAY, "Battle")
-	await get_tree().create_timer(BATTLE_START_DELAY).timeout
+	# Begin first turn — walk players in while orbiting camera behind party
+	var cam_sweep_duration: float = 2.5
+	DebugLogger.log_info("Orbiting camera behind party (%.1fs)..." % cam_sweep_duration, "Battle")
+	_orbit_camera_to(_cam_home_pos, _cam_home_look, cam_sweep_duration)
+	_walk_players_in(player_entities, cam_sweep_duration)
+	await get_tree().create_timer(cam_sweep_duration).timeout
 	DebugLogger.log_info("Advancing to first turn", "Battle")
 	_combat_manager.advance_turn()
 
@@ -211,14 +220,21 @@ func _sync_viewport_size() -> void:
 				_battle_world.add_child(bg)
 				DebugLogger.log_info("Built battle background from area: %s" % battle_area.area_name, "BattleView")
 
-	# Position camera relative to arena center, rotated by arena orientation
-	var cam_offset := Vector3(0, 3, 6)
-	var rotated_cam_offset := cam_offset.rotated(Vector3.UP, _arena_rotation_y)
-	_battle_camera.position = _arena_center + rotated_cam_offset
-	var look_offset := Vector3(0, 0.5, 0).rotated(Vector3.UP, _arena_rotation_y)
-	_battle_camera.look_at(_arena_center + look_offset)
+	# Position camera: start at default center view, then orbit behind party
+	var default_offset := Vector3(0, 3.5, 8)
+	var rotated_default := default_offset.rotated(Vector3.UP, _arena_rotation_y)
+	_battle_camera.position = _arena_center + rotated_default
+	var default_look := _arena_center + Vector3(0, 0.5, 0)
+	_battle_camera.look_at(default_look)
 	_battle_camera.fov = 40.0
-	DebugLogger.log_info("Battle camera at %s, fov=%.0f" % [str(_battle_camera.position), _battle_camera.fov], "BattleView")
+
+	# Compute behind-party camera position:
+	# Behind the right shoulder of the rightmost player (positive Z), further out and elevated
+	var behind_offset := Vector3(-7.0, 4.0, 2.2)
+	_cam_home_pos = _arena_center + behind_offset.rotated(Vector3.UP, _arena_rotation_y)
+	var look_ahead_offset := Vector3(2.0, 0.6, -0.3)
+	_cam_home_look = _arena_center + look_ahead_offset.rotated(Vector3.UP, _arena_rotation_y)
+	DebugLogger.log_info("Battle camera at %s, home=%s, fov=%.0f" % [str(_battle_camera.position), str(_cam_home_pos), _battle_camera.fov], "BattleView")
 
 	# Read current day/night state for lighting
 	var dn_state: Dictionary = DayNightCycle.get_lighting_state()
@@ -273,13 +289,13 @@ func _sync_viewport_size() -> void:
 		_battle_world.add_child(world_env)
 
 
-# === Camera Stubs (for future use) ===
+# === Camera ===
 
 func _shake_camera(intensity: float = 0.15, duration: float = 0.3) -> void:
-	## Shake the battle camera for impact effects.
+	## Shake the battle camera for impact effects, snapping back to home position.
 	if not _battle_camera:
 		return
-	var original_pos: Vector3 = _battle_camera.position
+	var base_pos: Vector3 = _cam_home_pos if _cam_home_pos != Vector3.ZERO else _battle_camera.position
 	var tween := create_tween()
 	var steps: int = int(duration / 0.04)
 	for i in range(steps):
@@ -288,20 +304,148 @@ func _shake_camera(intensity: float = 0.15, duration: float = 0.3) -> void:
 			randf_range(-intensity, intensity),
 			randf_range(-intensity * 0.5, intensity * 0.5)
 		)
-		tween.tween_property(_battle_camera, "position", original_pos + offset, 0.04)
-	tween.tween_property(_battle_camera, "position", original_pos, 0.04)
+		tween.tween_property(_battle_camera, "position", base_pos + offset, 0.04)
+	tween.tween_property(_battle_camera, "position", base_pos, 0.04)
 
 
-func _pan_camera_to(_target: Vector3, _duration: float = 0.5) -> void:
-	## Stub: will smoothly pan camera to a position.
-	DebugLogger.log_info("Camera pan (stub): target=%s duration=%.1f" % [str(_target), _duration], "BattleView")
-	pass
+func _move_camera_to(target_pos: Vector3, look_at_pos: Vector3, duration: float = 0.5) -> void:
+	## Smoothly move the camera to a new position while re-orienting to look at a target.
+	if not _battle_camera:
+		return
+	# Kill any active camera tween to avoid conflicts
+	if _cam_tween and _cam_tween.is_valid():
+		_cam_tween.kill()
+
+	# We tween position directly. For look_at, we interpolate the look target
+	# by tweening a helper variable and calling look_at each step.
+	var start_pos: Vector3 = _battle_camera.position
+	# Approximate current look direction as a point in front of the camera
+	var start_look: Vector3 = _battle_camera.global_position + (-_battle_camera.global_transform.basis.z * 5.0)
+
+	_cam_tween = create_tween()
+	_cam_tween.set_ease(Tween.EASE_IN_OUT)
+	_cam_tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Use a simple approach: tween position, update look_at via method tweening
+	var steps: int = int(duration / 0.03)
+	if steps < 2:
+		steps = 2
+	var step_time: float = duration / steps
+	for i in range(steps + 1):
+		var t: float = float(i) / float(steps)
+		var pos: Vector3 = start_pos.lerp(target_pos, t)
+		var look: Vector3 = start_look.lerp(look_at_pos, t)
+		_cam_tween.tween_callback(_set_camera_pose.bind(pos, look))
+		if i < steps:
+			_cam_tween.tween_interval(step_time)
 
 
-func _reset_camera(_duration: float = 0.3) -> void:
-	## Stub: will return camera to default center position.
-	DebugLogger.log_info("Camera reset (stub): duration=%.1f" % _duration, "BattleView")
-	pass
+func _orbit_camera_to(target_pos: Vector3, look_at_pos: Vector3, duration: float = 1.5) -> void:
+	## Move the camera along a circular arc around the arena center to the target position.
+	if not _battle_camera:
+		return
+	if _cam_tween and _cam_tween.is_valid():
+		_cam_tween.kill()
+
+	var start_pos: Vector3 = _battle_camera.position
+	var start_look: Vector3 = _battle_camera.global_position + (-_battle_camera.global_transform.basis.z * 5.0)
+
+	# Compute polar coordinates (angle, radius, height) relative to arena center
+	var start_offset: Vector3 = start_pos - _arena_center
+	var end_offset: Vector3 = target_pos - _arena_center
+
+	var start_angle: float = atan2(start_offset.x, start_offset.z)
+	var start_radius: float = Vector2(start_offset.x, start_offset.z).length()
+	var start_height: float = start_offset.y
+
+	var end_angle: float = atan2(end_offset.x, end_offset.z)
+	var end_radius: float = Vector2(end_offset.x, end_offset.z).length()
+	var end_height: float = end_offset.y
+
+	# Force clockwise sweep (positive angle direction) for dramatic orbit
+	var angle_diff: float = end_angle - start_angle
+	# Always take the long way around: force positive (clockwise) direction
+	while angle_diff < 0.0:
+		angle_diff += TAU
+	# If the arc ended up very small (< 90°), go the other way for a longer sweep
+	if angle_diff < PI * 0.5:
+		angle_diff += TAU
+
+	_cam_tween = create_tween()
+
+	# Apply easing manually via smoothstep since tween easing only affects intervals
+	var steps: int = int(duration / 0.025)
+	if steps < 2:
+		steps = 2
+	var step_time: float = duration / steps
+	for i in range(steps + 1):
+		var t: float = float(i) / float(steps)
+		# Smoothstep for ease-in-out feel on the arc itself
+		var st: float = t * t * (3.0 - 2.0 * t)
+		# Interpolate polar coordinates along the arc
+		var angle: float = start_angle + angle_diff * st
+		var radius: float = lerpf(start_radius, end_radius, st)
+		var height: float = lerpf(start_height, end_height, st)
+		var pos := Vector3(sin(angle) * radius, height, cos(angle) * radius) + _arena_center
+		# Look target always points at arena center during the sweep
+		var look: Vector3 = _arena_center + Vector3(0, 0.5, 0)
+		_cam_tween.tween_callback(_set_camera_pose.bind(pos, look))
+		if i < steps:
+			_cam_tween.tween_interval(step_time)
+
+
+func _set_camera_pose(pos: Vector3, look: Vector3) -> void:
+	if _battle_camera:
+		_battle_camera.position = pos
+		_battle_camera.look_at(look)
+
+
+func _reset_camera(duration: float = 0.3) -> void:
+	## Return camera to the behind-party home position.
+	if _cam_home_pos != Vector3.ZERO:
+		_move_camera_to(_cam_home_pos, _cam_home_look, duration)
+
+
+func _move_camera_behind_entity(entity: CombatEntity, duration: float = 0.6) -> void:
+	## Move the camera behind a specific player character, over their right shoulder.
+	var slot_index: int = _entity_slots.get(entity, 0)
+	var slot_offset: Vector3 = PLAYER_POSITIONS[slot_index % PLAYER_POSITIONS.size()]
+
+	# Camera offset: behind (-X) and to the right (+Z) of the character, elevated
+	var cam_offset := Vector3(-3.5, 2.5, 1.5)
+	var cam_pos: Vector3 = _arena_center + (slot_offset + cam_offset).rotated(Vector3.UP, _arena_rotation_y)
+
+	# Look toward the enemy side, slightly above ground
+	var look_offset := Vector3(3.0, 0.5, 0.0)
+	var look_pos: Vector3 = _arena_center + look_offset.rotated(Vector3.UP, _arena_rotation_y)
+
+	_move_camera_to(cam_pos, look_pos, duration)
+
+
+func _walk_players_in(players: Array, duration: float) -> void:
+	## Animate player sprites walking from off-screen to their battle positions.
+	var walk_duration: float = duration * 0.8  # Finish walking before camera settles
+	for pi in range(players.size()):
+		var entity: CombatEntity = players[pi]
+		var sprite: Node3D = _entity_sprites.get(entity)
+		if not sprite:
+			continue
+		# Compute final position
+		var slot_offset: Vector3 = PLAYER_POSITIONS[pi % PLAYER_POSITIONS.size()]
+		var final_pos: Vector3 = _arena_center + slot_offset.rotated(Vector3.UP, _arena_rotation_y)
+		# Stagger arrivals slightly per character
+		var delay: float = pi * 0.15
+		var char_walk_time: float = walk_duration - delay
+		if char_walk_time < 0.5:
+			char_walk_time = 0.5
+		# Start walking animation
+		sprite.set_walking(true)
+		# Tween position from current to final
+		var tween := create_tween()
+		if delay > 0.0:
+			tween.tween_interval(delay)
+		tween.tween_property(sprite, "position", final_pos, char_walk_time).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+		tween.tween_callback(sprite.set_walking.bind(false))
 
 
 # === UI Building ===
@@ -330,14 +474,22 @@ func _build_entity_bars(players: Array, enemies: Array) -> void:
 		_add_entity_bar(players[i], _party_list)
 
 
-func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) -> void:
+func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool, walk_in: bool = false) -> void:
 	var sprite: Node3D = BattleSpriteScene.instantiate()
 	_battle_world.add_child(sprite)
 
 	# Position at battle slot in 3D world space, rotated and offset by arena center
 	var positions: Array[Vector3] = PLAYER_POSITIONS if is_player else ENEMY_POSITIONS
 	var slot_offset: Vector3 = positions[slot_index % positions.size()]
-	sprite.position = _arena_center + slot_offset.rotated(Vector3.UP, _arena_rotation_y)
+	var final_pos: Vector3 = _arena_center + slot_offset.rotated(Vector3.UP, _arena_rotation_y)
+
+	if walk_in:
+		# Start off-screen behind the player side and walk to position
+		var entry_offset := Vector3(-8.0, 0, 0).rotated(Vector3.UP, _arena_rotation_y)
+		sprite.position = final_pos + entry_offset
+	else:
+		sprite.position = final_pos
+
 	sprite.rotation.y = _arena_rotation_y  # Rotate so models face each other along rotated axis
 
 	var side: String = "player" if is_player else "enemy"
@@ -351,6 +503,7 @@ func _add_entity_sprite(entity: CombatEntity, slot_index: int, is_player: bool) 
 	sprite.mouse_exited_sprite.connect(_on_entity_bar_mouse_exited)
 
 	_entity_sprites[entity] = sprite
+	_entity_slots[entity] = slot_index
 
 
 func _build_entity_sprites(players: Array, enemies: Array) -> void:
@@ -360,9 +513,10 @@ func _build_entity_sprites(players: Array, enemies: Array) -> void:
 		if is_instance_valid(old_sprite):
 			old_sprite.queue_free()
 	_entity_sprites.clear()
+	_entity_slots.clear()
 
 	for pi in range(players.size()):
-		_add_entity_sprite(players[pi], pi, true)
+		_add_entity_sprite(players[pi], pi, true, true)
 
 	for ei in range(enemies.size()):
 		_add_entity_sprite(enemies[ei], ei, false)
@@ -409,6 +563,7 @@ func _on_turn_ready(entity: CombatEntity) -> void:
 			return
 		_state = BattleState.PLAYER_ACTION
 		DebugLogger.log_info("State -> PLAYER_ACTION: %s (HP:%d/%d MP:%d/%d)" % [entity.entity_name, entity.current_hp, entity.max_hp, entity.current_mp, entity.max_mp], "Battle")
+		_move_camera_behind_entity(entity)
 		var skills: Array = entity.get_available_skills()
 		var skill_names: String = ", ".join(skills.map(func(s: SkillData) -> String: return s.display_name)) if not skills.is_empty() else "none"
 		DebugLogger.log_info("  Skills: [%s], can_flee: %s" % [skill_names, str(_encounter_data.can_flee)], "Battle")
@@ -416,6 +571,7 @@ func _on_turn_ready(entity: CombatEntity) -> void:
 	else:
 		_state = BattleState.ENEMY_ACTION
 		DebugLogger.log_info("State -> ENEMY_ACTION: %s (HP:%d/%d)" % [entity.entity_name, entity.current_hp, entity.max_hp], "Battle")
+		_reset_camera(0.5)
 		_action_menu.show_disabled()
 		await get_tree().create_timer(ACTION_DELAY).timeout
 		_execute_enemy_turn(entity)
