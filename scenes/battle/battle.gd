@@ -753,7 +753,10 @@ func _execute_player_action(targets: Array) -> void:
 	else:
 		DebugLogger.log_warn("Anim: no sprite found for attacker %s" % source.entity_name, "BattleAnim")
 
-	# Step 2: Execute combat logic + VFX
+	# Step 2: Fire projectiles (if applicable) then execute combat logic + VFX
+	if _pending_skill and (_pending_action_type == Enums.CombatAction.SKILL or _pending_action_type == Enums.CombatAction.ITEM):
+		await _fire_projectiles(source, targets, _pending_skill)
+
 	var result: Dictionary
 	match _pending_action_type:
 		Enums.CombatAction.ATTACK:
@@ -882,6 +885,10 @@ func _execute_enemy_turn(entity: CombatEntity) -> void:
 			DebugLogger.log_info("Anim: %s -> anim finished" % entity.entity_name, "BattleAnim")
 		else:
 			DebugLogger.log_warn("Anim: no sprite found for enemy attacker %s" % entity.entity_name, "BattleAnim")
+
+	# Fire projectiles for skill actions
+	if skill and action_type == Enums.CombatAction.SKILL:
+		await _fire_projectiles(entity, targets, skill)
 
 	# Step 2: Execute combat logic + VFX
 	match action_type:
@@ -1081,6 +1088,41 @@ func _spawn_skill_vfx(targets: Array, skill: SkillData, result: Dictionary) -> v
 			break
 	if skill.screen_shake or has_crit:
 		_shake_camera(0.2 if skill.screen_shake else 0.15, 0.3)
+
+
+func _fire_projectiles(source: CombatEntity, targets: Array, skill: SkillData) -> void:
+	## Fire projectiles from source to all targets and await their arrival.
+	## Only fires if the skill has has_projectile=true or is auto-detected as ranged.
+	var should_fire: bool = skill.has_projectile
+	if not should_fire:
+		# Auto-detect: magical skills with single/all enemy targeting get projectiles
+		if skill.magical_scaling > 0.0 and skill.has_damage():
+			should_fire = true
+
+	if not should_fire:
+		return
+
+	var source_sprite: Node3D = _entity_sprites.get(source)
+	if not source_sprite or not is_instance_valid(source_sprite):
+		return
+
+	var from_pos: Vector3 = source_sprite.global_position + Vector3(0, 1.0, 0)
+	var vfx_type: int = skill.vfx_type
+	if vfx_type == 0:
+		vfx_type = 5  # Default FIRE for magic
+
+	var max_flight: float = 0.0
+	for i in range(targets.size()):
+		var target: CombatEntity = targets[i]
+		var target_sprite: Node3D = _entity_sprites.get(target)
+		if target_sprite and is_instance_valid(target_sprite):
+			var to_pos: Vector3 = target_sprite.global_position + Vector3(0, 1.0, 0)
+			var flight: float = BattleVFX.spawn_projectile(_battle_world, from_pos, to_pos, vfx_type, skill.vfx_color)
+			if flight > max_flight:
+				max_flight = flight
+
+	if max_flight > 0.0:
+		await get_tree().create_timer(max_flight).timeout
 
 
 func _spawn_popup_at_entity(entity: CombatEntity, amount: int, popup_type: Enums.PopupType) -> void:
