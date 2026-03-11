@@ -345,32 +345,16 @@ func test_combat_entity_weapon_power_methods() -> void:
 func test_gem_stat_bonus_stacking() -> void:
 	var test_name := "Gem stat bonuses stack correctly via aggregate_stats"
 
-	# Create two stat modifiers (simulating gem bonuses)
-	var mod1 := StatModifier.new()
-	mod1.stat = Enums.Stat.MAGICAL_ATTACK
-	mod1.modifier_type = Enums.ModifierType.FLAT
-	mod1.value = 5.0
-
-	var mod2 := StatModifier.new()
-	mod2.stat = Enums.Stat.MAGICAL_ATTACK
-	mod2.modifier_type = Enums.ModifierType.FLAT
-	mod2.value = 3.0
-
+	# aggregate_stats is Dictionary (Enums.Stat -> float), simulating how
+	# grid_inventory accumulates gem bonuses per stat
 	var state := ToolModifierState.new()
-	state.aggregate_stats = [mod1, mod2]
+	var existing: float = state.aggregate_stats.get(Enums.Stat.MAGICAL_ATTACK, 0.0)
+	state.aggregate_stats[Enums.Stat.MAGICAL_ATTACK] = existing + 5.0
+	existing = state.aggregate_stats.get(Enums.Stat.MAGICAL_ATTACK, 0.0)
+	state.aggregate_stats[Enums.Stat.MAGICAL_ATTACK] = existing + 3.0
 
-	# Verify both modifiers are stored
-	if state.aggregate_stats.size() != 2:
-		add_failure(test_name, "Expected 2 stat mods, got %d" % state.aggregate_stats.size())
-		return
-
-	# Sum the MAGICAL_ATTACK bonuses
-	var total: float = 0.0
-	for i in range(state.aggregate_stats.size()):
-		var mod: StatModifier = state.aggregate_stats[i]
-		if mod.stat == Enums.Stat.MAGICAL_ATTACK:
-			total += mod.value
-
+	# Verify the stacked total
+	var total: float = state.aggregate_stats.get(Enums.Stat.MAGICAL_ATTACK, 0.0)
 	if total != 8.0:
 		add_failure(test_name, "Expected stacked bonus 8.0, got %.1f" % total)
 		return

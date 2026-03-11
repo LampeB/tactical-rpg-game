@@ -2,6 +2,8 @@ extends Node
 ## Autoload that loads and indexes all NpcData resources at startup.
 ## Access NPCs by ID: NpcDatabase.get_npc("blacksmith")
 
+const _Loader = preload("res://scripts/utils/resource_loader_helper.gd")
+
 var _npcs: Dictionary = {}  # id -> NpcData
 
 const NPC_DIR := "res://data/npcs/"
@@ -13,7 +15,7 @@ func _ready() -> void:
 
 
 func _load_all_npcs() -> void:
-	_npcs = ResourceLoaderHelper.load_dir(NPC_DIR, "NpcDatabase")
+	_npcs = _Loader.load_dir(NPC_DIR, "NpcDatabase")
 
 
 func get_npc(id: String) -> NpcData:

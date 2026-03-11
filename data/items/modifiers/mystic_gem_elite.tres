@@ -45,8 +45,8 @@ status_effect_chance = 0.25384615384615383
 [resource]
 script = ExtResource("4_8lan3")
 id = "mystic_gem_elite"
-display_name = "Mystic Gem"
-description = "A violet gem humming with arcane energy. Adds +15% special attack to adjacent weapons."
+display_name = "Elite Mystic Gem"
+description = "An ethereal purple gem resonating with arcane energy. Adds special attack to adjacent weapons."
 icon = ExtResource("3_qa3ss")
 item_type = 2
 rarity = 3

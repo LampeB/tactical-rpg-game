@@ -30,8 +30,8 @@ stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_ramqk")])
 [resource]
 script = ExtResource("1")
 id = "mystic_gem_common"
-display_name = "Mystic Gem"
-description = "A violet gem humming with arcane energy. Adds +15% special attack to adjacent weapons."
+display_name = "Fine Mystic Gem"
+description = "An ethereal purple gem resonating with arcane energy. Adds special attack to adjacent weapons."
 icon = ExtResource("5")
 item_type = 2
 rarity = 1

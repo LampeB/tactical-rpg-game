@@ -938,20 +938,24 @@ func _show_target_selection_popup() -> void:
 
 
 func _on_target_selected(character_id: String) -> void:
+	# Capture pending state BEFORE hide() — popup_hide signal clears these fields synchronously
+	var stash_index: int = _pending_consumable_stash_index
+	var placed: GridInventory.PlacedItem = _pending_consumable_placed
+
 	_target_selection_popup.hide()
 
 	if not GameManager.party:
 		return
 
 	var item: ItemData = null
-	var is_stash_consumable: bool = (_pending_consumable_stash_index >= 0)
+	var is_stash_consumable: bool = (stash_index >= 0)
 
 	if is_stash_consumable:
-		if _pending_consumable_stash_index >= GameManager.party.stash.size():
+		if stash_index >= GameManager.party.stash.size():
 			return
-		item = GameManager.party.stash[_pending_consumable_stash_index]
-	elif _pending_consumable_placed:
-		item = _pending_consumable_placed.item_data
+		item = GameManager.party.stash[stash_index]
+	elif placed:
+		item = placed.item_data
 	else:
 		return
 
@@ -971,13 +975,13 @@ func _on_target_selected(character_id: String) -> void:
 	GameManager.party.heal_character(character_id, heal, 0, tree)
 
 	if is_stash_consumable:
-		GameManager.party.stash.remove_at(_pending_consumable_stash_index)
+		GameManager.party.stash.remove_at(stash_index)
 		_stash_panel.refresh(GameManager.party.stash)
 		EventBus.stash_changed.emit()
 		DebugLogger.log_info("Used %s on %s from stash, healed %d HP" % [item.display_name, character_id, heal], "Loot")
 	else:
-		_inventory_items_on_loot_grid.erase(_pending_consumable_placed)
-		_loot_inventory.remove_item(_pending_consumable_placed)
+		_inventory_items_on_loot_grid.erase(placed)
+		_loot_inventory.remove_item(placed)
 		_loot_grid_panel.refresh()
 		_update_loot_count()
 		DebugLogger.log_info("Used %s on %s, healed %d HP" % [item.display_name, character_id, heal], "Loot")

@@ -47,8 +47,8 @@ force_aoe = true
 [resource]
 script = ExtResource("5_uehrr")
 id = "megummy_gem_unique"
-display_name = "MeGummy"
-description = "An unstable explosive gem. All attacks become AoE, hitting every enemy! +8 Magical ATK. WARNING: Melee attacks cost 10 HP per use. Near a Staff, unlocks EXPLOOOOOOOOOOOOOOOSION!!!"
+display_name = "Mythic MeGummy"
+description = "A peculiar magical gummy that enhances magical prowess. Adds magical attack to adjacent equipment."
 icon = ExtResource("4_xdeyw")
 item_type = 2
 rarity = 5

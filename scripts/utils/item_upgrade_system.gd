@@ -170,14 +170,9 @@ static func _get_upgraded_name(item: ItemData) -> String:
 
 ## Looks up a pre-made next-tier variant in the ItemDatabase by rarity suffix convention.
 ## e.g. "fire_gem_common" → "fire_gem_uncommon", "sword_uncommon" → "sword_rare"
+## Also handles dynamically upgraded items whose id still has the original suffix.
 static func _find_next_tier_variant(base_item: ItemData) -> ItemData:
-	var suffix_map := {
-		Enums.Rarity.COMMON: "_common",
-		Enums.Rarity.UNCOMMON: "_uncommon",
-		Enums.Rarity.RARE: "_rare",
-		Enums.Rarity.ELITE: "_elite",
-		Enums.Rarity.LEGENDARY: "_legendary",
-	}
+	var all_suffixes := ["_common", "_uncommon", "_rare", "_elite", "_legendary", "_unique"]
 	var next_suffix_map := {
 		Enums.Rarity.COMMON: "_uncommon",
 		Enums.Rarity.UNCOMMON: "_rare",
@@ -186,15 +181,18 @@ static func _find_next_tier_variant(base_item: ItemData) -> ItemData:
 		Enums.Rarity.LEGENDARY: "_unique",
 	}
 
-	var current_suffix: String = suffix_map.get(base_item.rarity, "")
 	var next_suffix: String = next_suffix_map.get(base_item.rarity, "")
-	if current_suffix.is_empty() or next_suffix.is_empty():
+	if next_suffix.is_empty():
 		return null
 
-	if not base_item.id.ends_with(current_suffix):
-		return null
+	# Strip any rarity suffix to get the base name (handles dynamic upgrades
+	# where id kept the original suffix, e.g. "power_gem_common" at RARE rarity)
+	var base_id := base_item.id
+	for suffix in all_suffixes:
+		if base_id.ends_with(suffix):
+			base_id = base_id.substr(0, base_id.length() - suffix.length())
+			break
 
-	var base_id := base_item.id.substr(0, base_item.id.length() - current_suffix.length())
 	var next_id := base_id + next_suffix
 	if ItemDatabase.has_item(next_id):
 		return ItemDatabase.get_item(next_id)

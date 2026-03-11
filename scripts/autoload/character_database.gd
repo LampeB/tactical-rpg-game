@@ -2,12 +2,14 @@ extends Node
 ## Autoload that loads and indexes all CharacterData resources at startup.
 ## Access characters by ID: CharacterDatabase.get_character("warrior")
 
+const _Loader = preload("res://scripts/utils/resource_loader_helper.gd")
+
 var _characters: Dictionary = {}  # id -> CharacterData
 
 const CHARACTER_DIR := "res://data/characters/"
 
 func _ready() -> void:
-	_characters = ResourceLoaderHelper.load_dir(CHARACTER_DIR, "CharacterDatabase")
+	_characters = _Loader.load_dir(CHARACTER_DIR, "CharacterDatabase")
 	DebugLogger.log_info("Loaded %d characters" % _characters.size(), "CharacterDatabase")
 
 func get_character(id: String) -> CharacterData:

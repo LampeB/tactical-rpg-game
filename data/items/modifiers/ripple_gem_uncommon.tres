@@ -29,7 +29,7 @@ stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_c1f5a")])
 [resource]
 script = ExtResource("1")
 id = "ripple_gem_uncommon"
-display_name = "Greater Ripple Gem"
+display_name = "Fine Ripple Gem"
 description = "A more powerful rippling gem with stronger energy waves. [Future: Chains attack to 1 enemy for 40% damage. COMBO: If used with MeGummy, creates massive explosion (100% AoE) then ripple explosion (50% AoE)!]"
 icon = ExtResource("5")
 item_type = 2

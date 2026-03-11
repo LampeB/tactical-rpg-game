@@ -1,4 +1,4 @@
-class_name ResourceLoaderHelper
+extends RefCounted
 ## Shared helper for loading .tres resources from directories.
 ## Used by all database autoloads to eliminate boilerplate.
 

@@ -29,8 +29,8 @@ stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_um3ed")])
 [resource]
 script = ExtResource("1")
 id = "devastation_gem_common"
-display_name = "Devastation Gem"
-description = "A dark gem crackling with destructive power. Adds +25% critical damage to adjacent weapons. Maximize your critical strikes!"
+display_name = "Fine Devastation Gem"
+description = "A volatile crimson gem crackling with destructive force. Adds critical damage to adjacent weapons."
 icon = ExtResource("5")
 item_type = 2
 rarity = 1
