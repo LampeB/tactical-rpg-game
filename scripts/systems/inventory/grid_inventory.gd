@@ -4,7 +4,7 @@ extends RefCounted
 ## Pure data — no UI dependencies.
 
 var grid_template: GridTemplate
-var placed_items: Array = []  ## of PlacedItem
+var placed_items: Array[PlacedItem] = []
 var _cell_map: Dictionary = {}  ## Vector2i -> PlacedItem
 var skip_equipment_checks: bool = false  ## Set true for loot grids (no slot restrictions)
 
@@ -163,7 +163,7 @@ func get_item_at(cell: Vector2i) -> PlacedItem:
 	return _cell_map.get(cell, null)
 
 
-func get_all_placed_items() -> Array:
+func get_all_placed_items() -> Array[PlacedItem]:
 	return placed_items
 
 

@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_rcrpl"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="3_kbq8j"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="4_opxg5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_common.png" id="5_e7cjd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ice_gem.png" id="5_e7cjd"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="6_n6k1u"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="7_7comb"]
 

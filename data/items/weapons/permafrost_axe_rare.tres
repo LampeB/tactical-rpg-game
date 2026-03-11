@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_jz14s"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_1v8tr"]
 [ext_resource type="Resource" path="res://data/shapes/shape_axe.tres" id="5_tgpjb"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_kktdw"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/permafrost_axe.png" id="6_kktdw"]
 [ext_resource type="Resource" path="res://data/status_effects/chilled.tres" id="7_z1h60"]
 
 [sub_resource type="Resource" id="Resource_cpcs0"]

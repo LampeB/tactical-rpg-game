@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="1_by8lb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/axe.png" id="1_by8lb"]
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_wkfh4"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="2_3erqy"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_p3od6"]

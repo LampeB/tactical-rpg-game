@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_jspzn"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_jldkf"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_xfwt1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_unique.png" id="4_e7bed"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/aegis_of_the_eternal.png" id="4_e7bed"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_8ro0i"]
 [ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="6_4wpfj"]
 

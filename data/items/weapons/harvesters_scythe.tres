@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_4tvi9"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_p5bik"]
 [ext_resource type="Resource" path="res://data/shapes/shape_double_scythe.tres" id="3_4f88l"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_unique.png" id="4_wzab0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/harvesters_scythe.png" id="4_wzab0"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_p3gux"]
 [ext_resource type="Resource" path="res://data/skills/power_strike_iii.tres" id="6_07bu9"]
 

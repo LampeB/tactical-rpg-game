@@ -42,7 +42,7 @@ func _ready() -> void:
 	# Spawn an NPC
 	var npc := NpcData.new()
 	npc.display_name = "Merchant"
-	npc.role = NpcData.NpcRole.SHOPKEEPER
+	npc.role = Enums.NpcRole.SHOPKEEPER
 	var npc_model := CSGCharacterFactory.create_from_npc(npc)
 	npc_model.position = Vector3(6, 0, 0)
 	add_child(npc_model)

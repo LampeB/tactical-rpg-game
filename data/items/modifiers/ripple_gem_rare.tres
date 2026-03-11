@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/conditional_modifier_rule.gd" id="1_rdbag"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_bq5sy"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_qlnu1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/iceGem_uncommon.png" id="3_qlnu1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/ripple_gem.png" id="3_qlnu1"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="4_xm02t"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="5_2made"]
 

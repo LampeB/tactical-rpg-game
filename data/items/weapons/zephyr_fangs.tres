@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_p8v4a"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_rov1v"]
 [ext_resource type="Resource" path="res://data/shapes/shape_l.tres" id="3_l8iq4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_unique.png" id="4_8m1xl"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/zephyr_fangs.png" id="4_8m1xl"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="5_6rs5n"]
 [ext_resource type="Resource" path="res://data/skills/backstab_iii.tres" id="6_3v02b"]
 

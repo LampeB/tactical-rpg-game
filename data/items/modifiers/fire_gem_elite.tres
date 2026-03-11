@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_ou6p8"]
 [ext_resource type="Resource" path="res://data/status_effects/burn.tres" id="3_2r2yx"]
 [ext_resource type="Resource" path="res://data/skills/fire_bolt.tres" id="4_mnj05"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_common.png" id="5_3wksb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/fire_gem.png" id="5_3wksb"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="6_0igj1"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="7_psbe1"]
 

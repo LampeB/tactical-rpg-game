@@ -49,14 +49,14 @@ SHAPES = {
 }
 
 # --- Icon paths ---
-# Rings have per-rarity icons; necklaces use ring_common as placeholder
+# All rarities use the same base icon; rarity is shown via cell tint
 RING_ICONS = {
     0: "res://assets/sprites/items/ring_common.png",
-    1: "res://assets/sprites/items/ring_uncommon.png",
-    2: "res://assets/sprites/items/ring_rare.png",
-    3: "res://assets/sprites/items/ring_elite.png",
-    4: "res://assets/sprites/items/ring_legendary.png",
-    5: "res://assets/sprites/items/ring_unique.png",
+    1: "res://assets/sprites/items/ring_common.png",
+    2: "res://assets/sprites/items/ring_common.png",
+    3: "res://assets/sprites/items/ring_common.png",
+    4: "res://assets/sprites/items/ring_common.png",
+    5: "res://assets/sprites/items/ring_common.png",
 }
 
 NECKLACE_ICON = "res://assets/sprites/items/ring_common.png"  # placeholder until necklace art exists

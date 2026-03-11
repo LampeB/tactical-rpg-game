@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_201ep"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_bepg8"]
 [ext_resource type="Resource" path="res://data/skills/explosion.tres" id="3_bepg8"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/fireGem_rare.png" id="4_fgrq3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/megummy_gem.png" id="4_fgrq3"]
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="5_14gew"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x1.tres" id="6_rujte"]
 

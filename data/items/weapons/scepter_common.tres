@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_8g3it"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_bjtzl"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_qz300"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/staff_elite.png" id="6_70tav"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/scepter.png" id="6_70tav"]
 [ext_resource type="Resource" path="res://data/skills/ice_shard.tres" id="7_tbe47"]
 
 [sub_resource type="Resource" id="Resource_a1hjb"]

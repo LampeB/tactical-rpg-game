@@ -86,8 +86,8 @@ func _update_available() -> void:
 		else:
 			# Non-root node — check prerequisites based on mode
 			var prereqs_met: bool
-			if node.prerequisite_mode == 1:
-				# ANY mode: at least one prerequisite must be resolved
+			if node.prerequisite_mode == Enums.PrerequisiteMode.ANY:
+				# At least one prerequisite must be resolved
 				prereqs_met = false
 				for j in range(node.prerequisites.size()):
 					if resolved.has(node.prerequisites[j]):
