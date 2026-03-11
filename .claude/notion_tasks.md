@@ -2,7 +2,7 @@
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
 <\!-- Total tasks: 236 -->
-<\!-- Last updated: 2026-03-10 -->
+<\!-- Last updated: 2026-03-11 -->
 
 ## Prerequisites
 
@@ -51,7 +51,6 @@
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
-| Camera behind player characters during fights (start at default, move behind party) | PENDING-NOTION-SYNC-CAMERA |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
@@ -64,6 +63,7 @@
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
+| Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | PENDING-NOTION-SYNC-CAMERA |
 | Create enemy variety (10 types with unique skills, loot tables, encounters) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
 | Dead characters persist death across battles (no auto-revive) | 3147700f-d0fb-81f1-8f45-fc6389364961 |
 | EncounterZoneData for enemy spawn areas | 3147700f-d0fb-8166-8fcb-f55ede7b5342 |
@@ -228,13 +228,17 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+
+### Done
+| Name | Notion ID |
+|---|---|
 | Ambient/environmental sounds on overworld | 3147700f-d0fb-81b4-a552-ddbe7cc4a6bd |
 | Audio settings (master, music, SFX volume) in settings menu | 3147700f-d0fb-8120-b141-c71105c35878 |
 | Background music for each scene (menu, overworld, battle, menus) | 3147700f-d0fb-815c-9201-ea3e1510d788 |
 | Smooth music transitions when switching scenes (crossfade) | 3147700f-d0fb-818f-9658-da34eecfe665 |
-| Sound effects for UI interactions (clicks, navigation, drag & drop) | 3147700f-d0fb-819d-841c-c48673a23278 |
 | Sound effects for combat (attacks, skills, hits, misses, crits) | 3147700f-d0fb-8139-9a2e-d717663bc021 |
 | Sound effects for events (gold earned, item pickup, passive unlocked) | 3147700f-d0fb-814b-9aeb-eaa923296267 |
+| Sound effects for UI interactions (clicks, navigation, drag & drop) | 3147700f-d0fb-819d-841c-c48673a23278 |
 | Victory and defeat jingles | 3147700f-d0fb-810e-b701-f87c98675251 |
 
 ## Story
