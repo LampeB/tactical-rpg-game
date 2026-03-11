@@ -2,6 +2,8 @@ extends Node
 ## Autoload that loads and indexes all ItemData resources at startup.
 ## Access items by ID: ItemDatabase.get_item("sword_common")
 
+const _Loader = preload("res://scripts/utils/resource_loader_helper.gd")
+
 var _items: Dictionary = {}  # id -> ItemData
 var _items_by_type: Dictionary = {}  # ItemType -> Array[ItemData]
 var _items_by_rarity: Dictionary = {}  # Rarity -> Array[ItemData]
@@ -20,7 +22,7 @@ func _ready() -> void:
 	DebugLogger.log_info("Loaded %d items" % _items.size(), "ItemDatabase")
 
 func _load_all_items() -> void:
-	_items = ResourceLoaderHelper.load_dirs(ITEM_DIRS, "ItemDatabase", ResourceLoader.CACHE_MODE_REPLACE)
+	_items = _Loader.load_dirs(ITEM_DIRS, "ItemDatabase", ResourceLoader.CACHE_MODE_REPLACE)
 	_items_by_type.clear()
 	_items_by_rarity.clear()
 	for item in _items.values():

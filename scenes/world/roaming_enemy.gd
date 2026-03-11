@@ -165,6 +165,18 @@ func disable_battles_temporarily() -> void:
 	_can_trigger_battle = false
 
 
+func re_enable_battles() -> void:
+	## Re-enables battles and checks if player is already inside detection range.
+	## body_entered won't re-fire if the player never left, so we check manually.
+	_can_trigger_battle = true
+	if not _detection_enabled or not encounter_data:
+		return
+	for body in _detection_area.get_overlapping_bodies():
+		if body.name == "Player":
+			_trigger_battle()
+			return
+
+
 func _get_enemy_id() -> String:
 	## Returns a unique identifier for this enemy based on encounter data and spawn position.
 	if not encounter_data:

@@ -29,8 +29,8 @@ stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_trkik")])
 [resource]
 script = ExtResource("1")
 id = "vampiric_gem_common"
-display_name = "Vampiric Gem"
-description = "A blood-red gem that hungers. Adds damage to adjacent weapons. [Future: Life steal on hit]"
+display_name = "Fine Vampiric Gem"
+description = "A dark gem that hungers for life force. Adds damage with a chance to heal on hit."
 icon = ExtResource("5")
 item_type = 2
 rarity = 1

@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 238 -->
-<\!-- Last updated: 2026-03-11 -->
+<\!-- Total tasks: 239 -->
+<\!-- Last updated: 2026-03-12 -->
 
 ## Prerequisites
 
@@ -198,6 +198,7 @@
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Sprint option on overworld (hold Shift to run faster) | PENDING-NOTION-SYNC-SPRINT |
+| Enemy aggro system (monsters chase player when close enough) | PENDING-NOTION-SYNC-AGGRO |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
@@ -279,6 +280,7 @@
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
+| Persist audio settings across sessions (save/load volumes to disk) | PENDING_NOTION_SYNC |
 
 ### Done
 | Name | Notion ID |

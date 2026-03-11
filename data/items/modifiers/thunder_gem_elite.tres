@@ -47,8 +47,8 @@ status_effect_chance = 0.22000000000000003
 [resource]
 script = ExtResource("6_q14dl")
 id = "thunder_gem_elite"
-display_name = "Thunder Gem"
-description = "A crackling lightning gem. Adds shock damage and stun chance to weapons. Grants Thunder Bolt to magic weapons."
+display_name = "Elite Thunder Gem"
+description = "A crackling gem surging with lightning. Adds thunder damage and shock chance to adjacent weapons."
 icon = ExtResource("5_nbtts")
 item_type = 2
 rarity = 3

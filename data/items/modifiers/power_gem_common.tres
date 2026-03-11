@@ -30,8 +30,8 @@ stat_bonuses = Array[ExtResource("2")]([SubResource("Resource_mv5go")])
 [resource]
 script = ExtResource("1")
 id = "power_gem_common"
-display_name = "Power Gem"
-description = "A glowing red gem pulsing with strength. Adds +15% physical attack to adjacent weapons."
+display_name = "Fine Power Gem"
+description = "A glowing red gem pulsing with strength. Adds physical attack to adjacent weapons."
 icon = ExtResource("5")
 item_type = 2
 rarity = 1

@@ -2,6 +2,8 @@ extends Node
 ## Autoload that loads and indexes all MapData resources at startup.
 ## Access maps by ID: MapDatabase.get_map("overworld")
 
+const _Loader = preload("res://scripts/utils/resource_loader_helper.gd")
+
 var _maps: Dictionary = {}  # id -> MapData
 
 const MAP_DIR := "res://data/maps/"
@@ -13,7 +15,7 @@ func _ready() -> void:
 
 
 func _load_all_maps() -> void:
-	_maps = ResourceLoaderHelper.load_dir(MAP_DIR, "MapDatabase", ResourceLoader.CACHE_MODE_REPLACE)
+	_maps = _Loader.load_dir(MAP_DIR, "MapDatabase", ResourceLoader.CACHE_MODE_REPLACE)
 
 
 func get_map(map_id: String) -> MapData:

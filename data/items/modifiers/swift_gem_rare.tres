@@ -42,8 +42,8 @@ status_effect_chance = 0.255
 [resource]
 script = ExtResource("4_p0g0y")
 id = "swift_gem_rare"
-display_name = "Swift Gem"
-description = "A shimmering gem that pulses rapidly. Adds +5 speed to adjacent weapons. [Future: Chance to attack twice]"
+display_name = "Superior Swift Gem"
+description = "A shimmering gem humming with kinetic energy. Adds speed to adjacent equipment."
 icon = ExtResource("3_ip5hq")
 item_type = 2
 rarity = 2

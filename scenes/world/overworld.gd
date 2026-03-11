@@ -10,7 +10,7 @@ extends Node3D
 @onready var _hud_location_label: Label = $UI/HUD/LocationLabel
 @onready var _message_label: Label = $UI/HUD/MessageLabel if has_node("UI/HUD/MessageLabel") else null
 
-const BATTLE_COOLDOWN_TIME: float = 3.0  ## Seconds of immunity after battle
+const BATTLE_COOLDOWN_TIME: float = 0.0  ## Seconds of immunity after battle
 const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
 const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
 const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
@@ -334,8 +334,8 @@ func _apply_battle_cooldown() -> void:
 
 	for ri in range(enemies.size()):
 		var re: Node = enemies[ri]
-		if re and is_instance_valid(re) and "_can_trigger_battle" in re:
-			re._can_trigger_battle = true
+		if re and is_instance_valid(re) and re.has_method("re_enable_battles"):
+			re.re_enable_battles()
 
 	DebugLogger.log_info("Battle cooldown ended - enemies can trigger battles again", "Overworld")
 

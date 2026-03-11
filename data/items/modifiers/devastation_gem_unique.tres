@@ -42,8 +42,8 @@ status_effect_chance = 0.46153846153846145
 [resource]
 script = ExtResource("4_2u06b")
 id = "devastation_gem_unique"
-display_name = "Devastation Gem"
-description = "A dark gem crackling with destructive power. Adds +25% critical damage to adjacent weapons. Maximize your critical strikes!"
+display_name = "Mythic Devastation Gem"
+description = "A volatile crimson gem crackling with destructive force. Adds critical damage to adjacent weapons."
 icon = ExtResource("3_vsxnb")
 item_type = 2
 rarity = 5

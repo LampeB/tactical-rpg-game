@@ -2,13 +2,15 @@ extends Node
 ## Autoload that loads and indexes all ShopData resources at startup.
 ## Access shops by ID: ShopDatabase.get_shop("merchant_general")
 
+const _Loader = preload("res://scripts/utils/resource_loader_helper.gd")
+
 var _shops: Dictionary = {}  # id -> ShopData
 
 const SHOP_DIR := "res://data/shops/"
 
 
 func _ready() -> void:
-	_shops = ResourceLoaderHelper.load_dir(SHOP_DIR, "ShopDatabase")
+	_shops = _Loader.load_dir(SHOP_DIR, "ShopDatabase")
 	DebugLogger.log_info("Loaded %d shops" % _shops.size(), "ShopDatabase")
 
 

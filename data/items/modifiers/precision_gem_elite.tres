@@ -57,8 +57,8 @@ status_effect_chance = 0.33
 [resource]
 script = ExtResource("4_yj0xe")
 id = "precision_gem_elite"
-display_name = "Precision Gem"
-description = "A crystalline gem that sharpens focus. Adds +5% crit rate and +10% crit damage to adjacent weapons."
+display_name = "Elite Precision Gem"
+description = "A perfectly cut gem that sharpens focus. Adds critical chance and critical damage to adjacent weapons."
 icon = ExtResource("3_dqpx7")
 item_type = 2
 rarity = 3

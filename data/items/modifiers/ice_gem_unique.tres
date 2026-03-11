@@ -47,8 +47,8 @@ status_effect_chance = 0.8
 [resource]
 script = ExtResource("6_gsuby")
 id = "ice_gem_unique"
-display_name = "Ice Gem"
-description = "A crystalline frost gem. Adds ice damage and chill chance to weapons. Grants Ice Shard to magic weapons."
+display_name = "Mythic Ice Gem"
+description = "A frigid gem encased in perpetual frost. Adds ice damage and freeze chance to adjacent weapons."
 icon = ExtResource("5_5odn3")
 item_type = 2
 rarity = 5

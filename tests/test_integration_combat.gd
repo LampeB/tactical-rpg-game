@@ -40,7 +40,7 @@ func run_all_tests() -> void:
 
 	# Gem system advanced
 	test_melee_vs_magic_magical_damage_differs()
-	test_fire_gem_staff_grants_skill()
+	test_fire_gem_element_points_unlock_skill()
 	test_multiple_gems_stack_magical_damage()
 
 	# Edge cases

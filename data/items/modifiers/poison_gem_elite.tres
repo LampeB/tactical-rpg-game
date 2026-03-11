@@ -46,8 +46,8 @@ status_effect_chance = 0.55
 [resource]
 script = ExtResource("5_jeg0p")
 id = "poison_gem_elite"
-display_name = "Poison Gem"
-description = "A sickly green gem that oozes venom. Adds poison damage and poisoned status to weapons."
+display_name = "Elite Poison Gem"
+description = "A sickly green gem oozing toxic energy. Adds poison damage and poison chance to adjacent weapons."
 icon = ExtResource("4_3dbpp")
 item_type = 2
 rarity = 3
