@@ -1,33 +1,47 @@
-=== BATTLE LOG: Slime Ambush ===
+=== BATTLE LOG: Minotaur ===
 === VICTORY ===
 
-[INIT] Players: 3, Enemies: 2
-[INIT]   Player: Kael — HP:20/120 MP:20/20 SPD:22 ATK:91 DEF:15
-[INIT]   Player: Lyra — HP:0/100 MP:50/50 SPD:19 ATK:50 DEF:14
-[INIT]   Player: Vex — HP:34/90 MP:30/30 SPD:33 ATK:39 DEF:7
-[INIT]   Enemy: Slime — HP:30/30 SPD:6 ATK:5 DEF:3
-[INIT]   Enemy: Slime B — HP:30/30 SPD:6 ATK:5 DEF:3
-[TURN ORDER] Initial: Slime B(6,t=0.2), Kael(22,t=1.1), Vex(33,t=1.4), Slime(6,t=8.3)
-Battle started: Slime Ambush
-[TURN] Slime B's turn (time=0.2, HP:30/30)
-[TURN] Emitting turn_ready for Slime B (is_player=false)
-[ACTION] Slime B → Attack → Vex (target HP:34/90, defending:false)
-[DAMAGE] Calculated: 4, crit: false
-Slime B attacks Vex for 4 damage
-[CHECK END] Alive players: 2, Alive enemies: 2
-[TURN] Kael's turn (time=1.1, HP:20/120)
+[INIT] Players: 3, Enemies: 1
+[INIT]   Player: Kael — HP:101/120 MP:20/27 SPD:14 ATK:148 DEF:12
+[INIT]   Player: Lyra — HP:57/80 MP:35/50 SPD:8 ATK:5 DEF:6
+[INIT]   Player: Vex — HP:74/90 MP:15/30 SPD:35 ATK:61 DEF:7
+[INIT]   Enemy: Minotaur — HP:600/600 SPD:2 ATK:250 DEF:40
+[TURN ORDER] Initial: Vex(35,t=0.4), Lyra(8,t=1.9), Kael(14,t=2.0), Minotaur(2,t=5.3)
+Battle started: Minotaur
+[TURN] Vex's turn (time=0.4, HP:74/90)
+[TURN] Emitting turn_ready for Vex (is_player=true)
+[ACTION] Vex → Attack → Minotaur (target HP:600/600, defending:false)
+[DAMAGE] Calculated: 209, crit: true
+Vex attacks Minotaur for 209 damage (CRITICAL!)
+Poisoned proc! Minotaur is afflicted with Poisoned (CRIT — 2 stacks)
+Burn proc! Minotaur is afflicted with Burn (CRIT — 2 stacks)
+Shocked failed to proc (10%)
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Lyra's turn (time=1.9, HP:57/80)
+[TURN] Emitting turn_ready for Lyra (is_player=true)
+[ACTION] Lyra → Attack → Minotaur (target HP:391/600, defending:false)
+[DAMAGE] Calculated: 126, crit: false
+Lyra attacks Minotaur for 126 damage
+Burn failed to proc (30%)
+Chilled failed to proc (55%)
+Shocked failed to proc (19%)
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Kael's turn (time=2.0, HP:101/120)
 [TURN] Emitting turn_ready for Kael (is_player=true)
-[ACTION] Kael → Attack → Slime (target HP:30/30, defending:false)
-[DAMAGE] Calculated: 243, crit: false
-Kael attacks Slime for 30 damage
-[AOE] Kael has force_aoe — splashing to all enemies!
-  Explosive splash hits Slime B for 30 damage!
-Slime B has been defeated!
-Kael suffers 20 HP from unstable gem!
-Kael has been defeated by their own gem!
-Slime has been defeated!
-[CHECK END] Alive players: 1, Alive enemies: 0
+[ACTION] Kael → Skill: Backstab (phys:1.5, mag:0.0, MP cost:4) → Minotaur
+Kael uses Backstab on Minotaur for 156 damage
+[CHECK END] Alive players: 3, Alive enemies: 1
+[TURN] Vex's turn (time=3.3, HP:74/90)
+[TURN] Emitting turn_ready for Vex (is_player=true)
+[ACTION] Vex → Attack → Minotaur (target HP:109/600, defending:false)
+[DAMAGE] Calculated: 209, crit: true
+Vex attacks Minotaur for 109 damage (CRITICAL!)
+Poisoned failed to proc (42%)
+Burn failed to proc (33%)
+Shocked failed to proc (10%)
+Minotaur has been defeated!
+[CHECK END] Alive players: 3, Alive enemies: 0
 Vex's fortune doubles the gold!
-Victory! Earned 42 gold.
+Victory! Earned 400 gold.
 
 === END ===

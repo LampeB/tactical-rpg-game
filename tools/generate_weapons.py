@@ -106,7 +106,7 @@ ICONS = {
     CAT_SWORD:  "res://assets/sprites/items/sword_common.png",
     CAT_MACE:   "res://assets/sprites/items/mace_common.png",
     CAT_BOW:    "res://assets/sprites/items/bow_common.png",
-    CAT_STAFF:  "res://assets/sprites/items/staff_elite.png",
+    CAT_STAFF:  "res://assets/sprites/items/staff_common.png",
     CAT_DAGGER: "res://assets/sprites/items/dagger_common.png",
     CAT_SHIELD: "res://assets/sprites/items/shield_common.png",
     CAT_AXE:    "res://assets/sprites/items/mace_common.png",

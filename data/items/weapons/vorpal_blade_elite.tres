@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_dldtx"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_7l29j"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_8over"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_ozelo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/vorpal_blade.png" id="6_ozelo"]
 [ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="7_lsk9j"]
 
 [sub_resource type="Resource" id="Resource_f67a9"]

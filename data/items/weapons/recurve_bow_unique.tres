@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_ka9ad"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_9qo4e"]
 [ext_resource type="Resource" path="res://data/shapes/shape_bow.tres" id="5_6xnwy"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/bow_common.png" id="6_xkj71"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/recurve_bow.png" id="6_xkj71"]
 
 [sub_resource type="Resource" id="Resource_tmct3"]
 script = ExtResource("3_ka9ad")

@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_80ssy"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_rxnnq"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_zt7cc"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_common.png" id="6_nt2dn"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/chain_chestplate.png" id="6_nt2dn"]
 
 [sub_resource type="Resource" id="Resource_9wtx3"]
 script = ExtResource("3_80ssy")

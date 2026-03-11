@@ -71,19 +71,19 @@ SHAPES = {
 
 # --- Icon paths by category ---
 ICONS = {
-    CAT_SWORD: "res://assets/sprites/items/longSword_unique.png",
-    CAT_MACE: "res://assets/sprites/items/mace_unique.png",
-    CAT_BOW: "res://assets/sprites/items/bow_unique.png",
-    CAT_STAFF: "res://assets/sprites/items/staff_unique.png",
-    CAT_DAGGER: "res://assets/sprites/items/dagger_unique.png",
-    CAT_SHIELD: "res://assets/sprites/items/shield_unique.png",
-    CAT_AXE: "res://assets/sprites/items/mace_unique.png",  # Axes use mace icon
-    CAT_HELMET: "res://assets/sprites/items/helmet_unique.png",
-    CAT_CHESTPLATE: "res://assets/sprites/items/chestplate_unique.png",
-    CAT_GLOVES: "res://assets/sprites/items/chestplate_unique.png",  # Placeholder
-    CAT_BOOTS: "res://assets/sprites/items/boots_unique.png",
-    CAT_NECKLACE: "res://assets/sprites/items/ring_unique.png",  # Placeholder
-    CAT_RING: "res://assets/sprites/items/ring_unique.png",
+    CAT_SWORD: "res://assets/sprites/items/longSword_common.png",
+    CAT_MACE: "res://assets/sprites/items/mace_common.png",
+    CAT_BOW: "res://assets/sprites/items/bow_common.png",
+    CAT_STAFF: "res://assets/sprites/items/staff_common.png",
+    CAT_DAGGER: "res://assets/sprites/items/dagger_common.png",
+    CAT_SHIELD: "res://assets/sprites/items/shield_common.png",
+    CAT_AXE: "res://assets/sprites/items/mace_common.png",  # Axes use mace icon
+    CAT_HELMET: "res://assets/sprites/items/helmet_common.png",
+    CAT_CHESTPLATE: "res://assets/sprites/items/chestplate_common.png",
+    CAT_GLOVES: "res://assets/sprites/items/chestplate_common.png",  # Placeholder
+    CAT_BOOTS: "res://assets/sprites/items/boots_common.png",
+    CAT_NECKLACE: "res://assets/sprites/items/ring_common.png",  # Placeholder
+    CAT_RING: "res://assets/sprites/items/ring_common.png",
 }
 
 # --- Skill paths ---

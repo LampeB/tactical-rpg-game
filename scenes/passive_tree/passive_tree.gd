@@ -184,8 +184,7 @@ func _is_node_available(node: PassiveNodeData) -> bool:
 		var starting_nodes: Array = _get_starting_nodes(_current_character_id)
 		return starting_nodes.has(node.id)
 
-	if node.prerequisite_mode == 1:
-		# ANY mode
+	if node.prerequisite_mode == Enums.PrerequisiteMode.ANY:
 		for i in range(node.prerequisites.size()):
 			if resolved.has(node.prerequisites[i]):
 				return true
@@ -280,7 +279,7 @@ func _show_node_info(node_id: String) -> void:
 			var prereq: PassiveNodeData = _current_tree.get_node_by_id(node.prerequisites[j])
 			if prereq:
 				prereq_names.append(prereq.display_name)
-		var join_word: String = " or " if node.prerequisite_mode == 1 else ", "
+		var join_word: String = " or " if node.prerequisite_mode == Enums.PrerequisiteMode.ANY else ", "
 		_prereqs_label.text = "Requires: %s" % join_word.join(prereq_names)
 
 

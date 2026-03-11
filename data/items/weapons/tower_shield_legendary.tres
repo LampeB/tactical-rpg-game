@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_06krd"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_pq5sa"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="5_s1m7c"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/shield_common.png" id="6_rqo9a"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/tower_shield.png" id="6_rqo9a"]
 [ext_resource type="Resource" path="res://data/skills/shield_bash_iii.tres" id="7_tfmf6"]
 
 [sub_resource type="Resource" id="Resource_x0w2x"]

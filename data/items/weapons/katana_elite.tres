@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_79slu"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_s7b8e"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_slt35"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/sword_common.png" id="6_9pk29"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/katana.png" id="6_9pk29"]
 [ext_resource type="Resource" path="res://data/skills/slash_ii.tres" id="7_kzox2"]
 [ext_resource type="Resource" path="res://data/skills/power_strike_ii.tres" id="8_9g3lp"]
 

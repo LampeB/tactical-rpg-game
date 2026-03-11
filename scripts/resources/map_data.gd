@@ -10,7 +10,7 @@ extends Resource
 @export var grid_width: int = 80
 @export var grid_height: int = 50
 ## Flat array of terrain block indices, row-major: index = z * grid_width + x.
-## Values map to Block enum: 0=Grass, 1=Dirt, 2=Stone, 3=Water, 4=Path, 5=Sand, 6=DarkGrass, 7=Snow.
+## Values correspond to Enums.Block (GRASS=0, DIRT=1, STONE=2, WATER=3, PATH=4, SAND=5, DARK_GRASS=6, SNOW=7).
 @export var terrain_cells: PackedInt32Array = PackedInt32Array()
 
 @export_group("Player")

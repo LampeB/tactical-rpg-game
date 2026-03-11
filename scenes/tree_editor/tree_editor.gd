@@ -273,10 +273,10 @@ func _build_property_panel(node: PassiveNodeData) -> void:
 	var mode_btn: OptionButton = OptionButton.new()
 	mode_btn.add_item("ALL (default)", 0)
 	mode_btn.add_item("ANY", 1)
-	mode_btn.selected = node.prerequisite_mode
+	mode_btn.selected = node.prerequisite_mode as int
 	mode_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mode_btn.item_selected.connect(func(idx: int) -> void:
-		node.prerequisite_mode = idx
+		node.prerequisite_mode = idx as Enums.PrerequisiteMode
 	)
 	mode_hbox.add_child(mode_btn)
 	_property_vbox.add_child(mode_hbox)

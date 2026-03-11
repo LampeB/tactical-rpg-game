@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_bfzu7"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_x13cy"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x3.tres" id="5_rjtg3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/mace_common.png" id="6_ujr7j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/skullcracker.png" id="6_ujr7j"]
 [ext_resource type="Resource" path="res://data/skills/power_strike.tres" id="7_dmtcd"]
 
 [sub_resource type="Resource" id="Resource_z5ene"]

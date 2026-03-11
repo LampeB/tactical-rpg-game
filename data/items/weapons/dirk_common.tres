@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="3_z53zx"]
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="4_vamxt"]
 [ext_resource type="Resource" path="res://data/shapes/shape_1x2.tres" id="5_npz43"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/dagger_common.png" id="6_17em1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/dirk.png" id="6_17em1"]
 [ext_resource type="Resource" path="res://data/skills/backstab.tres" id="7_lzk3q"]
 
 [sub_resource type="Resource" id="Resource_p74ls"]

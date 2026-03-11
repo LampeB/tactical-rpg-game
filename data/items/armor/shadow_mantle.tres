@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/item_data.gd" id="1_xvkak"]
 [ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_6sp9w"]
 [ext_resource type="Resource" path="res://data/shapes/shape_2x2.tres" id="3_r1qv9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/items/chestplate_unique.png" id="4_6gkw8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/shadow_mantle.png" id="4_6gkw8"]
 
 [sub_resource type="Resource" id="Resource_62kom"]
 script = ExtResource("2_6sp9w")

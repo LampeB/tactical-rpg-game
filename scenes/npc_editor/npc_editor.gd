@@ -125,10 +125,10 @@ func _rebuild_npc_list() -> void:
 		grouped[role_idx].append(npc)
 
 	var role_order: Array[int] = [
-		NpcData.NpcRole.GENERIC as int,
-		NpcData.NpcRole.SHOPKEEPER as int,
-		NpcData.NpcRole.QUEST_GIVER as int,
-		NpcData.NpcRole.CRAFTSMAN as int,
+		Enums.NpcRole.GENERIC as int,
+		Enums.NpcRole.SHOPKEEPER as int,
+		Enums.NpcRole.QUEST_GIVER as int,
+		Enums.NpcRole.CRAFTSMAN as int,
 	]
 
 	for role_idx in role_order:
@@ -185,7 +185,7 @@ func _on_new_npc() -> void:
 	var npc := NpcData.new()
 	npc.id = new_id
 	npc.display_name = "New NPC"
-	npc.role = NpcData.NpcRole.GENERIC
+	npc.role = Enums.NpcRole.GENERIC
 	_npcs[new_id] = npc
 	_dirty_ids[new_id] = true
 	_select_npc(new_id)
@@ -370,14 +370,14 @@ func _build_identity_section(npc: NpcData) -> void:
 	role_btn.selected = npc.role as int
 	role_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	role_btn.item_selected.connect(func(idx: int) -> void:
-		npc.role = idx as NpcData.NpcRole
+		npc.role = idx as Enums.NpcRole
 		_mark_dirty(npc.id)
 		_rebuild_property_panel()
 	)
 	_property_vbox.add_child(role_btn)
 
 	# Shop ID (only for shopkeepers)
-	if npc.role == NpcData.NpcRole.SHOPKEEPER:
+	if npc.role == Enums.NpcRole.SHOPKEEPER:
 		_add_label_row("Shop ID")
 		var shop_edit := LineEdit.new()
 		shop_edit.text = npc.shop_id
@@ -390,7 +390,7 @@ func _build_identity_section(npc: NpcData) -> void:
 		_property_vbox.add_child(shop_edit)
 
 	# Crafting Station ID (only for craftsmen)
-	if npc.role == NpcData.NpcRole.CRAFTSMAN:
+	if npc.role == Enums.NpcRole.CRAFTSMAN:
 		_add_label_row("Crafting Station ID")
 		var craft_edit := LineEdit.new()
 		craft_edit.text = npc.crafting_station_id
