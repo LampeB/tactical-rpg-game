@@ -696,10 +696,7 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
 	# If already selecting a target, cancel that first then handle the new action
 	if _state == BattleState.TARGET_SELECT:
-		_clear_target_highlights()
-		_clear_pending_action()
-		_state = BattleState.PLAYER_ACTION
-		_target_prompt.visible = false
+		_exit_target_selection()
 	if _state != BattleState.PLAYER_ACTION:
 		DebugLogger.log_warn("Action chosen but state is %s, ignoring" % BattleState.keys()[_state], "Battle")
 		return
@@ -878,11 +875,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 
-func _cancel_target_selection() -> void:
+func _exit_target_selection() -> void:
 	_clear_target_highlights()
 	_clear_pending_action()
 	_state = BattleState.PLAYER_ACTION
 	_target_prompt.visible = false
+
+
+func _cancel_target_selection() -> void:
+	_exit_target_selection()
 	DebugLogger.log_info("State -> PLAYER_ACTION (target cancelled)", "Battle")
 	_action_menu.show_for_entity(_combat_manager.current_entity, _encounter_data.can_flee)
 

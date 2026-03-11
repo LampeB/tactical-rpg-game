@@ -92,9 +92,7 @@ func is_quest_available(quest_id: String) -> bool:
 
 func get_active_quests() -> Array:
 	var result: Array = []
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		if is_quest_active(quest_id):
 			result.append(_quests[quest_id])
 	return result
@@ -102,9 +100,7 @@ func get_active_quests() -> Array:
 
 func get_completed_quests() -> Array:
 	var result: Array = []
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		if is_quest_completed(quest_id):
 			result.append(_quests[quest_id])
 	return result
@@ -112,9 +108,7 @@ func get_completed_quests() -> Array:
 
 func get_available_quests() -> Array:
 	var result: Array = []
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		if is_quest_available(quest_id):
 			result.append(_quests[quest_id])
 	return result
@@ -284,9 +278,7 @@ func _on_inventory_changed(_character_id: String) -> void:
 
 func _on_game_loaded() -> void:
 	# Restore progress_flag fields on objectives for active quests
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		if is_quest_active(quest_id):
 			var quest: QuestData = _quests[quest_id]
 			for oi in range(quest.objectives.size()):
@@ -332,17 +324,13 @@ func _count_items_in_party(item_id: String) -> int:
 	if not GameManager.party:
 		return 0
 	# Count in stash
-	for i in range(GameManager.party.stash.size()):
-		var item: ItemData = GameManager.party.stash[i]
+	for item in GameManager.party.stash:
 		if item.id == item_id:
 			count += 1
 	# Count in all character grid inventories
-	var char_ids: Array = GameManager.party.grid_inventories.keys()
-	for ci in range(char_ids.size()):
-		var char_id: String = char_ids[ci]
+	for char_id in GameManager.party.grid_inventories:
 		var grid: GridInventory = GameManager.party.grid_inventories[char_id]
-		for pi in range(grid.placed_items.size()):
-			var placed: GridInventory.PlacedItem = grid.placed_items[pi]
+		for placed in grid.placed_items:
 			if placed.item_data.id == item_id:
 				count += 1
 	return count
@@ -350,9 +338,7 @@ func _count_items_in_party(item_id: String) -> int:
 
 ## Returns true if this NPC has any quest available to offer.
 func npc_has_available_quest(npc_id: String) -> bool:
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		var quest: QuestData = _quests[quest_id]
 		if quest.quest_giver_npc_id == npc_id and is_quest_available(quest_id):
 			return true
@@ -361,9 +347,7 @@ func npc_has_available_quest(npc_id: String) -> bool:
 
 ## Returns true if this NPC has any quest ready to turn in.
 func npc_has_turn_in_quest(npc_id: String) -> bool:
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		var quest: QuestData = _quests[quest_id]
 		if quest.turn_in_npc_id == npc_id and is_quest_ready_to_complete(quest_id):
 			return true
@@ -372,9 +356,7 @@ func npc_has_turn_in_quest(npc_id: String) -> bool:
 
 ## Returns true if this NPC has any active (in-progress) quest.
 func npc_has_active_quest(npc_id: String) -> bool:
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		var quest: QuestData = _quests[quest_id]
 		var is_giver := quest.quest_giver_npc_id == npc_id
 		var is_turn_in := quest.turn_in_npc_id == npc_id
@@ -384,8 +366,6 @@ func npc_has_active_quest(npc_id: String) -> bool:
 
 
 func _check_newly_available_quests() -> void:
-	var keys: Array = _quests.keys()
-	for i in range(keys.size()):
-		var quest_id: String = keys[i]
+	for quest_id in _quests:
 		if is_quest_available(quest_id):
 			EventBus.quest_available.emit(quest_id)

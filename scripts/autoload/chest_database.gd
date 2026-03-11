@@ -8,36 +8,8 @@ const CHEST_DIR := "res://data/chests/"
 
 
 func _ready() -> void:
-	_load_all_chests()
+	_chests = ResourceLoaderHelper.load_dir(CHEST_DIR, "ChestDatabase")
 	DebugLogger.log_info("Loaded %d chests" % _chests.size(), "ChestDatabase")
-
-
-func _load_all_chests() -> void:
-	var dir := DirAccess.open(CHEST_DIR)
-	if not dir:
-		DebugLogger.log_warn("Chest directory not found: %s" % CHEST_DIR, "ChestDatabase")
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var full_path := CHEST_DIR + file_name
-			var chest := load(full_path) as ChestData
-			if chest:
-				if chest.id.is_empty():
-					chest.id = file_name.get_basename()
-				_register_chest(chest)
-			else:
-				DebugLogger.log_warn("Failed to load chest: %s" % full_path, "ChestDatabase")
-		file_name = dir.get_next()
-	dir.list_dir_end()
-
-
-func _register_chest(chest: ChestData) -> void:
-	if _chests.has(chest.id):
-		DebugLogger.log_warn("Duplicate chest ID: %s" % chest.id, "ChestDatabase")
-	_chests[chest.id] = chest
 
 
 func get_chest(id: String) -> ChestData:

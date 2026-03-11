@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 236 -->
+<\!-- Total tasks: 238 -->
 <\!-- Last updated: 2026-03-11 -->
 
 ## Prerequisites
@@ -48,7 +48,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
@@ -63,6 +62,7 @@
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
+| Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | PENDING-NOTION-SYNC-CAMERA |
 | Create enemy variety (10 types with unique skills, loot tables, encounters) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
 | Dead characters persist death across battles (no auto-revive) | 3147700f-d0fb-81f1-8f45-fc6389364961 |
@@ -81,7 +81,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Refactor: Type placed_items array in GridInventory (Array[PlacedItem]) | 31e7700f-d0fb-814e-8edd-c03bb81edf39 |
 
 ### Done
 | Name | Notion ID |
@@ -131,7 +130,6 @@
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
 | Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
 | Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
-| Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
 ### Done
@@ -177,6 +175,7 @@
 | Fix: Empty squad crash risk in character hub (no fix needed — all access paths guarded) | 31e7700f-d0fb-8126-910c-f31a784b563e |
 | Fix: Shop purchase tracking uses object references instead of item IDs (no fix needed — object refs correct for session-local buy-back) | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
 | Perf: Shop per-frame highlight checks during drag (moved to one-time call on drag start) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c |
+| Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 
 ### Canceled
 | Name | Notion ID |
@@ -190,7 +189,6 @@
 | Name | Notion ID |
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
-| Refactor: Replace magic integers in MapData terrain and PassiveNodeData prerequisite_mode with enums | 31e7700f-d0fb-8196-b221-e966fc7f5a49 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
@@ -199,6 +197,7 @@
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
+| Sprint option on overworld (hold Shift to run faster) | PENDING-NOTION-SYNC-SPRINT |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
@@ -222,12 +221,14 @@
 | Save/load system | 3147700f-d0fb-81da-b76d-df2d3a042f5f |
 | Perf: MapCache O(n) eviction on every insertion (no fix needed — cache size is 3, O(1) in practice) | 31e7700f-d0fb-8133-8cbf-df15c2ba40a6 |
 | Perf: Overworld enemy group queries not cached (no fix needed — event-driven, not per-frame) | 31e7700f-d0fb-81ca-bfff-df054cac4183 |
+| Refactor: Replace magic integers in MapData terrain and PassiveNodeData prerequisite_mode with enums | 31e7700f-d0fb-8196-b221-e966fc7f5a49 |
 
 ## Audio
 
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Footstep sounds on overworld (terrain-aware, walk/sprint) | PENDING-NOTION-SYNC-FOOTSTEPS |
 
 ### Done
 | Name | Notion ID |
@@ -276,9 +277,6 @@
 | Name | Notion ID |
 |---|---|
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
-| Refactor: Extract generic database loader helper (deduplicate 6 database autoloads) | 31e7700f-d0fb-812a-8a3b-f4aab2cbb191 |
-| Refactor: Move NpcRole enum from npc_data.gd to central Enums.gd | 31e7700f-d0fb-811c-af42-e77b2ce2c5fd |
-| Refactor: QuestManager verbose dictionary iteration pattern (unnecessary array copies) | 31e7700f-d0fb-8134-9dff-f377b9855f12 |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
 
@@ -299,6 +297,9 @@
 | Fix: TutorialManager global pause can break in-progress UI state (no fix needed — tutorials only fire at scene init) | 31e7700f-d0fb-8192-958c-f2bf8c1e8a83 |
 | Perf: DisplayManager font rescaling fires on every Control node add (no fix needed — early-returns at default scale) | 31e7700f-d0fb-8162-99a5-fcacb779cade |
 | Perf: QuestManager iterates all quests on every inventory change (no fix needed — <30 lookups, infrequent) | 31e7700f-d0fb-8182-be76-e7b1cf2233ea |
+| Refactor: Extract generic database loader helper (deduplicate 6 database autoloads) | 31e7700f-d0fb-812a-8a3b-f4aab2cbb191 |
+| Refactor: Move NpcRole enum from npc_data.gd to central Enums.gd | 31e7700f-d0fb-811c-af42-e77b2ce2c5fd |
+| Refactor: QuestManager verbose dictionary iteration pattern (unnecessary array copies) | 31e7700f-d0fb-8134-9dff-f377b9855f12 |
 
 ## Map Editor
 

@@ -13,31 +13,7 @@ func _ready() -> void:
 
 
 func _load_all_maps() -> void:
-	var dir := DirAccess.open(MAP_DIR)
-	if not dir:
-		DebugLogger.log_warn("Map directory not found: %s" % MAP_DIR, "MapDatabase")
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var full_path := MAP_DIR + file_name
-			var map_data := ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_REPLACE) as MapData
-			if map_data:
-				if map_data.id.is_empty():
-					map_data.id = file_name.get_basename()
-				_register_map(map_data)
-			else:
-				DebugLogger.log_warn("Failed to load map: %s" % full_path, "MapDatabase")
-		file_name = dir.get_next()
-	dir.list_dir_end()
-
-
-func _register_map(map_data: MapData) -> void:
-	if _maps.has(map_data.id):
-		DebugLogger.log_warn("Duplicate map ID: %s" % map_data.id, "MapDatabase")
-	_maps[map_data.id] = map_data
+	_maps = ResourceLoaderHelper.load_dir(MAP_DIR, "MapDatabase", ResourceLoader.CACHE_MODE_REPLACE)
 
 
 func get_map(map_id: String) -> MapData:
