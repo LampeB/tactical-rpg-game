@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-id = "recipe_flameblade"
+id = "blueprint_flameblade"
 display_name = "Blueprint: Hellbane"
 description = "Forging instructions for a fire-infused blade. Bring this to a blacksmith."
 item_type = 5

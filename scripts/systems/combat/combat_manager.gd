@@ -479,6 +479,7 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 
 
 func execute_flee() -> bool:
+	@warning_ignore("incompatible_ternary")
 	log_message.emit("[ACTION] Flee attempt (can_flee: %s)" % str(encounter.can_flee if encounter else "no encounter"), Color(0.6, 0.6, 0.6))
 	if encounter and not encounter.can_flee:
 		log_message.emit("Can't flee from this battle!", Color(1.0, 0.3, 0.3))

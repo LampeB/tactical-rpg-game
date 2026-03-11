@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-id = "recipe_frostbow"
+id = "blueprint_frostbow"
 display_name = "Blueprint: Frostbow"
 description = "Instructions for a bow enchanted with ice magic. Bring this to a blacksmith."
 item_type = 5

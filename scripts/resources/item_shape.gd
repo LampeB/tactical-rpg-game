@@ -36,6 +36,7 @@ func get_center_cell_offset(rotations: int) -> Vector2i:
 	for c in rotated:
 		max_x = maxi(max_x, c.x)
 		max_y = maxi(max_y, c.y)
+	@warning_ignore("integer_division")
 	return Vector2i(max_x / 2, max_y / 2)
 
 

@@ -13,6 +13,7 @@ const DEFAULT_LOOT_GRID_HEIGHT: int = 5
 @onready var _bg: ColorRect = $Background
 @onready var _title: Label = $VBox/TopBar/Title
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
+@warning_ignore("unused_private_class_variable")
 @onready var _loot_label: Label = $VBox/Content/LootSide/LootLabel
 @onready var _loot_grid_panel: Control = $VBox/Content/LootSide/LootGridCentering/LootGridPanel
 @onready var _loot_info_label: Label = $VBox/Content/LootSide/LootInfoLabel
@@ -244,6 +245,7 @@ func _on_character_selected(character_id: String) -> void:
 #  Loot Grid Interaction
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _on_loot_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	# During drag, right-click rotates the held item
 	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
@@ -300,6 +302,7 @@ func _on_item_hover_exited() -> void:
 #  Player Grid Interaction
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	# During drag, right-click rotates the held item
 	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
@@ -392,6 +395,7 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, clicked_pos:
 #  Drop on Player Grid
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _try_place_on_player_grid(grid_pos: Vector2i) -> void:
 	var inv: GridInventory = _grid_inventories.get(_current_character_id)
 	if not inv:
@@ -587,8 +591,8 @@ func _on_discard_zone_input(event: InputEvent) -> void:
 			_request_discard_dragged()
 
 
-func _highlight_discard_zone(show: bool) -> void:
-	if show:
+func _highlight_discard_zone(highlighted: bool) -> void:
+	if highlighted:
 		_discard_zone.self_modulate = Color(1.0, 0.4, 0.4)
 	else:
 		_discard_zone.self_modulate = Color.WHITE

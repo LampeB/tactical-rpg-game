@@ -3,10 +3,12 @@ extends Control
 ## Displays element points from equipped gems and the skills they unlock.
 ## Includes filter bar, selection highlighting, and element requirement squares.
 
+@warning_ignore("unused_private_class_variable")
 @onready var _bg: ColorRect = $BG
 @onready var _element_bar: HBoxContainer = $VBox/ElementBar
 @onready var _filter_bar: HBoxContainer = $VBox/Content/LeftPanel/LeftVBox/FilterBar
 @onready var _skill_list: VBoxContainer = $VBox/Content/LeftPanel/LeftVBox/ScrollContainer/SkillList
+@warning_ignore("unused_private_class_variable")
 @onready var _detail_header: HBoxContainer = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader
 @onready var _detail_icon: TextureRect = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader/DetailIcon
 @onready var _detail_name: Label = $VBox/Content/RightPanel/Margin/DetailVBox/DetailHeader/DetailName

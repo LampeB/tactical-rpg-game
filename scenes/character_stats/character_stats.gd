@@ -4,6 +4,7 @@ extends Control
 
 @onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
+@warning_ignore("unused_private_class_variable")
 @onready var _title: Label = $VBox/TopBar/Title
 @onready var _gold_label: Label = $VBox/TopBar/Gold
 @onready var _character_tabs: HBoxContainer = $VBox/CharacterTabs
@@ -175,6 +176,7 @@ func _ready() -> void:
 	DebugLogger.log_info("Character stats scene ready", "CharStats")
 
 
+@warning_ignore("shadowed_variable")
 func _unhandled_input(event: InputEvent) -> void:
 	# Hold T to temporarily hide tooltips
 	if event is InputEventKey and event.keycode == KEY_T:
@@ -706,6 +708,7 @@ func _hide_skills_section() -> void:
 
 # === Grid Interaction ===
 
+@warning_ignore("shadowed_variable")
 func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	# During drag, right-click rotates the held item
 	if _drag_state == DragState.DRAGGING and button == MOUSE_BUTTON_RIGHT:
@@ -747,6 +750,7 @@ func _on_grid_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 			_start_drag_from_grid(placed, grid_pos)
 
 
+@warning_ignore("shadowed_variable")
 func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if not inv:
@@ -971,6 +975,7 @@ func _show_target_selection_popup() -> void:
 	_target_selection_popup.popup_centered()
 
 
+@warning_ignore("shadowed_variable")
 func _on_target_selected(character_id: String) -> void:
 	var item: ItemData = _pending_consumable
 	var source: DragSource = _pending_consumable_source
@@ -1080,6 +1085,7 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 		_drag_preview.set_valid(can_place)
 
 
+@warning_ignore("shadowed_variable")
 func _try_place_item(grid_pos: Vector2i) -> void:
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if not inv:

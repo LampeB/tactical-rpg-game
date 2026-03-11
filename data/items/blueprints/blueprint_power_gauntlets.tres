@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-id = "recipe_power_gauntlets"
+id = "blueprint_power_gauntlets"
 display_name = "Blueprint: Iron Fists"
 description = "Forging plans for gauntlets that amplify striking force. Bring this to a blacksmith."
 item_type = 5

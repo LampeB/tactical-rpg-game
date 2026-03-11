@@ -12,6 +12,7 @@ var _anchor_cell: Vector2i = Vector2i.ZERO
 @onready var _shape_container: Control = $ShapeCells
 
 
+@warning_ignore("shadowed_variable_base_class")
 func setup(item: ItemData, rotation: int = 0, anchor: Vector2i = Vector2i(-1, -1)) -> void:
 	item_data = item
 	current_rotation = rotation
@@ -116,6 +117,7 @@ func _rebuild_shape() -> void:
 		var style: StyleBoxFlat = StyleBoxFlat.new()
 		style.bg_color = Color.TRANSPARENT
 		style.border_color = rarity_color
+		@warning_ignore("integer_division")
 		var bw: int = maxi(1, cell_size / 24)
 		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0
 		style.border_width_right = bw if not cells.has(cell + Vector2i(1, 0)) else 0

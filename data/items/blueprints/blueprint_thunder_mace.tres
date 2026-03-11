@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-id = "recipe_thunder_mace"
+id = "blueprint_thunder_mace"
 display_name = "Blueprint: Stormbringer"
 description = "Plans for a mace that channels lightning. Bring this to a blacksmith."
 item_type = 5

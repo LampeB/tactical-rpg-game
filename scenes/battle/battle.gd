@@ -37,6 +37,7 @@ const ENEMY_POSITIONS: Array[Vector3] = [
 @onready var _enemy_list: VBoxContainer = $MainLayout/BattleField/FieldLayout/EnemyPortraits/EnemyList
 @onready var _party_list: HBoxContainer = $MainLayout/BattleField/FieldLayout/PartyCards/PartyList
 @onready var _target_prompt: HBoxContainer = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt
+@warning_ignore("unused_private_class_variable")
 @onready var _target_prompt_label: Label = $MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt/Label
 @onready var _action_menu: PanelContainer = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/ActionMenu
 @onready var _log_toggle: Button = $MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection/LogToggle
@@ -340,7 +341,7 @@ func _move_camera_to(target_pos: Vector3, look_at_pos: Vector3, duration: float 
 			_cam_tween.tween_interval(step_time)
 
 
-func _orbit_camera_to(target_pos: Vector3, look_at_pos: Vector3, duration: float = 1.5) -> void:
+func _orbit_camera_to(target_pos: Vector3, _look_at_pos: Vector3, duration: float = 1.5) -> void:
 	## Move the camera along a circular arc around the arena center to the target position.
 	if not _battle_camera:
 		return
@@ -348,7 +349,6 @@ func _orbit_camera_to(target_pos: Vector3, look_at_pos: Vector3, duration: float
 		_cam_tween.kill()
 
 	var start_pos: Vector3 = _battle_camera.position
-	var start_look: Vector3 = _battle_camera.global_position + (-_battle_camera.global_transform.basis.z * 5.0)
 
 	# Compute polar coordinates (angle, radius, height) relative to arena center
 	var start_offset: Vector3 = start_pos - _arena_center
@@ -636,6 +636,7 @@ func _on_combat_finished(victory: bool) -> void:
 			SceneManager.pop_scene({"from_battle": true})
 	elif _combat_manager.player_fled:
 		DebugLogger.log_info("Player fled — returning to overworld", "Battle")
+		AudioManager.play_sfx("flee_success")
 		EventBus.combat_ended.emit(false, [])
 		SceneManager.pop_scene({"from_battle": true})
 	else:
@@ -652,6 +653,7 @@ func _on_entity_died(entity: CombatEntity) -> void:
 	DebugLogger.log_info("Entity died: %s (is_player: %s)" % [entity.entity_name, str(entity.is_player)], "Battle")
 
 	# Play death animation and wait for it
+	AudioManager.play_sfx("death_ko")
 	var sprite: Node3D = _entity_sprites.get(entity)
 	if sprite:
 		DebugLogger.log_info("Anim: %s -> play_death (pos=%s)" % [entity.entity_name, str(sprite.position)], "BattleAnim")
@@ -710,6 +712,7 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 		Enums.CombatAction.DEFEND:
 			_action_menu.show_disabled()
 			_combat_manager.execute_defend(_combat_manager.current_entity)
+			AudioManager.play_sfx("defend_stance")
 			var def_sprite: Node3D = _entity_sprites.get(_combat_manager.current_entity)
 			if def_sprite:
 				def_sprite.play_defend_animation()
@@ -924,8 +927,14 @@ func _execute_player_action(targets: Array) -> void:
 				for s_r in splash_results:
 					var splash_popup_result: Dictionary = {"actual_damage": s_r.damage, "is_crit": s_r.is_crit}
 					_spawn_damage_popup(s_r.target, splash_popup_result)
-				# VFX: default slash for basic attacks
+				# VFX + SFX: default slash for basic attacks
 				_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
+				if result.get("is_crit", false):
+					AudioManager.play_sfx("critical_hit")
+				elif result.get("actual_damage", 0) > 0:
+					AudioManager.play_sfx("slash")
+				else:
+					AudioManager.play_sfx("miss_dodge")
 				# Step 3: Play target reaction
 				await _play_target_reactions(targets, result)
 
@@ -1116,7 +1125,7 @@ func _spawn_damage_popup(target: CombatEntity, result: Dictionary) -> void:
 	_spawn_popup_at_entity(target, amount, popup_type)
 
 
-func _save_player_vitals(victory: bool = false) -> void:
+func _save_player_vitals(_victory: bool = false) -> void:
 	if not _combat_manager or not GameManager.party:
 		return
 
@@ -1234,12 +1243,13 @@ func _spawn_skill_vfx(targets: Array, skill: SkillData, result: Dictionary) -> v
 		elif skill.physical_scaling > 0.0:
 			vfx_type = 1  # SLASH for light physical
 	_spawn_vfx_on_targets(targets, vfx_type, skill.vfx_color, false)
+	AudioManager.play_sfx_for_vfx(vfx_type)
 	# Screen shake from skill property or crit
 	var has_crit: bool = false
 	var target_results: Array = result.get("target_results", [])
 	for i in range(target_results.size()):
-		var tr: Dictionary = target_results[i]
-		if tr.get("is_crit", false):
+		var tgt_result: Dictionary = target_results[i]
+		if tgt_result.get("is_crit", false):
 			has_crit = true
 			break
 	if skill.screen_shake or has_crit:
@@ -1262,6 +1272,7 @@ func _fire_projectiles(source: CombatEntity, targets: Array, skill: SkillData) -
 	if not source_sprite or not is_instance_valid(source_sprite):
 		return
 
+	AudioManager.play_sfx("projectile_launch")
 	var from_pos: Vector3 = source_sprite.global_position + Vector3(0, 1.0, 0)
 	var vfx_type: int = skill.vfx_type
 	if vfx_type == 0:

@@ -63,6 +63,7 @@ func refresh() -> void:
 
 var last_failure_reason: String = ""
 
+@warning_ignore("shadowed_variable_base_class")
 func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: int) -> void:
 	clear_placement_preview()
 	if not _grid_inventory:
@@ -502,6 +503,7 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 		var style: StyleBoxFlat = StyleBoxFlat.new()
 		style.bg_color = Color.TRANSPARENT
 		style.border_color = rarity_color
+		@warning_ignore("integer_division")
 		var bw: int = maxi(1, cell_size / 24)
 		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0
 		style.border_width_right = bw if not cells.has(cell + Vector2i(1, 0)) else 0
@@ -538,6 +540,7 @@ func _on_mouse_exited() -> void:
 		cell_exited.emit()
 
 
+@warning_ignore("shadowed_variable_base_class")
 func _show_modifier_reach_preview(shape_cells: Array[Vector2i], grid_pos: Vector2i, item_data: ItemData, rotation: int = 0) -> void:
 	## Highlights cells that would be affected by a modifier gem's reach pattern.
 	var reach_pattern: Array[Vector2i] = item_data.get_reach_cells(rotation)

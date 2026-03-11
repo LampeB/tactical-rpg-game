@@ -73,11 +73,11 @@ func get_full_roster() -> Array:
 ## Falls back to grid_template dimensions if backpack_tiers is not configured.
 func get_or_init_backpack_state(character: CharacterData) -> Dictionary:
 	if backpack_states.has(character.id):
-		var state: Dictionary = backpack_states[character.id]
+		var existing: Dictionary = backpack_states[character.id]
 		# Migrate old "unlocked_cells" saves: discard count, start fresh on this tier.
-		if not state.has("purchased_cells"):
-			state["purchased_cells"] = []
-		return state
+		if not existing.has("purchased_cells"):
+			existing["purchased_cells"] = []
+		return existing
 
 	var state: Dictionary = {"tier": 0, "purchased_cells": []}
 	backpack_states[character.id] = state
