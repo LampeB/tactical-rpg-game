@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bo4acxvqd0ceq"
+path="res://.godot/imported/Battle Theme.wav-fe82ed11465b4e5d1b7148b3b1f0325e.sample"
+
+[deps]
+
+source_file="res://assets/audio/music/Battle Theme.wav"
+dest_files=["res://.godot/imported/Battle Theme.wav-fe82ed11465b4e5d1b7148b3b1f0325e.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

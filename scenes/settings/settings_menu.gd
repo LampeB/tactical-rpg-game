@@ -4,6 +4,7 @@ extends Control
 @onready var _bg: ColorRect = $ColorRect
 @onready var _tab_container: TabContainer = $Panel/MarginContainer/VBoxContainer/TabContainer
 @onready var _display_settings: VBoxContainer = $Panel/MarginContainer/VBoxContainer/TabContainer/Display/DisplaySettings
+@onready var _audio_settings: VBoxContainer = $Panel/MarginContainer/VBoxContainer/TabContainer/Audio/AudioScroll/AudioSettings
 @onready var _keybind_container: VBoxContainer = $Panel/MarginContainer/VBoxContainer/TabContainer/Controls/ScrollContainer/KeybindContainer
 @onready var _rebind_popup: Panel = $RebindPopup
 @onready var _rebind_label: Label = $RebindPopup/MarginContainer/VBoxContainer/Label
@@ -36,6 +37,7 @@ const FONT_SCALE_LABELS := ["80%", "100%", "120%", "140%"]
 func _ready() -> void:
 	_bg.color = UIColors.BG_SETTINGS
 	_build_display_tab()
+	_build_audio_tab()
 	_populate_keybinds()
 	_rebind_popup.hide()
 	_update_reset_button_visibility()
@@ -188,6 +190,119 @@ func _on_font_scale_changed(idx: int) -> void:
 		DisplayManager.set_font_scale(DisplayManager.FONT_SCALE_OPTIONS[idx])
 
 
+# ─── Audio Tab ───────────────────────────────────────────────────────────────
+
+func _build_audio_tab() -> void:
+	# --- Master volume sliders ---
+	_add_section_label(_audio_settings, "Volume")
+	_add_volume_slider(_audio_settings, "Master", AudioServer.get_bus_volume_db(0), func(v: float) -> void:
+		AudioServer.set_bus_volume_db(0, v)
+	)
+	_add_volume_slider(_audio_settings, "Music", linear_to_db(AudioManager.music_volume), func(v: float) -> void:
+		AudioManager.music_volume = db_to_linear(v)
+	)
+	_add_volume_slider(_audio_settings, "SFX", linear_to_db(AudioManager.sfx_volume), func(v: float) -> void:
+		AudioManager.sfx_volume = db_to_linear(v)
+	)
+	_add_volume_slider(_audio_settings, "Ambient", linear_to_db(AudioManager.ambient_volume), func(v: float) -> void:
+		AudioManager.ambient_volume = db_to_linear(v)
+	)
+
+	# --- Debug: individual SFX test sliders ---
+	_add_section_label(_audio_settings, "Debug — SFX Preview (click label to play)")
+	var sfx_keys: Array = AudioManager.SFX.keys()
+	sfx_keys.sort()
+	for key in sfx_keys:
+		_add_sfx_test_row(_audio_settings, key)
+
+	# --- Debug: music test buttons ---
+	_add_section_label(_audio_settings, "Debug — Music Preview")
+	var music_keys: Array = AudioManager.MUSIC.keys()
+	music_keys.sort()
+	for key in music_keys:
+		_add_music_test_row(_audio_settings, key)
+
+
+func _add_section_label(parent: VBoxContainer, text: String) -> void:
+	var sep := HSeparator.new()
+	parent.add_child(sep)
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 18)
+	lbl.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5))
+	parent.add_child(lbl)
+
+
+func _add_volume_slider(parent: VBoxContainer, label_text: String, initial_db: float, callback: Callable) -> void:
+	var row := _create_setting_row(label_text)
+	var slider := HSlider.new()
+	slider.custom_minimum_size = Vector2(200, 0)
+	slider.min_value = -40.0
+	slider.max_value = 6.0
+	slider.step = 0.5
+	slider.value = initial_db
+	var val_label := Label.new()
+	val_label.text = "%.1f dB" % initial_db
+	val_label.custom_minimum_size = Vector2(70, 0)
+	slider.value_changed.connect(func(v: float) -> void:
+		val_label.text = "%.1f dB" % v
+		callback.call(v)
+	)
+	row.add_child(slider)
+	row.add_child(val_label)
+	parent.add_child(row)
+
+
+func _add_sfx_test_row(parent: VBoxContainer, sfx_key: String) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+
+	# Clickable label to play the sound
+	var btn := Button.new()
+	btn.text = sfx_key
+	btn.custom_minimum_size = Vector2(200, 0)
+	btn.flat = true
+	btn.pressed.connect(func() -> void: AudioManager.play_sfx(sfx_key))
+	row.add_child(btn)
+
+	# Per-SFX volume slider (adjusts the stream's volume_db when played)
+	var slider := HSlider.new()
+	slider.custom_minimum_size = Vector2(150, 0)
+	slider.min_value = -30.0
+	slider.max_value = 10.0
+	slider.step = 0.5
+	slider.value = AudioManager.get_sfx_volume_db(sfx_key)
+	var val_label := Label.new()
+	val_label.text = "%.1f" % slider.value
+	val_label.custom_minimum_size = Vector2(50, 0)
+	slider.value_changed.connect(func(v: float) -> void:
+		val_label.text = "%.1f" % v
+		AudioManager.set_sfx_volume_db(sfx_key, v)
+	)
+	row.add_child(slider)
+	row.add_child(val_label)
+
+	# Test play button
+	var play_btn := Button.new()
+	play_btn.text = "Play"
+	play_btn.custom_minimum_size = Vector2(60, 0)
+	play_btn.pressed.connect(func() -> void: AudioManager.play_sfx(sfx_key))
+	row.add_child(play_btn)
+
+	parent.add_child(row)
+
+
+func _add_music_test_row(parent: VBoxContainer, music_key: String) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var btn := Button.new()
+	btn.text = music_key
+	btn.custom_minimum_size = Vector2(200, 0)
+	btn.pressed.connect(func() -> void: AudioManager.play_music(music_key, true))
+	row.add_child(btn)
+	parent.add_child(row)
+
+
 # ─── Controls Tab ────────────────────────────────────────────────────────────
 
 func _populate_keybinds() -> void:
@@ -262,7 +377,7 @@ func _on_tab_changed(_tab: int) -> void:
 
 func _update_reset_button_visibility() -> void:
 	# Only show "Reset All to Defaults" on the Controls tab
-	_reset_all_btn.visible = _tab_container.current_tab == 1
+	_reset_all_btn.visible = _tab_container.current_tab == 2
 
 
 func _on_reset_all_pressed() -> void:

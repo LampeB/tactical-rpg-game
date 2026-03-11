@@ -73,6 +73,10 @@ func _ready() -> void:
 	# Track current map in GameManager
 	GameManager.current_map_id = map_id
 
+	# Start overworld music and ambient
+	AudioManager.play_music("overworld")
+	AudioManager.play_ambient("forest")
+
 	# Load map data and build the world
 	_map_data = MapDatabase.get_map(map_id)
 	if _map_data:
@@ -392,5 +396,3 @@ func _go_to_main_menu() -> void:
 	_pause_menu_instance = null
 	SceneManager.clear_stack()
 	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
-
-

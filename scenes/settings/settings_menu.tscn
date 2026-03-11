@@ -27,10 +27,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -300.0
-offset_right = 400.0
-offset_bottom = 300.0
+offset_left = -450.0
+offset_top = -350.0
+offset_right = 450.0
+offset_bottom = 350.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -66,6 +66,20 @@ theme_override_constants/separation = 15
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 15
+
+[node name="Audio" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AudioScroll" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer/Audio"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AudioSettings" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer/Audio/AudioScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
 
 [node name="Controls" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/TabContainer"]
 layout_mode = 2

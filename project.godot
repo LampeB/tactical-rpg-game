@@ -37,6 +37,7 @@ DisplayManager="*res://scripts/autoload/display_manager.gd"
 MapDatabase="*res://scripts/autoload/map_database.gd"
 MapCache="*res://scripts/autoload/map_cache.gd"
 DayNightCycle="*res://scripts/autoload/day_night_cycle.gd"
+AudioManager="*res://scripts/autoload/audio_manager.gd"
 
 [display]
 

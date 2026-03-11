@@ -126,6 +126,7 @@ func receive_data(data: Dictionary) -> void:
 	_setup_merchant_grid()
 	_refresh_stash()
 	_update_gold_label()
+	AudioManager.play_music("town_shop")
 
 	if GameManager.party and not GameManager.party.squad.is_empty():
 		_on_character_selected(GameManager.party.squad[0])
@@ -282,6 +283,7 @@ func _input(event: InputEvent) -> void:
 #  Merchant grid handlers
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _on_merchant_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	if button != MOUSE_BUTTON_LEFT:
 		return
@@ -333,6 +335,7 @@ func _on_merchant_hover_exited() -> void:
 #  Player grid handlers
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _on_player_cell_clicked(grid_pos: Vector2i, button: int) -> void:
 	if button != MOUSE_BUTTON_LEFT:
 		return
@@ -418,6 +421,14 @@ func _perform_stash_upgrade(target_item: ItemData, target_index: int) -> void:
 #  Drag start
 # ════════════════════════════════════════════════════════════════════════════
 
+func _finalize_drag_start(text: String, color: Color, anchor: Vector2i = Vector2i(-1, -1)) -> void:
+	_set_hover_info(text, color)
+	_drag_preview.cell_size = _player_grid_panel.cell_size
+	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
+	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
+	_stash_panel.highlight_upgradeable_items(_dragged_item)
+
+
 func _start_drag_from_merchant(placed: GridInventory.PlacedItem, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
 	_dragged_item = placed.item_data
 	_drag_source_merchant_pos = placed.grid_position
@@ -430,15 +441,11 @@ func _start_drag_from_merchant(placed: GridInventory.PlacedItem, clicked_pos: Ve
 	_merchant_grid_panel.refresh()
 
 	var price := ShopSystem.get_buy_price(_dragged_item, _shop_data)
-	_set_hover_info("Buying: %s  —  %dg" % [_dragged_item.display_name, price],
-		Color(1.0, 0.84, 0.0))
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
-	_drag_preview.cell_size = _player_grid_panel.cell_size
-	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
-	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
-	_stash_panel.highlight_upgradeable_items(_dragged_item)
+	_finalize_drag_start("Buying: %s  —  %dg" % [_dragged_item.display_name, price],
+		Color(1.0, 0.84, 0.0), anchor)
 
 
 func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInventory, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
@@ -453,15 +460,11 @@ func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInv
 	_player_grid_panel.refresh()
 
 	var sell_preview := _sell_price_for(_dragged_item)
-	_set_hover_info("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
-		Color(0.5, 1.0, 0.5))
 	var anchor: Vector2i = Vector2i(-1, -1)
 	if clicked_pos != Vector2i(-1, -1):
 		anchor = clicked_pos - placed.grid_position
-	_drag_preview.cell_size = _player_grid_panel.cell_size
-	_drag_preview.setup(_dragged_item, _drag_rotation, anchor)
-	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
-	_stash_panel.highlight_upgradeable_items(_dragged_item)
+	_finalize_drag_start("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
+		Color(0.5, 1.0, 0.5), anchor)
 
 
 func _start_drag_from_stash(item: ItemData, index: int) -> void:
@@ -477,12 +480,8 @@ func _start_drag_from_stash(item: ItemData, index: int) -> void:
 	_item_tooltip.hide_tooltip()
 
 	var sell_preview := _sell_price_for(_dragged_item)
-	_set_hover_info("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
+	_finalize_drag_start("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
 		Color(0.5, 1.0, 0.5))
-	_drag_preview.cell_size = _player_grid_panel.cell_size
-	_drag_preview.setup(_dragged_item, _drag_rotation)
-	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
-	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 func _start_drag_from_sold_panel(index: int) -> void:
@@ -500,12 +499,8 @@ func _start_drag_from_sold_panel(index: int) -> void:
 	_refresh_sold_panel()
 	_item_tooltip.hide_tooltip()
 
-	_set_hover_info("Buying back: %s  —  %dg" % [_dragged_item.display_name, _drag_source_sold_price],
+	_finalize_drag_start("Buying back: %s  —  %dg" % [_dragged_item.display_name, _drag_source_sold_price],
 		Color(1.0, 0.84, 0.0))
-	_drag_preview.cell_size = _player_grid_panel.cell_size
-	_drag_preview.setup(_dragged_item, _drag_rotation)
-	_player_grid_panel.highlight_upgradeable_items(_dragged_item)
-	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -663,6 +658,7 @@ func _perform_player_grid_upgrade(inv: GridInventory, target_placed: GridInvento
 #  Cancel / end drag
 # ════════════════════════════════════════════════════════════════════════════
 
+@warning_ignore("shadowed_variable")
 func _cancel_drag() -> void:
 	if not _dragged_item:
 		_end_drag()
@@ -795,8 +791,8 @@ func _on_discard_zone_input(event: InputEvent) -> void:
 			_request_discard_dragged()
 
 
-func _highlight_discard_zone(show: bool) -> void:
-	if show:
+func _highlight_discard_zone(highlighted: bool) -> void:
+	if highlighted:
 		_discard_zone.self_modulate = Color(1.0, 0.4, 0.4)
 	else:
 		_discard_zone.self_modulate = Color.WHITE

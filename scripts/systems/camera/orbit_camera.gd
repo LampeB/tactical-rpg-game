@@ -31,6 +31,13 @@ func _ready() -> void:
 	_apply_transform()
 
 
+func _notification(what: int) -> void:
+	# Reset held-button state when re-entering the tree (after scene pop)
+	if what == NOTIFICATION_ENTER_TREE or what == NOTIFICATION_VISIBILITY_CHANGED:
+		_is_orbiting = false
+		_is_panning = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Orbit (right-click drag)
 	if event is InputEventMouseButton:
