@@ -154,6 +154,7 @@ func _give_loot() -> void:
 	# Mark as opened
 	GameManager.set_flag("chest_%s_opened" % chest_id, true)
 	_is_opened = true
+	AudioManager.play_sfx("chest_open")
 	_animate_open()
 	_update_prompt_text()
 

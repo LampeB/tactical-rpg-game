@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://daianuu6mbs02"
+path="res://.godot/imported/Victory Fanfare.wav-a810d8a92f58afda0a95cfbb072b51ae.sample"
+
+[deps]
+
+source_file="res://assets/audio/music/Victory Fanfare.wav"
+dest_files=["res://.godot/imported/Victory Fanfare.wav-a810d8a92f58afda0a95cfbb072b51ae.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

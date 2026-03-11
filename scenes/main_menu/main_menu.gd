@@ -23,6 +23,7 @@ func _ready() -> void:
 	UIThemes.set_font_size(title, Constants.FONT_SIZE_MENU_TITLE)
 
 	_update_button_states()
+	AudioManager.play_music("main_menu")
 
 
 func _update_button_states() -> void:
