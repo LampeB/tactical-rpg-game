@@ -171,7 +171,9 @@ func _get_enemy_id() -> String:
 		return name  # Fallback to node name
 
 	# Use encounter ID + rounded position to create unique but deterministic ID
-	var pos_x := int(_start_position.x * 10) / 10  # Round to nearest 0.1
+	@warning_ignore("integer_division")
+	var pos_x := int(_start_position.x * 10) / 10
+	@warning_ignore("integer_division")
 	var pos_z := int(_start_position.z * 10) / 10
 	return "%s_x%d_z%d" % [encounter_data.id, pos_x, pos_z]
 

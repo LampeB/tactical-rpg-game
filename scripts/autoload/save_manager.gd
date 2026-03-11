@@ -174,6 +174,7 @@ func _save_to_dir(dir: String, max_history: int) -> bool:
 		return false
 
 	# Build and prepend metadata entry
+	@warning_ignore("incompatible_ternary")
 	var squad_names: Array[String] = GameManager.party.get_squad_display_names() if GameManager.party else []
 
 	var entry := {

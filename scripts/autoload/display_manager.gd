@@ -174,6 +174,7 @@ func _apply_resolution() -> void:
 	win.size = resolution
 	# Center window on screen
 	var screen_size := DisplayServer.screen_get_size()
+	@warning_ignore("integer_division")
 	win.position = (screen_size - resolution) / 2
 
 

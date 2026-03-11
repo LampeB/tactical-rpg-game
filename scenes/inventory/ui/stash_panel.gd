@@ -105,9 +105,9 @@ func refresh(stash: Array, returnable_indices: Dictionary = {}) -> void:
 	_update_count_label(visible_count, stash.size())
 
 
-func highlight_drop_target(show: bool) -> void:
-	_drop_highlighted = show
-	if show:
+func highlight_drop_target(highlighted: bool) -> void:
+	_drop_highlighted = highlighted
+	if highlighted:
 		self_modulate = Color(0.3, 0.8, 0.3, 1.0)
 	else:
 		self_modulate = Color.WHITE

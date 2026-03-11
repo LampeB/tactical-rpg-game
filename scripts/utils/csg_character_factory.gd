@@ -18,9 +18,9 @@ static func create_model_for(data: Resource) -> Node3D:
 
 static func create_from_character(char_data: CharacterData) -> Node3D:
 	if char_data.model_scene:
-		var model: Node3D = char_data.model_scene.instantiate()
-		model.scale = Vector3.ONE * char_data.model_scale
-		return model
+		var scene_model: Node3D = char_data.model_scene.instantiate()
+		scene_model.scale = Vector3.ONE * char_data.model_scale
+		return scene_model
 	# Try multi-part articulated voxel model (limbs + pivots)
 	var multipart := _try_load_multipart_vox("res://assets/voxels/characters/%s" % char_data.id)
 	if multipart:
@@ -41,9 +41,9 @@ static func create_from_character(char_data: CharacterData) -> Node3D:
 
 static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 	if enemy_data.model_scene:
-		var model: Node3D = enemy_data.model_scene.instantiate()
-		model.scale = Vector3.ONE * enemy_data.model_scale
-		return model
+		var scene_model: Node3D = enemy_data.model_scene.instantiate()
+		scene_model.scale = Vector3.ONE * enemy_data.model_scale
+		return scene_model
 	# Try multi-part articulated voxel model
 	var multipart := _try_load_multipart_vox("res://assets/voxels/enemies/%s" % enemy_data.id)
 	if multipart:
@@ -87,8 +87,8 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 
 static func create_from_npc(npc_data: NpcData) -> Node3D:
 	if npc_data.model_scene:
-		var model: Node3D = npc_data.model_scene.instantiate()
-		return model
+		var scene_model: Node3D = npc_data.model_scene.instantiate()
+		return scene_model
 	# Try multi-part articulated voxel model
 	var multipart := _try_load_multipart_vox("res://assets/voxels/npcs/%s" % npc_data.id)
 	if multipart:

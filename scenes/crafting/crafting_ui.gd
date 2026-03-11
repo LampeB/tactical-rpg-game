@@ -450,6 +450,7 @@ func _make_shape_display(item: ItemData, alpha: float) -> Control:
 	var w         := item.shape.get_width()
 	var h         := item.shape.get_height()
 	var max_cell  := 14
+	@warning_ignore("integer_division")
 	var cell_size := mini(max_cell, RESULT_SZ / maxi(w, h))
 
 	var container := Control.new()
