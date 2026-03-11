@@ -20,48 +20,16 @@ func _ready() -> void:
 	DebugLogger.log_info("Loaded %d items" % _items.size(), "ItemDatabase")
 
 func _load_all_items() -> void:
-	for dir_path in ITEM_DIRS:
-		_load_items_from_directory(dir_path)
-
-func _load_items_from_directory(dir_path: String) -> void:
-	var dir := DirAccess.open(dir_path)
-	if not dir:
-		DebugLogger.log_warn("Item directory not found: %s" % dir_path, "ItemDatabase")
-		return
-
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tres"):
-			var full_path := dir_path + file_name
-			var item: ItemData = ResourceLoader.load(full_path, "", ResourceLoader.CACHE_MODE_REPLACE) as ItemData
-			if item:
-				if item.id.is_empty():
-					item.id = file_name.get_basename()
-				var shape_info: String = "null"
-				if item.shape:
-					shape_info = "%s (%s)" % [item.shape.id, str(item.shape.cells)]
-				DebugLogger.log_info("  %s — shape: %s" % [item.id, shape_info], "ItemDatabase")
-				_register_item(item)
-			else:
-				DebugLogger.log_warn("Failed to load item: %s" % full_path, "ItemDatabase")
-		file_name = dir.get_next()
-	dir.list_dir_end()
-
-func _register_item(item: ItemData) -> void:
-	if _items.has(item.id):
-		DebugLogger.log_warn("Duplicate item ID: %s" % item.id, "ItemDatabase")
-	_items[item.id] = item
-
-	# Index by type
-	if not _items_by_type.has(item.item_type):
-		_items_by_type[item.item_type] = []
-	_items_by_type[item.item_type].append(item)
-
-	# Index by rarity
-	if not _items_by_rarity.has(item.rarity):
-		_items_by_rarity[item.rarity] = []
-	_items_by_rarity[item.rarity].append(item)
+	_items = ResourceLoaderHelper.load_dirs(ITEM_DIRS, "ItemDatabase", ResourceLoader.CACHE_MODE_REPLACE)
+	_items_by_type.clear()
+	_items_by_rarity.clear()
+	for item in _items.values():
+		if not _items_by_type.has(item.item_type):
+			_items_by_type[item.item_type] = []
+		_items_by_type[item.item_type].append(item)
+		if not _items_by_rarity.has(item.rarity):
+			_items_by_rarity[item.rarity] = []
+		_items_by_rarity[item.rarity].append(item)
 
 func get_item(id: String) -> ItemData:
 	if _items.has(id):

@@ -429,56 +429,48 @@ func _finalize_drag_start(text: String, color: Color, anchor: Vector2i = Vector2
 	_stash_panel.highlight_upgradeable_items(_dragged_item)
 
 
+func _begin_drag(item: ItemData, source: int, rot: int = 0) -> void:
+	_dragged_item = item
+	_drag_rotation = rot
+	_drag_source = source
+	_drag_state = DragState.DRAGGING
+
+
+func _anchor_from_click(clicked_pos: Vector2i, grid_pos: Vector2i) -> Vector2i:
+	if clicked_pos != Vector2i(-1, -1):
+		return clicked_pos - grid_pos
+	return Vector2i(-1, -1)
+
+
 func _start_drag_from_merchant(placed: GridInventory.PlacedItem, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
-	_dragged_item = placed.item_data
+	_begin_drag(placed.item_data, DragSource.MERCHANT, placed.rotation)
 	_drag_source_merchant_pos = placed.grid_position
 	_drag_source_merchant_rot = placed.rotation
-	_drag_rotation = placed.rotation
-	_drag_source = DragSource.MERCHANT
-	_drag_state  = DragState.DRAGGING
-
 	_merchant_inv.remove_item(placed)
 	_merchant_grid_panel.refresh()
-
 	var price := ShopSystem.get_buy_price(_dragged_item, _shop_data)
-	var anchor: Vector2i = Vector2i(-1, -1)
-	if clicked_pos != Vector2i(-1, -1):
-		anchor = clicked_pos - placed.grid_position
 	_finalize_drag_start("Buying: %s  —  %dg" % [_dragged_item.display_name, price],
-		Color(1.0, 0.84, 0.0), anchor)
+		Color(1.0, 0.84, 0.0), _anchor_from_click(clicked_pos, placed.grid_position))
 
 
 func _start_drag_from_player_grid(placed: GridInventory.PlacedItem, inv: GridInventory, clicked_pos: Vector2i = Vector2i(-1, -1)) -> void:
-	_dragged_item = placed.item_data
+	_begin_drag(placed.item_data, DragSource.PLAYER_GRID, placed.rotation)
 	_drag_source_player_pos = placed.grid_position
 	_drag_source_player_rot = placed.rotation
-	_drag_rotation = placed.rotation
-	_drag_source = DragSource.PLAYER_GRID
-	_drag_state  = DragState.DRAGGING
-
 	inv.remove_item(placed)
 	_player_grid_panel.refresh()
-
 	var sell_preview := _sell_price_for(_dragged_item)
-	var anchor: Vector2i = Vector2i(-1, -1)
-	if clicked_pos != Vector2i(-1, -1):
-		anchor = clicked_pos - placed.grid_position
 	_finalize_drag_start("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
-		Color(0.5, 1.0, 0.5), anchor)
+		Color(0.5, 1.0, 0.5), _anchor_from_click(clicked_pos, placed.grid_position))
 
 
 func _start_drag_from_stash(item: ItemData, index: int) -> void:
-	_dragged_item = item
+	_begin_drag(item, DragSource.STASH)
 	_drag_source_stash_index = index
-	_drag_rotation = 0
-	_drag_source = DragSource.STASH
-	_drag_state  = DragState.DRAGGING
-
 	GameManager.party.stash.remove_at(index)
 	EventBus.stash_changed.emit()
 	_refresh_stash()
 	_item_tooltip.hide_tooltip()
-
 	var sell_preview := _sell_price_for(_dragged_item)
 	_finalize_drag_start("Selling: %s  →  +%dg" % [_dragged_item.display_name, sell_preview],
 		Color(0.5, 1.0, 0.5))
@@ -488,17 +480,12 @@ func _start_drag_from_sold_panel(index: int) -> void:
 	if index < 0 or index >= _sold_log.size():
 		return
 	var entry: Dictionary = _sold_log[index]
-	_dragged_item          = entry.item
+	_begin_drag(entry.item, DragSource.SOLD_PANEL)
 	_drag_source_sold_index = index
 	_drag_source_sold_price = entry.price
-	_drag_rotation = 0
-	_drag_source = DragSource.SOLD_PANEL
-	_drag_state  = DragState.DRAGGING
-
 	_sold_log.remove_at(index)
 	_refresh_sold_panel()
 	_item_tooltip.hide_tooltip()
-
 	_finalize_drag_start("Buying back: %s  —  %dg" % [_dragged_item.display_name, _drag_source_sold_price],
 		Color(1.0, 0.84, 0.0))
 
