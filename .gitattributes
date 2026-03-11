@@ -1,0 +1,2 @@
+# Normalize Godot import metadata to LF to avoid line-ending noise
+*.import text eol=lf
