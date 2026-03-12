@@ -193,6 +193,11 @@
 | 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | 3217700f-d0fb-81cf-9733-ceb9f5de8672 |
 | Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
 | Improve terrain textures (replace flat colors with tiled textures/shaders) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
+| Voxel Phase 1: VoxelChunk with greedy meshing (16x16x16 chunks, face culling, quad merging) | 3217700f-d0fb-81f0-aa48-f23f133f2509 |
+| Voxel Phase 2: VoxelTerrain chunk manager (loading, culling, camera distance) | 3217700f-d0fb-8169-a991-fb61a97e4db2 |
+| Voxel Phase 3: VoxelMapData resource and MapLoader integration | 3217700f-d0fb-819e-ad44-c28b33c98060 |
+| Voxel Phase 5: Water shader system (animated waves, transparency, reflections) | 3217700f-d0fb-81cf-a027-c0c179306f22 |
+| Voxel Phase 6: Terrain texturing (triplanar shader, texture atlas) | 3217700f-d0fb-816b-b49b-cdbe27308f55 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
@@ -283,12 +288,12 @@
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
-| Persist audio settings across sessions (save/load volumes to disk) | 3217700f-d0fb-811f-8fff-f9cff9730f9a |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
+| Persist audio settings across sessions (save/load volumes to disk) | 3217700f-d0fb-811f-8fff-f9cff9730f9a |
 | Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
 | Battle speed controls | 3147700f-d0fb-81c4-b2e5-d61ae1108830 |
 | Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
@@ -308,11 +313,6 @@
 
 ## Map Editor
 
-### In Progress
-| Name | Notion ID |
-|---|---|
-| Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
-
 ### Todo
 | Name | Notion ID |
 |---|---|
@@ -321,6 +321,8 @@
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |
 | Main menu button integration for map editor | 3147700f-d0fb-81e1-93d6-ecc0151abd58 |
 | Map editor save/load (ResourceSaver, MapDatabase.reload()) | 3147700f-d0fb-8139-ad92-ef4e504e0dcf |
+| Voxel Phase 4: 3D brush system for map editor (box/sphere, XYZ dimensions) | 3217700f-d0fb-811e-a902-df897ba5c3dd |
+| Voxel Phase 7: Map migration tool (convert 1x1 GridMap maps to 0.25 voxel format) | 3217700f-d0fb-8109-9e35-ca0cb7701fa8 |
 | Map editor scene layout (.tscn) | 3147700f-d0fb-8132-a958-fa6c3c4904c7 |
 | Map list panel (CRUD, search, dirty tracking) | 3147700f-d0fb-8185-baad-fc2ffe8645d7 |
 | MapData, MapElement, MapConnection resource scripts | 3147700f-d0fb-8141-ac6e-ee067a9e7bc3 |
@@ -331,6 +333,7 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
 | Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
 
 ## 3D Migration
