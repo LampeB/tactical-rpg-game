@@ -195,17 +195,21 @@ func _on_font_scale_changed(idx: int) -> void:
 func _build_audio_tab() -> void:
 	# --- Master volume sliders ---
 	_add_section_label(_audio_settings, "Volume")
-	_add_volume_slider(_audio_settings, "Master", AudioServer.get_bus_volume_db(0), func(v: float) -> void:
-		AudioServer.set_bus_volume_db(0, v)
+	_add_volume_slider(_audio_settings, "Master", AudioManager.master_volume_db, func(v: float) -> void:
+		AudioManager.master_volume_db = v
+		AudioManager.save_audio_settings()
 	)
 	_add_volume_slider(_audio_settings, "Music", linear_to_db(AudioManager.music_volume), func(v: float) -> void:
 		AudioManager.music_volume = db_to_linear(v)
+		AudioManager.save_audio_settings()
 	)
 	_add_volume_slider(_audio_settings, "SFX", linear_to_db(AudioManager.sfx_volume), func(v: float) -> void:
 		AudioManager.sfx_volume = db_to_linear(v)
+		AudioManager.save_audio_settings()
 	)
 	_add_volume_slider(_audio_settings, "Ambient", linear_to_db(AudioManager.ambient_volume), func(v: float) -> void:
 		AudioManager.ambient_volume = db_to_linear(v)
+		AudioManager.save_audio_settings()
 	)
 
 	# --- Debug: individual SFX test sliders ---
@@ -278,6 +282,7 @@ func _add_sfx_test_row(parent: VBoxContainer, sfx_key: String) -> void:
 	slider.value_changed.connect(func(v: float) -> void:
 		val_label.text = "%.1f" % v
 		AudioManager.set_sfx_volume_db(sfx_key, v)
+		AudioManager.save_audio_settings()
 	)
 	row.add_child(slider)
 	row.add_child(val_label)

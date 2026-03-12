@@ -105,6 +105,13 @@ var _sfx_cache: Dictionary = {}  ## path -> AudioStream (loaded)
 var _sfx_volume_db: Dictionary = {}  ## sfx_key -> float (per-SFX volume offset in dB)
 
 # --- Volume (linear, 0.0–1.0) ---
+const AUDIO_SETTINGS_PATH := "user://audio_settings.json"
+
+var master_volume_db: float = 0.0:
+	set(v):
+		master_volume_db = clampf(v, -40.0, 6.0)
+		AudioServer.set_bus_volume_db(0, master_volume_db)
+
 var music_volume: float = 0.8:
 	set(v):
 		music_volume = clampf(v, 0.0, 1.0)
@@ -127,6 +134,7 @@ var ambient_volume: float = 0.5:
 func _ready() -> void:
 	_setup_audio_buses()
 	_create_players()
+	_load_audio_settings()
 	_connect_signals()
 	# Listen for button clicks globally
 	get_tree().node_added.connect(_on_node_added)
@@ -241,6 +249,42 @@ func get_sfx_volume_db(key: String) -> float:
 func set_sfx_volume_db(key: String, db: float) -> void:
 	## Set per-SFX volume offset in dB.
 	_sfx_volume_db[key] = db
+
+
+func save_audio_settings() -> void:
+	## Persist all volume settings to disk.
+	var data: Dictionary = {
+		"master_db": master_volume_db,
+		"music": music_volume,
+		"sfx": sfx_volume,
+		"ambient": ambient_volume,
+		"sfx_offsets": _sfx_volume_db,
+	}
+	var file := FileAccess.open(AUDIO_SETTINGS_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data))
+		file.close()
+
+
+func _load_audio_settings() -> void:
+	## Load volume settings from disk. Called once on _ready after buses exist.
+	if not FileAccess.file_exists(AUDIO_SETTINGS_PATH):
+		return
+	var file := FileAccess.open(AUDIO_SETTINGS_PATH, FileAccess.READ)
+	if not file:
+		return
+	var text: String = file.get_as_text()
+	file.close()
+	var parsed: Variant = JSON.parse_string(text)
+	if parsed is Dictionary:
+		var data: Dictionary = parsed
+		master_volume_db = data.get("master_db", 0.0)
+		music_volume = data.get("music", 0.8)
+		sfx_volume = data.get("sfx", 1.0)
+		ambient_volume = data.get("ambient", 0.5)
+		var offsets: Variant = data.get("sfx_offsets", {})
+		if offsets is Dictionary:
+			_sfx_volume_db = offsets
 
 
 func play_sfx_for_vfx(vfx_type: int) -> void:

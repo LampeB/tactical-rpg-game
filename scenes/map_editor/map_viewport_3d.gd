@@ -41,6 +41,8 @@ var brush_size: int = 1:
 		brush_size = value
 		if _brush_preview:
 			_build_brush_preview()
+## Terrain Y-level for painting.
+var paint_height: int = 0
 ## Brush shape for multi-cell painting.
 var brush_shape: BrushShape = BrushShape.SQUARE:
 	set(value):
@@ -60,9 +62,9 @@ var map_data: MapData = null
 
 # --- Camera state ---
 const CAM_ORBIT_SPEED := 0.3
-const CAM_ZOOM_SPEED := 2.0
+const CAM_ZOOM_SPEED := 3.0
 const CAM_MIN_DIST := 5.0
-const CAM_MAX_DIST := 80.0
+const CAM_MAX_DIST := 200.0
 const CAM_PITCH_MIN := -85.0
 const CAM_PITCH_MAX := -5.0
 
@@ -99,13 +101,13 @@ var _drag_start_pos: Vector3 = Vector3.ZERO
 
 # --- Placement asset ---
 var _place_asset_path: String = ""
-var _place_is_vox: bool = false
 var _place_rotation: float = 0.0
 var _place_scale: float = 1.0
 var _place_random_rotation: bool = false
 var _place_random_scale: bool = false
 var _place_random_scale_min: float = 0.5
 var _place_random_scale_max: float = 1.5
+var _place_height: float = 0.0
 var _rng := RandomNumberGenerator.new()
 
 # --- Scatter state ---
@@ -178,7 +180,7 @@ func _ready() -> void:
 	_camera.name = "Camera3D"
 	_camera.fov = 50.0
 	_camera.near = 0.5
-	_camera.far = 200.0
+	_camera.far = 500.0
 	_pitch_node.add_child(_camera)
 
 	_apply_camera_transform()
@@ -429,11 +431,6 @@ func _load_decoration_visual(resource_id: String) -> Node3D:
 	if resource_id.is_empty():
 		return _create_box_marker(Color(0.5, 0.8, 0.4), Vector3(0.5, 0.5, 0.5))
 
-	if resource_id.ends_with(".vox"):
-		var vox := VoxModel.new()
-		vox.vox_path = resource_id
-		return vox
-
 	var scene: PackedScene = load(resource_id) as PackedScene
 	if scene:
 		return scene.instantiate()
@@ -443,7 +440,7 @@ func _load_decoration_visual(resource_id: String) -> Node3D:
 
 func _load_npc_visual(resource_id: String) -> Node3D:
 	# Scene/vox path from palette
-	if resource_id.ends_with(".tscn") or resource_id.ends_with(".vox"):
+	if resource_id.ends_with(".tscn"):
 		return _load_decoration_visual(resource_id)
 	# NPC database lookup → character factory model
 	if not resource_id.is_empty():
@@ -456,7 +453,7 @@ func _load_npc_visual(resource_id: String) -> Node3D:
 
 
 func _load_enemy_visual(resource_id: String, fallback_color: Color) -> Node3D:
-	if resource_id.ends_with(".tscn") or resource_id.ends_with(".vox"):
+	if resource_id.ends_with(".tscn"):
 		return _load_decoration_visual(resource_id)
 	# Load encounter data → first enemy → character factory model
 	if not resource_id.is_empty() and ResourceLoader.exists(resource_id):
@@ -470,7 +467,7 @@ func _load_enemy_visual(resource_id: String, fallback_color: Color) -> Node3D:
 
 
 func _load_chest_visual(resource_id: String) -> Node3D:
-	if resource_id.ends_with(".tscn") or resource_id.ends_with(".vox"):
+	if resource_id.ends_with(".tscn"):
 		return _load_decoration_visual(resource_id)
 	var base_color := Color(0.55, 0.35, 0.17)
 	if not resource_id.is_empty():
@@ -500,7 +497,7 @@ func _load_chest_visual(resource_id: String) -> Node3D:
 
 
 func _load_location_visual(resource_id: String) -> Node3D:
-	if resource_id.ends_with(".tscn") or resource_id.ends_with(".vox"):
+	if resource_id.ends_with(".tscn"):
 		return _load_decoration_visual(resource_id)
 	# Golden beacon pillar
 	var root := Node3D.new()
@@ -617,9 +614,8 @@ func _update_selection_highlight() -> void:
 
 # === Ghost preview ===
 
-func set_place_asset(path: String, is_vox: bool) -> void:
+func set_place_asset(path: String) -> void:
 	_place_asset_path = path
-	_place_is_vox = is_vox
 	_place_rotation = 0.0
 	_update_ghost()
 	_apply_ghost_scale()
@@ -644,14 +640,9 @@ func _update_ghost() -> void:
 		return
 
 	var preview: Node3D = null
-	if _place_is_vox:
-		var vox := VoxModel.new()
-		vox.vox_path = _place_asset_path
-		preview = vox
-	else:
-		var scene: PackedScene = load(_place_asset_path) as PackedScene
-		if scene:
-			preview = scene.instantiate()
+	var scene: PackedScene = load(_place_asset_path) as PackedScene
+	if scene:
+		preview = scene.instantiate()
 
 	if preview:
 		# Disable collision/physics on preview
@@ -715,10 +706,10 @@ func _build_brush_preview() -> void:
 				continue
 			var mesh_inst := MeshInstance3D.new()
 			var box := BoxMesh.new()
-			box.size = Vector3(0.96, 0.05, 0.96)
+			box.size = Vector3(0.96, 0.96, 0.96)
 			mesh_inst.mesh = box
 			mesh_inst.material_override = _brush_preview_mat
-			mesh_inst.position = Vector3(dx, 0, dz)
+			mesh_inst.position = Vector3(dx, 0.5, dz)
 			_brush_preview.add_child(mesh_inst)
 
 
@@ -966,16 +957,17 @@ func _handle_paint_hover(screen_pos: Vector2) -> void:
 	if _is_painting:
 		_paint_at(screen_pos)
 	# Update brush preview position
+	var brush_y: float = paint_height + 0.02
 	var preview_hit: Dictionary = _raycast_terrain(screen_pos)
 	if not preview_hit.is_empty():
 		var cell: Vector2i = _get_grid_cell(preview_hit["position"])
-		_brush_preview.position = Vector3(cell.x + 0.5, 0.02, cell.y + 0.5)
+		_brush_preview.position = Vector3(cell.x + 0.5, brush_y, cell.y + 0.5)
 		_brush_preview.visible = true
 	else:
 		var gp: Vector3 = _raycast_ground_plane(screen_pos)
 		if gp != Vector3.INF:
 			var cell := Vector2i(int(floorf(gp.x)), int(floorf(gp.z)))
-			_brush_preview.position = Vector3(cell.x + 0.5, 0.02, cell.y + 0.5)
+			_brush_preview.position = Vector3(cell.x + 0.5, brush_y, cell.y + 0.5)
 			_brush_preview.visible = true
 		else:
 			_brush_preview.visible = false
@@ -985,14 +977,15 @@ func _handle_place_hover(screen_pos: Vector2) -> void:
 	if _ghost_preview.visible:
 		var gp: Vector3 = _raycast_ground_plane(screen_pos)
 		if gp != Vector3.INF:
-			_ghost_preview.position = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+			_ghost_preview.position = Vector3(snappedf(gp.x, 0.5), _place_height, snappedf(gp.z, 0.5))
 
 
 func _handle_drag(screen_pos: Vector2) -> void:
 	var gp: Vector3 = _raycast_ground_plane(screen_pos)
 	if gp == Vector3.INF:
 		return
-	var snapped_pos := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+	var current_y: float = _element_nodes[selected_element_index].position.y if selected_element_index >= 0 and selected_element_index < _element_nodes.size() else 0.0
+	var snapped_pos := Vector3(snappedf(gp.x, 0.5), current_y, snappedf(gp.z, 0.5))
 	if selected_element_index >= 0 and selected_element_index < _element_nodes.size():
 		_element_nodes[selected_element_index].position = snapped_pos
 		element_moved.emit(selected_element_index, snapped_pos)
@@ -1030,7 +1023,7 @@ func _paint_at(screen_pos: Vector2) -> void:
 			var cx: int = center.x + dx
 			var cz: int = center.y + dz
 			if _terrain_gridmap:
-				_terrain_gridmap.set_cell_item(Vector3i(cx, 0, cz), paint_block)
+				_terrain_gridmap.set_cell_item(Vector3i(cx, paint_height, cz), paint_block)
 			cell_painted.emit(Vector2i(cx, cz), paint_block)
 
 
@@ -1042,10 +1035,22 @@ func _place_at(screen_pos: Vector2) -> void:
 	element_placed.emit(snapped)
 
 
-func set_terrain_cell(grid_pos: Vector2i, block_type: int) -> void:
+func set_terrain_cell(grid_pos: Vector2i, block_type: int, height: int = -99) -> void:
 	## Update a single terrain cell visually (used by undo/redo).
+	## If height is -99, reads current height from map_data.
 	if _terrain_gridmap:
-		_terrain_gridmap.set_cell_item(Vector3i(grid_pos.x, 0, grid_pos.y), block_type)
+		var h: int = 0
+		if height != -99:
+			h = height
+		elif map_data:
+			h = map_data.get_height_at(grid_pos.x, grid_pos.y)
+		_terrain_gridmap.set_cell_item(Vector3i(grid_pos.x, h, grid_pos.y), block_type)
+
+
+func remove_terrain_cell(grid_pos: Vector2i, height: int) -> void:
+	## Remove a single terrain cell visually at a specific height.
+	if _terrain_gridmap:
+		_terrain_gridmap.set_cell_item(Vector3i(grid_pos.x, height, grid_pos.y), -1)
 
 
 # === Scatter tool ===
@@ -1124,7 +1129,9 @@ func _add_border_strip(width: float, depth: float, height: float, pos: Vector3, 
 
 
 func generate_scatter_preview(seed_val: int, count: int, min_spacing: float,
-		asset_paths: Array[String]) -> Array[Dictionary]:
+		asset_paths: Array[String], scale_val: float = 1.0,
+		random_scale: bool = false, scale_min: float = 0.5,
+		scale_max: float = 1.5) -> Array[Dictionary]:
 	## Generate preview decorations within the scatter zone.
 	clear_scatter_preview()
 
@@ -1152,7 +1159,10 @@ func generate_scatter_preview(seed_val: int, count: int, min_spacing: float,
 		if MapLoader._is_valid_placement(pos, exclusions, placed, min_spacing):
 			var path: String = asset_paths[rng.randi_range(0, asset_paths.size() - 1)]
 			var rot_y: float = rng.randf_range(0, TAU)
-			result.append({"position": pos, "rotation_y": rot_y, "asset_path": path})
+			var s: float = scale_val
+			if random_scale:
+				s = rng.randf_range(scale_min, scale_max)
+			result.append({"position": pos, "rotation_y": rot_y, "asset_path": path, "scale": s})
 			placed.append(pos)
 
 	# Create semi-transparent preview visuals
@@ -1163,6 +1173,9 @@ func generate_scatter_preview(seed_val: int, count: int, min_spacing: float,
 			_apply_ghost_transparency(visual)
 			visual.position = item_data["position"]
 			visual.rotation.y = item_data["rotation_y"]
+			var item_scale: float = item_data["scale"]
+			if item_scale != 1.0:
+				visual.scale = Vector3.ONE * item_scale
 			_scatter_preview_parent.add_child(visual)
 
 	_scatter_preview_items = result
@@ -1375,7 +1388,7 @@ func _on_battle_area_left_press(screen_pos: Vector2) -> void:
 	# Place a new battle area at clicked position
 	var gp: Vector3 = _raycast_ground_plane(screen_pos)
 	if gp != Vector3.INF:
-		var snapped: Vector3 = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		var snapped: Vector3 = Vector3(snappedf(gp.x, 0.5), _place_height, snappedf(gp.z, 0.5))
 		battle_area_placed.emit(snapped)
 
 
@@ -1384,7 +1397,8 @@ func _handle_battle_area_hover(screen_pos: Vector2) -> void:
 	if _is_dragging_battle_area and selected_battle_area_index >= 0:
 		var gp: Vector3 = _raycast_ground_plane(screen_pos)
 		if gp != Vector3.INF:
-			var snapped_pos := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+			var current_y: float = _battle_area_nodes[selected_battle_area_index].position.y if selected_battle_area_index < _battle_area_nodes.size() else 0.0
+			var snapped_pos := Vector3(snappedf(gp.x, 0.5), current_y, snappedf(gp.z, 0.5))
 			if selected_battle_area_index < _battle_area_nodes.size():
 				_battle_area_nodes[selected_battle_area_index].position = snapped_pos
 				battle_area_moved.emit(selected_battle_area_index, snapped_pos)
@@ -1392,7 +1406,7 @@ func _handle_battle_area_hover(screen_pos: Vector2) -> void:
 		if _battle_area_ghost:
 			var gp: Vector3 = _raycast_ground_plane(screen_pos)
 			if gp != Vector3.INF:
-				_battle_area_ghost.position = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+				_battle_area_ghost.position = Vector3(snappedf(gp.x, 0.5), _place_height, snappedf(gp.z, 0.5))
 				_battle_area_ghost.visible = true
 			else:
 				_battle_area_ghost.visible = false
@@ -1529,7 +1543,7 @@ func _on_connection_left_press(screen_pos: Vector2) -> void:
 	# Otherwise, place a new connection at the click position
 	var gp: Vector3 = _raycast_ground_plane(screen_pos)
 	if gp != Vector3.INF:
-		var snapped := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		var snapped := Vector3(snappedf(gp.x, 0.5), _place_height, snappedf(gp.z, 0.5))
 		connection_placed.emit(snapped)
 
 
@@ -1539,7 +1553,8 @@ func _handle_connection_hover(screen_pos: Vector2) -> void:
 		var gp: Vector3 = _raycast_ground_plane(screen_pos)
 		if gp == Vector3.INF:
 			return
-		var snapped_pos := Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+		var current_y: float = _connection_nodes[selected_connection_index].position.y if selected_connection_index < _connection_nodes.size() else 0.0
+		var snapped_pos := Vector3(snappedf(gp.x, 0.5), current_y, snappedf(gp.z, 0.5))
 		if selected_connection_index < _connection_nodes.size():
 			_connection_nodes[selected_connection_index].position = snapped_pos
 			connection_moved.emit(selected_connection_index, snapped_pos)
@@ -1548,7 +1563,7 @@ func _handle_connection_hover(screen_pos: Vector2) -> void:
 		if _connection_ghost:
 			var gp: Vector3 = _raycast_ground_plane(screen_pos)
 			if gp != Vector3.INF:
-				_connection_ghost.position = Vector3(snappedf(gp.x, 0.5), 0, snappedf(gp.z, 0.5))
+				_connection_ghost.position = Vector3(snappedf(gp.x, 0.5), _place_height, snappedf(gp.z, 0.5))
 				_connection_ghost.visible = true
 			else:
 				_connection_ghost.visible = false

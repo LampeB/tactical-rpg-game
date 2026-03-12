@@ -54,7 +54,7 @@
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
-| Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | PENDING-NOTION-SYNC-BLOCK |
+| Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | 3217700f-d0fb-818c-bfbd-e5e37dfe61a4 |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 
 ### Done
@@ -63,7 +63,7 @@
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
-| Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | PENDING-NOTION-SYNC-CAMERA |
+| Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | 3217700f-d0fb-81a1-9a90-c42cbae821af |
 | Create enemy variety (10 types with unique skills, loot tables, encounters) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
 | Dead characters persist death across battles (no auto-revive) | 3147700f-d0fb-81f1-8f45-fc6389364961 |
 | EncounterZoneData for enemy spawn areas | 3147700f-d0fb-8166-8fcb-f55ede7b5342 |
@@ -190,18 +190,18 @@
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
-| 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | PENDING-NOTION-SYNC-ELEVATION |
-| Better water visuals (animated shader, transparency, reflections, waves) | PENDING-NOTION-SYNC-WATER |
-| Improve terrain textures (replace flat colors with tiled textures/shaders) | PENDING-NOTION-SYNC-TEXTURES |
+| 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | 3217700f-d0fb-81cf-9733-ceb9f5de8672 |
+| Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
+| Improve terrain textures (replace flat colors with tiled textures/shaders) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
-| Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | PENDING-NOTION-SYNC-NPC |
+| Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
 | Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
-| Sprint option on overworld (hold Shift to run faster) | PENDING-NOTION-SYNC-SPRINT |
-| Enemy aggro system (monsters chase player when close enough) | PENDING-NOTION-SYNC-AGGRO |
+| Sprint option on overworld (hold Shift to run faster) | 3217700f-d0fb-81e4-b9df-fc2e8453d162 |
+| Enemy aggro system (monsters chase player when close enough) | 3217700f-d0fb-8192-8bff-c03350d5630d |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
@@ -209,7 +209,7 @@
 |---|---|
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
 | Day/night cycle with sun/moon discs, stars, and moon phases | 31d7700f-d0fb-81ca-8369-d82f8404b36c |
-| NPC wandering patrol system (random movement within radius) | PENDING-NOTION-SYNC |
+| NPC wandering patrol system (random movement within radius) | 3217700f-d0fb-8128-98dd-dd676430ec81 |
 | Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
 | Fix NPC/enemy ground positioning (auto-grounding + terrain offset) | 31c7700f-d0fb-81a9-8a92-eb792748e73e |
 | FF6-style overworld with WASD movement and camera follow | 3147700f-d0fb-8199-84ab-fd7b81806a26 |
@@ -232,7 +232,7 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Footstep sounds on overworld (terrain-aware, walk/sprint) | PENDING-NOTION-SYNC-FOOTSTEPS |
+| Footstep sounds on overworld (terrain-aware, walk/sprint) | 3217700f-d0fb-8199-b95a-c20479fb2250 |
 
 ### Done
 | Name | Notion ID |
@@ -283,7 +283,7 @@
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
-| Persist audio settings across sessions (save/load volumes to disk) | PENDING_NOTION_SYNC |
+| Persist audio settings across sessions (save/load volumes to disk) | 3217700f-d0fb-811f-8fff-f9cff9730f9a |
 
 ### Done
 | Name | Notion ID |
@@ -308,10 +308,14 @@
 
 ## Map Editor
 
+### In Progress
+| Name | Notion ID |
+|---|---|
+| Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
+
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Allow placing map elements at different heights (terrain elevation, ups and downs) | PENDING-NOTION-SYNC-HEIGHT |
 | Canvas interaction (select, place, drag, delete) | 3147700f-d0fb-8193-af8b-fdbfba5c26ef |
 | Canvas rendering (grid, elements by type, spawn marker) | 3147700f-d0fb-8188-b1f9-cc2fec86fa6b |
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |

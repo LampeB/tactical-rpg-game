@@ -3,8 +3,10 @@ extends Control
 ## Three-panel layout: map list (left) + canvas (center) + properties (right).
 
 const DECORATION_SCENES_DIR := "res://scenes/world/objects/"
+const ASSET_DEFAULTS_PATH := "user://map_editor_asset_defaults.cfg"
 
 var _maps: Dictionary = {}         # id -> MapData (working copies)
+var _asset_defaults: ConfigFile = ConfigFile.new()  # per-asset default scale
 var _selected_map_id: String = ""
 var _selected_element_idx: int = -1
 var _dirty_ids: Dictionary = {}    # id -> true
@@ -30,6 +32,7 @@ var _place_random_rot_cb: CheckBox
 var _place_random_scale_cb: CheckBox
 var _place_random_scale_min_spin: SpinBox
 var _place_random_scale_max_spin: SpinBox
+var _place_height_spin: SpinBox
 var _coord_label: Label
 var _unsaved_dialog: ConfirmationDialog
 
@@ -59,6 +62,7 @@ var _selected_connection_idx: int = -1
 
 func _ready() -> void:
 	_scan_decoration_scenes()
+	_load_asset_defaults()
 	_load_all_maps()
 	_build_ui()
 
@@ -81,6 +85,25 @@ func _scan_decoration_scenes() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 	_decoration_scene_names.sort()
+
+
+func _load_asset_defaults() -> void:
+	var err: int = _asset_defaults.load(ASSET_DEFAULTS_PATH)
+	if err != OK:
+		_asset_defaults = ConfigFile.new()
+
+
+func _save_asset_defaults() -> void:
+	_asset_defaults.save(ASSET_DEFAULTS_PATH)
+
+
+func _get_asset_default_scale(asset_path: String) -> float:
+	return _asset_defaults.get_value("scale", asset_path, 1.0) as float
+
+
+func _set_asset_default_scale(asset_path: String, scale_val: float) -> void:
+	_asset_defaults.set_value("scale", asset_path, scale_val)
+	_save_asset_defaults()
 
 
 func _load_all_maps() -> void:
@@ -381,6 +404,23 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 	)
 	_brush_controls.add_child(shape_picker)
 
+	var height_label := Label.new()
+	height_label.text = "Height:"
+	height_label.add_theme_font_size_override("font_size", 13)
+	_brush_controls.add_child(height_label)
+
+	var paint_height_spin := SpinBox.new()
+	paint_height_spin.min_value = -5
+	paint_height_spin.max_value = 20
+	paint_height_spin.step = 1
+	paint_height_spin.value = 0
+	paint_height_spin.custom_minimum_size.x = 60
+	paint_height_spin.tooltip_text = "Terrain Y level (0 = ground)"
+	paint_height_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d.paint_height = int(val)
+	)
+	_brush_controls.add_child(paint_height_spin)
+
 	# Element picker (visible when Place tool active)
 	_element_picker = OptionButton.new()
 	_element_picker.visible = false
@@ -457,6 +497,23 @@ func _build_center_panel(parent: HBoxContainer) -> void:
 		_viewport_3d._place_random_scale_max = val
 	)
 	_place_options.add_child(_place_random_scale_max_spin)
+
+	var pheight_label := Label.new()
+	pheight_label.text = "Height:"
+	pheight_label.add_theme_font_size_override("font_size", 13)
+	_place_options.add_child(pheight_label)
+
+	_place_height_spin = SpinBox.new()
+	_place_height_spin.min_value = -10.0
+	_place_height_spin.max_value = 50.0
+	_place_height_spin.step = 0.5
+	_place_height_spin.value = 0.0
+	_place_height_spin.custom_minimum_size.x = 70
+	_place_height_spin.tooltip_text = "Y height for placed elements"
+	_place_height_spin.value_changed.connect(func(val: float) -> void:
+		_viewport_3d._place_height = val
+	)
+	_place_options.add_child(_place_height_spin)
 
 	var toolbar_spacer := Control.new()
 	toolbar_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -634,13 +691,18 @@ func _set_paint_block(block_idx: int) -> void:
 			btn.button_pressed = (i - 2 == block_idx)  # -2 for label + eraser
 
 
-func _on_asset_selected(path: String, is_vox: bool) -> void:
-	_viewport_3d.set_place_asset(path, is_vox)
+func _on_asset_selected(path: String) -> void:
+	_viewport_3d.set_place_asset(path)
 	_set_active_tool(MapViewport3D.Tool.PLACE)
 	# Auto-set element type based on asset
 	var inferred_type: int = _infer_element_type(path)
 	_viewport_3d.place_element_type = inferred_type
 	_element_picker.select(inferred_type)
+	# Apply saved default scale for this asset
+	var default_scale: float = _get_asset_default_scale(path)
+	_viewport_3d._place_scale = default_scale
+	_place_scale_spin.set_value_no_signal(default_scale)
+	_viewport_3d._apply_ghost_scale()
 
 
 static func _infer_element_type(path: String) -> int:
@@ -650,7 +712,7 @@ static func _infer_element_type(path: String) -> int:
 		return MapElement.ElementType.SIGN
 	if fname == "fence":
 		return MapElement.ElementType.FENCE
-	if path.ends_with(".tscn") or path.ends_with(".vox"):
+	if path.ends_with(".tscn"):
 		return MapElement.ElementType.DECORATION
 	return MapElement.ElementType.NPC
 
@@ -661,16 +723,40 @@ func _on_cell_painted(grid_pos: Vector2i, block_type: int) -> void:
 	var map: MapData = _maps.get(_selected_map_id)
 	if not map:
 		return
-	# Record old value for undo (only first time this cell is painted in this stroke)
-	var key: String = "%d,%d" % [grid_pos.x, grid_pos.y]
+	var new_height: int = _viewport_3d.paint_height
+	# Key includes height so same (x,z) at different Y-levels are tracked separately
+	var key: String = "%d,%d,%d" % [grid_pos.x, new_height, grid_pos.y]
 	if not _current_paint_action.has("cells"):
 		_current_paint_action = { "type": "paint", "cells": {} }
 	if not _current_paint_action["cells"].has(key):
-		var old_val: int = map.get_terrain_at(grid_pos.x, grid_pos.y)
-		_current_paint_action["cells"][key] = { "pos": grid_pos, "old": old_val, "new": block_type }
+		# Check what was at this exact (x, y, z) before
+		var primary_height: int = map.get_height_at(grid_pos.x, grid_pos.y)
+		var old_val: int = -1  # -1 means no block existed here
+		var was_primary: bool = false
+		if primary_height == new_height:
+			old_val = map.get_terrain_at(grid_pos.x, grid_pos.y)
+			was_primary = true
+		else:
+			old_val = map.get_extra_terrain_at(grid_pos.x, new_height, grid_pos.y)
+		_current_paint_action["cells"][key] = {
+			"pos": grid_pos, "old": old_val, "new": block_type,
+			"height": new_height, "was_primary": was_primary,
+		}
 	else:
 		_current_paint_action["cells"][key]["new"] = block_type
-	map.set_terrain_at(grid_pos.x, grid_pos.y, block_type)
+	# Store in the appropriate layer
+	var primary_height: int = map.get_height_at(grid_pos.x, grid_pos.y)
+	if primary_height == new_height:
+		# Erasing primary layer sets it to grass (0) since primary always exists
+		if block_type == -1:
+			map.set_terrain_at(grid_pos.x, grid_pos.y, 0)
+		else:
+			map.set_terrain_at(grid_pos.x, grid_pos.y, block_type)
+	else:
+		if block_type == -1:
+			map.remove_extra_terrain_at(grid_pos.x, new_height, grid_pos.y)
+		else:
+			map.set_extra_terrain_at(grid_pos.x, new_height, grid_pos.y, block_type)
 	_mark_dirty()
 
 
@@ -718,7 +804,7 @@ func _on_element_placed(world_pos: Vector2) -> void:
 		return
 	var elem := MapElement.new()
 	elem.element_type = _viewport_3d.place_element_type as MapElement.ElementType
-	elem.position = Vector3(snappedf(world_pos.x, 0.5), 0, snappedf(world_pos.y, 0.5))
+	elem.position = Vector3(snappedf(world_pos.x, 0.5), _viewport_3d._place_height, snappedf(world_pos.y, 0.5))
 
 	# Rotation: random or manual
 	if _viewport_3d._place_random_rotation:
@@ -740,7 +826,7 @@ func _on_element_placed(world_pos: Vector2) -> void:
 	if not palette_path.is_empty():
 		elem.resource_id = palette_path
 		# Ensure element type matches asset (safety net)
-		if elem.element_type == MapElement.ElementType.NPC and (palette_path.ends_with(".tscn") or palette_path.ends_with(".vox")):
+		if elem.element_type == MapElement.ElementType.NPC and palette_path.ends_with(".tscn"):
 			elem.element_type = _infer_element_type(palette_path) as MapElement.ElementType
 	else:
 		# Fallback defaults
@@ -796,7 +882,11 @@ func _on_hover_changed(grid_pos: Vector2i) -> void:
 		if map and grid_pos.x < map.grid_width and grid_pos.y < map.grid_height:
 			var block: int = map.get_terrain_at(grid_pos.x, grid_pos.y)
 			var block_name: String = MapLoader.BLOCK_NAMES[block] if block < MapLoader.BLOCK_NAMES.size() else "?"
-			_coord_label.text = "X: %d  Z: %d  [%s]" % [grid_pos.x, grid_pos.y, block_name]
+			var h: int = map.get_height_at(grid_pos.x, grid_pos.y)
+			if h != 0:
+				_coord_label.text = "X: %d  Z: %d  Y: %d  [%s]" % [grid_pos.x, grid_pos.y, h, block_name]
+			else:
+				_coord_label.text = "X: %d  Z: %d  [%s]" % [grid_pos.x, grid_pos.y, block_name]
 		else:
 			_coord_label.text = "X: %d  Z: %d  [out of bounds]" % [grid_pos.x, grid_pos.y]
 	else:
@@ -919,35 +1009,57 @@ func _build_element_properties(idx: int) -> void:
 	_add_separator()
 	_add_section_header("Position")
 
+	var captured_idx: int = idx
+
 	_add_label("X:")
 	var pos_x := SpinBox.new()
 	pos_x.min_value = -10
 	pos_x.max_value = 200
 	pos_x.step = 0.5
-	pos_x.value = elem.position.x
 	pos_x.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var captured_idx: int = idx
 	pos_x.value_changed.connect(func(val: float) -> void:
+		if _selected_element_idx != captured_idx:
+			return
 		elem.position.x = val
 		_mark_dirty()
 		if captured_idx < _viewport_3d._element_nodes.size():
 			_viewport_3d._element_nodes[captured_idx].position.x = val
 	)
+	pos_x.set_value_no_signal(elem.position.x)
 	_property_vbox.add_child(pos_x)
+
+	_add_label("Y (Height):")
+	var pos_y := SpinBox.new()
+	pos_y.min_value = -10
+	pos_y.max_value = 50
+	pos_y.step = 0.5
+	pos_y.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pos_y.value_changed.connect(func(val: float) -> void:
+		if _selected_element_idx != captured_idx:
+			return
+		elem.position.y = val
+		_mark_dirty()
+		if captured_idx < _viewport_3d._element_nodes.size():
+			_viewport_3d._element_nodes[captured_idx].position.y = val
+	)
+	pos_y.set_value_no_signal(elem.position.y)
+	_property_vbox.add_child(pos_y)
 
 	_add_label("Z:")
 	var pos_z := SpinBox.new()
 	pos_z.min_value = -10
 	pos_z.max_value = 200
 	pos_z.step = 0.5
-	pos_z.value = elem.position.z
 	pos_z.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pos_z.value_changed.connect(func(val: float) -> void:
+		if _selected_element_idx != captured_idx:
+			return
 		elem.position.z = val
 		_mark_dirty()
 		if captured_idx < _viewport_3d._element_nodes.size():
 			_viewport_3d._element_nodes[captured_idx].position.z = val
 	)
+	pos_z.set_value_no_signal(elem.position.z)
 	_property_vbox.add_child(pos_z)
 
 	_add_label("Rotation Y:")
@@ -955,30 +1067,58 @@ func _build_element_properties(idx: int) -> void:
 	rot_spin.min_value = -6.3
 	rot_spin.max_value = 6.3
 	rot_spin.step = 0.1
-	rot_spin.value = elem.rotation_y
 	rot_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rot_spin.value_changed.connect(func(val: float) -> void:
+		if _selected_element_idx != captured_idx:
+			return
 		elem.rotation_y = val
 		_mark_dirty()
 		if captured_idx < _viewport_3d._element_nodes.size():
 			_viewport_3d._element_nodes[captured_idx].rotation.y = val
 	)
+	rot_spin.set_value_no_signal(elem.rotation_y)
 	_property_vbox.add_child(rot_spin)
 
 	_add_label("Scale:")
 	var scale_spin := SpinBox.new()
-	scale_spin.min_value = 0.1
+	scale_spin.min_value = 0.01
 	scale_spin.max_value = 10.0
-	scale_spin.step = 0.1
-	scale_spin.value = elem.scale_factor
+	scale_spin.step = 0.01
 	scale_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scale_spin.value_changed.connect(func(val: float) -> void:
+		if _selected_element_idx != captured_idx:
+			return
 		elem.scale_factor = val
 		_mark_dirty()
 		if captured_idx < _viewport_3d._element_nodes.size():
 			_viewport_3d._element_nodes[captured_idx].scale = Vector3.ONE * val
 	)
+	scale_spin.set_value_no_signal(elem.scale_factor)
 	_property_vbox.add_child(scale_spin)
+
+	# "Set as Default" button — saves current scale for this asset
+	if not elem.resource_id.is_empty():
+		var default_btn := Button.new()
+		var saved_default: float = _get_asset_default_scale(elem.resource_id)
+		if absf(saved_default - elem.scale_factor) < 0.001:
+			default_btn.text = "Default: %.2f" % saved_default
+			default_btn.disabled = true
+		else:
+			default_btn.text = "Set %.2f as Default" % elem.scale_factor
+		default_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		default_btn.add_theme_font_size_override("font_size", 12)
+		var captured_scale_spin: SpinBox = scale_spin
+		var captured_resource_id: String = elem.resource_id
+		default_btn.pressed.connect(func() -> void:
+			var current_scale: float = captured_scale_spin.value
+			_set_asset_default_scale(captured_resource_id, current_scale)
+			_viewport_3d._place_scale = current_scale
+			_place_scale_spin.set_value_no_signal(current_scale)
+			default_btn.text = "Default: %.2f" % current_scale
+			default_btn.disabled = true
+			_show_status("Default scale for %s set to %.2f" % [captured_resource_id.get_file().get_basename(), current_scale], Color(0.2, 0.8, 0.3))
+		)
+		_property_vbox.add_child(default_btn)
 
 	_add_separator()
 	_add_section_header("Reference")
@@ -1242,6 +1382,13 @@ func _build_scatter_panel() -> void:
 	_scatter_spacing_spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_property_vbox.add_child(_scatter_spacing_spin)
 
+	# Scale info
+	var scale_info := Label.new()
+	scale_info.text = "Scale: uses Place tool settings (%.2f)" % _viewport_3d._place_scale
+	scale_info.add_theme_font_size_override("font_size", 12)
+	scale_info.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	_property_vbox.add_child(scale_info)
+
 	_add_separator()
 	_add_section_header("Assets to Scatter")
 
@@ -1335,7 +1482,9 @@ func _rebuild_scatter_asset_list() -> void:
 	# Preserve checked state
 	var was_checked: Dictionary = {}
 	for cb_path in _scatter_asset_checkboxes:
-		was_checked[cb_path] = (_scatter_asset_checkboxes[cb_path] as CheckBox).button_pressed
+		var cb_node: CheckBox = _scatter_asset_checkboxes[cb_path] as CheckBox
+		if is_instance_valid(cb_node):
+			was_checked[cb_path] = cb_node.button_pressed
 
 	for child in _scatter_asset_list_vbox.get_children():
 		child.queue_free()
@@ -1371,16 +1520,6 @@ func _get_scatter_assets() -> Array[Dictionary]:
 				assets.append({"name": fname.get_basename(), "path": DECORATION_SCENES_DIR + fname})
 			fname = scene_dir.get_next()
 		scene_dir.list_dir_end()
-	# Scan voxels
-	var vox_dir := DirAccess.open(AssetPalette.VOXELS_DIR)
-	if vox_dir:
-		vox_dir.list_dir_begin()
-		var fname := vox_dir.get_next()
-		while fname != "":
-			if not vox_dir.current_is_dir() and fname.ends_with(".vox"):
-				assets.append({"name": fname.get_basename() + " (vox)", "path": AssetPalette.VOXELS_DIR + fname})
-			fname = vox_dir.get_next()
-		vox_dir.list_dir_end()
 	assets.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return a["name"].naturalcasecmp_to(b["name"]) < 0
 	)
@@ -1427,7 +1566,9 @@ func _on_scatter_generate() -> void:
 	var spacing_val: float = _scatter_spacing_spin.value
 
 	var items: Array[Dictionary] = _viewport_3d.generate_scatter_preview(
-		seed_val, count_val, spacing_val, selected_paths
+		seed_val, count_val, spacing_val, selected_paths,
+		_viewport_3d._place_scale, _viewport_3d._place_random_scale,
+		_viewport_3d._place_random_scale_min, _viewport_3d._place_random_scale_max
 	)
 
 	_scatter_accept_btn.disabled = items.is_empty()
@@ -1454,6 +1595,7 @@ func _on_scatter_accept() -> void:
 		elem.position = item_data["position"]
 		elem.rotation_y = item_data["rotation_y"]
 		elem.resource_id = item_data["asset_path"]
+		elem.scale_factor = item_data.get("scale", 1.0)
 		map.elements.append(elem)
 		stored_items.append(item_data.duplicate())
 
@@ -1499,7 +1641,7 @@ func _build_battle_area_panel() -> void:
 			var area: BattleAreaData = map.battle_areas[bi]
 			var btn := Button.new()
 			var label_text: String = area.area_name if not area.area_name.is_empty() else "(unnamed)"
-			label_text += " (%.0f, %.0f)" % [area.position.x, area.position.z]
+			label_text += " (%.0f, %.0f, Y:%.1f)" % [area.position.x, area.position.z, area.position.y]
 			btn.text = "%d. %s" % [bi + 1, label_text]
 			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1536,8 +1678,24 @@ func _build_battle_area_properties(idx: int) -> void:
 	)
 	_property_vbox.add_child(name_edit)
 
-	# Position info (read-only)
-	_add_label("Position: (%.1f, %.1f)" % [area.position.x, area.position.z])
+	# Position info
+	_add_label("Position: (%.1f, %.1f, Y: %.1f)" % [area.position.x, area.position.z, area.position.y])
+
+	_add_label("Height (Y):")
+	var area_height := SpinBox.new()
+	area_height.min_value = -10
+	area_height.max_value = 50
+	area_height.step = 0.5
+	area_height.value = area.position.y
+	area_height.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	area_height.value_changed.connect(func(val: float) -> void:
+		area.position.y = val
+		_mark_dirty()
+		_viewport_3d.refresh_battle_areas()
+		_viewport_3d.selected_battle_area_index = captured_idx
+	)
+	_property_vbox.add_child(area_height)
+
 	_add_label("Rotation: %.0f°" % rad_to_deg(area.rotation_y))
 	_add_label("Arena radius: %.1f" % BattleAreaData.ARENA_RADIUS)
 	_add_label("Ctrl+Scroll to rotate.")
@@ -1579,7 +1737,7 @@ func _on_battle_area_placed(pos: Vector3) -> void:
 	_mark_dirty()
 	_viewport_3d.refresh_battle_areas()
 	_build_battle_area_panel()
-	_show_status("Placed battle area at (%.0f, %.0f)" % [pos.x, pos.z], Color(0.2, 0.8, 0.3))
+	_show_status("Placed battle area at (%.0f, %.0f, Y:%.1f)" % [pos.x, pos.z, pos.y], Color(0.2, 0.8, 0.3))
 
 
 func _on_battle_area_clicked(area_index: int) -> void:
@@ -1737,7 +1895,22 @@ func _build_connection_properties(idx: int) -> void:
 
 	_add_separator()
 	_add_section_header("Position")
-	_add_label("X: %.1f  Z: %.1f" % [conn.position.x, conn.position.z])
+	_add_label("X: %.1f  Z: %.1f  Y: %.1f" % [conn.position.x, conn.position.z, conn.position.y])
+
+	_add_label("Height (Y):")
+	var conn_height := SpinBox.new()
+	conn_height.min_value = -10
+	conn_height.max_value = 50
+	conn_height.step = 0.5
+	conn_height.value = conn.position.y
+	conn_height.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	conn_height.value_changed.connect(func(val: float) -> void:
+		conn.position.y = val
+		_mark_dirty()
+		if captured_idx < _viewport_3d._connection_nodes.size():
+			_viewport_3d._connection_nodes[captured_idx].position.y = val
+	)
+	_property_vbox.add_child(conn_height)
 
 	_add_separator()
 	# Delete button
@@ -1878,13 +2051,26 @@ func _apply_action(action: Dictionary, is_undo: bool) -> void:
 			var cells: Array = action["cells"]
 			for cell_data in cells:
 				var pos: Vector2i = cell_data["pos"]
+				var h: int = cell_data.get("height", cell_data.get("new_height", 0))
 				var val: int
 				if is_undo:
 					val = cell_data["old"]
 				else:
 					val = cell_data["new"]
-				map.set_terrain_at(pos.x, pos.y, val)
-				_viewport_3d.set_terrain_cell(pos, val)
+				var was_primary: bool = cell_data.get("was_primary", true)
+				if val == -1:
+					# Block didn't exist before — remove it
+					if was_primary:
+						map.set_terrain_at(pos.x, pos.y, 0)
+					else:
+						map.remove_extra_terrain_at(pos.x, h, pos.y)
+					_viewport_3d.remove_terrain_cell(pos, h)
+				else:
+					if was_primary:
+						map.set_terrain_at(pos.x, pos.y, val)
+					else:
+						map.set_extra_terrain_at(pos.x, h, pos.y, val)
+					_viewport_3d.set_terrain_cell(pos, val, h)
 		"move":
 			var elem_idx: int = action["element_index"]
 			var target_pos: Vector3
