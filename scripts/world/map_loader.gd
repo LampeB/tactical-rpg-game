@@ -72,9 +72,23 @@ static func build_terrain_node(map_data: MapData) -> GridMap:
 	grid.collision_mask = 0
 	grid.position.y = -1.0  # cell_center_y offsets by +0.5; box top at Y=0
 
+	var has_heights: bool = not map_data.terrain_heights.is_empty()
 	for x in range(map_data.grid_width):
 		for z in range(map_data.grid_height):
-			grid.set_cell_item(Vector3i(x, 0, z), map_data.get_terrain_at(x, z))
+			var y_level: int = map_data.get_height_at(x, z) if has_heights else 0
+			grid.set_cell_item(Vector3i(x, y_level, z), map_data.get_terrain_at(x, z))
+
+	# Load extra terrain blocks (multi-level)
+	var extra_keys: Array = map_data.extra_terrain.keys()
+	for i in range(extra_keys.size()):
+		var k: String = extra_keys[i]
+		var parts: PackedStringArray = k.split(",")
+		if parts.size() == 3:
+			var ex: int = parts[0].to_int()
+			var ey: int = parts[1].to_int()
+			var ez: int = parts[2].to_int()
+			var block_type: int = map_data.extra_terrain[k] as int
+			grid.set_cell_item(Vector3i(ex, ey, ez), block_type)
 
 	return grid
 
@@ -86,9 +100,9 @@ static func spawn_elements(map_data: MapData, parent: Node3D,
 
 	for elem in map_data.elements:
 		var etype: int = elem.element_type
-		# Fix mismatched types: scene/vox paths stored as NPC (editor bug, Godot default-value quirk)
+		# Fix mismatched types: scene paths stored as NPC (editor bug, Godot default-value quirk)
 		if etype == MapElement.ElementType.NPC and not elem.resource_id.is_empty():
-			if elem.resource_id.ends_with(".tscn") or elem.resource_id.ends_with(".vox"):
+			if elem.resource_id.ends_with(".tscn"):
 				etype = MapElement.ElementType.DECORATION
 		match etype:
 			MapElement.ElementType.LOCATION:
@@ -169,16 +183,11 @@ static func _spawn_chest(elem: MapElement, parent: Node3D) -> void:
 static func _spawn_decoration(elem: MapElement, parent: Node3D) -> void:
 	if elem.resource_id.is_empty():
 		return
-	var obj: Node3D
-	if elem.resource_id.ends_with(".vox"):
-		obj = VoxModel.new()
-		obj.vox_path = elem.resource_id
-	else:
-		var scene: PackedScene = load(elem.resource_id) as PackedScene
-		if not scene:
-			DebugLogger.log_warn("Failed to load decoration scene: %s" % elem.resource_id, "MapLoader")
-			return
-		obj = scene.instantiate()
+	var scene: PackedScene = load(elem.resource_id) as PackedScene
+	if not scene:
+		DebugLogger.log_warn("Failed to load decoration scene: %s" % elem.resource_id, "MapLoader")
+		return
+	var obj: Node3D = scene.instantiate()
 	obj.position = elem.position
 	if elem.rotation_y != 0.0:
 		obj.rotation.y = elem.rotation_y
@@ -285,9 +294,11 @@ static func build_battle_background(map_data: MapData, battle_area: BattleAreaDa
 	grid.collision_layer = 0
 	grid.collision_mask = 0
 
+	var battle_has_heights: bool = not map_data.terrain_heights.is_empty()
 	for x in range(map_data.grid_width):
 		for z in range(map_data.grid_height):
-			grid.set_cell_item(Vector3i(x, 0, z), map_data.get_terrain_at(x, z))
+			var y_level: int = map_data.get_height_at(x, z) if battle_has_heights else 0
+			grid.set_cell_item(Vector3i(x, y_level, z), map_data.get_terrain_at(x, z))
 
 	grid.position.y = -1.0  # cell top at Y=0
 	root.add_child(grid)
@@ -296,7 +307,7 @@ static func build_battle_background(map_data: MapData, battle_area: BattleAreaDa
 	for elem in map_data.elements:
 		var etype: int = elem.element_type
 		if etype == MapElement.ElementType.NPC and not elem.resource_id.is_empty():
-			if elem.resource_id.ends_with(".tscn") or elem.resource_id.ends_with(".vox"):
+			if elem.resource_id.ends_with(".tscn"):
 				etype = MapElement.ElementType.DECORATION
 		if etype != MapElement.ElementType.DECORATION and etype != MapElement.ElementType.SIGN and etype != MapElement.ElementType.FENCE:
 			continue
@@ -393,10 +404,6 @@ static func _instantiate_decoration(resource_id: String) -> Node3D:
 	## Loads and instantiates a decoration from its resource path.
 	if resource_id.is_empty():
 		return null
-	if resource_id.ends_with(".vox"):
-		var vox := VoxModel.new()
-		vox.vox_path = resource_id
-		return vox
 	var scene: PackedScene = load(resource_id) as PackedScene
 	if not scene:
 		return null
