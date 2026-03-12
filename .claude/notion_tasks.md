@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 239 -->
+<\!-- Total tasks: 242 -->
 <\!-- Last updated: 2026-03-12 -->
 
 ## Prerequisites
@@ -190,6 +190,9 @@
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
+| 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | PENDING-NOTION-SYNC-ELEVATION |
+| Better water visuals (animated shader, transparency, reflections, waves) | PENDING-NOTION-SYNC-WATER |
+| Improve terrain textures (replace flat colors with tiled textures/shaders) | PENDING-NOTION-SYNC-TEXTURES |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | PENDING-NOTION-SYNC-NPC |
