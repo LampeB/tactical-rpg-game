@@ -51,7 +51,7 @@ func refresh() -> void:
 	# Mark occupied cells with rarity tint
 	for i in range(_grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = _grid_inventory.get_all_placed_items()[i]
-		var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+		var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
 		var occupied: Array[Vector2i] = placed.get_occupied_cells()
 		for cell in occupied:
 			if _cells.has(cell):
@@ -167,7 +167,7 @@ func _clear_hover_reach_cells() -> void:
 				cell_node.set_state(cell_node.CellState.INACTIVE)
 			elif _grid_inventory.get_item_at(cell_pos) != null:
 				var item_there: GridInventory.PlacedItem = _grid_inventory.get_item_at(cell_pos)
-				var rarity_color: Color = Constants.RARITY_COLORS.get(item_there.item_data.rarity, Color.WHITE)
+				var rarity_color: Color = Constants.get_rarity_color(item_there.item_data.rarity)
 				cell_node.set_state(cell_node.CellState.OCCUPIED)
 				cell_node.set_rarity_tint(rarity_color)
 			else:
@@ -274,7 +274,7 @@ func clear_upgradeable_highlights() -> void:
 		for cell in placed.get_occupied_cells():
 			if _cells.has(cell) and _cells[cell].cell_state == _cells[cell].CellState.UPGRADEABLE:
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+				var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
 				_cells[cell].set_rarity_tint(rarity_color)
 
 
@@ -297,7 +297,7 @@ func clear_ingredient_highlights() -> void:
 		for cell in placed.get_occupied_cells():
 			if _cells.has(cell) and _cells[cell].cell_state == _cells[cell].CellState.INGREDIENT_MATCH:
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+				var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
 				_cells[cell].set_rarity_tint(rarity_color)
 
 
@@ -492,7 +492,7 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	container.add_child(shape_outline)
 
 	# Draw outer-only border for the item shape
-	var rarity_color: Color = Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE)
+	var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
 	for cell in cells:
 		var cell_panel: PanelContainer = PanelContainer.new()
 		cell_panel.position = Vector2((cell.x - min_pos.x) * cell_size, (cell.y - min_pos.y) * cell_size)

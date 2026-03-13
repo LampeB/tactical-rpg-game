@@ -3,7 +3,6 @@ extends CharacterBody3D
 
 signal step_taken(step_count: int)
 
-const SPEED := Constants.PLAYER_SPEED
 const UNITS_PER_STEP := Constants.UNITS_PER_STEP
 
 var _step_accumulator: float = 0.0
@@ -45,6 +44,7 @@ func _physics_process(delta: float) -> void:
 	var input_x := Input.get_axis("move_left", "move_right")
 	var input_z := Input.get_axis("move_up", "move_down")
 	var raw_input := Vector3(input_x, 0.0, input_z)
+	var is_sprinting := Input.is_action_pressed("sprint")
 
 	if raw_input.length() > 0:
 		raw_input = raw_input.normalized()
@@ -62,13 +62,18 @@ func _physics_process(delta: float) -> void:
 		else:
 			input_vector = raw_input
 		input_vector.y = 0.0
-		velocity = input_vector.normalized() * SPEED
+		var base_speed: float = LiveTweaks.get_float("player_speed")
+		var sprint_mult: float = LiveTweaks.get_float("sprint_multiplier")
+		var current_speed := base_speed * sprint_mult if is_sprinting else base_speed
+		velocity = input_vector.normalized() * current_speed
 		_update_model_direction(input_vector)
 	else:
 		velocity = Vector3.ZERO
 
 	if _animator:
 		_animator.set_walking(velocity.length() > 0.1)
+		var anim_sprint: float = LiveTweaks.get_float("sprint_multiplier")
+		_animator.speed_scale = anim_sprint if is_sprinting else 1.0
 
 	# Apply gravity if not on floor
 	if not is_on_floor():

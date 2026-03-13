@@ -30,7 +30,7 @@ func _ready() -> void:
 func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO, price: int = -1, price_label: String = "Value") -> void:
 	# Name with rarity color
 	_name_label.text = item.display_name
-	var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+	var rarity_color: Color = Constants.get_rarity_color(item.rarity)
 	_name_label.add_theme_color_override("font_color", rarity_color)
 
 	# Rarity

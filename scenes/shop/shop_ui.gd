@@ -313,7 +313,7 @@ func _on_merchant_cell_hovered(grid_pos: Vector2i) -> void:
 	if placed:
 		var price := ShopSystem.get_buy_price(placed.item_data, _shop_data)
 		_set_hover_info("%s  —  %dg" % [placed.item_data.display_name, price],
-			Constants.RARITY_COLORS.get(placed.item_data.rarity, Color.WHITE))
+			Constants.get_rarity_color(placed.item_data.rarity))
 		var inv: GridInventory = _player_grid_inventories.get(_current_character_id)
 		_item_tooltip.show_for_item(placed.item_data, null, inv,
 			get_global_mouse_position(), price, "Buy")

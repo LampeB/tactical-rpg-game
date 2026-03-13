@@ -33,8 +33,8 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	# Reset held-button state when re-entering the tree (after scene pop)
-	if what == NOTIFICATION_ENTER_TREE or what == NOTIFICATION_VISIBILITY_CHANGED:
+	# Reset held-button state on any tree transition (scene push/pop/replace)
+	if what == NOTIFICATION_ENTER_TREE or what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_VISIBILITY_CHANGED:
 		if _is_orbiting or _is_panning:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		_is_orbiting = false

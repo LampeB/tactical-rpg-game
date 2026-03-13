@@ -81,6 +81,10 @@ text = "Backpack Editor"
 layout_mode = 2
 text = "Map Editor"
 
+[node name="TweaksEditorButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Tweaks Editor"
+
 [node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=191023814]
 layout_mode = 2
 text = "Settings"

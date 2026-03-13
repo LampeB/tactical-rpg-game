@@ -24,6 +24,7 @@ var brightness: float = 1.0         ## 0.5 – 1.5
 var shadow_quality: int = 2         ## 0=Off, 1=Low, 2=Medium, 3=High
 var ui_scale: int = 100             ## 75, 100, 125, 150
 var font_scale: int = 100           ## 80, 100, 120, 140
+var colorblind_mode: bool = false    ## Use colorblind-safe rarity palette
 
 const UI_SCALE_OPTIONS := [75, 100, 125, 150]
 const FONT_SCALE_OPTIONS := [80, 100, 120, 140]
@@ -65,6 +66,7 @@ func load_settings() -> void:
 	shadow_quality = int(data.get("shadow_quality", 2))
 	ui_scale = int(data.get("ui_scale", 100))
 	font_scale = int(data.get("font_scale", 100))
+	colorblind_mode = bool(data.get("colorblind_mode", false))
 	_apply_current()
 
 
@@ -78,6 +80,7 @@ func save_settings() -> void:
 		"shadow_quality": shadow_quality,
 		"ui_scale": ui_scale,
 		"font_scale": font_scale,
+		"colorblind_mode": colorblind_mode,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if not file:
@@ -124,6 +127,12 @@ func set_ui_scale(scale_percent: int) -> void:
 	save_settings()
 
 
+func set_colorblind_mode(enabled: bool) -> void:
+	colorblind_mode = enabled
+	Constants.colorblind_palette = enabled
+	save_settings()
+
+
 func set_font_scale(scale_percent: int) -> void:
 	font_scale = scale_percent
 	_apply_font_scale()
@@ -149,6 +158,7 @@ func _apply_current() -> void:
 	_apply_shadow_quality()
 	_apply_ui_scale()
 	_apply_font_scale()
+	Constants.colorblind_palette = colorblind_mode
 
 
 func _apply_window_mode() -> void:

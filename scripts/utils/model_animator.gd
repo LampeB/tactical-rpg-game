@@ -27,6 +27,7 @@ const TORSO_TWIST_ANGLE: float = 0.05      ## Chest/belly twist during walk
 var _model: Node3D = null
 var _model_type: ModelType = ModelType.UNKNOWN
 var _is_walking: bool = false
+var speed_scale: float = 1.0  ## Multiplied into walk cycle speed (e.g. 1.8 for sprint)
 var _walk_phase: float = 0.0
 var _idle_phase: float = 0.0
 var _blend: float = 0.0  ## 0.0 = idle, 1.0 = walking
@@ -142,7 +143,7 @@ func _process(delta: float) -> void:
 
 	# Advance phases
 	if _blend > 0.01:
-		_walk_phase += WALK_CYCLE_SPEED * delta
+		_walk_phase += WALK_CYCLE_SPEED * speed_scale * delta
 	_idle_phase += IDLE_BOB_SPEED * delta
 
 	match _model_type:

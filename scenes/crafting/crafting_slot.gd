@@ -31,7 +31,7 @@ func setup(idx: int, ingr: CraftingIngredient) -> void:
 	_style.corner_radius_bottom_left = 5
 	_style.corner_radius_bottom_right = 5
 	add_theme_stylebox_override("panel", _style)
-	var setup_border_col: Color = Constants.RARITY_COLORS.get(ingredient.min_rarity, Color.WHITE)
+	var setup_border_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
 	_set_border(setup_border_col, 2)
 
 	var margin := MarginContainer.new()
@@ -52,14 +52,14 @@ func setup(idx: int, ingr: CraftingIngredient) -> void:
 
 func assign(item: ItemData) -> void:
 	assigned_item = item
-	var assign_border_col: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+	var assign_border_col: Color = Constants.get_rarity_color(item.rarity)
 	_set_border(assign_border_col, 2)
 	_refresh()
 
 
 func clear() -> void:
 	assigned_item = null
-	var clear_border_col: Color = Constants.RARITY_COLORS.get(ingredient.min_rarity, Color.WHITE)
+	var clear_border_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
 	_set_border(clear_border_col, 2)
 	_refresh()
 
@@ -70,7 +70,7 @@ func set_highlight(color: Color) -> void:
 
 func clear_highlight() -> void:
 	var rarity := assigned_item.rarity if assigned_item else ingredient.min_rarity
-	var col: Color = Constants.RARITY_COLORS.get(rarity, Color.WHITE)
+	var col: Color = Constants.get_rarity_color(rarity)
 	_set_border(col, 2)
 
 
@@ -128,7 +128,7 @@ func _refresh() -> void:
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if assigned_item:
 		name_lbl.text = assigned_item.display_name
-		var name_col: Color = Constants.RARITY_COLORS.get(assigned_item.rarity, Color.WHITE)
+		var name_col: Color = Constants.get_rarity_color(assigned_item.rarity)
 		name_lbl.add_theme_color_override("font_color", name_col)
 	else:
 		name_lbl.text = ingredient.item_family.replace("_", " ").capitalize()
@@ -142,12 +142,12 @@ func _refresh() -> void:
 	if assigned_item:
 		var rarity_name: String = Constants.RARITY_NAMES.get(assigned_item.rarity, "Common")
 		rarity_lbl.text = rarity_name
-		var rarity_col: Color = Constants.RARITY_COLORS.get(assigned_item.rarity, Color.WHITE)
+		var rarity_col: Color = Constants.get_rarity_color(assigned_item.rarity)
 		rarity_lbl.add_theme_color_override("font_color", rarity_col)
 	else:
 		var rarity_name: String = Constants.RARITY_NAMES.get(ingredient.min_rarity, "Common")
 		rarity_lbl.text = rarity_name + "+"
-		var rarity_col: Color = Constants.RARITY_COLORS.get(ingredient.min_rarity, Color.WHITE)
+		var rarity_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
 		rarity_lbl.add_theme_color_override("font_color", rarity_col)
 	_content.add_child(rarity_lbl)
 

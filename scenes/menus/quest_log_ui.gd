@@ -318,7 +318,7 @@ func _refresh_detail() -> void:
 
 			var item_name := Label.new()
 			item_name.text = item.display_name
-			var item_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+			var item_color: Color = Constants.get_rarity_color(item.rarity)
 			UIThemes.style_label(item_name, Constants.FONT_SIZE_SMALL, item_color)
 			item_row.add_child(item_name)
 
