@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="NpcData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/characters/human2.png" id="4"]
+
+[sub_resource type="Resource" id="choice_manage"]
+script = ExtResource("3")
+text = "I'd like to manage my party."
+action = "open_party_management"
+
+[sub_resource type="Resource" id="choice_bye"]
+script = ExtResource("3")
+text = "Farewell."
+action = "end"
+
+[sub_resource type="Resource" id="conv_greeting"]
+script = ExtResource("2")
+id = "greeting"
+lines = ["Welcome to the Wayward Flask! I keep track of adventurers passing through.", "Need to reorganize your party? I can help with that."]
+choices = [SubResource("choice_manage"), SubResource("choice_bye")]
+
+[resource]
+script = ExtResource("1")
+id = "tavern_keeper"
+display_name = "Renna the Tavern Keeper"
+sprite = ExtResource("4")
+portrait = ExtResource("4")
+role = 4
+conversations = [SubResource("conv_greeting")]

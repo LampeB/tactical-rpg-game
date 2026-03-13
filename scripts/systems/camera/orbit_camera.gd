@@ -16,6 +16,7 @@ var _target_pitch: float
 var _target_distance: float
 var _is_orbiting: bool = false
 var _is_panning: bool = false
+var _orbit_start_mouse_pos: Vector2
 
 @onready var _pitch_node: Node3D = $PitchNode
 @onready var _camera: Camera3D = $PitchNode/Camera3D
@@ -34,6 +35,8 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	# Reset held-button state when re-entering the tree (after scene pop)
 	if what == NOTIFICATION_ENTER_TREE or what == NOTIFICATION_VISIBILITY_CHANGED:
+		if _is_orbiting or _is_panning:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		_is_orbiting = false
 		_is_panning = false
 
@@ -43,8 +46,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			_is_orbiting = event.pressed
+			if event.pressed:
+				_orbit_start_mouse_pos = event.position
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			else:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				get_viewport().warp_mouse(_orbit_start_mouse_pos)
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			_is_panning = event.pressed
+			if event.pressed:
+				_orbit_start_mouse_pos = event.position
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			else:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				get_viewport().warp_mouse(_orbit_start_mouse_pos)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			_target_distance = clampf(
 				_target_distance - Constants.CAMERA_ZOOM_SPEED,

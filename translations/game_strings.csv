@@ -1,0 +1,78 @@
+keys,en,fr
+Settings,Settings,Paramètres
+Display,Display,Affichage
+Audio,Audio,Audio
+Controls,Controls,Contrôles
+Language,Language,Langue
+Back,Back,Retour
+Close,Close,Fermer
+"Close [Esc]","Close [Esc]","Fermer [Échap]"
+Confirm,Confirm,Confirmer
+Cancel,Cancel,Annuler
+Yes,Yes,Oui
+No,No,Non
+Save,Save,Sauvegarder
+Load,Load,Charger
+New Game,New Game,Nouvelle Partie
+Continue,Continue,Continuer
+Quit,Quit,Quitter
+Reset All to Defaults,Reset All to Defaults,Réinitialiser les paramètres
+Window Mode,Window Mode,Mode Fenêtre
+Resolution,Resolution,Résolution
+VSync,VSync,VSync
+Brightness,Brightness,Luminosité
+Shadow Quality,Shadow Quality,Qualité des Ombres
+UI Scale,UI Scale,Échelle de l'interface
+Font Size,Font Size,Taille de Police
+Master,Master,Principal
+Music,Music,Musique
+SFX,SFX,Effets Sonores
+Ambient,Ambient,Ambiance
+Windowed,Windowed,Fenêtré
+Borderless Fullscreen,Borderless Fullscreen,Plein Écran Sans Bordure
+Exclusive Fullscreen,Exclusive Fullscreen,Plein Écran Exclusif
+Off,Off,Désactivé
+Low,Low,Bas
+Medium,Medium,Moyen
+High,High,Élevé
+Party Management,Party Management,Gestion de l'Équipe
+Active Squad,Active Squad,Équipe Active
+Reserve,Reserve,Réserve
+Move to Reserve,Move to Reserve,Mettre en Réserve
+Move to Squad,Move to Squad,Ajouter à l'Équipe
+Dismiss,Dismiss,Renvoyer
+Dismiss Character,Dismiss Character,Renvoyer le Personnage
+Shop,Shop,Boutique
+"Wares  (drag to buy)","Wares  (drag to buy)","Marchandises (glissez pour acheter)"
+Sold this session,Sold this session,Vendu cette session
+Stash,Stash,Coffre
+Discard,Discard,Jeter
+Move Up,Move Up,Déplacement Haut
+Move Down,Move Down,Déplacement Bas
+Move Left,Move Left,Déplacement Gauche
+Move Right,Move Right,Déplacement Droite
+Interact,Interact,Interagir
+Open Inventory,Open Inventory,Ouvrir l'Inventaire
+Menu / Cancel,Menu / Cancel,Menu / Annuler
+Rotate Item,Rotate Item,Tourner l'Objet
+Fast Travel,Fast Travel,Voyage Rapide
+Rebind,Rebind,Reconfigurer
+Reset,Reset,Réinitialiser
+Victory!,Victory!,Victoire !
+Defeat,Defeat,Défaite
+Loot,Loot,Butin
+Quest Log,Quest Log,Journal de Quêtes
+Active Quests,Active Quests,Quêtes Actives
+Completed Quests,Completed Quests,Quêtes Terminées
+Skill Tree,Skill Tree,Arbre de Compétences
+"Connected to:","Connected to:","Connecté à :"
+Crafting,Crafting,Artisanat
+Volume,Volume,Volume
+Play,Play,Jouer
+"75%","75%","75%"
+"100%","100%","100%"
+"125%","125%","125%"
+"150%","150%","150%"
+"80%","80%","80%"
+"120%","120%","120%"
+"140%","140%","140%"
