@@ -223,6 +223,9 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 		# shop's pop_scene() returns there — one fade cycle instead of two.
 		EventBus.dialogue_ended.emit(_npc.id)
 		SceneManager.replace_scene("res://scenes/shop/shop_ui.tscn", {"shop_id": shop_id})
+	elif choice.action == "open_party_management":
+		EventBus.dialogue_ended.emit(_npc.id)
+		SceneManager.replace_scene("res://scenes/party_management/party_management_ui.tscn", {})
 	elif choice.action.begins_with("open_crafting:"):
 		var station_id := choice.action.trim_prefix("open_crafting:")
 		EventBus.dialogue_ended.emit(_npc.id)

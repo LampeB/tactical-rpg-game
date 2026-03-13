@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 242 -->
-<\!-- Last updated: 2026-03-12 -->
+<\!-- Total tasks: 266 -->
+<\!-- Last updated: 2026-03-13 -->
 
 ## Prerequisites
 
@@ -52,10 +52,7 @@
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
-| In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
-| Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | 3217700f-d0fb-818c-bfbd-e5e37dfe61a4 |
-| Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 
 ### Done
 | Name | Notion ID |
@@ -75,6 +72,13 @@
 | Runtime errors: typed array assignment from Variant | 3147700f-d0fb-81de-886d-db067f32a2a2 |
 | Use skills/items outside of combat (healing) | 3147700f-d0fb-8171-8223-c3f36449a4f2 |
 | Visible roaming enemies (Chrono Trigger style) | 3147700f-d0fb-8128-86b2-d501c34afda8 |
+
+### OnHold
+| Name | Notion ID |
+|---|---|
+| In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
+| Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
+| Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 
 ## Items
 
@@ -190,23 +194,13 @@
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
-| 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | 3217700f-d0fb-81cf-9733-ceb9f5de8672 |
-| Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
-| Improve terrain textures (replace flat colors with tiled textures/shaders) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
-| Voxel Phase 1: VoxelChunk with greedy meshing (16x16x16 chunks, face culling, quad merging) | 3217700f-d0fb-81f0-aa48-f23f133f2509 |
-| Voxel Phase 2: VoxelTerrain chunk manager (loading, culling, camera distance) | 3217700f-d0fb-8169-a991-fb61a97e4db2 |
-| Voxel Phase 3: VoxelMapData resource and MapLoader integration | 3217700f-d0fb-819e-ad44-c28b33c98060 |
-| Voxel Phase 5: Water shader system (animated waves, transparency, reflections) | 3217700f-d0fb-81cf-a027-c0c179306f22 |
-| Voxel Phase 6: Terrain texturing (triplanar shader, texture atlas) | 3217700f-d0fb-816b-b49b-cdbe27308f55 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
-| Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
 | Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
-| Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
 | Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
+| Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Sprint option on overworld (hold Shift to run faster) | 3217700f-d0fb-81e4-b9df-fc2e8453d162 |
-| Enemy aggro system (monsters chase player when close enough) | 3217700f-d0fb-8192-8bff-c03350d5630d |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
@@ -232,6 +226,20 @@
 | Perf: Overworld enemy group queries not cached (no fix needed — event-driven, not per-frame) | 31e7700f-d0fb-81ca-bfff-df054cac4183 |
 | Refactor: Replace magic integers in MapData terrain and PassiveNodeData prerequisite_mode with enums | 31e7700f-d0fb-8196-b221-e966fc7f5a49 |
 
+### Canceled
+| Name | Notion ID |
+|---|---|
+| 3D terrain with elevation (hills, cliffs, heightmap support, player/camera adaptation) | 3217700f-d0fb-81cf-9733-ceb9f5de8672 |
+| Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
+| Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
+| Enemy aggro system (monsters chase player when close enough) | 3217700f-d0fb-8192-8bff-c03350d5630d |
+| Improve terrain textures (replace flat colors with tiled textures/shaders) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
+| Voxel Phase 1: VoxelChunk with greedy meshing (16x16x16 chunks, face culling, quad merging) | 3217700f-d0fb-81f0-aa48-f23f133f2509 |
+| Voxel Phase 2: VoxelTerrain chunk manager (loading, culling, camera distance) | 3217700f-d0fb-8169-a991-fb61a97e4db2 |
+| Voxel Phase 3: VoxelMapData resource and MapLoader integration | 3217700f-d0fb-819e-ad44-c28b33c98060 |
+| Voxel Phase 5: Water shader system (animated waves, transparency, reflections) | 3217700f-d0fb-81cf-a027-c0c179306f22 |
+| Voxel Phase 6: Terrain texturing (triplanar shader, texture atlas) | 3217700f-d0fb-816b-b49b-cdbe27308f55 |
+
 ## Audio
 
 ### Todo
@@ -256,9 +264,13 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+
+### OnHold
+| Name | Notion ID |
+|---|---|
 | Character development (unique abilities, recruitment through story) | 3147700f-d0fb-8117-9a63-d0229a710e9e |
-| Multiple endings based on choices | 3147700f-d0fb-810a-a46f-f7665b9547fb |
 | Cinematic animation system (cutscene keyframes, emotes, camera) | 3167700f-d0fb-8100-81ba-ca342993e653 |
+| Multiple endings based on choices | 3147700f-d0fb-810a-a46f-f7665b9547fb |
 | Story mode with cutscenes (dialogue boxes, portraits, animations) | 3147700f-d0fb-81e4-ab7f-db0be244f117 |
 
 ## Gamepad
@@ -286,8 +298,12 @@
 | Name | Notion ID |
 |---|---|
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
-| Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 | In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
+
+### OnHold
+| Name | Notion ID |
+|---|---|
+| Equipment loadout presets | 3147700f-d0fb-81f3-847b-fb6e0c531b16 |
 
 ### Done
 | Name | Notion ID |
@@ -321,8 +337,6 @@
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |
 | Main menu button integration for map editor | 3147700f-d0fb-81e1-93d6-ecc0151abd58 |
 | Map editor save/load (ResourceSaver, MapDatabase.reload()) | 3147700f-d0fb-8139-ad92-ef4e504e0dcf |
-| Voxel Phase 4: 3D brush system for map editor (box/sphere, XYZ dimensions) | 3217700f-d0fb-811e-a902-df897ba5c3dd |
-| Voxel Phase 7: Map migration tool (convert 1x1 GridMap maps to 0.25 voxel format) | 3217700f-d0fb-8109-9e35-ca0cb7701fa8 |
 | Map editor scene layout (.tscn) | 3147700f-d0fb-8132-a958-fa6c3c4904c7 |
 | Map list panel (CRUD, search, dirty tracking) | 3147700f-d0fb-8185-baad-fc2ffe8645d7 |
 | MapData, MapElement, MapConnection resource scripts | 3147700f-d0fb-8141-ac6e-ee067a9e7bc3 |
@@ -336,14 +350,60 @@
 | Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
 | Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
 
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Voxel Phase 4: 3D brush system for map editor (box/sphere, XYZ dimensions) | 3217700f-d0fb-811e-a902-df897ba5c3dd |
+| Voxel Phase 7: Map migration tool (convert 1x1 GridMap maps to 0.25 voxel format) | 3217700f-d0fb-8109-9e35-ca0cb7701fa8 |
+
+## Terrain
+
+### Todo
+| Name | Notion ID |
+|---|---|
+| Phase 1: Chunk streaming manager (load/unload by player distance) | 3227700f-d0fb-8127-bf65-db7872a52844 |
+| Phase 1: Heightmap mesh generator (ArrayMesh per chunk) | 3227700f-d0fb-8145-b1df-faf56ae15ef8 |
+| Phase 1: HeightmapData resource (chunk size, heights array, splatmap, biome) | 3227700f-d0fb-8165-80aa-d8c3fbe05284 |
+| Phase 1: Terrain collision (StaticBody3D per chunk from heightmap) | 3227700f-d0fb-8196-a4d9-d0e0dd363caa |
+| Phase 1: Terrain splatmap shader (blend textures by height and slope) | 3227700f-d0fb-817b-980c-cbf23c7c4f5e |
+| Phase 2: Import and configure Material-LIB terrain textures | 3227700f-d0fb-819f-8251-d009d1b934dd |
+| Phase 2: Terrain LOD system (reduced vertex count for distant chunks) | 3227700f-d0fb-81ac-9441-e04641097f08 |
+| Phase 2: Water system - flat bodies (lakes, sea, animated shader) | 3227700f-d0fb-8182-8c86-c16663883c14 |
+| Phase 3: Foliage wind shader (vertex displacement on grass/trees) | 3227700f-d0fb-8108-9ccd-c00d25947810 |
+| Phase 3: Import Stylized Nature MegaKit as scatter props | 3227700f-d0fb-81b8-8e30-e5329077a5d5 |
+| Phase 3: MultiMesh prop scattering system (per chunk, biome-aware) | 3227700f-d0fb-812b-9b89-f04f453e4f53 |
+| Phase 3: Prop collision (trees/rocks block player, grass/flowers visual only) | 3227700f-d0fb-810e-918a-d9a0d96129b6 |
+| Phase 4: Import Medieval Village MegaKit as placeable structure pieces | 3227700f-d0fb-81d3-a8b3-cd34538900c0 |
+| Phase 4: Structure placement system (snap to grid, place on heightmap) | 3227700f-d0fb-81d9-80a6-c6dc9602c35f |
+| Phase 5: Adapt markers (chests, locations, connections) for heightmap | 3227700f-d0fb-8185-b9db-ff492951836e |
+| Phase 5: NavMesh generation per chunk (NPC/enemy pathfinding) | 3227700f-d0fb-81e5-976f-e235443e8c9a |
+| Phase 5: New world controller scene (chunk management, element spawning) | 3227700f-d0fb-8143-94aa-d0137d2ac7cd |
+| Phase 5: Update NPC markers for NavMesh pathfinding | 3227700f-d0fb-81ed-b8ed-d17d8d361287 |
+| Phase 5: Update player controller (heightmap physics, jump, slope limits) | 3227700f-d0fb-81f5-a948-d55cd90c6d7f |
+| Phase 5: Update roaming enemies for NavMesh pathfinding and aggro | 3227700f-d0fb-8109-8e9d-f18cf95eabb7 |
+| Phase 6: Battle area zones on heightmap terrain | 3227700f-d0fb-81fa-84d3-e7a49a881e02 |
+| Phase 6: Battle background from terrain chunks (replace GridMap builder) | 3227700f-d0fb-81fd-9cc7-ec962da9f6d2 |
+| Phase 7: Noise-based heightmap generation (biome profiles) | 3227700f-d0fb-816b-9b01-e82cd05413aa |
+| Phase 7: Procedural prop scattering rules (biome-aware placement) | 3227700f-d0fb-814a-bb28-d9d97883f4de |
+| Phase 7: Procedural town/village layout generation | 3227700f-d0fb-816b-b892-d6685bd2fc46 |
+| Phase 8: Battle area and zone definition editor | 3227700f-d0fb-816b-bb25-e448e99b6219 |
+| Phase 8: Prop placement and scatter editor | 3227700f-d0fb-8168-8ae4-c9aa49144a25 |
+| Phase 8: Structure placement editor | 3227700f-d0fb-81b4-b80b-c711bf16be2d |
+| Phase 8: Terrain height painting tool (@tool editor plugin) | 3227700f-d0fb-8156-9136-e1c7e14fe2a8 |
+| Phase 8: Terrain splatmap painting tool | 3227700f-d0fb-81c5-b323-fdb4215e8c06 |
+| Phase 9: Distant landmark rendering (LOD billboards for far landmarks) | 3227700f-d0fb-8112-8e55-cbece3fb04a2 |
+| Phase 9: River system (spline-based water mesh following terrain) | 3227700f-d0fb-816a-97dd-ed8d7f65a52a |
+
+### Done
+| Name | Notion ID |
+|---|---|
+
 ## 3D Migration
 
 ### Todo
 | Name | Notion ID |
 |---|---|
 | 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
-| Cinematic animation system (cutscene keyframes, emotes, camera) | 3167700f-d0fb-8100-81ba-ca342993e653 |
-| Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 | Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 
 ### Done

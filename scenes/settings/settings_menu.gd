@@ -46,6 +46,22 @@ func _ready() -> void:
 # ─── Display Tab ─────────────────────────────────────────────────────────────
 
 func _build_display_tab() -> void:
+	# Language row
+	var lang_row := _create_setting_row("Language")
+	var lang_btn := OptionButton.new()
+	lang_btn.custom_minimum_size = Vector2(250, 0)
+	var locales: Array = LocaleManager.get_supported_locales()
+	var lang_selected := 0
+	for idx in locales.size():
+		var code: String = locales[idx]
+		lang_btn.add_item(LocaleManager.get_locale_display_name(code), idx)
+		if code == LocaleManager.current_locale:
+			lang_selected = idx
+	lang_btn.selected = lang_selected
+	lang_btn.item_selected.connect(_on_language_changed.bind(locales))
+	lang_row.add_child(lang_btn)
+	_display_settings.add_child(lang_row)
+
 	# Window mode row
 	var mode_row := _create_setting_row("Window Mode")
 	var mode_btn := OptionButton.new()
@@ -188,6 +204,11 @@ func _on_ui_scale_changed(idx: int) -> void:
 func _on_font_scale_changed(idx: int) -> void:
 	if idx >= 0 and idx < DisplayManager.FONT_SCALE_OPTIONS.size():
 		DisplayManager.set_font_scale(DisplayManager.FONT_SCALE_OPTIONS[idx])
+
+
+func _on_language_changed(idx: int, locales: Array) -> void:
+	if idx >= 0 and idx < locales.size():
+		LocaleManager.set_locale(locales[idx])
 
 
 # ─── Audio Tab ───────────────────────────────────────────────────────────────

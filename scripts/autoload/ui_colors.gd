@@ -18,6 +18,7 @@ const BG_NPC_EDITOR    := Color(0.0, 0.45, 0.65, 1.0)
 const BG_BACKPACK_EDITOR := Color(0.15, 0.20, 0.12, 1.0)
 const BG_MAP_EDITOR    := Color(0.12, 0.15, 0.22, 1.0)
 const BG_DIALOGUE      := Color(0.08, 0.08, 0.12, 0.90)
+const BG_PARTY_MGMT    := Color(0.15, 0.12, 0.25, 1.0)
 
 # ── Inventory grid cell ─────────────────────────────────────────────
 const GRID_CELL_BG     := Color(0.20, 0.20, 0.30, 0.8)

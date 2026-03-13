@@ -207,6 +207,7 @@ enum NpcRole {
 	SHOPKEEPER,
 	QUEST_GIVER,
 	CRAFTSMAN,
+	PARTY_MANAGER,
 }
 
 # === TERRAIN ===

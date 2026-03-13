@@ -70,37 +70,29 @@ func _update_available() -> void:
 	_available_ids.clear()
 	if not _tree_data:
 		return
-	# Treat unlocked + pending as "resolved" for prerequisite checking
+	# Treat unlocked + pending as "resolved" for neighbor checking
 	var resolved: Array = _unlocked_ids.duplicate()
 	resolved.append_array(_pending_ids)
+	var neighbor_map: Dictionary = _tree_data.get_neighbor_map()
 
 	for i in range(_tree_data.nodes.size()):
 		var node: PassiveNodeData = _tree_data.nodes[i]
 		if not node or _unlocked_ids.has(node.id) or _pending_ids.has(node.id):
 			continue
 
-		if node.prerequisites.is_empty():
-			# Root node — only available if in this character's starting nodes
+		var neighbors: Array = neighbor_map.get(node.id, [])
+		if neighbors.is_empty():
+			# Isolated / root node — only available if in this character's starting nodes
 			if _starting_node_ids.has(node.id):
 				_available_ids.append(node.id)
 		else:
-			# Non-root node — check prerequisites based on mode
-			var prereqs_met: bool
-			if node.prerequisite_mode == Enums.PrerequisiteMode.ANY:
-				# At least one prerequisite must be resolved
-				prereqs_met = false
-				for j in range(node.prerequisites.size()):
-					if resolved.has(node.prerequisites[j]):
-						prereqs_met = true
-						break
-			else:
-				# ALL mode (default): every prerequisite must be resolved
-				prereqs_met = true
-				for j in range(node.prerequisites.size()):
-					if not resolved.has(node.prerequisites[j]):
-						prereqs_met = false
-						break
-			if prereqs_met:
+			# Connected node — available if any neighbor is resolved
+			for j in range(neighbors.size()):
+				if resolved.has(neighbors[j]):
+					_available_ids.append(node.id)
+					break
+			# Also check if it's a starting node (reachable without neighbors)
+			if not _available_ids.has(node.id) and _starting_node_ids.has(node.id):
 				_available_ids.append(node.id)
 
 

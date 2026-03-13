@@ -175,26 +175,26 @@ func _on_node_exited() -> void:
 
 
 func _is_node_available(node: PassiveNodeData) -> bool:
-	## Check if a node can be queued, treating unlocked + pending as resolved.
+	## Check if a node can be queued — symmetric adjacency (any resolved neighbor).
 	var resolved: Array = GameManager.party.get_unlocked_passives(_current_character_id).duplicate()
 	resolved.append_array(_pending_unlocks)
 
-	if node.prerequisites.is_empty():
-		# Root node — must be in this character's starting nodes
+	var neighbor_map: Dictionary = _current_tree.get_neighbor_map()
+	var neighbors: Array = neighbor_map.get(node.id, [])
+
+	if neighbors.is_empty():
+		# Isolated node (no connections) — must be in starting nodes
 		var starting_nodes: Array = _get_starting_nodes(_current_character_id)
 		return starting_nodes.has(node.id)
 
-	if node.prerequisite_mode == Enums.PrerequisiteMode.ANY:
-		for i in range(node.prerequisites.size()):
-			if resolved.has(node.prerequisites[i]):
-				return true
-		return false
-	else:
-		# ALL mode
-		for i in range(node.prerequisites.size()):
-			if not resolved.has(node.prerequisites[i]):
-				return false
-		return true
+	# Node is available if any neighbor is resolved
+	for i in range(neighbors.size()):
+		if resolved.has(neighbors[i]):
+			return true
+
+	# Also check starting nodes for root access
+	var starting_nodes: Array = _get_starting_nodes(_current_character_id)
+	return starting_nodes.has(node.id)
 
 
 func _remove_pending_with_dependents(node_id: String) -> void:
@@ -270,17 +270,18 @@ func _show_node_info(node_id: String) -> void:
 		_node_cost_label.text = "Cost: %d Gold" % next_cost
 		_node_cost_label.remove_theme_color_override("font_color")
 
-	# Prerequisites
-	if node.prerequisites.is_empty():
+	# Neighbors (symmetric adjacency)
+	var neighbor_map: Dictionary = _current_tree.get_neighbor_map()
+	var neighbors: Array = neighbor_map.get(node_id, [])
+	if neighbors.is_empty():
 		_prereqs_label.text = ""
 	else:
-		var prereq_names: Array = []
-		for j in range(node.prerequisites.size()):
-			var prereq: PassiveNodeData = _current_tree.get_node_by_id(node.prerequisites[j])
-			if prereq:
-				prereq_names.append(prereq.display_name)
-		var join_word: String = " or " if node.prerequisite_mode == Enums.PrerequisiteMode.ANY else ", "
-		_prereqs_label.text = "Requires: %s" % join_word.join(prereq_names)
+		var neighbor_names: Array = []
+		for j in range(neighbors.size()):
+			var neighbor: PassiveNodeData = _current_tree.get_node_by_id(neighbors[j])
+			if neighbor:
+				neighbor_names.append(neighbor.display_name)
+		_prereqs_label.text = "Connected to: %s" % ", ".join(neighbor_names)
 
 
 func _hide_info_panel() -> void:
