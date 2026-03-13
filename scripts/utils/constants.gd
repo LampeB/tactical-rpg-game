@@ -43,6 +43,7 @@ const MAX_STASH_SLOTS := 100        ## Items in shared stash
 # === WORLD (3D) ===
 const PIXEL_TO_WORLD := 32.0        ## 32 pixels = 1 world unit (for legacy position conversion)
 const PLAYER_SPEED := 6.0           ## World units per second
+const PLAYER_SPRINT_MULTIPLIER := 1.8  ## Speed multiplier when holding sprint
 const UNITS_PER_STEP := 0.5         ## Distance per step for encounter checks
 const INTERACTION_RANGE := 1.5      ## World units
 const ENEMY_MOVE_SPEED := 1.5       ## World units per second
@@ -85,6 +86,23 @@ const RARITY_COLORS := {
 	Enums.Rarity.LEGENDARY: Color(0.86, 0.08, 0.24),   # Crimson
 	Enums.Rarity.UNIQUE: Color(0.6, 0.2, 0.8),         # Purple
 }
+
+## Colorblind-safe palette (Okabe-Ito inspired, distinguishable for all CVD types).
+const RARITY_COLORS_COLORBLIND := {
+	Enums.Rarity.COMMON: Color.WHITE,
+	Enums.Rarity.UNCOMMON: Color(0.0, 0.45, 0.70),     # Blue
+	Enums.Rarity.RARE: Color(0.95, 0.90, 0.25),        # Yellow
+	Enums.Rarity.ELITE: Color(0.90, 0.35, 0.0),        # Vermillion
+	Enums.Rarity.LEGENDARY: Color(0.80, 0.15, 0.55),   # Reddish purple
+	Enums.Rarity.UNIQUE: Color(0.35, 0.70, 0.90),      # Sky blue
+}
+
+static var colorblind_palette: bool = false
+
+static func get_rarity_color(rarity: int) -> Color:
+	if colorblind_palette:
+		return RARITY_COLORS_COLORBLIND.get(rarity, Color.WHITE)
+	return RARITY_COLORS.get(rarity, Color.WHITE)
 
 const ELEMENT_COLORS := {
 	Enums.Element.FIRE: Color(1.0, 0.3, 0.1),

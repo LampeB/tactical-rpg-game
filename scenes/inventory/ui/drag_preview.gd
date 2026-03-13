@@ -107,7 +107,7 @@ func _rebuild_shape() -> void:
 	_icon.rotation = current_rotation * PI / 2.0
 
 	# Draw outer-only rarity border (no fill)
-	var rarity_color: Color = Constants.RARITY_COLORS.get(item_data.rarity, Color.WHITE)
+	var rarity_color: Color = Constants.get_rarity_color(item_data.rarity)
 	for cell in cells:
 		var panel: PanelContainer = PanelContainer.new()
 		panel.position = Vector2(cell.x * cell_size, cell.y * cell_size)

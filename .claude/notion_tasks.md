@@ -1,7 +1,7 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 266 -->
+<\!-- Total tasks: 267 -->
 <\!-- Last updated: 2026-03-13 -->
 
 ## Prerequisites
@@ -196,17 +196,18 @@
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
-| Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
-| Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
-| Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
-| Sprint option on overworld (hold Shift to run faster) | 3217700f-d0fb-81e4-b9df-fc2e8453d162 |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
+| Fix orbit camera hiding mouse cursor on scene transitions | 3227700f-d0fb-814d-bb81-f93d45187773 |
+| Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
+| Sprint option on overworld (hold Shift to run faster) | 3217700f-d0fb-81e4-b9df-fc2e8453d162 |
+| Make skill tree connections non-directional (symmetric adjacency) | 3147700f-d0fb-81f1-97ef-fdb331aa69c6 |
+| Party management NPC/location (recruit, dismiss, swap roster) | 3147700f-d0fb-8187-8530-dd486e9eac4b |
 | Day/night cycle with sun/moon discs, stars, and moon phases | 31d7700f-d0fb-81ca-8369-d82f8404b36c |
 | NPC wandering patrol system (random movement within radius) | 3217700f-d0fb-8128-98dd-dd676430ec81 |
 | Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
@@ -285,7 +286,7 @@
 
 ## Localisation
 
-### Todo
+### Done
 | Name | Notion ID |
 |---|---|
 | Initial languages: English + French | 3147700f-d0fb-810c-94aa-d524fe8067f5 |
@@ -297,8 +298,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
-| In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
 
 ### OnHold
 | Name | Notion ID |
@@ -309,11 +308,13 @@
 | Name | Notion ID |
 |---|---|
 | Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
+| Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Persist audio settings across sessions (save/load volumes to disk) | 3217700f-d0fb-811f-8fff-f9cff9730f9a |
 | Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
 | Battle speed controls | 3147700f-d0fb-81c4-b2e5-d61ae1108830 |
 | Equipment comparison tooltips | 3147700f-d0fb-81af-9b15-f99954c257eb |
 | Full GDScript warning cleanup (~50+ warnings fixed) | 3147700f-d0fb-8176-bc39-ee92449e85f4 |
+| In-game constants/variables editor (live UI tweaking without restart) | 31a7700f-d0fb-811c-892d-de28e42a725f |
 | Item sorting and filtering in inventory | 3147700f-d0fb-8104-915f-f271f0b0994f |
 | Multiple save slots (5-10) with metadata | 3147700f-d0fb-81a1-a075-f7cb35bbae6f |
 | Fix: SaveManager vitals re-clamping uses fragile heuristic (add save version flag) | 31e7700f-d0fb-8107-baaf-d39753948616 |

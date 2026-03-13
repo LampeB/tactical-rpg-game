@@ -26,6 +26,7 @@ const ACTION_NAMES := {
 	"escape": "Menu / Cancel",
 	"rotate_item": "Rotate Item",
 	"fast_travel": "Fast Travel",
+	"sprint": "Sprint",
 }
 
 const WINDOW_MODE_NAMES := ["Windowed", "Borderless Fullscreen", "Exclusive Fullscreen"]
@@ -141,6 +142,14 @@ func _build_display_tab() -> void:
 	font_row.add_child(font_btn)
 	_display_settings.add_child(font_row)
 
+	# Colorblind mode row
+	var cb_row := _create_setting_row("Colorblind Palette")
+	var cb_btn := CheckButton.new()
+	cb_btn.button_pressed = DisplayManager.colorblind_mode
+	cb_btn.toggled.connect(_on_colorblind_toggled)
+	cb_row.add_child(cb_btn)
+	_display_settings.add_child(cb_row)
+
 	_update_resolution_enabled()
 
 
@@ -209,6 +218,10 @@ func _on_font_scale_changed(idx: int) -> void:
 func _on_language_changed(idx: int, locales: Array) -> void:
 	if idx >= 0 and idx < locales.size():
 		LocaleManager.set_locale(locales[idx])
+
+
+func _on_colorblind_toggled(enabled: bool) -> void:
+	DisplayManager.set_colorblind_mode(enabled)
 
 
 # ─── Audio Tab ───────────────────────────────────────────────────────────────

@@ -20,7 +20,7 @@ func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 
 	$HBox/Icon.texture = item.icon
 	$HBox/NameLabel.text = item.display_name
-	var rarity_color: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+	var rarity_color: Color = Constants.get_rarity_color(item.rarity)
 	$HBox/NameLabel.add_theme_color_override("font_color", rarity_color)
 	$HBox/TypeLabel.text = Enums.get_item_type_short_name(item.item_type)
 

@@ -418,14 +418,14 @@ func _build_result_info(item: ItemData) -> HBoxContainer:
 
 	var name_lbl := Label.new()
 	name_lbl.text = item.display_name
-	var name_col: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+	var name_col: Color = Constants.get_rarity_color(item.rarity)
 	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_DETAIL, name_col)
 	info.add_child(name_lbl)
 
 	var rarity_name: String = Constants.RARITY_NAMES.get(item.rarity, "Common")
 	var rarity_lbl := Label.new()
 	rarity_lbl.text = rarity_name
-	var rarity_col: Color = Constants.RARITY_COLORS.get(item.rarity, Color.WHITE)
+	var rarity_col: Color = Constants.get_rarity_color(item.rarity)
 	UIThemes.style_label(rarity_lbl, Constants.FONT_SIZE_TINY, rarity_col)
 	info.add_child(rarity_lbl)
 
@@ -530,7 +530,7 @@ func _refresh_output_zone() -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = _output_item.display_name
-	var out_col: Color = Constants.RARITY_COLORS.get(_output_item.rarity, Color.WHITE)
+	var out_col: Color = Constants.get_rarity_color(_output_item.rarity)
 	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_SMALL, out_col)
 	name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	item_row.add_child(name_lbl)

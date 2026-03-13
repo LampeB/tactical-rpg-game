@@ -286,7 +286,7 @@ func _rebuild_item_list() -> void:
 
 			var rarity_color: Color
 			if filtered_items.size() == 1:
-				rarity_color = Constants.RARITY_COLORS.get(first_item.rarity, Color.WHITE)
+				rarity_color = Constants.get_rarity_color(first_item.rarity)
 			else:
 				rarity_color = Color(0.9, 0.9, 0.9)
 
@@ -569,7 +569,7 @@ func _build_variant_picker(item: ItemData) -> void:
 		var rarity_name: String = Enums.Rarity.keys()[variant.rarity].capitalize()
 		btn.text = rarity_name
 		btn.custom_minimum_size.x = 70
-		var rarity_color: Color = Constants.RARITY_COLORS.get(variant.rarity, Color.WHITE)
+		var rarity_color: Color = Constants.get_rarity_color(variant.rarity)
 		if variant.id == _selected_id:
 			btn.add_theme_stylebox_override("normal", _make_selected_stylebox())
 			btn.add_theme_color_override("font_color", Color.WHITE)
