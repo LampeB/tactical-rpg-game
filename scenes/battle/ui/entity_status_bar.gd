@@ -10,6 +10,9 @@ var _entity: CombatEntity
 @onready var _mp_bar: ProgressBar = $MarginContainer/HBox/VBox/MPContainer/MPBar
 @onready var _mp_label: Label = $MarginContainer/HBox/VBox/MPContainer/MPBar/MPLabel
 @onready var _mp_container: HBoxContainer = $MarginContainer/HBox/VBox/MPContainer
+@onready var _block_container: HBoxContainer = $MarginContainer/HBox/VBox/BlockContainer
+@onready var _armor_value: Label = $MarginContainer/HBox/VBox/BlockContainer/ArmorValue
+@onready var _spirit_value: Label = $MarginContainer/HBox/VBox/BlockContainer/SpiritValue
 @onready var _status_icons: HBoxContainer = $MarginContainer/HBox/VBox/StatusIcons
 
 
@@ -51,6 +54,14 @@ func refresh() -> void:
 		_mp_bar.value = _entity.current_mp
 		_mp_label.text = "%d/%d" % [_entity.current_mp, _entity.max_mp]
 		_mp_bar.modulate = Constants.COLOR_MP
+
+	# Armor / Spirit Shield
+	var has_armor: bool = _entity.physical_armor > 0 or _entity.base_armor > 0
+	var has_spirit: bool = _entity.spirit_shield > 0 or _entity.base_spirit_shield > 0
+	_block_container.visible = has_armor or has_spirit
+	if has_armor or has_spirit:
+		_armor_value.text = str(_entity.physical_armor)
+		_spirit_value.text = str(_entity.spirit_shield)
 
 	# Dead state
 	if _entity.is_dead:
@@ -111,14 +122,40 @@ func _update_status_icons() -> void:
 	if not _entity:
 		return
 
-	# Regular status effects (text labels)
+	# Regular status effects (icon with turn count overlay)
 	for effect in _entity.status_effects:
 		var data: StatusEffectData = effect.data
-		var label: Label = Label.new()
-		label.text = data.display_name.left(3)
-		UIThemes.set_font_size(label, Constants.FONT_SIZE_TINY)
-		label.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
-		_status_icons.add_child(label)
+		if data.icon:
+			var container := PanelContainer.new()
+			container.custom_minimum_size = Vector2(22, 22)
+			container.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
+			var style := StyleBoxEmpty.new()
+			container.add_theme_stylebox_override("panel", style)
+
+			var icon_rect := TextureRect.new()
+			icon_rect.texture = data.icon
+			icon_rect.expand_mode = 1  # EXPAND_IGNORE_SIZE
+			icon_rect.stretch_mode = 5  # KEEP_ASPECT_CENTERED
+			icon_rect.custom_minimum_size = Vector2(22, 22)
+			container.add_child(icon_rect)
+
+			var turns_label := Label.new()
+			turns_label.text = str(effect.remaining_turns)
+			UIThemes.set_font_size(turns_label, 9)
+			turns_label.add_theme_color_override("font_color", Color.WHITE)
+			turns_label.add_theme_color_override("font_outline_color", Color.BLACK)
+			turns_label.add_theme_constant_override("outline_size", 2)
+			turns_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+			turns_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+			turns_label.anchors_preset = Control.PRESET_FULL_RECT
+			container.add_child(turns_label)
+			_status_icons.add_child(container)
+		else:
+			var label: Label = Label.new()
+			label.text = data.display_name.left(3)
+			UIThemes.set_font_size(label, Constants.FONT_SIZE_TINY)
+			label.tooltip_text = "%s (%d turns)" % [data.display_name, effect.remaining_turns]
+			_status_icons.add_child(label)
 
 	# Gem status effects — colored squares with stack count
 	for gem_effect in _entity.active_gem_status_effects:

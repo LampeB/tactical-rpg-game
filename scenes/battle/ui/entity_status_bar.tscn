@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://c5entstbar01"]
 
 [ext_resource type="Script" path="res://scenes/battle/ui/entity_status_bar.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/icons/physical_armor.png" id="2_armor"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/icons/spirit_shield.png" id="3_spirit"]
 
 [node name="EntityStatusBar" type="PanelContainer"]
 custom_minimum_size = Vector2(220, 0)
@@ -92,6 +94,38 @@ theme_override_font_sizes/font_size = 12
 text = "30"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BlockContainer" type="HBoxContainer" parent="MarginContainer/HBox/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ArmorIcon" type="TextureRect" parent="MarginContainer/HBox/VBox/BlockContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(16, 16)
+texture = ExtResource("2_armor")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.6, 0.5, 0.3, 1)
+
+[node name="ArmorValue" type="Label" parent="MarginContainer/HBox/VBox/BlockContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.6, 0.5, 0.3, 1)
+text = "0"
+
+[node name="SpiritIcon" type="TextureRect" parent="MarginContainer/HBox/VBox/BlockContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(16, 16)
+texture = ExtResource("3_spirit")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0.5, 0.3, 0.8, 1)
+
+[node name="SpiritValue" type="Label" parent="MarginContainer/HBox/VBox/BlockContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.5, 0.3, 0.8, 1)
+text = "0"
 
 [node name="StatusIcons" type="HBoxContainer" parent="MarginContainer/HBox/VBox"]
 layout_mode = 2

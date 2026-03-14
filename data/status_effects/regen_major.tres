@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/status_effect_data.gd" id="1_sed"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/icons/status_effects/regen_major.png" id="icon_tex"]
+
+[resource]
+script = ExtResource("1_sed")
+id = "regen_major"
+display_name = "Major Regen"
+icon = ExtResource("icon_tex")
+description = "Recovers 12 HP per turn."
+category = 4
+effect_group = "regen"
+tier = 1
+duration = 3
+tick_heal = 12

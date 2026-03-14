@@ -150,6 +150,8 @@ const COLOR_HP_HIGH := Color(0.4, 1.0, 0.4)           ## High HP (green)
 const COLOR_HP_MID := Color(1.0, 0.8, 0.2)            ## Medium HP (yellow)
 const COLOR_HP_LOW := Color(1.0, 0.3, 0.3)            ## Low HP (red)
 const COLOR_MP := Color(0.4, 0.6, 1.0)                ## MP bar (blue)
+const COLOR_ARMOR := Color(0.6, 0.5, 0.3)             ## Physical armor (bronze)
+const COLOR_SPIRIT := Color(0.5, 0.3, 0.8)            ## Spirit shield (purple)
 const COLOR_DEAD := Color(0.5, 0.5, 0.5, 0.6)         ## Dead entity (grey)
 
 ## Combat feedback colors

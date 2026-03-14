@@ -138,6 +138,9 @@ func advance_turn() -> void:
 			log_message.emit("[TURN] %s defend stance cleared" % current_entity.entity_name, Color(0.6, 0.6, 0.6))
 		current_entity.is_defending = false
 
+		# Reset block to equipment base (Slay the Spire style — block doesn't carry over)
+		current_entity.reset_block()
+
 		# Tick cooldowns
 		current_entity.tick_cooldowns()
 
@@ -199,9 +202,10 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 			result.amount = int(float(result.amount) * PassiveEffects.EXECUTE_BONUS_DAMAGE)
 			log_message.emit("%s senses weakness — execute bonus!" % source.entity_name, Color(1.0, 0.2, 0.2))
 
-	log_message.emit("[DAMAGE] Calculated: %d, crit: %s" % [result.amount, str(result.is_crit)], Color(0.6, 0.6, 0.6))
+	var dmg_type: int = result.get("damage_type", Enums.DamageType.PHYSICAL)
+	log_message.emit("[DAMAGE] Calculated: %d, crit: %s, type: %s" % [result.amount, str(result.is_crit), Enums.get_damage_type_name(dmg_type as Enums.DamageType)], Color(0.6, 0.6, 0.6))
 	var target_was_alive: bool = not target.is_dead
-	var actual: int = target.take_damage(result.amount)
+	var actual: int = target.take_damage(result.amount, dmg_type as Enums.DamageType)
 	result["actual_damage"] = actual
 	result["target"] = target
 	result["source"] = source
@@ -230,8 +234,9 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 			if target.is_dead:
 				break
 			var extra_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
+			var extra_type: int = extra_dmg.get("damage_type", Enums.DamageType.PHYSICAL)
 			var reduced: int = maxi(int(float(extra_dmg.amount) * fraction), 1)
-			var extra_actual: int = target.take_damage(reduced)
+			var extra_actual: int = target.take_damage(reduced, extra_type as Enums.DamageType)
 			actual += extra_actual
 			result["actual_damage"] = actual
 			log_message.emit(
@@ -256,7 +261,8 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 	if actual > 0 and target.has_passive_effect(PassiveEffects.COUNTER_ATTACK) and not target.is_dead and not source.is_dead:
 		if randf() < PassiveEffects.COUNTER_CHANCE:
 			var counter_result: Dictionary = DamageCalculator.calculate_basic_attack(target, source)
-			var counter_dmg: int = source.take_damage(counter_result.amount)
+			var counter_type: int = counter_result.get("damage_type", Enums.DamageType.PHYSICAL)
+			var counter_dmg: int = source.take_damage(counter_result.amount, counter_type as Enums.DamageType)
 			log_message.emit("%s counter-attacks for %d damage!" % [target.entity_name, counter_dmg], Color(1.0, 0.7, 0.3))
 			if source.is_dead:
 				log_message.emit("%s has been defeated by counter-attack!" % source.entity_name, Color(1.0, 0.5, 0.5))
@@ -280,7 +286,8 @@ func _apply_aoe_splash(source: CombatEntity, primary_target: CombatEntity) -> Ar
 		if splash_target == primary_target or splash_target.is_dead:
 			continue
 		var splash_dmg: Dictionary = DamageCalculator.calculate_basic_attack(source, splash_target)
-		var splash_actual: int = splash_target.take_damage(splash_dmg.amount)
+		var splash_type: int = splash_dmg.get("damage_type", Enums.DamageType.PHYSICAL)
+		var splash_actual: int = splash_target.take_damage(splash_dmg.amount, splash_type as Enums.DamageType)
 		log_message.emit(
 			"  Explosive splash hits %s for %d damage!" % [splash_target.entity_name, splash_actual],
 			Color(1.0, 0.6, 0.2),
@@ -387,11 +394,23 @@ func execute_defend(source: CombatEntity) -> Dictionary:
 	_increment_turn_time(source)
 
 	source.is_defending = true
+	# Defend block: if armor < 10% max HP → armor + 10% max HP; else → armor * 2
+	var hp_floor: int = maxi(int(source.max_hp * 0.1), 1)
+	var mp_floor: int = maxi(int(source.max_mp * 0.1), 1)
+	if source.base_armor < hp_floor:
+		source.physical_armor = source.base_armor + hp_floor
+	else:
+		source.physical_armor = source.base_armor * 2
+	if source.base_spirit_shield < mp_floor:
+		source.spirit_shield = source.base_spirit_shield + mp_floor
+	else:
+		source.spirit_shield = source.base_spirit_shield * 2
 	var result: Dictionary = {
 		"source": source,
 		"action_type": Enums.CombatAction.DEFEND,
 	}
-	log_message.emit("%s takes a defensive stance." % source.entity_name, Color(0.5, 0.8, 1.0))
+	var block_text: String = " (ARM:%d, SHD:%d)" % [source.physical_armor, source.spirit_shield]
+	log_message.emit("%s takes a defensive stance%s." % [source.entity_name, block_text], Color(0.5, 0.8, 1.0))
 	action_resolved.emit(result)
 	return result
 
@@ -432,10 +451,11 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 			if skill.use_all_mp and skill.mp_damage_ratio > 0.0:
 				# Special: damage = MP spent * ratio, bypasses normal formula
 				var raw_dmg: int = maxi(int(float(mp_spent) * skill.mp_damage_ratio), 1)
-				dmg = {"amount": raw_dmg, "is_crit": false}
+				dmg = {"amount": raw_dmg, "is_crit": false, "damage_type": Enums.DamageType.MAGICAL}
 			else:
 				dmg = DamageCalculator.calculate_skill_damage(source, target, skill)
-			var actual: int = target.take_damage(dmg.amount)
+			var skill_dmg_type: int = dmg.get("damage_type", Enums.DamageType.PHYSICAL)
+			var actual: int = target.take_damage(dmg.amount, skill_dmg_type as Enums.DamageType)
 			var crit_text: String = " (CRITICAL!)" if dmg.is_crit else ""
 			log_message.emit(
 				"%s uses %s on %s for %d damage%s" % [source.entity_name, skill.display_name, target.entity_name, actual, crit_text],
@@ -447,9 +467,15 @@ func execute_skill(source: CombatEntity, skill: SkillData, targets: Array) -> Di
 			for s_i in range(skill.applied_statuses.size()):
 				var status = skill.applied_statuses[s_i]
 				if status is StatusEffectData:
-					target.apply_status(status)
-					target_result["status_applied"] = status.display_name
-					log_message.emit("%s is afflicted with %s!" % [target.entity_name, status.display_name], Color(1.0, 0.6, 0.2))
+					var dur_override: int = skill.status_duration_overrides[s_i] if s_i < skill.status_duration_overrides.size() else 0
+					var apply_result: String = target.apply_status(status, dur_override)
+					if apply_result == "applied" or apply_result == "replaced" or apply_result == "stacked":
+						target_result["status_applied"] = status.display_name
+						log_message.emit("%s is afflicted with %s!" % [target.entity_name, status.display_name], Color(1.0, 0.6, 0.2))
+					elif apply_result == "refreshed":
+						log_message.emit("%s's %s duration refreshed." % [target.entity_name, status.display_name], Color(0.8, 0.8, 0.4))
+					elif apply_result == "ignored":
+						log_message.emit("%s resists %s (stronger effect active)." % [target.entity_name, status.display_name], Color(0.6, 0.6, 0.6))
 
 			result.target_results.append(target_result)
 
@@ -581,12 +607,22 @@ func _tick_statuses(entity: CombatEntity) -> void:
 		# DoT damage
 		if data.tick_damage > 0 and data.tick_on_start:
 			var dmg: int = data.tick_damage * effect.stacks
-			var actual: int = entity.take_damage(dmg)
+			var actual: int = entity.take_damage(dmg, data.tick_damage_type)
 			status_ticked.emit(entity, actual, data.display_name)
 			log_message.emit(
 				"%s takes %d damage from %s" % [entity.entity_name, actual, data.display_name],
 				Color(1.0, 0.6, 0.2),
 			)
+
+		# HoT healing
+		if data.tick_heal > 0 and data.tick_on_start:
+			var heal_val: int = data.tick_heal * effect.stacks
+			var actual_heal: int = entity.heal(heal_val)
+			if actual_heal > 0:
+				log_message.emit(
+					"%s recovers %d HP from %s" % [entity.entity_name, actual_heal, data.display_name],
+					Color(0.3, 1.0, 0.3),
+				)
 
 		# Decrement duration
 		if effect.remaining_turns > 0:

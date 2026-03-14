@@ -20,7 +20,11 @@ var current_hp: int = 0
 var max_hp: int = 0
 var current_mp: int = 0
 var max_mp: int = 0
-var shield_hp: int = 0  ## Absorbs damage before HP (from start_shield)
+var shield_hp: int = 0  ## Absorbs damage before HP (from start_shield / on-kill passives)
+var physical_armor: int = 0   ## Absorbs physical damage, resets each turn from equipment
+var spirit_shield: int = 0    ## Absorbs magical damage, resets each turn from equipment
+var base_armor: int = 0       ## Total armor granted by equipment (reset target)
+var base_spirit_shield: int = 0  ## Total spirit shield granted by equipment (reset target)
 var is_defending: bool = false
 var is_dead: bool = false
 var auto_revive_used: bool = false
@@ -103,6 +107,16 @@ static func from_character(
 	entity.current_hp = starting_hp if starting_hp >= 0 else entity.max_hp
 	entity.current_mp = starting_mp if starting_mp >= 0 else entity.max_mp
 
+	# Compute base armor and spirit shield from equipment
+	if inv:
+		var placed_items: Array = inv.get_all_placed_items()
+		for eq_i in range(placed_items.size()):
+			var placed: GridInventory.PlacedItem = placed_items[eq_i]
+			entity.base_armor += placed.item_data.granted_armor
+			entity.base_spirit_shield += placed.item_data.granted_spirit_shield
+	entity.physical_armor = entity.base_armor
+	entity.spirit_shield = entity.base_spirit_shield
+
 	# A character entering battle with 0 HP is considered already dead
 	if entity.current_hp <= 0:
 		entity.current_hp = 0
@@ -120,6 +134,10 @@ static func from_enemy(e_data: EnemyData) -> CombatEntity:
 	entity.max_mp = 0
 	entity.current_hp = entity.max_hp
 	entity.current_mp = 0
+	entity.base_armor = e_data.granted_armor
+	entity.base_spirit_shield = e_data.granted_spirit_shield
+	entity.physical_armor = entity.base_armor
+	entity.spirit_shield = entity.base_spirit_shield
 	return entity
 
 
@@ -349,8 +367,24 @@ func get_damage_taken_multiplier() -> float:
 	return mult
 
 
-func take_damage(amount: int) -> int:
-	# Shield absorbs damage first
+func take_damage(amount: int, damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL) -> int:
+	# Type-specific block absorbs damage first
+	if damage_type == Enums.DamageType.PHYSICAL and physical_armor > 0:
+		if amount <= physical_armor:
+			physical_armor -= amount
+			return 0
+		else:
+			amount -= physical_armor
+			physical_armor = 0
+	elif damage_type == Enums.DamageType.MAGICAL and spirit_shield > 0:
+		if amount <= spirit_shield:
+			spirit_shield -= amount
+			return 0
+		else:
+			amount -= spirit_shield
+			spirit_shield = 0
+
+	# Generic shield absorbs remaining damage (from passives)
 	if shield_hp > 0:
 		if amount <= shield_hp:
 			shield_hp -= amount
@@ -358,6 +392,7 @@ func take_damage(amount: int) -> int:
 		else:
 			amount -= shield_hp
 			shield_hp = 0
+
 	var actual: int = mini(amount, current_hp)
 	current_hp -= actual
 	if current_hp <= 0:
@@ -368,6 +403,12 @@ func take_damage(amount: int) -> int:
 		else:
 			is_dead = true
 	return actual
+
+
+func reset_block() -> void:
+	## Resets armor and spirit shield to equipment-granted base values at turn start.
+	physical_armor = base_armor
+	spirit_shield = base_spirit_shield
 
 
 func heal(amount: int) -> int:
@@ -386,25 +427,56 @@ func restore_mp(amount: int) -> int:
 	return actual
 
 
-func apply_status(status_data: StatusEffectData) -> bool:
-	# Check if already has this status
+## Applies a status effect with tier override logic.
+## duration_override: if > 0, overrides the effect's default duration.
+## Returns: "applied", "replaced", "refreshed", "ignored", or "stacked".
+func apply_status(status_data: StatusEffectData, duration_override: int = 0) -> String:
+	var eff_duration: int = duration_override if duration_override > 0 else status_data.duration
+
+	# Tier override: check for existing effect in the same group
+	if status_data.effect_group != "":
+		for i in range(status_effects.size()):
+			var existing: Dictionary = status_effects[i]
+			var existing_data: StatusEffectData = existing.data
+			if existing_data.effect_group != status_data.effect_group:
+				continue
+			# Same group found — compare tiers
+			if status_data.tier > existing_data.tier:
+				# Higher tier replaces lower, regardless of duration
+				status_effects[i] = {
+					"data": status_data,
+					"remaining_turns": eff_duration,
+					"stacks": 1,
+				}
+				return "replaced"
+			elif status_data.tier < existing_data.tier:
+				# Lower tier never replaces higher
+				return "ignored"
+			else:
+				# Same tier — keep whichever has more remaining turns
+				if eff_duration > existing.remaining_turns:
+					existing.remaining_turns = eff_duration
+					return "refreshed"
+				return "ignored"
+
+	# Legacy path: match by exact id (for effects without effect_group)
 	for effect in status_effects:
 		if effect.data.id == status_data.id:
 			if status_data.stackable and effect.stacks < status_data.max_stacks:
 				effect.stacks += 1
-				effect.remaining_turns = status_data.duration
-				return true
+				effect.remaining_turns = eff_duration
+				return "stacked"
 			else:
-				# Refresh duration
-				effect.remaining_turns = status_data.duration
-				return true
+				effect.remaining_turns = eff_duration
+				return "refreshed"
+
 	# New status
 	status_effects.append({
 		"data": status_data,
-		"remaining_turns": status_data.duration,
+		"remaining_turns": eff_duration,
 		"stacks": 1,
 	})
-	return true
+	return "applied"
 
 
 func tick_cooldowns() -> void:
@@ -454,7 +526,8 @@ func process_gem_status_effects() -> void:
 				if effect.tick_damage > 0:
 					var raw: int = effect.duration_turns * effect.tick_damage
 					var dmg: int = raw if effect.max_tick_damage == 0 else mini(raw, effect.max_tick_damage)
-					take_damage(dmg)
+					var gem_dmg_type: Enums.DamageType = Enums.DamageType.MAGICAL if effect.effect_type == Enums.StatusEffectType.BURN else Enums.DamageType.PHYSICAL
+					take_damage(dmg, gem_dmg_type)
 
 			Enums.StatusEffectType.CHILLED:
 				# Speed reduction is handled in get_effective_stat()

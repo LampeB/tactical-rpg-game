@@ -10,6 +10,11 @@ extends Resource
 
 @export_group("Classification")
 @export var category: Enums.StatusCategory = Enums.StatusCategory.DAMAGE_OVER_TIME
+## Group ID for tier override logic (e.g. "phys_atk_up", "speed_down").
+## Effects with the same group interact: higher tier replaces lower, same tier keeps longer.
+@export var effect_group: String = ""
+## Tier for override system: 0 = minor, 1 = major. Higher tier replaces lower.
+@export var tier: int = 0
 
 @export_group("Duration")
 ## Number of turns this effect lasts. -1 = permanent until removed.
@@ -21,6 +26,8 @@ extends Resource
 ## Damage per tick (for DoT effects).
 @export var tick_damage: int = 0
 @export var tick_damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
+## Healing per tick (for regen/HoT effects).
+@export var tick_heal: int = 0
 ## Stat modifications while active.
 @export var stat_modifiers: Array[StatModifier] = []
 ## Speed multiplier (for freeze/slow/haste). 1.0 = normal.

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/status_effect_data.gd" id="1_sed"]
+[ext_resource type="Script" path="res://scripts/resources/stat_modifier.gd" id="2_sm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/icons/status_effects/speed_down_minor.png" id="icon_tex"]
+
+[sub_resource type="Resource" id="Resource_mod"]
+script = ExtResource("2_sm")
+stat = 2
+modifier_type = 1
+value = -15.0
+
+[resource]
+script = ExtResource("1_sed")
+id = "speed_down_minor"
+display_name = "Minor Speed Down"
+icon = ExtResource("icon_tex")
+description = "Speed reduced by 15%."
+category = 2
+effect_group = "speed_down"
+tier = 0
+duration = 3
+stat_modifiers = Array[ExtResource("2_sm")]([SubResource("Resource_mod")])

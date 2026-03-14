@@ -1,18 +1,20 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/status_effects/speed_down_minor.tres" id="2_debuff"]
 
 [resource]
 script = ExtResource("1")
 id = "ice_shard"
 display_name = "Ice Shard"
-description = "Launches a freezing shard that deals ice damage to all enemies."
+description = "Launches a freezing shard that deals ice damage to all enemies and slows them for 3 turns."
 usage = 0
 mp_cost = 10
 cooldown_turns = 0
 target_type = 4
 physical_scaling = 0.0
 magical_scaling = 0.9
+applied_statuses = Array[ExtResource("2_debuff")]([ExtResource("2_debuff")])
 heal_amount = 0
 heal_percent = 0.0
 vfx_type = 6

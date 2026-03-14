@@ -33,6 +33,10 @@ extends Resource
 @export var base_power: int = 0
 ## Base magical damage for active tools.
 @export var magical_power: int = 0
+## Physical armor granted per turn (absorbs physical damage, resets each turn).
+@export var granted_armor: int = 0
+## Spirit shield granted per turn (absorbs magical damage, resets each turn).
+@export var granted_spirit_shield: int = 0
 ## Skills granted by this item when equipped.
 @export var granted_skills: Array[SkillData] = []
 
