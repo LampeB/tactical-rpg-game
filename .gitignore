@@ -9,8 +9,9 @@ debug_log.txt
 .DS_Store
 Thumbs.db
 
-# Vendor asset packs (not used in game)
+# Vendor asset packs (large third-party downloads)
 temp_sprites/
+assets/3D/
 
 # MCP config (contains API keys)
 .mcp.json

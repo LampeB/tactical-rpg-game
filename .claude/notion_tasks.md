@@ -2,7 +2,7 @@
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
 <\!-- Total tasks: 267 -->
-<\!-- Last updated: 2026-03-13 -->
+<\!-- Last updated: 2026-03-14 -->
 
 ## Prerequisites
 
@@ -48,16 +48,15 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
-| Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
-| Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | 3217700f-d0fb-818c-bfbd-e5e37dfe61a4 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
+| Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
+| Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | 3217700f-d0fb-81a1-9a90-c42cbae821af |
@@ -68,6 +67,7 @@
 | KO'd characters still play animations / act during battle | 3147700f-d0fb-8101-b64d-e663c1304ba2 |
 | Persist HP/Mana after fights | 3147700f-d0fb-8119-8955-f25b43a7be3a |
 | Procedural attack animations (slash, thrust, bash per weapon type) | 3167700f-d0fb-81eb-ac24-c3a121c9bc8f |
+| Rework block system: physical armor + spirit shield (Slay the Spire style, item-granted per turn) | 3217700f-d0fb-818c-bfbd-e5e37dfe61a4 |
 | Restrict roaming enemies from entering town/NPC areas | 3147700f-d0fb-81af-9c68-e10347a8d3e9 |
 | Runtime errors: typed array assignment from Variant | 3147700f-d0fb-81de-886d-db067f32a2a2 |
 | Use skills/items outside of combat (healing) | 3147700f-d0fb-8171-8223-c3f36449a4f2 |
@@ -132,7 +132,6 @@
 | Name | Notion ID |
 |---|---|
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
 | Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
@@ -141,6 +140,7 @@
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
+| Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
 | Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
 | Font size accessibility setting (global scaling) | 31d7700f-d0fb-81ff-b44d-cbeffb97162f |
 | Hover tooltip on skills in the stats screen | 3147700f-d0fb-81ad-af11-d4c89a122b55 |
