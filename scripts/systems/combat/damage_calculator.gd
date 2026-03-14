@@ -11,7 +11,8 @@ static func calculate_damage(
 	physical_scaling: float,
 	magical_scaling: float,
 ) -> Dictionary:
-	## Returns {"amount": int, "is_crit": bool}
+	## Returns {"amount": int, "is_crit": bool, "defended": bool, "damage_type": Enums.DamageType,
+	##          "phys_amount": int, "mag_amount": int}
 
 	# Physical component
 	var phys_power: float = float(source.get_total_weapon_physical_power())
@@ -47,17 +48,29 @@ static func calculate_damage(
 		var bonus_crit_dmg: float = source.get_effective_stat(Enums.Stat.CRITICAL_DAMAGE) / 100.0
 		crit_mult += bonus_crit_dmg
 		total *= crit_mult
+		phys_raw *= crit_mult
+		mag_raw *= crit_mult
 
 	# Defend multiplier
 	var defended: bool = target.is_defending
 	if defended:
 		total *= Constants.DEFEND_DAMAGE_REDUCTION
+		phys_raw *= Constants.DEFEND_DAMAGE_REDUCTION
+		mag_raw *= Constants.DEFEND_DAMAGE_REDUCTION
 
 	# Status effect damage multiplier on target
-	total *= target.get_damage_taken_multiplier()
+	var dmg_mult: float = target.get_damage_taken_multiplier()
+	total *= dmg_mult
+	phys_raw *= dmg_mult
+	mag_raw *= dmg_mult
 
 	var amount: int = maxi(int(total), 1)
-	return {"amount": amount, "is_crit": is_crit, "defended": defended}
+	var phys_amount: int = maxi(int(phys_raw), 0)
+	var mag_amount: int = maxi(int(mag_raw), 0)
+	# Dominant damage type for block resolution
+	var dmg_type: int = Enums.DamageType.MAGICAL if mag_raw > phys_raw else Enums.DamageType.PHYSICAL
+	return {"amount": amount, "is_crit": is_crit, "defended": defended,
+		"damage_type": dmg_type, "phys_amount": phys_amount, "mag_amount": mag_amount}
 
 
 static func calculate_basic_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:

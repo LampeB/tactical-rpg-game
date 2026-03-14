@@ -27,6 +27,10 @@ extends Resource
 @export_group("Combat")
 @export var damage_type: Enums.DamageType = Enums.DamageType.PHYSICAL
 @export var skills: Array[SkillData] = []
+## Physical armor granted per turn (absorbs physical damage, resets each turn).
+@export var granted_armor: int = 0
+## Spirit shield granted per turn (absorbs magical damage, resets each turn).
+@export var granted_spirit_shield: int = 0
 ## Gold rewarded on defeat.
 @export var gold_reward: int = 10
 

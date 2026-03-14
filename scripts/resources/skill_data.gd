@@ -29,6 +29,8 @@ extends Resource
 @export_group("Effects")
 ## Status effects applied on hit.
 @export var applied_statuses: Array[StatusEffectData] = []
+## Per-status duration override (parallel array). 0 or missing = use the effect's default duration.
+@export var status_duration_overrides: Array[int] = []
 ## Healing amount (flat).
 @export var heal_amount: int = 0
 ## Healing as percentage of max HP.
