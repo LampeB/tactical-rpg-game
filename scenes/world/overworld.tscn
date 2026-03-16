@@ -1,10 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://beh8655yipmht"]
+[gd_scene format=3 uid="uid://beh8655yipmht"]
 
-[ext_resource type="Script" path="res://scenes/world/overworld.gd" id="1"]
-[ext_resource type="Script" path="res://scenes/world/overworld_player.gd" id="2"]
-[ext_resource type="Script" path="res://scenes/world/fast_travel_menu.gd" id="3"]
-[ext_resource type="PackedScene" path="res://scenes/shared/environment_3d.tscn" id="10_env"]
-[ext_resource type="Script" path="res://scripts/systems/camera/orbit_camera.gd" id="11_cam"]
+[ext_resource type="Script" uid="uid://sgegaih65b6e" path="res://scenes/world/overworld.gd" id="1"]
+[ext_resource type="Script" uid="uid://cj7slaoegg1cl" path="res://scenes/world/overworld_player.gd" id="2"]
+[ext_resource type="Script" uid="uid://ddx2ey8apn276" path="res://scenes/world/fast_travel_menu.gd" id="3"]
+[ext_resource type="PackedScene" uid="uid://denv3d001" path="res://scenes/shared/environment_3d.tscn" id="10_env"]
+[ext_resource type="Script" uid="uid://dgr5ldrthytxq" path="res://scripts/systems/camera/orbit_camera.gd" id="11_cam"]
 
 [sub_resource type="BoxShape3D" id="player_collision"]
 size = Vector3(0.8, 1.8, 0.8)
@@ -12,42 +12,41 @@ size = Vector3(0.8, 1.8, 0.8)
 [sub_resource type="SphereShape3D" id="interaction_sphere"]
 radius = 1.5
 
-
-[node name="Overworld" type="Node3D"]
+[node name="Overworld" type="Node3D" unique_id=1261045950]
 script = ExtResource("1")
+use_heightmap_terrain = true
 
-[node name="Environment3D" parent="." instance=ExtResource("10_env")]
+[node name="Environment3D" parent="." unique_id=722123307 instance=ExtResource("10_env")]
 
-[node name="LocationMarkers" type="Node3D" parent="."]
+[node name="LocationMarkers" type="Node3D" parent="." unique_id=2012694793]
 
-[node name="Player" type="CharacterBody3D" parent="."]
-position = Vector3(30, 0, 17)
+[node name="Player" type="CharacterBody3D" parent="." unique_id=9568841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 17)
 collision_layer = 2
-collision_mask = 1
 script = ExtResource("2")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1146154326]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("player_collision")
 
-[node name="InteractionArea" type="Area3D" parent="Player"]
+[node name="InteractionArea" type="Area3D" parent="Player" unique_id=1483580804]
 collision_layer = 0
 collision_mask = 4
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/InteractionArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player/InteractionArea" unique_id=509931090]
 shape = SubResource("interaction_sphere")
 
-[node name="OrbitCamera" type="Node3D" parent="."]
+[node name="OrbitCamera" type="Node3D" parent="." unique_id=705000348]
 script = ExtResource("11_cam")
 
-[node name="PitchNode" type="Node3D" parent="OrbitCamera"]
+[node name="PitchNode" type="Node3D" parent="OrbitCamera" unique_id=1487403495]
 
-[node name="Camera3D" type="Camera3D" parent="OrbitCamera/PitchNode"]
+[node name="Camera3D" type="Camera3D" parent="OrbitCamera/PitchNode" unique_id=459353592]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1258887887]
 
-[node name="HUD" type="Control" parent="UI"]
+[node name="HUD" type="Control" parent="UI" unique_id=1181276100]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -56,9 +55,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="GoldLabel" type="Label" parent="UI/HUD"]
+[node name="GoldLabel" type="Label" parent="UI/HUD" unique_id=262854450]
 layout_mode = 1
-anchors_preset = 0
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 200.0
@@ -66,7 +64,7 @@ offset_bottom = 40.0
 theme_override_font_sizes/font_size = 20
 text = "Gold: 0"
 
-[node name="LocationLabel" type="Label" parent="UI/HUD"]
+[node name="LocationLabel" type="Label" parent="UI/HUD" unique_id=1668223970]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -77,12 +75,14 @@ offset_left = -200.0
 offset_top = -60.0
 offset_right = 200.0
 offset_bottom = -30.0
-theme_override_font_sizes/font_size = 20
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 
-[node name="InfoLabel" type="Label" parent="UI/HUD"]
+[node name="InfoLabel" type="Label" parent="UI/HUD" unique_id=1482017687]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -91,12 +91,12 @@ offset_left = -300.0
 offset_top = 16.0
 offset_right = 300.0
 offset_bottom = 40.0
+grow_horizontal = 2
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
-[node name="FastTravelMenu" type="PanelContainer" parent="UI"]
+[node name="FastTravelMenu" type="PanelContainer" parent="UI" unique_id=1694832666]
 visible = false
-layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -110,37 +110,37 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3")
 
-[node name="MarginContainer" type="MarginContainer" parent="UI/FastTravelMenu"]
+[node name="MarginContainer" type="MarginContainer" parent="UI/FastTravelMenu" unique_id=1650744383]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/FastTravelMenu/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/FastTravelMenu/MarginContainer" unique_id=289446470]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer" unique_id=683287937]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Fast Travel"
 horizontal_alignment = 1
 
-[node name="LocationList" type="ItemList" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer"]
-layout_mode = 2
+[node name="LocationList" type="ItemList" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer" unique_id=2020858765]
 custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
 
-[node name="Buttons" type="HBoxContainer" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer"]
+[node name="Buttons" type="HBoxContainer" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer" unique_id=1530039286]
 layout_mode = 2
 alignment = 1
 
-[node name="ConfirmButton" type="Button" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer/Buttons"]
-layout_mode = 2
+[node name="ConfirmButton" type="Button" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer/Buttons" unique_id=2137884796]
 custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
 text = "Travel"
 
-[node name="CancelButton" type="Button" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer/Buttons"]
-layout_mode = 2
+[node name="CancelButton" type="Button" parent="UI/FastTravelMenu/MarginContainer/VBoxContainer/Buttons" unique_id=261266842]
 custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
 text = "Cancel"

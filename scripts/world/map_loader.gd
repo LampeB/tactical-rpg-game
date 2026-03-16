@@ -181,11 +181,10 @@ static func _spawn_chest(elem: MapElement, parent: Node3D) -> void:
 
 
 static func _spawn_decoration(elem: MapElement, parent: Node3D) -> void:
-	if elem.resource_id.is_empty():
+	if elem.resource_id.is_empty() or not ResourceLoader.exists(elem.resource_id):
 		return
 	var scene: PackedScene = load(elem.resource_id) as PackedScene
 	if not scene:
-		DebugLogger.log_warn("Failed to load decoration scene: %s" % elem.resource_id, "MapLoader")
 		return
 	var obj: Node3D = scene.instantiate()
 	obj.position = elem.position
@@ -344,12 +343,13 @@ static func build_battle_background(map_data: MapData, battle_area: BattleAreaDa
 			if _is_in_arena(pos, arena_pos, arena_radius_sq) and _is_blocking_decoration(scene_path):
 				placed_in_zone += 1
 				continue
-			var scene: PackedScene = load(scene_path) as PackedScene
-			if scene:
-				var obj: Node3D = scene.instantiate()
-				obj.position = pos
-				obj.rotation.y = rot_y
-				root.add_child(obj)
+			if ResourceLoader.exists(scene_path):
+				var scene: PackedScene = load(scene_path) as PackedScene
+				if scene:
+					var obj: Node3D = scene.instantiate()
+					obj.position = pos
+					obj.rotation.y = rot_y
+					root.add_child(obj)
 			placed_in_zone += 1
 
 	return root
@@ -402,9 +402,269 @@ static func _is_blocking_decoration(scene_path: String) -> bool:
 
 static func _instantiate_decoration(resource_id: String) -> Node3D:
 	## Loads and instantiates a decoration from its resource path.
-	if resource_id.is_empty():
+	if resource_id.is_empty() or not ResourceLoader.exists(resource_id):
 		return null
 	var scene: PackedScene = load(resource_id) as PackedScene
 	if not scene:
 		return null
 	return scene.instantiate()
+
+
+# === Heightmap Battle Background ===
+
+const _BATTLE_PATCH_RADIUS := 50.0  ## Half-size of terrain patch around arena (world units)
+const _BATTLE_TERRAIN_SHADER := "res://shaders/terrain_splatmap.gdshader"
+
+
+static func build_heightmap_battle_background(
+	heightmap: HeightmapData, arena_pos: Vector3, arena_rotation_y: float
+) -> Node3D:
+	## Builds a battle background from heightmap terrain around the arena position.
+	## Returns a Node3D containing a terrain mesh patch and scattered props.
+	var root := Node3D.new()
+	root.name = "BattleBackground"
+
+	var tscale: Vector3 = heightmap.terrain_scale
+	var arena_radius_sq: float = BattleAreaData.ARENA_RADIUS * BattleAreaData.ARENA_RADIUS
+
+	# --- Terrain mesh patch ---
+	var terrain_mesh: MeshInstance3D = _build_battle_terrain_patch(heightmap, arena_pos)
+	if terrain_mesh:
+		root.add_child(terrain_mesh)
+
+	# --- Scatter props (visual only, no collision) ---
+	var props_node: Node3D = _scatter_battle_props(
+		heightmap, arena_pos, arena_radius_sq
+	)
+	if props_node:
+		root.add_child(props_node)
+
+	return root
+
+
+static func _build_battle_terrain_patch(data: HeightmapData, center: Vector3) -> MeshInstance3D:
+	## Creates an ArrayMesh terrain patch centered on the given world position.
+	var tscale: Vector3 = data.terrain_scale
+
+	# Convert world center to heightmap coords
+	var cx_f: float = center.x / tscale.x
+	var cz_f: float = center.z / tscale.z
+	var patch_r: float = _BATTLE_PATCH_RADIUS / tscale.x
+
+	# Heightmap index bounds for the patch
+	var min_x: int = maxi(0, int(cx_f - patch_r))
+	var max_x: int = mini(data.width - 1, int(cx_f + patch_r))
+	var min_z: int = maxi(0, int(cz_f - patch_r))
+	var max_z: int = mini(data.height - 1, int(cz_f + patch_r))
+
+	var verts_x: int = max_x - min_x + 1
+	var verts_z: int = max_z - min_z + 1
+	if verts_x < 2 or verts_z < 2:
+		return null
+
+	var quads_x: int = verts_x - 1
+	var quads_z: int = verts_z - 1
+
+	# Build vertex arrays
+	var vertices := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var colors := PackedColorArray()
+	var indices := PackedInt32Array()
+
+	var vert_count: int = verts_x * verts_z
+	vertices.resize(vert_count)
+	normals.resize(vert_count)
+	uvs.resize(vert_count)
+	colors.resize(vert_count)
+
+	# Fill vertices
+	for iz in range(verts_z):
+		var gz: int = min_z + iz
+		for ix in range(verts_x):
+			var gx: int = min_x + ix
+			var h: float = data.get_height_at(gx, gz)
+			var idx: int = iz * verts_x + ix
+
+			vertices[idx] = Vector3(
+				float(gx) * tscale.x,
+				h * tscale.y,
+				float(gz) * tscale.z
+			)
+			uvs[idx] = Vector2(
+				float(ix) / float(quads_x) if quads_x > 0 else 0.0,
+				float(iz) / float(quads_z) if quads_z > 0 else 0.0
+			)
+			colors[idx] = data.get_splatmap_weights(gx, gz)
+
+	# Normals via central differencing
+	for iz in range(verts_z):
+		var gz: int = min_z + iz
+		for ix in range(verts_x):
+			var gx: int = min_x + ix
+			var idx: int = iz * verts_x + ix
+
+			var h_left: float = data.get_height_at(gx - 1, gz) * tscale.y
+			var h_right: float = data.get_height_at(gx + 1, gz) * tscale.y
+			var h_down: float = data.get_height_at(gx, gz - 1) * tscale.y
+			var h_up: float = data.get_height_at(gx, gz + 1) * tscale.y
+
+			normals[idx] = Vector3(
+				h_left - h_right,
+				2.0 * tscale.x,
+				h_down - h_up
+			).normalized()
+
+	# Triangle indices
+	indices.resize(quads_x * quads_z * 6)
+	var tri_idx: int = 0
+	for iz in range(quads_z):
+		for ix in range(quads_x):
+			var tl: int = iz * verts_x + ix
+			var tr: int = tl + 1
+			var bl: int = (iz + 1) * verts_x + ix
+			var br: int = bl + 1
+			indices[tri_idx] = tl
+			indices[tri_idx + 1] = tr
+			indices[tri_idx + 2] = bl
+			indices[tri_idx + 3] = tr
+			indices[tri_idx + 4] = br
+			indices[tri_idx + 5] = bl
+			tri_idx += 6
+
+	# Create ArrayMesh
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+	# Apply splatmap shader material
+	var material: ShaderMaterial = _create_battle_splatmap_material(data)
+	if material:
+		mesh.surface_set_material(0, material)
+
+	var mmi := MeshInstance3D.new()
+	mmi.mesh = mesh
+	mmi.name = "BattleTerrain"
+	return mmi
+
+
+static func _create_battle_splatmap_material(data: HeightmapData) -> ShaderMaterial:
+	## Creates a splatmap shader material for the battle terrain patch.
+	if not ResourceLoader.exists(_BATTLE_TERRAIN_SHADER):
+		return null
+	var shader: Shader = load(_BATTLE_TERRAIN_SHADER) as Shader
+	if not shader:
+		return null
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+
+	for i in range(mini(data.texture_layers.size(), 4)):
+		var layer: TerrainTextureLayer = data.texture_layers[i]
+		var suffix: String = str(i)
+		if layer.albedo_texture:
+			mat.set_shader_parameter("albedo_" + suffix, layer.albedo_texture)
+		if layer.normal_texture:
+			mat.set_shader_parameter("normal_" + suffix, layer.normal_texture)
+		mat.set_shader_parameter("uv_scale_" + suffix, layer.uv_scale)
+
+	return mat
+
+
+static func _scatter_battle_props(
+	data: HeightmapData, arena_pos: Vector3, arena_radius_sq: float
+) -> Node3D:
+	## Scatters visual-only props around the battle area (no collision, no blocking in arena).
+	var root := Node3D.new()
+	root.name = "BattleProps"
+
+	var tscale: Vector3 = data.terrain_scale
+	var patch_r: float = _BATTLE_PATCH_RADIUS
+
+	# World bounds of the patch
+	var min_wx: float = arena_pos.x - patch_r
+	var max_wx: float = arena_pos.x + patch_r
+	var min_wz: float = arena_pos.z - patch_r
+	var max_wz: float = arena_pos.z + patch_r
+	var patch_area: float = (patch_r * 2.0) * (patch_r * 2.0)
+
+	var all_props: Array[PropDefinition] = PropRegistry.get_all()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector2(arena_pos.x, arena_pos.z))
+
+	for pi in range(all_props.size()):
+		var prop: PropDefinition = all_props[pi]
+		if not ResourceLoader.exists(prop.scene_path):
+			continue
+
+		# Only visual props for battle (skip blocking ones, they'd obstruct combat)
+		var skip_in_arena: bool = (prop.collision_type == PropDefinition.CollisionType.BLOCKING)
+
+		var expected: float = prop.density * patch_area
+		var count: int = int(expected)
+		if rng.randf() < (expected - float(count)):
+			count += 1
+		if count <= 0:
+			continue
+
+		# Collect transforms
+		var transforms: Array[Transform3D] = []
+		for _i in range(count):
+			var wx: float = rng.randf_range(min_wx, max_wx)
+			var wz: float = rng.randf_range(min_wz, max_wz)
+
+			# Skip blocking props inside arena circle
+			if skip_in_arena:
+				var dx: float = wx - arena_pos.x
+				var dz: float = wz - arena_pos.z
+				if dx * dx + dz * dz <= arena_radius_sq:
+					continue
+
+			# Check splatmap layer compatibility
+			var gx: int = clampi(roundi(wx / tscale.x), 0, data.width - 1)
+			var gz: int = clampi(roundi(wz / tscale.z), 0, data.height - 1)
+			var weights: Color = data.get_splatmap_weights(gx, gz)
+			var dominant: int = _get_dominant_splat_layer(weights)
+			if not (prop.allowed_layers & (1 << dominant)):
+				continue
+
+			var h: float = data.get_height_at(gx, gz) * tscale.y
+			var s: float = rng.randf_range(prop.min_scale, prop.max_scale)
+			var rot_y: float = rng.randf_range(0.0, TAU) if prop.random_rotation_y else 0.0
+
+			var xform := Transform3D.IDENTITY
+			xform = xform.scaled(Vector3(s, s, s))
+			xform = xform.rotated(Vector3.UP, rot_y)
+			xform.origin = Vector3(wx, h, wz)
+			transforms.append(xform)
+
+		if transforms.is_empty():
+			continue
+
+		# Create MultiMeshInstance3D for visual props
+		var mmi: MultiMeshInstance3D = PropScatter._create_multimesh(prop.scene_path, transforms)
+		if mmi:
+			root.add_child(mmi)
+
+	return root
+
+
+static func _get_dominant_splat_layer(weights: Color) -> int:
+	## Returns the splatmap layer index with the highest weight.
+	var max_w: float = weights.r
+	var layer: int = 0
+	if weights.g > max_w:
+		max_w = weights.g
+		layer = 1
+	if weights.b > max_w:
+		max_w = weights.b
+		layer = 2
+	if weights.a > max_w:
+		layer = 3
+	return layer

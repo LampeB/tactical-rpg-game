@@ -211,15 +211,44 @@ func _sync_viewport_size() -> void:
 
 	# Build 3D battle background from map data (once) — must come first to set _arena_center
 	if not _battle_world.has_node("BattleBackground") and not _map_id.is_empty():
-		var map_data: MapData = MapDatabase.get_map(_map_id)
-		if map_data:
-			var battle_area: BattleAreaData = MapLoader.find_nearest_battle_area(map_data, _fight_position)
-			if battle_area:
-				_arena_center = battle_area.position
-				_arena_rotation_y = battle_area.rotation_y
-				var bg: Node3D = MapLoader.build_battle_background(map_data, battle_area)
-				_battle_world.add_child(bg)
-				DebugLogger.log_info("Built battle background from area: %s" % battle_area.area_name, "BattleView")
+		# Check for preloaded heightmap battle background first
+		var preloaded_bg: Node3D = GameManager.preloaded_battle_bg
+		if preloaded_bg:
+			_arena_center = GameManager.preloaded_battle_arena_center
+			_arena_rotation_y = GameManager.preloaded_battle_arena_rotation
+			_battle_world.add_child(preloaded_bg)
+			GameManager.preloaded_battle_bg = null  # Consumed — clear reference
+			DebugLogger.log_info("Using preloaded battle background at y=%.1f" % _arena_center.y, "BattleView")
+		else:
+			var map_data: MapData = MapDatabase.get_map(_map_id)
+			if map_data:
+				var battle_area: BattleAreaData = MapLoader.find_nearest_battle_area(map_data, _fight_position)
+				if battle_area:
+					_arena_center = battle_area.position
+					_arena_rotation_y = battle_area.rotation_y
+
+				# Use heightmap terrain background if available, otherwise legacy GridMap
+				var heightmap_data: Resource = GameManager.current_heightmap_data
+				if heightmap_data and heightmap_data is HeightmapData:
+					var hdata: HeightmapData = heightmap_data as HeightmapData
+					# Fall back to fight position if no battle area defined
+					if not battle_area:
+						_arena_center = _fight_position
+						_arena_rotation_y = 0.0
+					# Ground arena center to terrain height
+					var tscale: Vector3 = hdata.terrain_scale
+					var gx: int = clampi(roundi(_arena_center.x / tscale.x), 0, hdata.width - 1)
+					var gz: int = clampi(roundi(_arena_center.z / tscale.z), 0, hdata.height - 1)
+					_arena_center.y = hdata.get_height_at(gx, gz) * tscale.y
+					var bg: Node3D = MapLoader.build_heightmap_battle_background(
+						hdata, _arena_center, _arena_rotation_y
+					)
+					_battle_world.add_child(bg)
+					DebugLogger.log_info("Built heightmap battle background at y=%.1f" % _arena_center.y, "BattleView")
+				elif battle_area:
+					var bg: Node3D = MapLoader.build_battle_background(map_data, battle_area)
+					_battle_world.add_child(bg)
+					DebugLogger.log_info("Built battle background from area: %s" % battle_area.area_name, "BattleView")
 
 	# Position camera: start at default center view, then orbit behind party
 	var default_offset := Vector3(0, 3.5, 8)

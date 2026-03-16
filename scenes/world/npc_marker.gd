@@ -19,6 +19,8 @@ var _move_timer: float = 0.0
 var _direction_change_interval: float = 3.0
 var _model: Node3D = null
 var _animator: ModelAnimator = null
+var _terrain_height_source: Node3D = null  ## TerrainManager reference for grounding
+var _nav_agent: NavigationAgent3D = null  ## Optional pathfinding agent
 
 
 func _ready() -> void:
@@ -78,33 +80,94 @@ func _build_visual() -> void:
 	add_child(_interact_prompt)
 
 
+func set_terrain_height_source(source: Node3D) -> void:
+	## Assigns a TerrainManager for grounding NPC to terrain surface.
+	## Also creates a NavigationAgent3D for NavMesh-based patrol.
+	_terrain_height_source = source
+	if patrol_distance > 0.0 and not _nav_agent:
+		_nav_agent = NavigationAgent3D.new()
+		_nav_agent.path_desired_distance = 0.5
+		_nav_agent.target_desired_distance = 1.0
+		_nav_agent.avoidance_enabled = false
+		add_child(_nav_agent)
+
+
 func _process(delta: float) -> void:
 	if patrol_distance <= 0.0:
+		# Stationary NPC: still ground to terrain if source available
+		_update_ground_height()
 		return
 
 	_move_timer += delta
-	if _move_timer >= _direction_change_interval:
-		_move_timer = 0.0
-		_choose_random_direction()
 
-	# Move in current direction
-	if _move_direction.length() > 0.01:
-		position += _move_direction * patrol_speed * delta
+	if _nav_agent:
+		# NavMesh patrol: pick random waypoints
+		if _nav_agent.is_navigation_finished() or _move_timer >= _direction_change_interval:
+			_move_timer = 0.0
+			_pick_nav_target()
 
-		# Don't wander too far from start
-		var horizontal_pos := Vector3(position.x, 0, position.z)
-		var horizontal_start := Vector3(_start_position.x, 0, _start_position.z)
-		if horizontal_pos.distance_to(horizontal_start) > patrol_distance:
-			var dir := (horizontal_start - horizontal_pos).normalized()
-			_move_direction = Vector3(dir.x, 0, dir.z)
+		if not _nav_agent.is_navigation_finished():
+			var next_pos: Vector3 = _nav_agent.get_next_path_position()
+			var dir: Vector3 = (next_pos - position).normalized()
+			dir.y = 0.0
+			if dir.length() > 0.01:
+				_move_direction = dir
+				position += _move_direction * patrol_speed * delta
+				if _model:
+					_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+			else:
+				_move_direction = Vector3.ZERO
+		else:
+			_move_direction = Vector3.ZERO
+	else:
+		# Legacy patrol: random directions without NavMesh
+		if _move_timer >= _direction_change_interval:
+			_move_timer = 0.0
+			_choose_random_direction()
 
-		# Face movement direction
-		if _model:
-			_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+		if _move_direction.length() > 0.01:
+			position += _move_direction * patrol_speed * delta
+
+			# Don't wander too far from start
+			var horizontal_pos := Vector3(position.x, 0, position.z)
+			var horizontal_start := Vector3(_start_position.x, 0, _start_position.z)
+			if horizontal_pos.distance_to(horizontal_start) > patrol_distance:
+				var dir := (horizontal_start - horizontal_pos).normalized()
+				_move_direction = Vector3(dir.x, 0, dir.z)
+
+			if _model:
+				_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+
+	# Ground NPC to terrain surface
+	_update_ground_height()
 
 	# Update walk animation
 	if _animator:
 		_animator.set_walking(_move_direction.length() > 0.1)
+
+
+func _pick_nav_target() -> void:
+	## Picks a random point within patrol_distance and sets it as the nav target.
+	if randf() < 0.3:
+		# 30% chance to idle
+		_move_direction = Vector3.ZERO
+		return
+	var angle: float = randf() * TAU
+	var dist: float = randf() * patrol_distance
+	var target := Vector3(
+		_start_position.x + cos(angle) * dist,
+		_start_position.y,
+		_start_position.z + sin(angle) * dist
+	)
+	if _terrain_height_source and _terrain_height_source.has_method("get_height_at_world"):
+		target.y = _terrain_height_source.get_height_at_world(target)
+	_nav_agent.target_position = target
+
+
+func _update_ground_height() -> void:
+	## Snaps Y position to terrain height when a height source is available.
+	if _terrain_height_source and _terrain_height_source.has_method("get_height_at_world"):
+		position.y = _terrain_height_source.get_height_at_world(position)
 
 
 func _choose_random_direction() -> void:

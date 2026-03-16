@@ -4,6 +4,9 @@ extends CharacterBody3D
 signal step_taken(step_count: int)
 
 const UNITS_PER_STEP := Constants.UNITS_PER_STEP
+const GRAVITY := 18.0
+const JUMP_VELOCITY := 6.0
+const MAX_SLOPE_DEG := 45.0
 
 var _step_accumulator: float = 0.0
 var _total_steps: int = 0
@@ -21,6 +24,7 @@ func _ready() -> void:
 	# Setup collision layers
 	collision_layer = 2  # player layer
 	collision_mask = 1   # collides with world
+	floor_max_angle = deg_to_rad(MAX_SLOPE_DEG)
 
 	# Setup interaction area
 	_interaction_area.collision_layer = 0
@@ -75,9 +79,13 @@ func _physics_process(delta: float) -> void:
 		var anim_sprint: float = LiveTweaks.get_float("sprint_multiplier")
 		_animator.speed_scale = anim_sprint if is_sprinting else 1.0
 
+	# Jump
+	if is_on_floor() and Input.is_action_just_pressed("jump"):
+		velocity.y = JUMP_VELOCITY
+
 	# Apply gravity if not on floor
 	if not is_on_floor():
-		velocity.y -= 9.8 * delta
+		velocity.y -= GRAVITY * delta
 
 	var previous_pos := global_position
 	move_and_slide()

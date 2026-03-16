@@ -15,6 +15,7 @@ func _ready() -> void:
 	$VBoxContainer/NpcEditorButton.pressed.connect(_on_npc_editor_pressed)
 	$VBoxContainer/BackpackEditorButton.pressed.connect(_on_backpack_editor_pressed)
 	$VBoxContainer/MapEditorButton.pressed.connect(_on_map_editor_pressed)
+	# Heightmap editor removed — use Godot's scene editor with @tool nodes instead
 	$VBoxContainer/TweaksEditorButton.pressed.connect(_on_tweaks_editor_pressed)
 	$VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
@@ -91,6 +92,8 @@ func _on_backpack_editor_pressed() -> void:
 
 func _on_map_editor_pressed() -> void:
 	SceneManager.push_scene("res://scenes/map_editor/map_editor.tscn")
+
+
 
 
 func _on_tweaks_editor_pressed() -> void:

@@ -14,6 +14,8 @@ var _can_trigger_battle: bool = false  # Start disabled, enabled by overworld af
 var _detection_enabled: bool = false
 var _model: Node3D = null
 var _animator: ModelAnimator = null
+var _nav_agent: NavigationAgent3D = null  ## Optional pathfinding agent
+var _terrain_height_source: Node3D = null  ## TerrainManager reference
 
 @onready var _detection_area: Area3D = $DetectionArea
 
@@ -42,6 +44,18 @@ func _ready() -> void:
 
 	# Random initial direction
 	_choose_random_direction()
+
+
+func set_terrain_height_source(source: Node3D) -> void:
+	## Assigns a TerrainManager for NavMesh-based patrol.
+	_terrain_height_source = source
+	if not _nav_agent:
+		_nav_agent = NavigationAgent3D.new()
+		_nav_agent.path_desired_distance = 0.5
+		_nav_agent.target_desired_distance = 1.0
+		_nav_agent.avoidance_enabled = false
+		add_child(_nav_agent)
+		_pick_nav_target()
 
 
 func _build_enemy_model() -> void:
@@ -81,22 +95,54 @@ func _build_enemy_model() -> void:
 func _physics_process(delta: float) -> void:
 	_move_timer += delta
 
-	# Change direction periodically
-	if _move_timer >= _direction_change_interval:
-		_move_timer = 0.0
-		_choose_random_direction()
+	if _nav_agent:
+		# NavMesh patrol
+		if _nav_agent.is_navigation_finished() or _move_timer >= _direction_change_interval:
+			_move_timer = 0.0
+			_pick_nav_target()
+
+		if not _nav_agent.is_navigation_finished():
+			var next_pos: Vector3 = _nav_agent.get_next_path_position()
+			var dir: Vector3 = (next_pos - global_position).normalized()
+			dir.y = 0.0
+			if dir.length() > 0.01:
+				_move_direction = dir
+			else:
+				_move_direction = Vector3.ZERO
+		else:
+			_move_direction = Vector3.ZERO
+	else:
+		# Legacy patrol: random directions
+		if _move_timer >= _direction_change_interval:
+			_move_timer = 0.0
+			_choose_random_direction()
+
+		# Don't enter safe zones (town, NPC areas)
+		if _move_direction.length() > 0.01:
+			var predicted_pos := global_position + _move_direction * move_speed * delta
+			if _is_in_safe_zone(predicted_pos):
+				_move_direction = -_move_direction
+
+		# Don't wander too far from start position
+		var horizontal_pos := Vector3(global_position.x, 0, global_position.z)
+		var horizontal_start := Vector3(_start_position.x, 0, _start_position.z)
+		var distance_from_start := horizontal_pos.distance_to(horizontal_start)
+		if distance_from_start > patrol_distance:
+			var dir := (horizontal_start - horizontal_pos).normalized()
+			_move_direction = Vector3(dir.x, 0, dir.z)
 
 	# Move in current direction (horizontal only)
 	velocity = _move_direction * move_speed
 
-	# Don't enter safe zones (town, NPC areas)
-	if _move_direction.length() > 0.01:
-		var predicted_pos := global_position + _move_direction * move_speed * delta
-		if _is_in_safe_zone(predicted_pos):
-			_move_direction = -_move_direction
-			velocity = _move_direction * move_speed
-
-	if not is_on_floor():
+	if _terrain_height_source and _terrain_height_source.has_method("get_height_at_world"):
+		# Snap to terrain height — physics collision may not exist on distant chunks
+		var target_y: float = _terrain_height_source.get_height_at_world(global_position)
+		if global_position.y < target_y:
+			global_position.y = target_y
+		elif global_position.y > target_y + 0.5:
+			velocity.y -= 9.8 * delta
+		# Still use move_and_slide for horizontal collision
+	elif not is_on_floor():
 		velocity.y -= 9.8 * delta
 	move_and_slide()
 
@@ -105,15 +151,6 @@ func _physics_process(delta: float) -> void:
 		_animator.set_walking(_move_direction.length() > 0.1)
 	if _model and _move_direction.length() > 0.1:
 		_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
-
-	# Don't wander too far from start position
-	var horizontal_pos := Vector3(global_position.x, 0, global_position.z)
-	var horizontal_start := Vector3(_start_position.x, 0, _start_position.z)
-	var distance_from_start := horizontal_pos.distance_to(horizontal_start)
-	if distance_from_start > patrol_distance:
-		# Head back toward start
-		var dir := (horizontal_start - horizontal_pos).normalized()
-		_move_direction = Vector3(dir.x, 0, dir.z)
 
 
 func _is_in_safe_zone(pos: Vector3) -> bool:
@@ -147,6 +184,23 @@ func _choose_random_direction() -> void:
 	else:
 		var angle := randf() * TAU
 		_move_direction = Vector3(cos(angle), 0, sin(angle))
+
+
+func _pick_nav_target() -> void:
+	## Picks a random point within patrol_distance and sets it as the nav target.
+	if randf() < 0.2:
+		_move_direction = Vector3.ZERO
+		return
+	var angle: float = randf() * TAU
+	var dist: float = randf() * patrol_distance
+	var target := Vector3(
+		_start_position.x + cos(angle) * dist,
+		_start_position.y,
+		_start_position.z + sin(angle) * dist
+	)
+	if _terrain_height_source and _terrain_height_source.has_method("get_height_at_world"):
+		target.y = _terrain_height_source.get_height_at_world(target)
+	_nav_agent.target_position = target
 
 
 func _on_player_detected(body: Node3D) -> void:
