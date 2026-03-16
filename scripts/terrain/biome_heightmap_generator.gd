@@ -4,6 +4,8 @@ extends RefCounted
 ## Each biome profile defines noise parameters, height range, and texture weights.
 ## A moisture + temperature noise pair selects the biome at each vertex.
 
+const _TerrainErosion := preload("res://scripts/terrain/terrain_erosion.gd")
+
 ## Material-LIB base path (gitignored — textures only exist locally)
 const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
 
@@ -118,7 +120,11 @@ static func generate(
 		bn.seed = map_seed + 3000 + i * 100
 		biome_noises.append(bn)
 
-	# --- Generate heights and splatmap ---
+	# --- Pass 1: Generate heights only ---
+	# Store biome-blended splatmap weights for Pass 2 (after erosion modifies heights).
+	var biome_splats := PackedColorArray()
+	biome_splats.resize(map_width * map_height)
+
 	for z in range(map_height):
 		for x in range(map_width):
 			var temp_val: float = temp_noise.get_noise_2d(x, z) * 0.5 + 0.5  # 0..1
@@ -150,40 +156,26 @@ static func generate(
 			# Edge treatment — mountains on north/west, ocean on south/east
 			var edge_factor: float = _edge_elevation(x, z, map_width, map_height)
 			if edge_factor < 0.0:
-				# Ocean floor: push below sea level, sand/dirt texture
+				# Ocean floor: push below sea level
 				h = edge_factor * 0.3
 				splat = Color(0.1, 0.8, 0.1, 0.0)  # Dirt (underwater ground)
 			elif edge_factor > 0.01:
 				h += edge_factor
 				if _is_sea_edge(x, z, map_width, map_height):
-					# Coastal slope: gentle blend toward grass/dirt
 					var coast_t: float = clampf(edge_factor / 0.15, 0.0, 0.5)
 					splat = splat.lerp(Color(0.3, 0.5, 0.2, 0.0), coast_t)
 				else:
-					# Mountain wall: rock/snow texture
 					var wall_t: float = clampf(edge_factor / 0.6, 0.0, 1.0)
 					splat = splat.lerp(Color(0.0, 0.05, 0.7, 0.25), wall_t)
 
 			data.set_height_at(x, z, h)
+			biome_splats[z * map_width + x] = splat
 
-			# Normalize splatmap weights
-			var total_w: float = splat.r + splat.g + splat.b + splat.a
-			if total_w > 0.001:
-				splat.r /= total_w
-				splat.g /= total_w
-				splat.b /= total_w
-				splat.a /= total_w
+	# --- Erosion pass (modifies heights for natural drainage and valleys) ---
+	_TerrainErosion.apply(data, map_seed)
 
-			# Height-based overrides: very high = more rock/snow, very low = more grass
-			var world_h: float = h * data.terrain_scale.y
-			if world_h > 6.0:
-				var snow_t: float = clampf((world_h - 6.0) / 2.0, 0.0, 1.0)
-				splat = splat.lerp(Color(0, 0, 0.3, 0.7), snow_t)
-			elif world_h < 1.0 and edge_factor >= 0.0:
-				var grass_t: float = clampf((1.0 - world_h) / 1.0, 0.0, 1.0)
-				splat = splat.lerp(Color(0.8, 0.2, 0.0, 0.0), grass_t * 0.5)
-
-			data.set_splatmap_weights(x, z, splat)
+	# --- Pass 2: Assign splatmap from biome weights + post-erosion heights ---
+	_assign_splatmap(data, biome_splats, map_width, map_height)
 
 	# --- Texture layers ---
 	_add_textured_layers(data)
@@ -320,6 +312,67 @@ static func _is_sea_edge(x: int, z: int, w: int, h: int) -> bool:
 	var dist_south: float = float(h - 1 - z) + warp_s
 	var dist_east: float = float(w - 1 - x) + warp_e
 	return minf(dist_south, dist_east) < float(_OCEAN_STRIP)
+
+
+static func _assign_splatmap(data: HeightmapData, biome_splats: PackedColorArray,
+		map_width: int, map_height: int) -> void:
+	## Pass 2: Assigns splatmap weights using biome-blended colors + post-erosion heights.
+	## Adds slope-based cliff painting and height-based overrides.
+	var tscale_y: float = data.terrain_scale.y
+	var tscale_x: float = data.terrain_scale.x
+
+	for z in range(map_height):
+		for x in range(map_width):
+			var splat: Color = biome_splats[z * map_width + x]
+			var h: float = data.get_height_at(x, z)
+			var world_h: float = h * tscale_y
+
+			# --- Slope-based cliff detection ---
+			# Central differencing for slope magnitude (same approach as HeightmapChunk normals)
+			var h_left: float = data.get_height_at(x - 1, z) * tscale_y
+			var h_right: float = data.get_height_at(x + 1, z) * tscale_y
+			var h_up: float = data.get_height_at(x, z - 1) * tscale_y
+			var h_down: float = data.get_height_at(x, z + 1) * tscale_y
+			var dx: float = (h_right - h_left) / (2.0 * tscale_x)
+			var dz: float = (h_down - h_up) / (2.0 * tscale_x)
+			var slope: float = sqrt(dx * dx + dz * dz)
+			# slope ~1.0 = 45 degrees, ~1.73 = 60 degrees
+			if slope > 1.0:
+				var cliff_t: float = clampf((slope - 1.0) / 0.73, 0.0, 1.0)
+				splat = splat.lerp(Color(0.0, 0.05, 0.85, 0.1), cliff_t)
+
+			# --- Height-based overrides ---
+			if world_h > 6.0:
+				var snow_t: float = clampf((world_h - 6.0) / 2.0, 0.0, 1.0)
+				splat = splat.lerp(Color(0, 0, 0.3, 0.7), snow_t)
+			elif world_h < 1.0:
+				# Check if not ocean floor (ocean already has its own splat from biome pass)
+				var edge_factor: float = _edge_elevation(x, z, map_width, map_height)
+				if edge_factor >= 0.0:
+					var grass_t: float = clampf((1.0 - world_h) / 1.0, 0.0, 1.0)
+					splat = splat.lerp(Color(0.8, 0.2, 0.0, 0.0), grass_t * 0.5)
+
+			# --- Beach detection (near ocean edges) ---
+			var warp_s: float = _edge_warp(x, z + 1000)
+			var warp_e: float = _edge_warp(x, z + 3000)
+			var dist_south: float = float(map_height - 1 - z) + warp_s
+			var dist_east: float = float(map_width - 1 - x) + warp_e
+			var sea_dist: float = minf(dist_south, dist_east)
+			var beach_start: float = float(_OCEAN_STRIP)
+			var beach_end: float = beach_start + 8.0
+			if sea_dist >= beach_start and sea_dist < beach_end and world_h >= 0.0 and world_h < 2.0:
+				var beach_t: float = 1.0 - (sea_dist - beach_start) / (beach_end - beach_start)
+				splat = splat.lerp(Color(0.15, 0.75, 0.1, 0.0), beach_t * 0.7)
+
+			# Normalize
+			var total_w: float = splat.r + splat.g + splat.b + splat.a
+			if total_w > 0.001:
+				splat.r /= total_w
+				splat.g /= total_w
+				splat.b /= total_w
+				splat.a /= total_w
+
+			data.set_splatmap_weights(x, z, splat)
 
 
 static func _add_textured_layers(data: HeightmapData) -> void:

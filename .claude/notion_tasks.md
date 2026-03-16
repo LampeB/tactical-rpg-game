@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 267 -->
-<\!-- Last updated: 2026-03-14 -->
+<\!-- Total tasks: 278 -->
+<\!-- Last updated: 2026-03-16 -->
 
 ## Prerequisites
 
@@ -362,6 +362,17 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Gen Overhaul P1: Beach strip enhancement (wider coast, sand splatmap) | PENDING-NOTION-SYNC |
+| Gen Overhaul P1: Slope-based cliff detection and splatmap painting | PENDING-NOTION-SYNC |
+| Gen Overhaul P1: Terrain erosion (thermal + hydraulic post-processing) | PENDING-NOTION-SYNC |
+| Gen Overhaul P2: River system (path tracing, carving, mesh, shader) | PENDING-NOTION-SYNC |
+| Gen Overhaul P3: Roads and paths (A* pathfinding, dirt splatmap, bridges) | PENDING-NOTION-SYNC |
+| Gen Overhaul P4: Named regions and encounter zone generation | PENDING-NOTION-SYNC |
+| Gen Overhaul P4: Points of interest (dungeons, ruins, camps, shrines) | PENDING-NOTION-SYNC |
+| Gen Overhaul P5: Farmland around towns | PENDING-NOTION-SYNC |
+| Gen Overhaul P5: Intelligent prop distribution (slope, water, road awareness) | PENDING-NOTION-SYNC |
+| Gen Overhaul P6: Map variety profiles (island, valley, peninsula, etc.) | PENDING-NOTION-SYNC |
+| Gen Overhaul P7: Overworld integration (town NPCs, encounters, enemies) | PENDING-NOTION-SYNC |
 | Phase 8: Battle area and zone definition editor | 3227700f-d0fb-816b-bb25-e448e99b6219 |
 | Phase 8: Prop placement and scatter editor | 3227700f-d0fb-8168-8ae4-c9aa49144a25 |
 | Phase 8: Structure placement editor | 3227700f-d0fb-81b4-b80b-c711bf16be2d |
