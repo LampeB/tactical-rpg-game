@@ -14,16 +14,35 @@ const BATTLE_COOLDOWN_TIME: float = 0.0  ## Seconds of immunity after battle
 const MESSAGE_DISPLAY_TIME: float = 3.0  ## Seconds to show messages
 const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
 const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
+const _WaterBody := preload("res://scripts/terrain/water_body.gd")
+const _TerrainManager := preload("res://scripts/terrain/terrain_manager.gd")
+const _TestHeightmapGenerator := preload("res://scripts/terrain/test_heightmap_generator.gd")
+const _BiomeHeightmapGenerator := preload("res://scripts/terrain/biome_heightmap_generator.gd")
+const _HeightmapData := preload("res://scripts/terrain/heightmap_data.gd")
+const _StructureManager := preload("res://scripts/terrain/structure_manager.gd")
 
 @export var map_id: String = "overworld"
+## When true, uses the new heightmap terrain system instead of GridMap blocks.
+@export var use_heightmap_terrain: bool = false
+## Optional path to a map .tscn scene containing HeightmapTerrain3D + zone nodes.
+## If set, loads this scene instead of procedural generation.
+@export_file("*.tscn") var map_scene_path: String = ""
 var _map_data: MapData
 var _connection_markers: Node3D
+var _terrain_manager: Node3D  ## TerrainManager (preloaded, not class_name ref)
+var _map_scene_root: Node3D = null  ## Loaded map scene instance
 
 var _message_timer: float = 0.0
 var _current_message: String = ""
 var _pause_menu_instance: Control = null
 var _party_hud: HBoxContainer = null
 var _terrain_grid: GridMap = null
+
+## Battle background preloading
+var _preload_check_timer: float = 0.0
+const _PRELOAD_CHECK_INTERVAL := 2.0  ## Seconds between proximity checks
+const _PRELOAD_DISTANCE := 40.0  ## Preload when player is within this distance of a battle area
+var _preloaded_area_name: String = ""  ## Tracks which area is preloaded to avoid redundant work
 
 
 func _ready() -> void:
@@ -81,14 +100,20 @@ func _ready() -> void:
 	_map_data = MapDatabase.get_map(map_id)
 	if _map_data:
 		GameManager.current_location_name = _map_data.display_name if not _map_data.display_name.is_empty() else map_id.capitalize()
-		# Use cached terrain if available, otherwise build from scratch
-		var cached: GridMap = MapCache.get_terrain(map_id)
-		if cached:
-			add_child(cached)
-			_terrain_grid = cached
-			DebugLogger.log_info("Using cached terrain for map: %s" % map_id, "Overworld")
+
+		if use_heightmap_terrain:
+			# New heightmap terrain system
+			_build_heightmap_terrain()
 		else:
-			_terrain_grid = MapLoader.build_terrain(_map_data, self)
+			# Legacy GridMap terrain
+			GameManager.current_heightmap_data = null
+			var cached: GridMap = MapCache.get_terrain(map_id)
+			if cached:
+				add_child(cached)
+				_terrain_grid = cached
+				DebugLogger.log_info("Using cached terrain for map: %s" % map_id, "Overworld")
+			else:
+				_terrain_grid = MapLoader.build_terrain(_map_data, self)
 		# Create parent nodes for spawned elements
 		var enemies_node := Node3D.new()
 		enemies_node.name = "Enemies"
@@ -102,8 +127,20 @@ func _ready() -> void:
 		_connection_markers.name = "ConnectionMarkers"
 		add_child(_connection_markers)
 		MapLoader.spawn_connections(_map_data, _connection_markers)
+
+		# Ground all elements to terrain height when using heightmap
+		if use_heightmap_terrain and _terrain_manager:
+			_ground_elements_to_terrain(_location_markers)
+			_ground_elements_to_terrain(enemies_node, 2.0)
+			_ground_elements_to_terrain(chests_node)
+			_ground_elements_to_terrain(_connection_markers)
+			# Wire up terrain height source for NPCs and enemies (enables grounding + NavMesh)
+			_wire_terrain_sources(self)
+			_wire_terrain_sources(enemies_node)
+
 		# Preload terrain for adjacent maps in background
-		MapCache.preload_adjacent.call_deferred(map_id)
+		if not use_heightmap_terrain:
+			MapCache.preload_adjacent.call_deferred(map_id)
 	else:
 		DebugLogger.log_error("Map not found: %s" % map_id, "Overworld")
 
@@ -132,12 +169,231 @@ func _ready() -> void:
 	_enable_enemy_detection()
 
 
+func _check_battle_bg_preload() -> void:
+	## Preloads the battle background when the player is near a battle area.
+	var player_pos: Vector3 = _player.global_position
+	var best_name: String = ""
+	var best_pos: Vector3 = Vector3.ZERO
+	var best_rot: float = 0.0
+	var best_dist: float = INF
+
+	# Check legacy BattleAreaData from MapData
+	for i in range(_map_data.battle_areas.size()):
+		var area: BattleAreaData = _map_data.battle_areas[i]
+		var dx: float = player_pos.x - area.position.x
+		var dz: float = player_pos.z - area.position.z
+		var dist: float = sqrt(dx * dx + dz * dz)
+		if dist < best_dist:
+			best_dist = dist
+			best_name = area.area_name
+			best_pos = area.position
+			best_rot = area.rotation_y
+
+	# Check scene-based BattleArea3D nodes
+	if _map_scene_root:
+		var ba_nodes: Array = _find_children_of_type(_map_scene_root, "BattleArea3D")
+		for i in range(ba_nodes.size()):
+			var ba: Node3D = ba_nodes[i] as Node3D
+			var dx: float = player_pos.x - ba.global_position.x
+			var dz: float = player_pos.z - ba.global_position.z
+			var dist: float = sqrt(dx * dx + dz * dz)
+			if dist < best_dist:
+				best_dist = dist
+				best_name = ba.get("area_name") if ba.get("area_name") != "" else ba.name
+				best_pos = ba.global_position
+				best_rot = ba.get("rotation_offset_y") if ba.get("rotation_offset_y") else 0.0
+
+	if best_name == "" or best_dist > _PRELOAD_DISTANCE:
+		# Player left all preload zones — clear preloaded data
+		if not _preloaded_area_name.is_empty():
+			GameManager.preloaded_battle_bg = null
+			_preloaded_area_name = ""
+		return
+
+	# Already preloaded for this area
+	if _preloaded_area_name == best_name:
+		return
+
+	# Preload battle background for this area
+	var heightmap_data: HeightmapData = GameManager.current_heightmap_data as HeightmapData
+	if not heightmap_data:
+		return
+
+	# Ground arena center to terrain height
+	var arena_center: Vector3 = best_pos
+	arena_center.y = _terrain_manager.get_height_at_world(arena_center)
+
+	var bg: Node3D = MapLoader.build_heightmap_battle_background(
+		heightmap_data, arena_center, best_rot
+	)
+	GameManager.preloaded_battle_bg = bg
+	GameManager.preloaded_battle_arena_center = arena_center
+	GameManager.preloaded_battle_arena_rotation = best_rot
+	_preloaded_area_name = best_name
+	DebugLogger.log_info("Preloaded battle background for area: %s" % best_name, "Overworld")
+
+
+func _build_heightmap_terrain() -> void:
+	## Builds heightmap terrain from either a scene file or procedural generation.
+	if map_scene_path != "" and ResourceLoader.exists(map_scene_path):
+		_build_scene_based_terrain()
+	else:
+		_build_procedural_terrain()
+
+
+func _build_scene_based_terrain() -> void:
+	## Loads a map .tscn scene containing HeightmapTerrain3D + zone/structure nodes.
+	var scene: PackedScene = load(map_scene_path) as PackedScene
+	if not scene:
+		DebugLogger.log_error("Failed to load map scene: %s" % map_scene_path, "Overworld")
+		_build_procedural_terrain()
+		return
+
+	_map_scene_root = scene.instantiate() as Node3D
+	if not _map_scene_root:
+		DebugLogger.log_error("Map scene is not a Node3D: %s" % map_scene_path, "Overworld")
+		_build_procedural_terrain()
+		return
+	add_child(_map_scene_root)
+
+	# Find HeightmapTerrain3D in the scene tree
+	var terrain_node: HeightmapTerrain3D = _find_child_of_type(_map_scene_root, "HeightmapTerrain3D") as HeightmapTerrain3D
+	if not terrain_node or not terrain_node.heightmap_data:
+		DebugLogger.log_error("Map scene has no HeightmapTerrain3D with data: %s" % map_scene_path, "Overworld")
+		_build_procedural_terrain()
+		return
+
+	var heightmap_data: HeightmapData = terrain_node.heightmap_data
+	GameManager.current_heightmap_data = heightmap_data
+
+	# Create TerrainManager for runtime LOD streaming (terrain_node hides its editor chunks)
+	_terrain_manager = _TerrainManager.new()
+	_terrain_manager.view_distance = 3
+	_terrain_manager.unload_distance = 5
+	# If the scene has PropScatterZone3D nodes with scattered props,
+	# only scatter grass/flowers at runtime (trees/rocks are in the scene)
+	var scatter_zones: Array = _find_children_of_type(_map_scene_root, "PropScatterZone3D")
+	if not scatter_zones.is_empty():
+		_terrain_manager.visual_only_props = true
+	add_child(_terrain_manager)
+	_terrain_manager.setup(heightmap_data, _player)
+
+	# Ground player to terrain
+	var spawn_pos: Vector3 = _map_data.player_spawn if _map_data else Vector3.ZERO
+	var spawn_y: float = _terrain_manager.get_height_at_world(spawn_pos) + 2.0
+	_player.global_position = Vector3(spawn_pos.x, spawn_y, spawn_pos.z)
+
+	DebugLogger.log_info("Loaded scene-based map: %s (%dx%d, %d chunks)" % [
+		map_scene_path, heightmap_data.width, heightmap_data.height,
+		heightmap_data.get_chunk_count_x() * heightmap_data.get_chunk_count_z()
+	], "Overworld")
+
+
+func _build_procedural_terrain() -> void:
+	## Generates heightmap terrain using biome-driven procedural generation.
+	# Size the heightmap to match map data dimensions (add 1 for vertex grid)
+	var hw: int = _map_data.grid_width + 1 if _map_data else 129
+	var hh: int = _map_data.grid_height + 1 if _map_data else 81
+	var terrain_seed: int = _map_data.decoration_seed if _map_data else 42
+	var heightmap_data = _BiomeHeightmapGenerator.generate(hw, hh, terrain_seed)
+	GameManager.current_heightmap_data = heightmap_data
+	_terrain_manager = _TerrainManager.new()
+	_terrain_manager.view_distance = 3
+	_terrain_manager.unload_distance = 5
+	add_child(_terrain_manager)
+	_terrain_manager.setup(heightmap_data, _player)
+
+	# Use map's player spawn, grounded to terrain height
+	var spawn_pos: Vector3 = _map_data.player_spawn if _map_data else Vector3.ZERO
+	var spawn_y: float = _terrain_manager.get_height_at_world(spawn_pos) + 2.0
+	_player.global_position = Vector3(spawn_pos.x, spawn_y, spawn_pos.z)
+
+	# Spawn water bodies from data
+	var zones: Array = heightmap_data.water_zones
+	for i in range(zones.size()):
+		var zone = zones[i]
+		var water: MeshInstance3D = _WaterBody.new()
+		water.water_size = zone.size
+		water.water_shape = zone.shape
+		water.water_level = zone.center.y
+		water.shallow_color = zone.shallow_color
+		water.deep_color = zone.deep_color
+		water.wave_speed = zone.wave_speed
+		water.wave_strength = zone.wave_strength
+		water.position = Vector3(zone.center.x, zone.center.y, zone.center.z)
+		add_child(water)
+
+	# Spawn placed structures
+	if not heightmap_data.structures.is_empty():
+		var struct_mgr = _StructureManager.new()
+		struct_mgr.build(heightmap_data)
+		add_child(struct_mgr)
+		DebugLogger.log_info("Placed %d structures" % heightmap_data.structures.size(), "Overworld")
+
+	DebugLogger.log_info("Built procedural terrain: %dx%d, %d chunks" % [
+		heightmap_data.width, heightmap_data.height,
+		heightmap_data.get_chunk_count_x() * heightmap_data.get_chunk_count_z()
+	], "Overworld")
+
+
+func _find_child_of_type(node: Node, type_name: String) -> Node:
+	## Recursively finds the first child matching the given class name.
+	if node.get_class() == type_name or (node.get_script() and node.get_script().get_global_name() == type_name):
+		return node
+	for i in range(node.get_child_count()):
+		var found: Node = _find_child_of_type(node.get_child(i), type_name)
+		if found:
+			return found
+	return null
+
+
+func _find_children_of_type(node: Node, type_name: String) -> Array:
+	## Recursively finds all children matching the given class name.
+	var results: Array = []
+	if node.get_script() and node.get_script().get_global_name() == type_name:
+		results.append(node)
+	for i in range(node.get_child_count()):
+		results.append_array(_find_children_of_type(node.get_child(i), type_name))
+	return results
+
+
+func _ground_elements_to_terrain(parent: Node3D, y_offset: float = 0.0) -> void:
+	## Adjusts Y position of all children to sit on the terrain surface.
+	for i in range(parent.get_child_count()):
+		var child: Node3D = parent.get_child(i) as Node3D
+		if child:
+			_ground_node_to_terrain(child, y_offset)
+
+
+func _ground_node_to_terrain(node: Node3D, y_offset: float = 0.0) -> void:
+	## Sets a node's Y position to the terrain height at its XZ position.
+	var height: float = _terrain_manager.get_height_at_world(node.position)
+	node.position.y = height + y_offset
+
+
+func _wire_terrain_sources(parent: Node3D) -> void:
+	## Assigns terrain height source to all children that support it (NPCs, enemies).
+	for i in range(parent.get_child_count()):
+		var child: Node = parent.get_child(i)
+		if child.has_method("set_terrain_height_source"):
+			child.set_terrain_height_source(_terrain_manager)
+			if child is Node3D:
+				_ground_node_to_terrain(child as Node3D)
+
+
 func _process(delta: float) -> void:
 	# Handle message display timer
 	if _message_timer > 0:
 		_message_timer -= delta
 		if _message_timer <= 0:
 			_hide_message()
+
+	# Periodically check if player is near a battle area and preload the background
+	if use_heightmap_terrain and _terrain_manager and _map_data:
+		_preload_check_timer += delta
+		if _preload_check_timer >= _PRELOAD_CHECK_INTERVAL:
+			_preload_check_timer = 0.0
+			_check_battle_bg_preload()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -170,6 +426,9 @@ func receive_data(data: Dictionary) -> void:
 	# Handle spawn position from map connection transitions
 	var spawn_pos: Variant = data.get("spawn_position", null)
 	if spawn_pos is Vector3 and spawn_pos != Vector3.ZERO:
+		if use_heightmap_terrain and _terrain_manager:
+			var ground_y: float = _terrain_manager.get_height_at_world(spawn_pos as Vector3) + 2.0
+			spawn_pos = Vector3((spawn_pos as Vector3).x, ground_y, (spawn_pos as Vector3).z)
 		_player.global_position = spawn_pos
 		GameManager.set_flag("overworld_position", spawn_pos)
 		_orbit_camera.reset_orientation()
@@ -311,7 +570,10 @@ func _push_player_from_enemies() -> void:
 			push_direction = Vector3.RIGHT  # Default push to the right
 
 		var new_position: Vector3 = closest_enemy.global_position + (push_direction.normalized() * Constants.PUSH_DISTANCE)
-		new_position.y = 0.0
+		if use_heightmap_terrain and _terrain_manager:
+			new_position.y = _terrain_manager.get_height_at_world(new_position) + 1.0
+		else:
+			new_position.y = 0.0
 		_player.global_position = new_position
 
 		# Update saved position (camera orientation preserved)
@@ -344,7 +606,7 @@ func _notification(what: int) -> void:
 	## Cache terrain before this scene is freed (replace_scene / main menu).
 	## Does NOT fire on push_scene (scene is stashed, not freed).
 	if what == NOTIFICATION_PREDELETE:
-		if _terrain_grid and is_instance_valid(_terrain_grid):
+		if not use_heightmap_terrain and _terrain_grid and is_instance_valid(_terrain_grid):
 			MapCache.store_terrain(map_id, _terrain_grid)
 			_terrain_grid = null
 

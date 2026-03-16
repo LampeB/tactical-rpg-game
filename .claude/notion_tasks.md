@@ -362,31 +362,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Phase 1: Chunk streaming manager (load/unload by player distance) | 3227700f-d0fb-8127-bf65-db7872a52844 |
-| Phase 1: Heightmap mesh generator (ArrayMesh per chunk) | 3227700f-d0fb-8145-b1df-faf56ae15ef8 |
-| Phase 1: HeightmapData resource (chunk size, heights array, splatmap, biome) | 3227700f-d0fb-8165-80aa-d8c3fbe05284 |
-| Phase 1: Terrain collision (StaticBody3D per chunk from heightmap) | 3227700f-d0fb-8196-a4d9-d0e0dd363caa |
-| Phase 1: Terrain splatmap shader (blend textures by height and slope) | 3227700f-d0fb-817b-980c-cbf23c7c4f5e |
-| Phase 2: Import and configure Material-LIB terrain textures | 3227700f-d0fb-819f-8251-d009d1b934dd |
-| Phase 2: Terrain LOD system (reduced vertex count for distant chunks) | 3227700f-d0fb-81ac-9441-e04641097f08 |
-| Phase 2: Water system - flat bodies (lakes, sea, animated shader) | 3227700f-d0fb-8182-8c86-c16663883c14 |
-| Phase 3: Foliage wind shader (vertex displacement on grass/trees) | 3227700f-d0fb-8108-9ccd-c00d25947810 |
-| Phase 3: Import Stylized Nature MegaKit as scatter props | 3227700f-d0fb-81b8-8e30-e5329077a5d5 |
-| Phase 3: MultiMesh prop scattering system (per chunk, biome-aware) | 3227700f-d0fb-812b-9b89-f04f453e4f53 |
-| Phase 3: Prop collision (trees/rocks block player, grass/flowers visual only) | 3227700f-d0fb-810e-918a-d9a0d96129b6 |
-| Phase 4: Import Medieval Village MegaKit as placeable structure pieces | 3227700f-d0fb-81d3-a8b3-cd34538900c0 |
-| Phase 4: Structure placement system (snap to grid, place on heightmap) | 3227700f-d0fb-81d9-80a6-c6dc9602c35f |
-| Phase 5: Adapt markers (chests, locations, connections) for heightmap | 3227700f-d0fb-8185-b9db-ff492951836e |
-| Phase 5: NavMesh generation per chunk (NPC/enemy pathfinding) | 3227700f-d0fb-81e5-976f-e235443e8c9a |
-| Phase 5: New world controller scene (chunk management, element spawning) | 3227700f-d0fb-8143-94aa-d0137d2ac7cd |
-| Phase 5: Update NPC markers for NavMesh pathfinding | 3227700f-d0fb-81ed-b8ed-d17d8d361287 |
-| Phase 5: Update player controller (heightmap physics, jump, slope limits) | 3227700f-d0fb-81f5-a948-d55cd90c6d7f |
-| Phase 5: Update roaming enemies for NavMesh pathfinding and aggro | 3227700f-d0fb-8109-8e9d-f18cf95eabb7 |
-| Phase 6: Battle area zones on heightmap terrain | 3227700f-d0fb-81fa-84d3-e7a49a881e02 |
-| Phase 6: Battle background from terrain chunks (replace GridMap builder) | 3227700f-d0fb-81fd-9cc7-ec962da9f6d2 |
-| Phase 7: Noise-based heightmap generation (biome profiles) | 3227700f-d0fb-816b-9b01-e82cd05413aa |
-| Phase 7: Procedural prop scattering rules (biome-aware placement) | 3227700f-d0fb-814a-bb28-d9d97883f4de |
-| Phase 7: Procedural town/village layout generation | 3227700f-d0fb-816b-b892-d6685bd2fc46 |
 | Phase 8: Battle area and zone definition editor | 3227700f-d0fb-816b-bb25-e448e99b6219 |
 | Phase 8: Prop placement and scatter editor | 3227700f-d0fb-8168-8ae4-c9aa49144a25 |
 | Phase 8: Structure placement editor | 3227700f-d0fb-81b4-b80b-c711bf16be2d |
@@ -398,6 +373,31 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Phase 1: Chunk streaming manager (load/unload by player distance) | 3227700f-d0fb-8127-bf65-db7872a52844 |
+| Phase 1: Heightmap mesh generator (ArrayMesh per chunk) | 3227700f-d0fb-8145-b1df-faf56ae15ef8 |
+| Phase 1: HeightmapData resource (chunk size, heights array, splatmap, biome) | 3227700f-d0fb-8165-80aa-d8c3fbe05284 |
+| Phase 1: Terrain collision (StaticBody3D per chunk from heightmap) | 3227700f-d0fb-8196-a4d9-d0e0dd363caa |
+| Phase 1: Terrain splatmap shader (blend textures by height and slope) | 3227700f-d0fb-817b-980c-cbf23c7c4f5e |
+| Phase 2: Import and configure Material-LIB terrain textures | 3227700f-d0fb-819f-8251-d009d1b934dd |
+| Phase 2: Terrain LOD system (reduced vertex count for distant chunks) | 3227700f-d0fb-81ac-9441-e04641097f08 |
+| Phase 2: Water system - flat bodies (lakes, sea, animated shader) | 3227700f-d0fb-8182-8c86-c16663883c14 |
+| Phase 3: Import Stylized Nature MegaKit as scatter props | 3227700f-d0fb-81b8-8e30-e5329077a5d5 |
+| Phase 3: MultiMesh prop scattering system (per chunk, biome-aware) | 3227700f-d0fb-812b-9b89-f04f453e4f53 |
+| Phase 3: Prop collision (trees/rocks block player, grass/flowers visual only) | 3227700f-d0fb-810e-918a-d9a0d96129b6 |
+| Phase 4: Import Medieval Village MegaKit as placeable structure pieces | 3227700f-d0fb-81d3-a8b3-cd34538900c0 |
+| Phase 4: Structure placement system (snap to grid, place on heightmap) | 3227700f-d0fb-81d9-80a6-c6dc9602c35f |
+| Phase 5: Adapt markers (chests, locations, connections) for heightmap | 3227700f-d0fb-8185-b9db-ff492951836e |
+| Phase 5: NavMesh generation per chunk (NPC/enemy pathfinding) | 3227700f-d0fb-81e5-976f-e235443e8c9a |
+| Phase 5: New world controller scene (chunk management, element spawning) | 3227700f-d0fb-8143-94aa-d0137d2ac7cd |
+| Phase 5: Update NPC markers for NavMesh pathfinding | 3227700f-d0fb-81ed-b8ed-d17d8d361287 |
+| Phase 5: Update roaming enemies for NavMesh pathfinding and aggro | 3227700f-d0fb-8109-8e9d-f18cf95eabb7 |
+| Phase 6: Battle area zones on heightmap terrain | 3227700f-d0fb-81fa-84d3-e7a49a881e02 |
+| Phase 6: Battle background from terrain chunks (replace GridMap builder) | 3227700f-d0fb-81fd-9cc7-ec962da9f6d2 |
+| Phase 7: Noise-based heightmap generation (biome profiles) | 3227700f-d0fb-816b-9b01-e82cd05413aa |
+| Phase 7: Procedural prop scattering rules (biome-aware placement) | 3227700f-d0fb-814a-bb28-d9d97883f4de |
+| Phase 3: Foliage wind shader (vertex displacement on grass/trees) | 3227700f-d0fb-8108-9ccd-c00d25947810 |
+| Phase 5: Update player controller (heightmap physics, jump, slope limits) | 3227700f-d0fb-81f5-a948-d55cd90c6d7f |
+| Phase 7: Procedural town/village layout generation | 3227700f-d0fb-816b-b892-d6685bd2fc46 |
 
 ## 3D Migration
 
