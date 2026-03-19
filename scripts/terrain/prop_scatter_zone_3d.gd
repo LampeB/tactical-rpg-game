@@ -214,6 +214,13 @@ func _do_scatter() -> void:
 				# scope, preventing name-conflict warnings on reload.
 				instance.scene_file_path = prop.scene_path
 				instance.owner = scene_root
+				# LOD distance culling — applied to every MeshInstance3D inside the prop
+				if prop.lod_distance > 0.0:
+					for child in instance.find_children("*", "GeometryInstance3D", true, false):
+						var gi: GeometryInstance3D = child as GeometryInstance3D
+						gi.visibility_range_end = prop.lod_distance
+						gi.visibility_range_end_margin = prop.lod_distance * 0.1
+						gi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 				blocking_count += 1
 
 		# Visual props (grass, flowers): MultiMesh for performance
@@ -263,6 +270,10 @@ func _do_scatter() -> void:
 				mmi.name = "mm_%s" % prop.id
 				scattered.add_child(mmi)
 				mmi.owner = scene_root
+				if prop.lod_distance > 0.0:
+					mmi.visibility_range_end = prop.lod_distance
+					mmi.visibility_range_end_margin = prop.lod_distance * 0.1
+					mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 				visual_groups += 1
 
 	print("[PropScatterZone3D] '%s': %d trees/rocks, %d grass groups (terrain at %s, zone at %s)" % [
@@ -270,9 +281,21 @@ func _do_scatter() -> void:
 
 
 func _do_clear() -> void:
-	var scattered: Node = get_node_or_null("Scattered")
-	if scattered:
-		scattered.queue_free()
+	# Remove all children that are not editor gizmo nodes.
+	# Handles both the expected "Scattered" name and auto-renamed nodes (@Node3D@XXXXX)
+	# caused by the queue_free/add_child race in previous versions.
+	var to_remove: Array = []
+	for i in range(get_child_count()):
+		var child: Node = get_child(i)
+		if child.name != "EditorGizmo" and child.name != "EditorLabel":
+			to_remove.append(child)
+	for i in range(to_remove.size()):
+		var child: Node = to_remove[i]
+		if Engine.is_editor_hint():
+			remove_child(child)
+			child.free()
+		else:
+			child.queue_free()
 
 
 func _get_filtered_props() -> Array:

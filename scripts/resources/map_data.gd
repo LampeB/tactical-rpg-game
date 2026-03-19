@@ -5,6 +5,8 @@ extends Resource
 @export_group("Identity")
 @export var id: String = ""
 @export var display_name: String = ""
+## Optional path to a .tscn scene containing HeightmapTerrain3D. Empty = procedural generation.
+@export_file("*.tscn") var map_scene_path: String = ""
 
 @export_group("Grid")
 @export var grid_width: int = 80

@@ -1,7 +1,9 @@
 extends Area3D
 ## Interactive marker that transitions to another map when the player interacts.
+## Place directly in a map scene and set connection_data in the inspector,
+## or let MapLoader.spawn_connections() create it from MapData at runtime.
 
-var connection_data: MapConnection
+@export var connection_data: MapConnection
 
 var _name_label: Label3D = null
 var _visual: Node3D = null

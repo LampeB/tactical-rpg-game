@@ -7,7 +7,7 @@ var gold: int = 0
 var story_flags: Dictionary = {}
 var is_game_started: bool = false
 var current_location_name: String = "Overworld"
-var current_map_id: String = "overworld"
+var current_map_id: String = "example_map"
 var current_heightmap_data: Resource = null  ## Transient HeightmapData for battle backgrounds (not saved)
 
 ## Preloaded battle background (generated in overworld when player nears a battle area)
@@ -124,7 +124,7 @@ func new_game() -> void:
 
 ## Restore game state from a save. Called by SaveManager during deserialization.
 ## Keeps all direct property writes in one place instead of scattered in SaveManager.
-func restore_game_state(new_party: Party, new_gold: int, new_flags: Dictionary, location: String, map_id: String = "overworld") -> void:
+func restore_game_state(new_party: Party, new_gold: int, new_flags: Dictionary, location: String, map_id: String = "example_map") -> void:
 	party = new_party
 	gold = new_gold
 	story_flags = new_flags

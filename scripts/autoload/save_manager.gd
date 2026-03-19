@@ -416,7 +416,7 @@ func _deserialize(data: Dictionary) -> void:
 	# Restore top-level state via GameManager's public API (no direct property writes)
 	var flags: Dictionary = data.get("story_flags", {})
 	var location: String = data.get("location", "Overworld")
-	var map_id: String = data.get("map_id", "overworld")
+	var map_id: String = data.get("map_id", "example_map")
 	GameManager.restore_game_state(party, int(data.get("gold", 0)), flags, location, map_id)
 
 	# Restore overworld position and step count via setter API

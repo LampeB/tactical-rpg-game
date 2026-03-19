@@ -1,0 +1,4358 @@
+[gd_resource type="Resource" script_class="MapData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/battle_area_data.gd" id="1_odqly"]
+[ext_resource type="Script" path="res://scripts/resources/map_connection.gd" id="1_p7vab"]
+[ext_resource type="Script" path="res://scripts/resources/map_encounter_zone.gd" id="4_odqly"]
+[ext_resource type="Script" path="res://scripts/resources/decoration_zone_data.gd" id="script_deco_zone"]
+[ext_resource type="Script" path="res://scripts/resources/map_data.gd" id="script_map_data"]
+[ext_resource type="Script" path="res://scripts/resources/map_element.gd" id="script_map_element"]
+
+[sub_resource type="Resource" id="Resource_odqly"]
+script = ExtResource("1_odqly")
+area_name = "Battle Area 1"
+position = Vector3(74.5, 0, 15)
+rotation_y = 2.3561945
+
+[sub_resource type="Resource" id="Resource_rv001"]
+script = ExtResource("1_p7vab")
+position = Vector3(200, 0, 150)
+target_map_id = "example_overworld"
+target_spawn = Vector3(256, 0, 256)
+display_name = "Example Overworld"
+
+[sub_resource type="Resource" id="Resource_sn7bt"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Top"
+rect = Rect2(1, 1, 78, 2)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn"])
+count = 18
+min_spacing = 4.5
+
+[sub_resource type="Resource" id="Resource_wffyx"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Bottom"
+rect = Rect2(1, 47, 78, 2)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn"])
+count = 18
+min_spacing = 4.5
+
+[sub_resource type="Resource" id="Resource_reg7a"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Left"
+rect = Rect2(1, 3, 2, 44)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+min_spacing = 4.5
+
+[sub_resource type="Resource" id="Resource_4naxy"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Right"
+rect = Rect2(77, 3, 2, 44)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn"])
+min_spacing = 4.5
+
+[sub_resource type="Resource" id="Resource_hn68n"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest West Trees"
+rect = Rect2(0, 20, 15, 28)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/tree_small.tscn"])
+count = 30
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="Resource_fteol"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest West Undergrowth"
+rect = Rect2(0, 20, 15, 28)
+decoration_scenes = Array[String](["res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/flower_white.tscn"])
+count = 20
+
+[sub_resource type="Resource" id="Resource_glc8s"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest North Trees"
+rect = Rect2(15, 35, 50, 13)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_large.tscn", "res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/tree_small.tscn"])
+count = 30
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="Resource_otvba"]
+script = ExtResource("script_deco_zone")
+zone_name = "Forest North Undergrowth"
+rect = Rect2(15, 35, 50, 13)
+decoration_scenes = Array[String](["res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/rock_small.tscn"])
+count = 18
+min_spacing = 2.5
+
+[sub_resource type="Resource" id="Resource_s2rqc"]
+script = ExtResource("script_deco_zone")
+zone_name = "Town Gardens"
+rect = Rect2(4, 4, 15, 14)
+decoration_scenes = Array[String](["res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_yellow.tscn", "res://scenes/world/objects/flower_white.tscn", "res://scenes/world/objects/grass_tuft.tscn"])
+count = 30
+min_spacing = 1.5
+
+[sub_resource type="Resource" id="Resource_c367s"]
+script = ExtResource("script_deco_zone")
+zone_name = "Town Trees"
+rect = Rect2(4, 4, 15, 14)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/tree_medium.tscn"])
+count = 6
+min_spacing = 4.0
+
+[sub_resource type="Resource" id="Resource_7xmc2"]
+script = ExtResource("script_deco_zone")
+zone_name = "Road Edges"
+rect = Rect2(20, 12, 18, 12)
+decoration_scenes = Array[String](["res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_yellow.tscn", "res://scenes/world/objects/flower_white.tscn", "res://scenes/world/objects/grass_tuft.tscn"])
+count = 20
+
+[sub_resource type="Resource" id="Resource_pxlx6"]
+script = ExtResource("script_deco_zone")
+zone_name = "Cave Rocks"
+rect = Rect2(33, 10, 17, 15)
+decoration_scenes = Array[String](["res://scenes/world/objects/rock_large.tscn", "res://scenes/world/objects/rock_medium.tscn", "res://scenes/world/objects/rock_small.tscn", "res://scenes/world/objects/rock_small.tscn"])
+count = 20
+
+[sub_resource type="Resource" id="Resource_hxt4m"]
+script = ExtResource("script_deco_zone")
+zone_name = "Cave Sparse Trees"
+rect = Rect2(33, 10, 17, 15)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/bush.tscn"])
+count = 8
+min_spacing = 3.5
+
+[sub_resource type="Resource" id="Resource_4e758"]
+script = ExtResource("script_deco_zone")
+zone_name = "Eastern Wilds Trees"
+rect = Rect2(50, 2, 28, 32)
+decoration_scenes = Array[String](["res://scenes/world/objects/tree_medium.tscn", "res://scenes/world/objects/tree_small.tscn", "res://scenes/world/objects/tree_large.tscn"])
+count = 18
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="Resource_lbprq"]
+script = ExtResource("script_deco_zone")
+zone_name = "Eastern Wilds Ground"
+rect = Rect2(50, 2, 28, 32)
+decoration_scenes = Array[String](["res://scenes/world/objects/rock_medium.tscn", "res://scenes/world/objects/rock_small.tscn", "res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/flower_yellow.tscn"])
+count = 25
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="Resource_0gcby"]
+script = ExtResource("script_deco_zone")
+zone_name = "Pond Edge"
+rect = Rect2(53, 19, 9, 8)
+decoration_scenes = Array[String](["res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_yellow.tscn", "res://scenes/world/objects/flower_white.tscn", "res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/bush.tscn"])
+count = 15
+min_spacing = 1.5
+
+[sub_resource type="Resource" id="Resource_mool2"]
+script = ExtResource("script_deco_zone")
+zone_name = "Central Grasslands"
+rect = Rect2(20, 20, 15, 15)
+decoration_scenes = Array[String](["res://scenes/world/objects/grass_tuft.tscn", "res://scenes/world/objects/flower_red.tscn", "res://scenes/world/objects/flower_white.tscn", "res://scenes/world/objects/bush.tscn", "res://scenes/world/objects/tree_small.tscn"])
+count = 15
+min_spacing = 2.5
+
+[sub_resource type="Resource" id="Resource_p8yug"]
+script = ExtResource("script_map_element")
+element_type = 3
+position = Vector3(26, 0, 4)
+resource_id = "res://data/locations/dungeon_cave.tres"
+
+[sub_resource type="Resource" id="Resource_cwqkn"]
+script = ExtResource("script_map_element")
+position = Vector3(4.5, 0, 17.5)
+rotation_y = -0.7853981
+resource_id = "blacksmith"
+
+[sub_resource type="Resource" id="Resource_h776i"]
+script = ExtResource("script_map_element")
+position = Vector3(3.5, 0, 13.5)
+rotation_y = -2.3561945
+resource_id = "merchant"
+
+[sub_resource type="Resource" id="Resource_4l6wn"]
+script = ExtResource("script_map_element")
+position = Vector3(7, 0, 17.5)
+rotation_y = 0.7853982
+resource_id = "weaver"
+
+[sub_resource type="Resource" id="Resource_ynj7g"]
+script = ExtResource("script_map_element")
+position = Vector3(7, 0, 14.5)
+rotation_y = 2.3561945
+resource_id = "doctor"
+
+[sub_resource type="Resource" id="Resource_4ctx1"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(35.5, 0, 25.5)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+
+[sub_resource type="Resource" id="Resource_0jl8p"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(34, 0, 38)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+
+[sub_resource type="Resource" id="Resource_sh2t5"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(51, 0, 29.5)
+resource_id = "res://data/encounters/encounter_goblins.tres"
+
+[sub_resource type="Resource" id="Resource_7ab32"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(58.5, 0, 23.5)
+resource_id = "res://data/encounters/encounter_goblins.tres"
+
+[sub_resource type="Resource" id="Resource_0vheu"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(67.5, 0, 24)
+resource_id = "res://data/encounters/encounter_slimes.tres"
+
+[sub_resource type="Resource" id="Resource_j54lv"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(75.5, 0, 13.5)
+resource_id = "res://data/encounters/encounter_minotaur.tres"
+
+[sub_resource type="Resource" id="Resource_24876"]
+script = ExtResource("script_map_element")
+element_type = 2
+position = Vector3(25.5, 0, 35.5)
+rotation_y = 4.712389
+resource_id = "test_chest_wooden"
+
+[sub_resource type="Resource" id="Resource_1gh6j"]
+script = ExtResource("script_map_element")
+element_type = 5
+position = Vector3(9, 0, 3.5)
+resource_id = "res://scenes/world/objects/sign.tscn"
+
+[sub_resource type="Resource" id="Resource_xliup"]
+script = ExtResource("script_map_element")
+position = Vector3(3, 0, 6.5)
+rotation_y = 3.1415925
+resource_id = "res://scenes/world/objects/house_blue.tscn"
+
+[sub_resource type="Resource" id="Resource_kity0"]
+script = ExtResource("script_map_element")
+position = Vector3(15.5, 0, 6.5)
+resource_id = "res://scenes/world/objects/house_red.tscn"
+
+[sub_resource type="Resource" id="Resource_bstmd"]
+script = ExtResource("script_map_element")
+position = Vector3(15.5, 0, 16)
+resource_id = "res://scenes/world/objects/house_green.tscn"
+
+[sub_resource type="Resource" id="Resource_nqm4b"]
+script = ExtResource("script_map_element")
+position = Vector3(7, 0, 13)
+resource_id = "res://scenes/world/objects/lamppost.tscn"
+
+[sub_resource type="Resource" id="Resource_yhrnj"]
+script = ExtResource("script_map_element")
+position = Vector3(13.5, 0, 3.5)
+resource_id = "res://scenes/world/objects/lamppost.tscn"
+
+[sub_resource type="Resource" id="Resource_t3qos"]
+script = ExtResource("script_map_element")
+position = Vector3(13.5, 0, 13.5)
+resource_id = "res://scenes/world/objects/lamppost.tscn"
+
+[sub_resource type="Resource" id="Resource_moplc"]
+script = ExtResource("script_map_element")
+position = Vector3(13.5, 0, 9.5)
+resource_id = "res://scenes/world/objects/lamppost.tscn"
+
+[sub_resource type="Resource" id="Resource_016ud"]
+script = ExtResource("script_map_element")
+position = Vector3(5, 0, 16)
+resource_id = "res://scenes/world/objects/campfire.tscn"
+
+[sub_resource type="Resource" id="Resource_y86ro"]
+script = ExtResource("script_map_element")
+position = Vector3(2.5, 0, 37.5)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_y1kq8"]
+script = ExtResource("script_map_element")
+position = Vector3(2.5, 0, 33)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_pcyya"]
+script = ExtResource("script_map_element")
+position = Vector3(2.5, 0, 30)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_0t618"]
+script = ExtResource("script_map_element")
+position = Vector3(2, 0, 26.5)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_s7jbr"]
+script = ExtResource("script_map_element")
+position = Vector3(2, 0, 22.5)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_k1pay"]
+script = ExtResource("script_map_element")
+position = Vector3(2.5, 0, 41.5)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_nflso"]
+script = ExtResource("script_map_element")
+position = Vector3(2, 0, 45.5)
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_idt7k"]
+script = ExtResource("script_map_element")
+position = Vector3(45.5, 0, 35)
+rotation_y = 0.43339738
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_pjtf5"]
+script = ExtResource("script_map_element")
+position = Vector3(41.63983, 0, 18.771029)
+rotation_y = 5.8894076
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_3dhmb"]
+script = ExtResource("script_map_element")
+position = Vector3(41.320366, 0, 9.041389)
+rotation_y = 3.4803867
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ra7bt"]
+script = ExtResource("script_map_element")
+position = Vector3(48.77681, 0, 12.968222)
+rotation_y = 4.6639795
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_altsr"]
+script = ExtResource("script_map_element")
+position = Vector3(73.35515, 0, 23.099804)
+rotation_y = 1.4732237
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_0hjpv"]
+script = ExtResource("script_map_element")
+position = Vector3(37.745632, 0, 46.74263)
+rotation_y = 5.829645
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_aq6uj"]
+script = ExtResource("script_map_element")
+position = Vector3(68.14087, 0, 33.197685)
+rotation_y = 1.8911654
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_t7j34"]
+script = ExtResource("script_map_element")
+position = Vector3(38, 0, 30)
+rotation_y = 5.925612
+scale_factor = 0.6
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_we6eb"]
+script = ExtResource("script_map_element")
+position = Vector3(57.60147, 0, 19.311985)
+rotation_y = 1.929588
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_xt32r"]
+script = ExtResource("script_map_element")
+position = Vector3(73.86351, 0, 4.2549458)
+rotation_y = 4.831675
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_lu0vc"]
+script = ExtResource("script_map_element")
+position = Vector3(73.55027, 0, 41.03415)
+rotation_y = 4.844699
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_h0d0y"]
+script = ExtResource("script_map_element")
+position = Vector3(39.670914, 0, 31.367735)
+rotation_y = 2.7831726
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_sn6h3"]
+script = ExtResource("script_map_element")
+position = Vector3(74.170166, 0, 35.966125)
+rotation_y = 1.0218526
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_ex42t"]
+script = ExtResource("script_map_element")
+position = Vector3(68.28696, 0, 42.42147)
+rotation_y = 2.9725776
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_quok5"]
+script = ExtResource("script_map_element")
+position = Vector3(40.415134, 0, 37.388947)
+rotation_y = 5.7371874
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_ua407"]
+script = ExtResource("script_map_element")
+position = Vector3(79.82478, 0, 1.048508)
+rotation_y = 6.0858645
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_5gau2"]
+script = ExtResource("script_map_element")
+position = Vector3(58.90802, 0, 9.231893)
+rotation_y = 3.9963942
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_2oloh"]
+script = ExtResource("script_map_element")
+position = Vector3(42.748787, 0, 37.780357)
+rotation_y = 4.4153895
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_scw2p"]
+script = ExtResource("script_map_element")
+position = Vector3(57, 0, 23.5)
+rotation_y = 5.994414
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_li8xt"]
+script = ExtResource("script_map_element")
+position = Vector3(50.169956, 0, 5.9212933)
+rotation_y = 1.2429575
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_rs1he"]
+script = ExtResource("script_map_element")
+position = Vector3(61.258965, 0, 31.971796)
+rotation_y = 5.6220818
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_vncn0"]
+script = ExtResource("script_map_element")
+position = Vector3(59.410126, 0, 35.50376)
+rotation_y = 3.538807
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_lcawo"]
+script = ExtResource("script_map_element")
+position = Vector3(55, 0, 24.5)
+rotation_y = 0.3219364
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_ex1p8"]
+script = ExtResource("script_map_element")
+position = Vector3(47.71736, 0, 1.4701052)
+rotation_y = 0.11801994
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_w4ya1"]
+script = ExtResource("script_map_element")
+position = Vector3(79.91854, 0, 46.617554)
+rotation_y = 2.4057586
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_26mno"]
+script = ExtResource("script_map_element")
+position = Vector3(65.78035, 0, 4.0920634)
+rotation_y = 4.202903
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_dvcek"]
+script = ExtResource("script_map_element")
+position = Vector3(63.892372, 0, 10.25204)
+rotation_y = 4.965156
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_ncwfy"]
+script = ExtResource("script_map_element")
+position = Vector3(73.07306, 0, 24.95969)
+rotation_y = 4.2092757
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_hbiqe"]
+script = ExtResource("script_map_element")
+position = Vector3(45.9768, 0, 15.511949)
+rotation_y = 3.4983056
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xghwm"]
+script = ExtResource("script_map_element")
+position = Vector3(60.768265, 0, 3.1054933)
+rotation_y = 4.4958587
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_8xix7"]
+script = ExtResource("script_map_element")
+position = Vector3(53.63568, 0, 23.918278)
+rotation_y = 3.2815287
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_ctv4q"]
+script = ExtResource("script_map_element")
+position = Vector3(51.263, 0, 8.602996)
+rotation_y = 1.2681092
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_b4ysu"]
+script = ExtResource("script_map_element")
+position = Vector3(78.780655, 0, 43.70047)
+rotation_y = 2.5952425
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_a5yi2"]
+script = ExtResource("script_map_element")
+position = Vector3(75.93866, 0, 2.058679)
+rotation_y = 6.156293
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_518uq"]
+script = ExtResource("script_map_element")
+position = Vector3(59.112602, 0, 19.26799)
+rotation_y = 1.954473
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_0jp01"]
+script = ExtResource("script_map_element")
+position = Vector3(67, 0, 17.5)
+rotation_y = 1.5270476
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_2hqhj"]
+script = ExtResource("script_map_element")
+position = Vector3(41.70918, 0, 43.751106)
+rotation_y = 2.4631505
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_u1h2k"]
+script = ExtResource("script_map_element")
+position = Vector3(71.5, 0, 21.5)
+rotation_y = 1.8165069
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_p404y"]
+script = ExtResource("script_map_element")
+position = Vector3(43.347424, 0, 29.538841)
+rotation_y = 1.3408041
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_b85j2"]
+script = ExtResource("script_map_element")
+position = Vector3(43.228527, 0, 4.227752)
+rotation_y = 4.1264
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_6s4hy"]
+script = ExtResource("script_map_element")
+position = Vector3(43.06288, 0, 10.0578)
+rotation_y = 5.8394375
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_naosa"]
+script = ExtResource("script_map_element")
+position = Vector3(56.271866, 0, 45.26001)
+rotation_y = 3.211652
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_ftxes"]
+script = ExtResource("script_map_element")
+position = Vector3(52.447475, 0, 1.1987135)
+rotation_y = 3.1190138
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_g8oqx"]
+script = ExtResource("script_map_element")
+position = Vector3(51.709217, 0, 5.718028)
+rotation_y = 4.5126505
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_iwsre"]
+script = ExtResource("script_map_element")
+position = Vector3(38.9423, 0, 9.091265)
+rotation_y = 0.026465932
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_ac7jc"]
+script = ExtResource("script_map_element")
+position = Vector3(56.5, 0, 22.5)
+rotation_y = 0.45165733
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_b0eow"]
+script = ExtResource("script_map_element")
+position = Vector3(37.45165, 0, 14.081752)
+rotation_y = 0.8926145
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_ee847"]
+script = ExtResource("script_map_element")
+position = Vector3(45.035835, 0, 46.061493)
+rotation_y = 4.556294
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_k3dck"]
+script = ExtResource("script_map_element")
+position = Vector3(62.285606, 0, 28.559547)
+rotation_y = 1.380262
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_h2pnc"]
+script = ExtResource("script_map_element")
+position = Vector3(61.1503, 0, 5.538772)
+rotation_y = 6.264378
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_63psi"]
+script = ExtResource("script_map_element")
+position = Vector3(58.86183, 0, 48.80641)
+rotation_y = 0.31396312
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_o2jwt"]
+script = ExtResource("script_map_element")
+position = Vector3(56.12207, 0, 18.317127)
+rotation_y = 2.6201286
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_kajj7"]
+script = ExtResource("script_map_element")
+position = Vector3(52.27462, 0, 20.880722)
+rotation_y = 2.4759593
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_ad4x1"]
+script = ExtResource("script_map_element")
+position = Vector3(62.692245, 0, 26.806204)
+rotation_y = 6.026641
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_laa2t"]
+script = ExtResource("script_map_element")
+position = Vector3(50.669785, 0, 43.193176)
+rotation_y = 4.390461
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_agy3q"]
+script = ExtResource("script_map_element")
+position = Vector3(70.94643, 0, 32.43702)
+rotation_y = 3.504583
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_fb81i"]
+script = ExtResource("script_map_element")
+position = Vector3(39.051632, 0, 38.185066)
+rotation_y = 2.6486275
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_bicgs"]
+script = ExtResource("script_map_element")
+position = Vector3(71.17759, 0, 34.734436)
+rotation_y = 1.2706072
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_mseol"]
+script = ExtResource("script_map_element")
+position = Vector3(53.368034, 0, 48.116302)
+rotation_y = 3.932969
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_n0tvq"]
+script = ExtResource("script_map_element")
+position = Vector3(69.40682, 0, 1.3958093)
+rotation_y = 2.5683727
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0hhou"]
+script = ExtResource("script_map_element")
+position = Vector3(63.60305, 0, 49.824028)
+rotation_y = 4.0704355
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_mml4d"]
+script = ExtResource("script_map_element")
+position = Vector3(54.89984, 0, 3.1017566)
+rotation_y = 0.55907816
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_8uja4"]
+script = ExtResource("script_map_element")
+position = Vector3(54.008278, 0, 45.29146)
+rotation_y = 1.9346863
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_na561"]
+script = ExtResource("script_map_element")
+position = Vector3(74.32193, 0, 28.770351)
+rotation_y = 3.3329408
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_321vr"]
+script = ExtResource("script_map_element")
+position = Vector3(61.291542, 0, 22.20117)
+rotation_y = 6.137814
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_20usd"]
+script = ExtResource("script_map_element")
+position = Vector3(79.291336, 0, 49.183533)
+rotation_y = 2.2837377
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_sp1la"]
+script = ExtResource("script_map_element")
+position = Vector3(54.66146, 0, 6.3755794)
+rotation_y = 0.032589063
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_8m72e"]
+script = ExtResource("script_map_element")
+position = Vector3(37.09144, 0, 7.75733)
+rotation_y = 5.819017
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_udmnm"]
+script = ExtResource("script_map_element")
+position = Vector3(50.98985, 0, 22.389307)
+rotation_y = 5.0385437
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_o3k28"]
+script = ExtResource("script_map_element")
+position = Vector3(50.193928, 0, 34.56652)
+rotation_y = 2.5450299
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_24j8b"]
+script = ExtResource("script_map_element")
+position = Vector3(50.296074, 0, 25.419344)
+rotation_y = 5.789856
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_carxv"]
+script = ExtResource("script_map_element")
+position = Vector3(73, 0, 20)
+rotation_y = 3.637813
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_sdo73"]
+script = ExtResource("script_map_element")
+position = Vector3(46.32327, 0, 33.128426)
+rotation_y = 4.2168007
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_di2ie"]
+script = ExtResource("script_map_element")
+position = Vector3(72.971924, 0, 5.7963614)
+rotation_y = 4.499375
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_2jkdk"]
+script = ExtResource("script_map_element")
+position = Vector3(44.363014, 0, 26.651144)
+rotation_y = 0.034320947
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_dfop1"]
+script = ExtResource("script_map_element")
+position = Vector3(39.5, 0, 35.5)
+rotation_y = 5.9134507
+scale_factor = 0.6
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_r0wg0"]
+script = ExtResource("script_map_element")
+position = Vector3(67.832275, 0, 9.912196)
+rotation_y = 0.82182574
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_mlp2o"]
+script = ExtResource("script_map_element")
+position = Vector3(39.362682, 0, 13.552972)
+rotation_y = 4.8064666
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_1v48y"]
+script = ExtResource("script_map_element")
+position = Vector3(63, 0, 34.5)
+rotation_y = 3.5857244
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_8apfm"]
+script = ExtResource("script_map_element")
+position = Vector3(48.53406, 0, 33.85209)
+rotation_y = 3.3224568
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_esg0k"]
+script = ExtResource("script_map_element")
+position = Vector3(57.374023, 0, 8.749731)
+rotation_y = 2.7423067
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_c7ofb"]
+script = ExtResource("script_map_element")
+position = Vector3(42.568363, 0, 17.14025)
+rotation_y = 3.1656218
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_74ju2"]
+script = ExtResource("script_map_element")
+position = Vector3(64.69219, 0, 19.954779)
+rotation_y = 4.8244085
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_0pche"]
+script = ExtResource("script_map_element")
+position = Vector3(47.067726, 0, 41.516495)
+rotation_y = 0.8272207
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_jr4qo"]
+script = ExtResource("script_map_element")
+position = Vector3(70, 0, 16.5)
+rotation_y = 1.8241011
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_jh3ag"]
+script = ExtResource("script_map_element")
+position = Vector3(39.698586, 0, 28.67955)
+rotation_y = 6.1736636
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_4iceq"]
+script = ExtResource("script_map_element")
+position = Vector3(66.19375, 0, 38.717728)
+rotation_y = 4.6061735
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_hl380"]
+script = ExtResource("script_map_element")
+position = Vector3(74.96965, 0, 8.047609)
+rotation_y = 4.8096657
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_0k8id"]
+script = ExtResource("script_map_element")
+position = Vector3(54.403893, 0, 33.074394)
+rotation_y = 1.5392232
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_kwex2"]
+script = ExtResource("script_map_element")
+position = Vector3(42.972965, 0, 8.521961)
+rotation_y = 3.6433868
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_s0x6p"]
+script = ExtResource("script_map_element")
+position = Vector3(70.56761, 0, 44.264244)
+rotation_y = 0.9333624
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_k1pb7"]
+script = ExtResource("script_map_element")
+position = Vector3(57.435238, 0, 11.106983)
+rotation_y = 1.6380215
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_176bk"]
+script = ExtResource("script_map_element")
+position = Vector3(55.805397, 0, 40.303566)
+rotation_y = 0.83454365
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_xfc05"]
+script = ExtResource("script_map_element")
+position = Vector3(45.526424, 0, 12.106972)
+rotation_y = 5.567549
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_3vlfs"]
+script = ExtResource("script_map_element")
+position = Vector3(44.001865, 0, 0.2923593)
+rotation_y = 3.586416
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_sur25"]
+script = ExtResource("script_map_element")
+position = Vector3(56.448097, 0, 13.9748335)
+rotation_y = 4.421914
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_kb64j"]
+script = ExtResource("script_map_element")
+position = Vector3(49.270485, 0, 3.564242)
+rotation_y = 0.30632064
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_vw4lv"]
+script = ExtResource("script_map_element")
+position = Vector3(71, 0, 19.5)
+rotation_y = 4.8126493
+scale_factor = 0.6
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_kl08p"]
+script = ExtResource("script_map_element")
+position = Vector3(66.7163, 0, 36.196533)
+rotation_y = 0.29825082
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_w1vdd"]
+script = ExtResource("script_map_element")
+position = Vector3(78.27208, 0, 36.13897)
+rotation_y = 3.6468165
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_tbcj0"]
+script = ExtResource("script_map_element")
+position = Vector3(76.20192, 0, 36.15529)
+rotation_y = 0.62843424
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kc0dt"]
+script = ExtResource("script_map_element")
+position = Vector3(54.215027, 0, 9.443205)
+rotation_y = 2.8161063
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_8ubeh"]
+script = ExtResource("script_map_element")
+position = Vector3(79.55364, 0, 22.275066)
+rotation_y = 3.8429694
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_awom3"]
+script = ExtResource("script_map_element")
+position = Vector3(60.17916, 0, 33.24845)
+rotation_y = 4.359243
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_yfegn"]
+script = ExtResource("script_map_element")
+position = Vector3(79.369644, 0, 37.166534)
+rotation_y = 1.6657615
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_vta6d"]
+script = ExtResource("script_map_element")
+position = Vector3(65.660835, 0, 17.218323)
+rotation_y = 2.8667173
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_r2lkx"]
+script = ExtResource("script_map_element")
+position = Vector3(62.470802, 0, 47.27514)
+rotation_y = 0.780868
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_0v7ul"]
+script = ExtResource("script_map_element")
+position = Vector3(51.94308, 0, 25.885298)
+rotation_y = 1.2081387
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_u4puk"]
+script = ExtResource("script_map_element")
+position = Vector3(71.88393, 0, 1.2968363)
+rotation_y = 0.8530941
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_gj3xh"]
+script = ExtResource("script_map_element")
+position = Vector3(48.20468, 0, 18.694237)
+rotation_y = 0.783034
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_wj7c8"]
+script = ExtResource("script_map_element")
+position = Vector3(55.5, 0, 24)
+rotation_y = 4.0118737
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_e2uao"]
+script = ExtResource("script_map_element")
+position = Vector3(37.097, 0, 43.171646)
+rotation_y = 5.1944175
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_jvxxj"]
+script = ExtResource("script_map_element")
+position = Vector3(49.400967, 0, 45.15246)
+rotation_y = 5.297093
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_qid8g"]
+script = ExtResource("script_map_element")
+position = Vector3(59.942093, 0, 17.505308)
+rotation_y = 3.5887642
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_25pqg"]
+script = ExtResource("script_map_element")
+position = Vector3(40.78712, 0, 29.861158)
+rotation_y = 4.937175
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_jm81x"]
+script = ExtResource("script_map_element")
+position = Vector3(39.354572, 0, 4.1960135)
+rotation_y = 4.729339
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_o8n0p"]
+script = ExtResource("script_map_element")
+position = Vector3(54.221207, 0, 31.342726)
+rotation_y = 2.7862282
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_fsxpe"]
+script = ExtResource("script_map_element")
+position = Vector3(66.27849, 0, 42.56572)
+rotation_y = 4.386985
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_6imxf"]
+script = ExtResource("script_map_element")
+position = Vector3(61.999336, 0, 17.940298)
+rotation_y = 1.204401
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_v7q75"]
+script = ExtResource("script_map_element")
+position = Vector3(61, 0, 35.5)
+rotation_y = 5.6883745
+scale_factor = 0.6
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_cffwh"]
+script = ExtResource("script_map_element")
+position = Vector3(59.918957, 0, 44.60418)
+rotation_y = 4.9365516
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lur06"]
+script = ExtResource("script_map_element")
+position = Vector3(77.3018, 0, 32.220757)
+rotation_y = 3.2402925
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_bka78"]
+script = ExtResource("script_map_element")
+position = Vector3(52.894848, 0, 49.919)
+rotation_y = 5.6256843
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_b6hky"]
+script = ExtResource("script_map_element")
+position = Vector3(49.029392, 0, 0.64797693)
+rotation_y = 5.8739285
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_vel0e"]
+script = ExtResource("script_map_element")
+position = Vector3(42.78598, 0, 46.128548)
+rotation_y = 6.126579
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_ryin0"]
+script = ExtResource("script_map_element")
+position = Vector3(75.58207, 0, 24.886356)
+rotation_y = 2.2615952
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_58g5g"]
+script = ExtResource("script_map_element")
+position = Vector3(66.931244, 0, 34.567726)
+rotation_y = 4.771727
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_4e8b6"]
+script = ExtResource("script_map_element")
+position = Vector3(63.894264, 0, 22.164347)
+rotation_y = 0.042795684
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_x37e1"]
+script = ExtResource("script_map_element")
+position = Vector3(37.97728, 0, 49.60112)
+rotation_y = 1.9444112
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_owvvs"]
+script = ExtResource("script_map_element")
+position = Vector3(47.099083, 0, 26.762695)
+rotation_y = 4.4229445
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_4j5qv"]
+script = ExtResource("script_map_element")
+position = Vector3(45.758183, 0, 7.6954465)
+rotation_y = 3.986238
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_g86et"]
+script = ExtResource("script_map_element")
+position = Vector3(75.133835, 0, 47.648308)
+rotation_y = 6.166952
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_nvpqa"]
+script = ExtResource("script_map_element")
+position = Vector3(37.2602, 0, 12.259044)
+rotation_y = 4.2315044
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_kp0w8"]
+script = ExtResource("script_map_element")
+position = Vector3(49.069427, 0, 21.086426)
+rotation_y = 3.5572863
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_vdbpn"]
+script = ExtResource("script_map_element")
+position = Vector3(77.5, 0, 20)
+rotation_y = 2.2830434
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_dyqr5"]
+script = ExtResource("script_map_element")
+position = Vector3(55.977066, 0, 20.488615)
+rotation_y = 1.6979902
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_2jhk6"]
+script = ExtResource("script_map_element")
+position = Vector3(44.269516, 0, 50.02439)
+rotation_y = 1.0348184
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_onac8"]
+script = ExtResource("script_map_element")
+position = Vector3(62.03263, 0, 20.254038)
+rotation_y = 1.9341905
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_bbxeo"]
+script = ExtResource("script_map_element")
+position = Vector3(61.016457, 0, 10.314439)
+rotation_y = 5.656721
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_w8g8a"]
+script = ExtResource("script_map_element")
+position = Vector3(70.82614, 0, 38.205948)
+rotation_y = 1.5995466
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_gbgq5"]
+script = ExtResource("script_map_element")
+position = Vector3(45.3735, 0, 19.315617)
+rotation_y = 1.7257994
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_3gg1a"]
+script = ExtResource("script_map_element")
+position = Vector3(69.403786, 0, 27.011257)
+rotation_y = 4.340995
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_o1xb0"]
+script = ExtResource("script_map_element")
+position = Vector3(70.60318, 0, 22.650055)
+rotation_y = 2.3329573
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_u3x8s"]
+script = ExtResource("script_map_element")
+position = Vector3(73.32455, 0, 37.780838)
+rotation_y = 1.8587933
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_mcmli"]
+script = ExtResource("script_map_element")
+position = Vector3(63.85907, 0, 5.906066)
+rotation_y = 5.3361654
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_e7gii"]
+script = ExtResource("script_map_element")
+position = Vector3(79.62656, 0, 6.194947)
+rotation_y = 3.0967488
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_d7q4o"]
+script = ExtResource("script_map_element")
+position = Vector3(76.78818, 0, 39.392357)
+rotation_y = 6.2299743
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_fdlfs"]
+script = ExtResource("script_map_element")
+position = Vector3(56.55211, 0, 48.029152)
+rotation_y = 3.5733817
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_fy1vr"]
+script = ExtResource("script_map_element")
+position = Vector3(61.17365, 0, 13.271797)
+rotation_y = 4.984404
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_4g08v"]
+script = ExtResource("script_map_element")
+position = Vector3(58.902534, 0, 30.440935)
+rotation_y = 5.715057
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_na2wk"]
+script = ExtResource("script_map_element")
+position = Vector3(55.695942, 0, 37.806374)
+rotation_y = 6.0426598
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_vom1g"]
+script = ExtResource("script_map_element")
+position = Vector3(66.3535, 0, 49.637764)
+rotation_y = 3.318433
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_v0w8n"]
+script = ExtResource("script_map_element")
+position = Vector3(65.973656, 0, 2.0364006)
+rotation_y = 0.8547651
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_30bo2"]
+script = ExtResource("script_map_element")
+position = Vector3(38.24962, 0, 40.776688)
+rotation_y = 1.1429291
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_e1tfn"]
+script = ExtResource("script_map_element")
+position = Vector3(41.4229, 0, 48.363976)
+rotation_y = 0.5760815
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_jtg6e"]
+script = ExtResource("script_map_element")
+position = Vector3(66.18671, 0, 15.785032)
+rotation_y = 1.1867442
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_rxb7r"]
+script = ExtResource("script_map_element")
+position = Vector3(52.500458, 0, 45.47094)
+rotation_y = 1.9914925
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_xnjky"]
+script = ExtResource("script_map_element")
+position = Vector3(66.69527, 0, 46.31584)
+rotation_y = 5.407642
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_ogyo2"]
+script = ExtResource("script_map_element")
+position = Vector3(62.902992, 0, 43.56124)
+rotation_y = 1.3574005
+resource_id = "res://scenes/world/objects/flower_yellow.tscn"
+
+[sub_resource type="Resource" id="Resource_hacr2"]
+script = ExtResource("script_map_element")
+position = Vector3(76.76942, 0, 18.87012)
+rotation_y = 2.335697
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_le7dv"]
+script = ExtResource("script_map_element")
+position = Vector3(37.85438, 0, 44.69005)
+rotation_y = 5.0931416
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_k8t5p"]
+script = ExtResource("script_map_element")
+position = Vector3(44.6863, 0, 5.0979266)
+rotation_y = 0.9492712
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_a0prx"]
+script = ExtResource("script_map_element")
+position = Vector3(59.40789, 0, 11.369622)
+rotation_y = 3.192662
+resource_id = "res://scenes/world/objects/tree_large.tscn"
+
+[sub_resource type="Resource" id="Resource_xblb8"]
+script = ExtResource("script_map_element")
+position = Vector3(67.46232, 0, 7.43662)
+rotation_y = 5.5550947
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_ovalg"]
+script = ExtResource("script_map_element")
+position = Vector3(61.153076, 0, 1.095814)
+rotation_y = 6.0813956
+resource_id = "res://scenes/world/objects/tree_small.tscn"
+
+[sub_resource type="Resource" id="Resource_ab1oh"]
+script = ExtResource("script_map_element")
+position = Vector3(68.43185, 0, 40.182518)
+rotation_y = 0.7542417
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_cm3cj"]
+script = ExtResource("script_map_element")
+position = Vector3(73.898834, 0, 26.631054)
+rotation_y = 6.148945
+resource_id = "res://scenes/world/objects/rock_large.tscn"
+
+[sub_resource type="Resource" id="Resource_qgn8u"]
+script = ExtResource("script_map_element")
+position = Vector3(75, 0, 21.5)
+rotation_y = 4.719759
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_dg1m6"]
+script = ExtResource("script_map_element")
+position = Vector3(69.942055, 0, 25.096497)
+rotation_y = 6.270641
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_wpol1"]
+script = ExtResource("script_map_element")
+position = Vector3(49.400738, 0, 38.80735)
+rotation_y = 5.5052876
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_pwm7a"]
+script = ExtResource("script_map_element")
+position = Vector3(66, 0, 7)
+rotation_y = 4.01938
+scale_factor = 0.5
+resource_id = "res://scenes/world/objects/flower_white.tscn"
+
+[sub_resource type="Resource" id="Resource_vfkk3"]
+script = ExtResource("script_map_element")
+position = Vector3(41.912624, 0, 2.3537781)
+rotation_y = 2.4354727
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_7ucet"]
+script = ExtResource("script_map_element")
+position = Vector3(69.49865, 0, 12.255106)
+rotation_y = 1.8170931
+resource_id = "res://scenes/world/objects/tree_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_6453y"]
+script = ExtResource("script_map_element")
+position = Vector3(67.44382, 0, 30.879679)
+rotation_y = 2.2199714
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_r3ykv"]
+script = ExtResource("script_map_element")
+position = Vector3(76.865, 0, 47.04538)
+rotation_y = 4.924084
+resource_id = "res://scenes/world/objects/rock_small.tscn"
+
+[sub_resource type="Resource" id="Resource_512tw"]
+script = ExtResource("script_map_element")
+position = Vector3(58.896477, 0, 38.1472)
+rotation_y = 4.7829766
+resource_id = "res://scenes/world/objects/rock_medium.tscn"
+
+[sub_resource type="Resource" id="Resource_qavyq"]
+script = ExtResource("script_map_element")
+position = Vector3(40.92334, 0, 24.628094)
+rotation_y = 5.0138235
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xechj"]
+script = ExtResource("script_map_element")
+position = Vector3(55.34011, 0, 42.19445)
+rotation_y = 3.0588212
+resource_id = "res://scenes/world/objects/flower_red.tscn"
+
+[sub_resource type="Resource" id="Resource_3o4kg"]
+script = ExtResource("script_map_element")
+position = Vector3(17.5, 0, 24.5)
+resource_id = "res://scenes/world/objects/house_blue.tscn"
+
+[sub_resource type="Resource" id="Resource_0w32e"]
+script = ExtResource("script_map_element")
+position = Vector3(17.5, 0, 32.5)
+resource_id = "res://scenes/world/objects/house_blue.tscn"
+
+[sub_resource type="Resource" id="Resource_anemq"]
+script = ExtResource("script_map_element")
+position = Vector3(15.5, 0, 37)
+resource_id = "res://scenes/world/objects/house_red.tscn"
+
+[sub_resource type="Resource" id="Resource_ydfab"]
+script = ExtResource("script_map_element")
+position = Vector3(15.5, 0, 41.5)
+rotation_y = 1.5707963
+resource_id = "res://scenes/world/objects/house_green.tscn"
+
+[sub_resource type="Resource" id="Resource_sivah"]
+script = ExtResource("script_map_element")
+position = Vector3(22, 0, 41.5)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/house_blue.tscn"
+
+[sub_resource type="Resource" id="Resource_l8maa"]
+script = ExtResource("script_map_element")
+position = Vector3(24, 0, 32.5)
+resource_id = "res://scenes/world/objects/house_green.tscn"
+
+[sub_resource type="Resource" id="Resource_ng127"]
+script = ExtResource("script_map_element")
+position = Vector3(15.5, 0, 20.5)
+resource_id = "res://scenes/world/objects/house_green.tscn"
+
+[sub_resource type="Resource" id="Resource_tjr11"]
+script = ExtResource("script_map_element")
+position = Vector3(23, 0, 16.5)
+resource_id = "res://scenes/world/objects/house_blue.tscn"
+
+[sub_resource type="Resource" id="Resource_ct18d"]
+script = ExtResource("script_map_element")
+position = Vector3(23.5, 0, 24.5)
+resource_id = "res://scenes/world/objects/house_red.tscn"
+
+[sub_resource type="Resource" id="Resource_5aujh"]
+script = ExtResource("script_map_element")
+position = Vector3(20, 0, 6.5)
+resource_id = "res://scenes/world/objects/house_red.tscn"
+
+[sub_resource type="Resource" id="Resource_bhbla"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 14)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_5vogj"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 16)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_dwtcd"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 17)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_1vbx6"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 15)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_gsqse"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 18)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_hrh4s"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 19.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_klaky"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 21)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_26c34"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 22.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_g7sst"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 24)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_dkmv6"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 25.5)
+rotation_y = 1.0927847e-08
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_wmdnv"]
+script = ExtResource("script_map_element")
+position = Vector3(26.5, 0, 26)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_7ryuu"]
+script = ExtResource("script_map_element")
+position = Vector3(28, 0, 26)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_g3tmm"]
+script = ExtResource("script_map_element")
+position = Vector3(29.5, 0, 26)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_hdvly"]
+script = ExtResource("script_map_element")
+position = Vector3(26.5, 0, 30.5)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_7fmtu"]
+script = ExtResource("script_map_element")
+position = Vector3(28, 0, 30.5)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_sn6jc"]
+script = ExtResource("script_map_element")
+position = Vector3(29.5, 0, 30.5)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_aa3ht"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 31)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_l51fa"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 32.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_qt7nb"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 34)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_ofyae"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 35.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_fywol"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 37)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_ec73t"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 38.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_kqgkw"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 40)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_xbjm8"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 41.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_gjg1y"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 43)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_n8pwh"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 44.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_6k5uc"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 46)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_nolwh"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 47.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_o8mb3"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 49)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_kpadb"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 9)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_d2uax"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 7.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_5gdt5"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 6)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_t0a2o"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 4.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_57jk7"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 3)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_gje6r"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 1.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_xfbru"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 0.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_77q2q"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 10.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_bv1ns"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 11.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_h80q3"]
+script = ExtResource("script_map_element")
+position = Vector3(30, 0, 12.5)
+resource_id = "res://scenes/world/objects/fence.tscn"
+
+[sub_resource type="Resource" id="Resource_v0rcp"]
+script = ExtResource("script_map_element")
+position = Vector3(28.5, 0, 14)
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_fsx4u"]
+script = ExtResource("script_map_element")
+position = Vector3(23.5, 0, 9)
+rotation_y = 1.0927847e-08
+scale_factor = 1.1
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_xjlij"]
+script = ExtResource("script_map_element")
+position = Vector3(26.5, 0, 9)
+scale_factor = 1.1
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_xotd6"]
+script = ExtResource("script_map_element")
+position = Vector3(28.5, 0, 9)
+rotation_y = 3.1415925
+scale_factor = 1.1
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_fvhib"]
+script = ExtResource("script_map_element")
+position = Vector3(22, 0, 3)
+rotation_y = -1.5707964
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_rjjos"]
+script = ExtResource("script_map_element")
+position = Vector3(21.5, 0, 1)
+rotation_y = 1.5707964
+resource_id = "res://scenes/world/objects/bush.tscn"
+
+[sub_resource type="Resource" id="Resource_gewaf"]
+script = ExtResource("script_map_element")
+position = Vector3(26, 0, 4)
+resource_id = "res://scenes/world/objects/campfire.tscn"
+
+[sub_resource type="Resource" id="Resource_h746c"]
+script = ExtResource("script_map_element")
+position = Vector3(74.5, 0, 18.5)
+scale_factor = 1.5
+resource_id = "res://scenes/world/objects/campfire.tscn"
+
+[sub_resource type="Resource" id="Resource_sjf0i"]
+script = ExtResource("script_map_element")
+position = Vector3(39.5, 0, 36.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8bai7"]
+script = ExtResource("script_map_element")
+position = Vector3(38, 0, 36)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_bsu2f"]
+script = ExtResource("script_map_element")
+position = Vector3(36.5, 0, 36.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_wmcqw"]
+script = ExtResource("script_map_element")
+position = Vector3(34, 0, 36.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_86lva"]
+script = ExtResource("script_map_element")
+position = Vector3(32, 0, 35)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x28mt"]
+script = ExtResource("script_map_element")
+position = Vector3(33, 0, 33)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_yvu8t"]
+script = ExtResource("script_map_element")
+position = Vector3(34.5, 0, 34.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_52r4b"]
+script = ExtResource("script_map_element")
+position = Vector3(31, 0, 32)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7526v"]
+script = ExtResource("script_map_element")
+position = Vector3(36.5, 0, 28)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_efesp"]
+script = ExtResource("script_map_element")
+position = Vector3(38, 0, 28.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5fege"]
+script = ExtResource("script_map_element")
+position = Vector3(31.5, 0, 25)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_vtjmh"]
+script = ExtResource("script_map_element")
+position = Vector3(34, 0, 26)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lxtoc"]
+script = ExtResource("script_map_element")
+position = Vector3(34, 0, 25.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tsci0"]
+script = ExtResource("script_map_element")
+position = Vector3(33, 0, 24.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xftfp"]
+script = ExtResource("script_map_element")
+position = Vector3(32, 0, 24.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ivsux"]
+script = ExtResource("script_map_element")
+position = Vector3(36, 0, 25)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2ksxx"]
+script = ExtResource("script_map_element")
+position = Vector3(34, 0, 27)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5ipba"]
+script = ExtResource("script_map_element")
+position = Vector3(35, 0, 27.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rj6kb"]
+script = ExtResource("script_map_element")
+position = Vector3(36.5, 0, 28)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_btej0"]
+script = ExtResource("script_map_element")
+position = Vector3(39.5, 0, 30.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fknal"]
+script = ExtResource("script_map_element")
+position = Vector3(38.5, 0, 29.5)
+rotation_y = 0.78539807
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jf05w"]
+script = ExtResource("script_map_element")
+position = Vector3(41.5, 0, 30.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_34q7d"]
+script = ExtResource("script_map_element")
+position = Vector3(45.5, 0, 27.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_iep57"]
+script = ExtResource("script_map_element")
+position = Vector3(43.5, 0, 29)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fep5d"]
+script = ExtResource("script_map_element")
+position = Vector3(48, 0, 26.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_d1h5r"]
+script = ExtResource("script_map_element")
+position = Vector3(50, 0, 26.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1lyx5"]
+script = ExtResource("script_map_element")
+position = Vector3(45, 0, 35)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kmeaj"]
+script = ExtResource("script_map_element")
+position = Vector3(51, 0, 33)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rmc8p"]
+script = ExtResource("script_map_element")
+position = Vector3(53, 0, 32.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8do7v"]
+script = ExtResource("script_map_element")
+position = Vector3(56, 0, 31)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2ljx5"]
+script = ExtResource("script_map_element")
+position = Vector3(58, 0, 28.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kejii"]
+script = ExtResource("script_map_element")
+position = Vector3(60, 0, 27)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xpsyx"]
+script = ExtResource("script_map_element")
+position = Vector3(58.5, 0, 21.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1vlc1"]
+script = ExtResource("script_map_element")
+position = Vector3(60, 0, 20.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7flrp"]
+script = ExtResource("script_map_element")
+position = Vector3(66.5, 0, 18)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lwnhf"]
+script = ExtResource("script_map_element")
+position = Vector3(68, 0, 16.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_scbys"]
+script = ExtResource("script_map_element")
+position = Vector3(69, 0, 14.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_unarh"]
+script = ExtResource("script_map_element")
+position = Vector3(76.5, 0, 21)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_bfpnk"]
+script = ExtResource("script_map_element")
+position = Vector3(71.5, 0, 22)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_l31d0"]
+script = ExtResource("script_map_element")
+position = Vector3(70.5, 0, 23.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tn2q4"]
+script = ExtResource("script_map_element")
+position = Vector3(69.5, 0, 24.5)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5ev6p"]
+script = ExtResource("script_map_element")
+position = Vector3(67.5, 0, 26)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ndt8u"]
+script = ExtResource("script_map_element")
+position = Vector3(66, 0, 26)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5otv4"]
+script = ExtResource("script_map_element")
+position = Vector3(65.5, 0, 26)
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_i641j"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 28)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fieol"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 28)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_43xpb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 28)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4crwu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 26.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ss0fp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 26)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5ch7s"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 26.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5kjnr"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 27)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_at3it"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 27.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x3lsq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 27)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_v6fae"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 26.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_s4ckb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 25)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_3pi3x"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 25)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_dsngc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 24.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8q6od"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 23.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hlo3g"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 22.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_i02oc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 21.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_irgce"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 20.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xb80a"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 20)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gvc7a"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 18)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gvm65"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 20)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_y7mds"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 20)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jb63i"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 20.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ip32u"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 22)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_aighm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 21.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x66eq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 23)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lq2w5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 23)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_maku2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 24.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cxy73"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 25.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qam8e"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 25)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_bfnjg"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 26.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_l7rbv"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 28.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ek606"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 29)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2eq8f"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 30)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7t1k5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 31.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tipeg"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 32)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_w84kn"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 32.5)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5f7fw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 32)
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1srvt"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 34.5)
+rotation_y = 0.4937829
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_uawna"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 35)
+rotation_y = 4.7882023
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_q1mxi"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 34)
+rotation_y = 1.5176216
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ngi4h"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 34)
+rotation_y = 0.22843237
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5wq8x"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 35.5)
+rotation_y = 3.2996657
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rcwcg"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 36)
+rotation_y = 6.131981
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x1pow"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 36.5)
+rotation_y = 0.5971552
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8jv5y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 34)
+rotation_y = 3.7282774
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kg8qw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 33.5)
+rotation_y = 0.96616197
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hacdh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 33.5)
+rotation_y = 3.1912591
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0jdc6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 33)
+rotation_y = 5.8315234
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_a23ng"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 31.5)
+rotation_y = 0.88267463
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xglal"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 30.5)
+rotation_y = 1.942376
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_s5jln"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 30)
+rotation_y = 3.6543772
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ju2kd"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 29.5)
+rotation_y = 2.5666237
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_c67k2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 29.5)
+rotation_y = 5.616863
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_6b2xs"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 28.5)
+rotation_y = 5.755686
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_e7fpb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 30.5)
+rotation_y = 4.0785227
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_c5ygy"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 32)
+rotation_y = 2.9185038
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_531ec"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 32)
+rotation_y = 3.4291127
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_70snf"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 33.5)
+rotation_y = 1.972416
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x3ytn"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 34.5)
+rotation_y = 1.1297387
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2s5nr"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 35.5)
+rotation_y = 3.0197701
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_v1qns"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 36.5)
+rotation_y = 1.9973015
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kwief"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 36.5)
+rotation_y = 1.109389
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0oby6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 38)
+rotation_y = 2.2161217
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qob30"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 39)
+rotation_y = 3.3570647
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_p78ih"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 39.5)
+rotation_y = 1.5185673
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5di8r"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 40.5)
+rotation_y = 3.1193078
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_v8axj"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 41.5)
+rotation_y = 2.7486267
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7e0f8"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 42.5)
+rotation_y = 1.3445678
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_grdt6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 43.5)
+rotation_y = 1.3418449
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qr8r5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 44.5)
+rotation_y = 5.135071
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_sxnlh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 45)
+rotation_y = 0.0066740653
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ya17a"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 46)
+rotation_y = 0.6557032
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_finah"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 47)
+rotation_y = 2.8731773
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_vs3n2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 48)
+rotation_y = 5.3729258
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tnl6t"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 48.5)
+rotation_y = 3.5897162
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_la5hh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 50)
+rotation_y = 3.0626376
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fn572"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 49.5)
+rotation_y = 3.0699112
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x0n58"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 48.5)
+rotation_y = 5.0648828
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_g4kcm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 48.5)
+rotation_y = 0.40526474
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_81qa0"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 48.5)
+rotation_y = 1.0735432
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_54y62"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 47)
+rotation_y = 2.0939267
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7glfy"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 46.5)
+rotation_y = 0.10185692
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_347x4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 46)
+rotation_y = 0.85979754
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qwcue"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 44.5)
+rotation_y = 3.0134535
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_68aho"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 43.5)
+rotation_y = 1.5995138
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cwhkf"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 42.5)
+rotation_y = 4.9992
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_17ah4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 41.5)
+rotation_y = 2.5575635
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_arpem"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 41)
+rotation_y = 1.8435667
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_amv4w"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 41)
+rotation_y = 3.5340447
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jjakh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 38.5)
+rotation_y = 5.242523
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_u5gfx"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 37.5)
+rotation_y = 2.0385406
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hv0c1"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 36.5)
+rotation_y = 0.69251883
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_b4oya"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 35.5)
+rotation_y = 2.5000246
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_owmjb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 37)
+rotation_y = 2.216621
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0o0sp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 38.5)
+rotation_y = 0.3317942
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4yoge"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 39)
+rotation_y = 2.0152571
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_k12sp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 40)
+rotation_y = 4.3079524
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_uo0m1"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 41)
+rotation_y = 5.873957
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_wbxtf"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 42.5)
+rotation_y = 0.12019711
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_pmeyw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 43)
+rotation_y = 6.2531815
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_87vo6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 44)
+rotation_y = 3.8182218
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_yp2n7"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 45)
+rotation_y = 4.77306
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_mtdsw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 46)
+rotation_y = 4.5537715
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_erskt"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 47)
+rotation_y = 6.231419
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_m2whv"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 48.5)
+rotation_y = 0.5168192
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_sycsc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 49.5)
+rotation_y = 1.2175529
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_e4uh6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 50)
+rotation_y = 0.99886906
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_44uy4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(2.5, 0, 49)
+rotation_y = 5.157541
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_pnedu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3, 0, 48)
+rotation_y = 3.6606972
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0rdwh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3, 0, 48)
+rotation_y = 5.146569
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qy5pb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4, 0, 46.5)
+rotation_y = 0.5306886
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_804yh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3, 0, 44.5)
+rotation_y = 4.538971
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_47hh7"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 44.5)
+rotation_y = 6.052674
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_32v8a"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 44.5)
+rotation_y = 1.4940938
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lp7ya"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 42.5)
+rotation_y = 1.1090621
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_6iku6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 41.5)
+rotation_y = 5.492151
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_yp25m"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3.5, 0, 40)
+rotation_y = 3.4667866
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2k5s1"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 38)
+rotation_y = 1.6055089
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_eb4vr"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 38)
+rotation_y = 4.844837
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rj0wm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 37)
+rotation_y = 4.271357
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cpckq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 39)
+rotation_y = 6.201541
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lk1db"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 39)
+rotation_y = 0.66004443
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_o5nwm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 39)
+rotation_y = 5.6160774
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_n5awi"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 40)
+rotation_y = 0.21889237
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ty06y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 38.5)
+rotation_y = 3.067779
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hjdil"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 36)
+rotation_y = 2.7930906
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_t3xof"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 36)
+rotation_y = 2.466728
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_baqe5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 35.5)
+rotation_y = 1.0712391
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8n2ti"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 33)
+rotation_y = 2.7872198
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ve25n"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 32.5)
+rotation_y = 6.1287518
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jf55b"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 32)
+rotation_y = 3.8465357
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_85yl0"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 30)
+rotation_y = 4.864787
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_do4na"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 30)
+rotation_y = 0.4034732
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5r3ij"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 29)
+rotation_y = 3.0068367
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_q1imj"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 27)
+rotation_y = 2.6329148
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4rax4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 27)
+rotation_y = 3.2155437
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ngmab"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 26.5)
+rotation_y = 6.2685614
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_3hnnu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 28)
+rotation_y = 5.717435
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_apgyv"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 26)
+rotation_y = 0.9514765
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cqym3"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 24.5)
+rotation_y = 1.4740145
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fwo1b"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 23.5)
+rotation_y = 5.672175
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_wbkhw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 22.5)
+rotation_y = 5.815512
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gttwf"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5, 0, 21)
+rotation_y = 4.9366612
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_oy166"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 19.5)
+rotation_y = 4.5812845
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fyn38"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6, 0, 20.5)
+rotation_y = 0.6455202
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_s44hy"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 20.5)
+rotation_y = 5.141643
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_plbw1"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7, 0, 18.5)
+rotation_y = 2.0091996
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_bfpxh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 18)
+rotation_y = 5.3977814
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ay7bt"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 16.5)
+rotation_y = 2.4551926
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8ugrd"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 15.5)
+rotation_y = 0.05697372
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_6ify6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 13.5)
+rotation_y = 2.943134
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tclfk"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 12.5)
+rotation_y = 5.9554915
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_mlm8m"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 12)
+rotation_y = 2.237163
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_af6t7"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 9)
+rotation_y = 4.0020337
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7ru2f"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 7.5)
+rotation_y = 0.08912345
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_e3h77"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(9, 0, 6)
+rotation_y = 6.1719747
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gwgtb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 5)
+rotation_y = 2.5050998
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kamjd"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(9, 0, 4.5)
+rotation_y = 1.6484883
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gf5s3"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 4)
+rotation_y = 1.4135864
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_w3s7q"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 3)
+rotation_y = 3.3181777
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_nbuyp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8, 0, 2)
+rotation_y = 3.1051524
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jaxpu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 2.5)
+rotation_y = 5.1509023
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_vna5n"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 3)
+rotation_y = 2.821289
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_re57m"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 2)
+rotation_y = 0.05084708
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fp01k"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 3.5)
+rotation_y = 3.2856987
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hblk7"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3, 0, 2.5)
+rotation_y = 5.529662
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_toi0y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(1.5, 0, 3.5)
+rotation_y = 5.0179677
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1swmw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(0.5, 0, 3)
+rotation_y = 4.263941
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ojyfm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(0.5, 0, 2.5)
+rotation_y = 3.2460382
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_8i5sq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(1, 0, 1.5)
+rotation_y = 4.209463
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_srnhn"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(1.5, 0, 1)
+rotation_y = 2.5449693
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_6xsbh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(2, 0, 2)
+rotation_y = 2.2897713
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_isngm"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(3, 0, 1.5)
+rotation_y = 2.6584866
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ceajo"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(4.5, 0, 1.5)
+rotation_y = 3.7690022
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hi3mp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(5.5, 0, 0.5)
+rotation_y = 3.2799742
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_g5wyt"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(6.5, 0, 1)
+rotation_y = 2.8808544
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_yn1lo"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(7.5, 0, 1)
+rotation_y = 6.04419
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_stj4x"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(8.5, 0, 0.5)
+rotation_y = 2.0996966
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_mw4ve"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(9.5, 0, 0.5)
+rotation_y = 3.5591602
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_m0r1h"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(10.5, 0, 1)
+rotation_y = 5.841371
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_pr865"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(11.5, 0, 0.5)
+rotation_y = 3.9237375
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rqlji"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 1)
+rotation_y = 3.2383149
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_e7hyc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 1.5)
+rotation_y = 4.8985934
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_g5m23"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14, 0, 2.5)
+rotation_y = 5.847964
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_366dw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(15, 0, 1.5)
+rotation_y = 3.3043962
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2cvy6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16.5, 0, 3)
+rotation_y = 0.2182342
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_uqp77"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16.5, 0, 2.5)
+rotation_y = 0.02507682
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_b1tsc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17, 0, 2)
+rotation_y = 1.389804
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_uvmuc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17, 0, 2)
+rotation_y = 4.469241
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7bikl"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16, 0, 3)
+rotation_y = 3.6660793
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_42288"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(15.5, 0, 2)
+rotation_y = 4.183163
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1ld1y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17, 0, 1.5)
+rotation_y = 3.5699193
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_hqakv"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18.5, 0, 1.5)
+rotation_y = 2.3341599
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cn21p"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 3)
+rotation_y = 5.256683
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_beuyf"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 2)
+rotation_y = 0.66787493
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jkh2e"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18.5, 0, 1)
+rotation_y = 1.0541296
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lb3yc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18.5, 0, 1)
+rotation_y = 2.38203
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4gvqw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18, 0, 2.5)
+rotation_y = 3.8167188
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qw70y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18, 0, 2.5)
+rotation_y = 0.83790016
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rquoh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 3)
+rotation_y = 3.0768867
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ygbwc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 2.5)
+rotation_y = 5.3533053
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_dbd63"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 1)
+rotation_y = 2.2289312
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_y0mj2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20, 0, 1)
+rotation_y = 2.0465713
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_mi3el"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 1)
+rotation_y = 0.6889336
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_uxona"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 1.5)
+rotation_y = 1.7706723
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_tko0n"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20.5, 0, 3)
+rotation_y = 1.0812552
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_aeklr"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20.5, 0, 3)
+rotation_y = 5.439251
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_aeoxp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20.5, 0, 1.5)
+rotation_y = 6.085126
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_wjm2h"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20, 0, 1)
+rotation_y = 0.8315087
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rghv5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 0.5)
+rotation_y = 5.408819
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ly8sc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 0.5)
+rotation_y = 1.7502736
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2lpho"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 0.5)
+rotation_y = 4.325352
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_0yr1b"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19.5, 0, 0.5)
+rotation_y = 3.1306813
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ceefk"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17.5, 0, 0.5)
+rotation_y = 1.4273202
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_lcxy6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17, 0, 1)
+rotation_y = 5.799664
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kxko8"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16, 0, 0.5)
+rotation_y = 4.0971675
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_rbob6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14, 0, 0.5)
+rotation_y = 3.7056544
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ufi11"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 1)
+rotation_y = 3.7760668
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_al65a"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 0.5)
+rotation_y = 2.3755789
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_725f3"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12, 0, 1.5)
+rotation_y = 3.9731646
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7x4sl"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 2)
+rotation_y = 3.144139
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_i3fts"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 2)
+rotation_y = 6.204851
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_01ylk"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 3.5)
+rotation_y = 2.893227
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_enpvr"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 2)
+rotation_y = 3.7901304
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7w2j7"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 2)
+rotation_y = 0.7487456
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jryfl"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 2)
+rotation_y = 6.182303
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_il756"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 3)
+rotation_y = 4.0406175
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qw27t"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 3)
+rotation_y = 0.74715346
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5apn4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 1.5)
+rotation_y = 5.219542
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_siktq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 1)
+rotation_y = 5.38735
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4w67p"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 5)
+rotation_y = 1.8212897
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_kec0s"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 5.5)
+rotation_y = 2.7640622
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_757jb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 6.5)
+rotation_y = 1.7448261
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fc3ef"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 7)
+rotation_y = 4.693254
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_weap4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 8)
+rotation_y = 4.413901
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_w6ame"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 4.5)
+rotation_y = 0.112103365
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_6syry"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 4)
+rotation_y = 2.4159327
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_53tly"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 8.5)
+rotation_y = 3.107693
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_g2pkh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 9.5)
+rotation_y = 2.5281603
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_3f1qh"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 10)
+rotation_y = 2.8789272
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xvquo"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14.5, 0, 9)
+rotation_y = 1.8758283
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_7h1lx"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14.5, 0, 9.5)
+rotation_y = 1.0396551
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_c7ro0"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16.5, 0, 9.5)
+rotation_y = 1.8711466
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_dvdvq"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17.5, 0, 9)
+rotation_y = 2.732535
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_4yv41"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17.5, 0, 9)
+rotation_y = 4.7603006
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gqoyy"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18.5, 0, 9.5)
+rotation_y = 1.5564228
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_gl5pc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 9.5)
+rotation_y = 4.845456
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_p155j"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 9.5)
+rotation_y = 0.60467756
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1vhsa"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(21.5, 0, 9.5)
+rotation_y = 5.3659825
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_fgkg2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(21.5, 0, 9.5)
+rotation_y = 2.5934448
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_p8cde"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(22, 0, 9)
+rotation_y = 3.112638
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_p7u37"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(27, 0, 13.5)
+rotation_y = 1.8687817
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1do41"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(26.5, 0, 13.5)
+rotation_y = 5.321861
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_t65rg"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(26, 0, 14)
+rotation_y = 2.3867373
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ti2br"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(25.5, 0, 13)
+rotation_y = 4.9074707
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_eed0x"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(25, 0, 13.5)
+rotation_y = 5.1630025
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_pxnp2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(24.5, 0, 13.5)
+rotation_y = 2.2075074
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_j7car"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(24, 0, 13.5)
+rotation_y = 6.1133046
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cds2i"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(23, 0, 13.5)
+rotation_y = 2.2223427
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_iottc"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(22, 0, 14)
+rotation_y = 3.4110498
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_1flc6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(21, 0, 14)
+rotation_y = 5.456487
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_h6epp"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(20, 0, 13.5)
+rotation_y = 0.39088622
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_dfsmj"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(19, 0, 13.5)
+rotation_y = 5.3047643
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xyodb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18.5, 0, 14)
+rotation_y = 0.03564505
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ebyxa"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(18, 0, 13.5)
+rotation_y = 4.301153
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_bf6sl"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(17, 0, 13.5)
+rotation_y = 0.8614945
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_68hmg"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(16.5, 0, 13.5)
+rotation_y = 4.0034876
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_h3niu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(15, 0, 13)
+rotation_y = 2.5265517
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_wsxms"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14, 0, 13)
+rotation_y = 4.4040003
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_615ty"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(15.5, 0, 13.5)
+rotation_y = 5.63815
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jw206"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(14, 0, 13.5)
+rotation_y = 0.9588704
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_i3m6y"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13.5, 0, 13.5)
+rotation_y = 5.1180596
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_yt8ff"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 13.5)
+rotation_y = 2.54119
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_oyaxu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 15)
+rotation_y = 1.7973558
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2k5if"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 15.5)
+rotation_y = 2.0564144
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_npm20"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 17.5)
+rotation_y = 6.233822
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2mviu"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 17.5)
+rotation_y = 1.8518202
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_n7mji"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 18)
+rotation_y = 0.8862272
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_h2lk2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 18.5)
+rotation_y = 5.6748924
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ovuct"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 20)
+rotation_y = 1.4847468
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_idqk2"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 20.5)
+rotation_y = 4.702113
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_2lsw5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 20.5)
+rotation_y = 5.5727634
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5e4el"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 21.5)
+rotation_y = 1.313224
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_if0k6"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 21.5)
+rotation_y = 0.21978033
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_b4dal"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 22.5)
+rotation_y = 3.7108233
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_jpjh4"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 23)
+rotation_y = 3.0989687
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_5vn1j"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 23.5)
+rotation_y = 4.326066
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_x6bw5"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 24.5)
+rotation_y = 1.1243168
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_xv1lj"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 24.5)
+rotation_y = 1.6409926
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_75au0"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 25)
+rotation_y = 1.5318292
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_cda5i"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(13, 0, 25.5)
+rotation_y = 5.3766246
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_a0f33"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 26)
+rotation_y = 4.5997806
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_qednw"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(12.5, 0, 26.5)
+rotation_y = 6.003519
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/grass_tuft.tscn"
+
+[sub_resource type="Resource" id="Resource_ox4pb"]
+script = ExtResource("script_map_element")
+element_type = 4
+position = Vector3(28.5, 0, 0.5)
+rotation_y = 1.5
+scale_factor = 0.25
+resource_id = "res://scenes/world/objects/house_red.tscn"
+
+[sub_resource type="Resource" id="Resource_35kr8"]
+script = ExtResource("script_map_element")
+position = Vector3(10, 0, 8)
+resource_id = "old_man"
+
+[sub_resource type="Resource" id="Resource_y1kv2"]
+script = ExtResource("script_map_element")
+position = Vector3(5, 0, 10)
+resource_id = "guard"
+patrol_distance = 4.0
+
+[sub_resource type="Resource" id="Resource_twxpt"]
+script = ExtResource("script_map_element")
+position = Vector3(12, 0, 12)
+resource_id = "bard"
+patrol_distance = 3.5
+
+[sub_resource type="Resource" id="Resource_dxyfe"]
+script = ExtResource("script_map_element")
+position = Vector3(15, 0, 7)
+resource_id = "farmer"
+patrol_distance = 2.5
+
+[sub_resource type="Resource" id="Resource_gy3ul"]
+script = ExtResource("script_map_element")
+position = Vector3(8, 0, 6)
+resource_id = "child"
+patrol_distance = 4.0
+
+[sub_resource type="Resource" id="Resource_25u2e"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(25, 0, 30)
+resource_id = "res://data/encounters/encounter_bats.tres"
+
+[sub_resource type="Resource" id="Resource_vd6c1"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(30, 0, 20)
+resource_id = "res://data/encounters/encounter_wolves.tres"
+
+[sub_resource type="Resource" id="Resource_ky6ha"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(10, 0, 35)
+resource_id = "res://data/encounters/encounter_spiders.tres"
+
+[sub_resource type="Resource" id="Resource_og2yw"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(45, 0, 35)
+resource_id = "res://data/encounters/encounter_skeletons.tres"
+
+[sub_resource type="Resource" id="Resource_1kt2m"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(42, 0, 22)
+resource_id = "res://data/encounters/encounter_bandits.tres"
+
+[sub_resource type="Resource" id="Resource_45kb7"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(55, 0, 35)
+resource_id = "res://data/encounters/encounter_orcs.tres"
+
+[sub_resource type="Resource" id="Resource_hj6ad"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(60, 0, 30)
+resource_id = "res://data/encounters/encounter_dark_mages.tres"
+
+[sub_resource type="Resource" id="Resource_glxos"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(40, 0, 42)
+resource_id = "res://data/encounters/encounter_wraiths.tres"
+
+[sub_resource type="Resource" id="Resource_bmmes"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(65, 0, 35)
+resource_id = "res://data/encounters/encounter_troll.tres"
+patrol_distance = 4.0
+
+[sub_resource type="Resource" id="Resource_svs7o"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(20, 0, 42)
+resource_id = "res://data/encounters/encounter_forest_elemental.tres"
+
+[sub_resource type="Resource" id="Resource_jmq38"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(48, 0, 22)
+resource_id = "res://data/encounters/encounter_wolves.tres"
+
+[sub_resource type="Resource" id="Resource_y0tv8"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(38, 0, 28)
+resource_id = "res://data/encounters/encounter_bats.tres"
+
+[sub_resource type="Resource" id="Resource_5hshv"]
+script = ExtResource("script_map_element")
+element_type = 1
+position = Vector3(8, 0, 42)
+resource_id = "res://data/encounters/encounter_spiders.tres"
+
+[sub_resource type="Resource" id="Resource_8x6wf"]
+script = ExtResource("script_map_element")
+position = Vector3(24, 0, 6)
+resource_id = "tavern_keeper"
+
+[resource]
+script = ExtResource("script_map_data")
+id = "example_map"
+display_name = "Overworld"
+terrain_cells = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+terrain_heights = PackedInt32Array()
+elements = Array[ExtResource("script_map_element")]([SubResource("Resource_p8yug"), SubResource("Resource_cwqkn"), SubResource("Resource_h776i"), SubResource("Resource_4l6wn"), SubResource("Resource_ynj7g"), SubResource("Resource_4ctx1"), SubResource("Resource_0jl8p"), SubResource("Resource_sh2t5"), SubResource("Resource_7ab32"), SubResource("Resource_0vheu"), SubResource("Resource_j54lv"), SubResource("Resource_24876"), SubResource("Resource_1gh6j"), SubResource("Resource_xliup"), SubResource("Resource_kity0"), SubResource("Resource_bstmd"), SubResource("Resource_nqm4b"), SubResource("Resource_yhrnj"), SubResource("Resource_t3qos"), SubResource("Resource_moplc"), SubResource("Resource_016ud"), SubResource("Resource_y86ro"), SubResource("Resource_y1kq8"), SubResource("Resource_pcyya"), SubResource("Resource_0t618"), SubResource("Resource_s7jbr"), SubResource("Resource_k1pay"), SubResource("Resource_nflso"), SubResource("Resource_idt7k"), SubResource("Resource_pjtf5"), SubResource("Resource_3dhmb"), SubResource("Resource_ra7bt"), SubResource("Resource_altsr"), SubResource("Resource_0hjpv"), SubResource("Resource_aq6uj"), SubResource("Resource_t7j34"), SubResource("Resource_we6eb"), SubResource("Resource_xt32r"), SubResource("Resource_lu0vc"), SubResource("Resource_h0d0y"), SubResource("Resource_sn6h3"), SubResource("Resource_ex42t"), SubResource("Resource_quok5"), SubResource("Resource_ua407"), SubResource("Resource_5gau2"), SubResource("Resource_2oloh"), SubResource("Resource_scw2p"), SubResource("Resource_li8xt"), SubResource("Resource_rs1he"), SubResource("Resource_vncn0"), SubResource("Resource_lcawo"), SubResource("Resource_ex1p8"), SubResource("Resource_w4ya1"), SubResource("Resource_26mno"), SubResource("Resource_dvcek"), SubResource("Resource_ncwfy"), SubResource("Resource_hbiqe"), SubResource("Resource_xghwm"), SubResource("Resource_8xix7"), SubResource("Resource_ctv4q"), SubResource("Resource_b4ysu"), SubResource("Resource_a5yi2"), SubResource("Resource_518uq"), SubResource("Resource_0jp01"), SubResource("Resource_2hqhj"), SubResource("Resource_u1h2k"), SubResource("Resource_p404y"), SubResource("Resource_b85j2"), SubResource("Resource_6s4hy"), SubResource("Resource_naosa"), SubResource("Resource_ftxes"), SubResource("Resource_g8oqx"), SubResource("Resource_iwsre"), SubResource("Resource_ac7jc"), SubResource("Resource_b0eow"), SubResource("Resource_ee847"), SubResource("Resource_k3dck"), SubResource("Resource_h2pnc"), SubResource("Resource_63psi"), SubResource("Resource_o2jwt"), SubResource("Resource_kajj7"), SubResource("Resource_ad4x1"), SubResource("Resource_laa2t"), SubResource("Resource_agy3q"), SubResource("Resource_fb81i"), SubResource("Resource_bicgs"), SubResource("Resource_mseol"), SubResource("Resource_n0tvq"), SubResource("Resource_0hhou"), SubResource("Resource_mml4d"), SubResource("Resource_8uja4"), SubResource("Resource_na561"), SubResource("Resource_321vr"), SubResource("Resource_20usd"), SubResource("Resource_sp1la"), SubResource("Resource_8m72e"), SubResource("Resource_udmnm"), SubResource("Resource_o3k28"), SubResource("Resource_24j8b"), SubResource("Resource_carxv"), SubResource("Resource_sdo73"), SubResource("Resource_di2ie"), SubResource("Resource_2jkdk"), SubResource("Resource_dfop1"), SubResource("Resource_r0wg0"), SubResource("Resource_mlp2o"), SubResource("Resource_1v48y"), SubResource("Resource_8apfm"), SubResource("Resource_esg0k"), SubResource("Resource_c7ofb"), SubResource("Resource_74ju2"), SubResource("Resource_0pche"), SubResource("Resource_jr4qo"), SubResource("Resource_jh3ag"), SubResource("Resource_4iceq"), SubResource("Resource_hl380"), SubResource("Resource_0k8id"), SubResource("Resource_kwex2"), SubResource("Resource_s0x6p"), SubResource("Resource_k1pb7"), SubResource("Resource_176bk"), SubResource("Resource_xfc05"), SubResource("Resource_3vlfs"), SubResource("Resource_sur25"), SubResource("Resource_kb64j"), SubResource("Resource_vw4lv"), SubResource("Resource_kl08p"), SubResource("Resource_w1vdd"), SubResource("Resource_tbcj0"), SubResource("Resource_kc0dt"), SubResource("Resource_8ubeh"), SubResource("Resource_awom3"), SubResource("Resource_yfegn"), SubResource("Resource_vta6d"), SubResource("Resource_r2lkx"), SubResource("Resource_0v7ul"), SubResource("Resource_u4puk"), SubResource("Resource_gj3xh"), SubResource("Resource_wj7c8"), SubResource("Resource_e2uao"), SubResource("Resource_jvxxj"), SubResource("Resource_qid8g"), SubResource("Resource_25pqg"), SubResource("Resource_jm81x"), SubResource("Resource_o8n0p"), SubResource("Resource_fsxpe"), SubResource("Resource_6imxf"), SubResource("Resource_v7q75"), SubResource("Resource_cffwh"), SubResource("Resource_lur06"), SubResource("Resource_bka78"), SubResource("Resource_b6hky"), SubResource("Resource_vel0e"), SubResource("Resource_ryin0"), SubResource("Resource_58g5g"), SubResource("Resource_4e8b6"), SubResource("Resource_x37e1"), SubResource("Resource_owvvs"), SubResource("Resource_4j5qv"), SubResource("Resource_g86et"), SubResource("Resource_nvpqa"), SubResource("Resource_kp0w8"), SubResource("Resource_vdbpn"), SubResource("Resource_dyqr5"), SubResource("Resource_2jhk6"), SubResource("Resource_onac8"), SubResource("Resource_bbxeo"), SubResource("Resource_w8g8a"), SubResource("Resource_gbgq5"), SubResource("Resource_3gg1a"), SubResource("Resource_o1xb0"), SubResource("Resource_u3x8s"), SubResource("Resource_mcmli"), SubResource("Resource_e7gii"), SubResource("Resource_d7q4o"), SubResource("Resource_fdlfs"), SubResource("Resource_fy1vr"), SubResource("Resource_4g08v"), SubResource("Resource_na2wk"), SubResource("Resource_vom1g"), SubResource("Resource_v0w8n"), SubResource("Resource_30bo2"), SubResource("Resource_e1tfn"), SubResource("Resource_jtg6e"), SubResource("Resource_rxb7r"), SubResource("Resource_xnjky"), SubResource("Resource_ogyo2"), SubResource("Resource_hacr2"), SubResource("Resource_le7dv"), SubResource("Resource_k8t5p"), SubResource("Resource_a0prx"), SubResource("Resource_xblb8"), SubResource("Resource_ovalg"), SubResource("Resource_ab1oh"), SubResource("Resource_cm3cj"), SubResource("Resource_qgn8u"), SubResource("Resource_dg1m6"), SubResource("Resource_wpol1"), SubResource("Resource_pwm7a"), SubResource("Resource_vfkk3"), SubResource("Resource_7ucet"), SubResource("Resource_6453y"), SubResource("Resource_r3ykv"), SubResource("Resource_512tw"), SubResource("Resource_qavyq"), SubResource("Resource_xechj"), SubResource("Resource_3o4kg"), SubResource("Resource_0w32e"), SubResource("Resource_anemq"), SubResource("Resource_ydfab"), SubResource("Resource_sivah"), SubResource("Resource_l8maa"), SubResource("Resource_ng127"), SubResource("Resource_tjr11"), SubResource("Resource_ct18d"), SubResource("Resource_5aujh"), SubResource("Resource_bhbla"), SubResource("Resource_5vogj"), SubResource("Resource_dwtcd"), SubResource("Resource_1vbx6"), SubResource("Resource_gsqse"), SubResource("Resource_hrh4s"), SubResource("Resource_klaky"), SubResource("Resource_26c34"), SubResource("Resource_g7sst"), SubResource("Resource_dkmv6"), SubResource("Resource_wmdnv"), SubResource("Resource_7ryuu"), SubResource("Resource_g3tmm"), SubResource("Resource_hdvly"), SubResource("Resource_7fmtu"), SubResource("Resource_sn6jc"), SubResource("Resource_aa3ht"), SubResource("Resource_l51fa"), SubResource("Resource_qt7nb"), SubResource("Resource_ofyae"), SubResource("Resource_fywol"), SubResource("Resource_ec73t"), SubResource("Resource_kqgkw"), SubResource("Resource_xbjm8"), SubResource("Resource_gjg1y"), SubResource("Resource_n8pwh"), SubResource("Resource_6k5uc"), SubResource("Resource_nolwh"), SubResource("Resource_o8mb3"), SubResource("Resource_kpadb"), SubResource("Resource_d2uax"), SubResource("Resource_5gdt5"), SubResource("Resource_t0a2o"), SubResource("Resource_57jk7"), SubResource("Resource_gje6r"), SubResource("Resource_xfbru"), SubResource("Resource_77q2q"), SubResource("Resource_bv1ns"), SubResource("Resource_h80q3"), SubResource("Resource_v0rcp"), SubResource("Resource_fsx4u"), SubResource("Resource_xjlij"), SubResource("Resource_xotd6"), SubResource("Resource_fvhib"), SubResource("Resource_rjjos"), SubResource("Resource_gewaf"), SubResource("Resource_h746c"), SubResource("Resource_sjf0i"), SubResource("Resource_8bai7"), SubResource("Resource_bsu2f"), SubResource("Resource_wmcqw"), SubResource("Resource_86lva"), SubResource("Resource_x28mt"), SubResource("Resource_yvu8t"), SubResource("Resource_52r4b"), SubResource("Resource_7526v"), SubResource("Resource_efesp"), SubResource("Resource_5fege"), SubResource("Resource_vtjmh"), SubResource("Resource_lxtoc"), SubResource("Resource_tsci0"), SubResource("Resource_xftfp"), SubResource("Resource_ivsux"), SubResource("Resource_2ksxx"), SubResource("Resource_5ipba"), SubResource("Resource_rj6kb"), SubResource("Resource_btej0"), SubResource("Resource_fknal"), SubResource("Resource_jf05w"), SubResource("Resource_34q7d"), SubResource("Resource_iep57"), SubResource("Resource_fep5d"), SubResource("Resource_d1h5r"), SubResource("Resource_1lyx5"), SubResource("Resource_kmeaj"), SubResource("Resource_rmc8p"), SubResource("Resource_8do7v"), SubResource("Resource_2ljx5"), SubResource("Resource_kejii"), SubResource("Resource_xpsyx"), SubResource("Resource_1vlc1"), SubResource("Resource_7flrp"), SubResource("Resource_lwnhf"), SubResource("Resource_scbys"), SubResource("Resource_unarh"), SubResource("Resource_bfpnk"), SubResource("Resource_l31d0"), SubResource("Resource_tn2q4"), SubResource("Resource_5ev6p"), SubResource("Resource_ndt8u"), SubResource("Resource_5otv4"), SubResource("Resource_i641j"), SubResource("Resource_fieol"), SubResource("Resource_43xpb"), SubResource("Resource_4crwu"), SubResource("Resource_ss0fp"), SubResource("Resource_5ch7s"), SubResource("Resource_5kjnr"), SubResource("Resource_at3it"), SubResource("Resource_x3lsq"), SubResource("Resource_v6fae"), SubResource("Resource_s4ckb"), SubResource("Resource_3pi3x"), SubResource("Resource_dsngc"), SubResource("Resource_8q6od"), SubResource("Resource_hlo3g"), SubResource("Resource_i02oc"), SubResource("Resource_irgce"), SubResource("Resource_xb80a"), SubResource("Resource_gvc7a"), SubResource("Resource_gvm65"), SubResource("Resource_y7mds"), SubResource("Resource_jb63i"), SubResource("Resource_ip32u"), SubResource("Resource_aighm"), SubResource("Resource_x66eq"), SubResource("Resource_lq2w5"), SubResource("Resource_maku2"), SubResource("Resource_cxy73"), SubResource("Resource_qam8e"), SubResource("Resource_bfnjg"), SubResource("Resource_l7rbv"), SubResource("Resource_ek606"), SubResource("Resource_2eq8f"), SubResource("Resource_7t1k5"), SubResource("Resource_tipeg"), SubResource("Resource_w84kn"), SubResource("Resource_5f7fw"), SubResource("Resource_1srvt"), SubResource("Resource_uawna"), SubResource("Resource_q1mxi"), SubResource("Resource_ngi4h"), SubResource("Resource_5wq8x"), SubResource("Resource_rcwcg"), SubResource("Resource_x1pow"), SubResource("Resource_8jv5y"), SubResource("Resource_kg8qw"), SubResource("Resource_hacdh"), SubResource("Resource_0jdc6"), SubResource("Resource_a23ng"), SubResource("Resource_xglal"), SubResource("Resource_s5jln"), SubResource("Resource_ju2kd"), SubResource("Resource_c67k2"), SubResource("Resource_6b2xs"), SubResource("Resource_e7fpb"), SubResource("Resource_c5ygy"), SubResource("Resource_531ec"), SubResource("Resource_70snf"), SubResource("Resource_x3ytn"), SubResource("Resource_2s5nr"), SubResource("Resource_v1qns"), SubResource("Resource_kwief"), SubResource("Resource_0oby6"), SubResource("Resource_qob30"), SubResource("Resource_p78ih"), SubResource("Resource_5di8r"), SubResource("Resource_v8axj"), SubResource("Resource_7e0f8"), SubResource("Resource_grdt6"), SubResource("Resource_qr8r5"), SubResource("Resource_sxnlh"), SubResource("Resource_ya17a"), SubResource("Resource_finah"), SubResource("Resource_vs3n2"), SubResource("Resource_tnl6t"), SubResource("Resource_la5hh"), SubResource("Resource_fn572"), SubResource("Resource_x0n58"), SubResource("Resource_g4kcm"), SubResource("Resource_81qa0"), SubResource("Resource_54y62"), SubResource("Resource_7glfy"), SubResource("Resource_347x4"), SubResource("Resource_qwcue"), SubResource("Resource_68aho"), SubResource("Resource_cwhkf"), SubResource("Resource_17ah4"), SubResource("Resource_arpem"), SubResource("Resource_amv4w"), SubResource("Resource_jjakh"), SubResource("Resource_u5gfx"), SubResource("Resource_hv0c1"), SubResource("Resource_b4oya"), SubResource("Resource_owmjb"), SubResource("Resource_0o0sp"), SubResource("Resource_4yoge"), SubResource("Resource_k12sp"), SubResource("Resource_uo0m1"), SubResource("Resource_wbxtf"), SubResource("Resource_pmeyw"), SubResource("Resource_87vo6"), SubResource("Resource_yp2n7"), SubResource("Resource_mtdsw"), SubResource("Resource_erskt"), SubResource("Resource_m2whv"), SubResource("Resource_sycsc"), SubResource("Resource_e4uh6"), SubResource("Resource_44uy4"), SubResource("Resource_pnedu"), SubResource("Resource_0rdwh"), SubResource("Resource_qy5pb"), SubResource("Resource_804yh"), SubResource("Resource_47hh7"), SubResource("Resource_32v8a"), SubResource("Resource_lp7ya"), SubResource("Resource_6iku6"), SubResource("Resource_yp25m"), SubResource("Resource_2k5s1"), SubResource("Resource_eb4vr"), SubResource("Resource_rj0wm"), SubResource("Resource_cpckq"), SubResource("Resource_lk1db"), SubResource("Resource_o5nwm"), SubResource("Resource_n5awi"), SubResource("Resource_ty06y"), SubResource("Resource_hjdil"), SubResource("Resource_t3xof"), SubResource("Resource_baqe5"), SubResource("Resource_8n2ti"), SubResource("Resource_ve25n"), SubResource("Resource_jf55b"), SubResource("Resource_85yl0"), SubResource("Resource_do4na"), SubResource("Resource_5r3ij"), SubResource("Resource_q1imj"), SubResource("Resource_4rax4"), SubResource("Resource_ngmab"), SubResource("Resource_3hnnu"), SubResource("Resource_apgyv"), SubResource("Resource_cqym3"), SubResource("Resource_fwo1b"), SubResource("Resource_wbkhw"), SubResource("Resource_gttwf"), SubResource("Resource_oy166"), SubResource("Resource_fyn38"), SubResource("Resource_s44hy"), SubResource("Resource_plbw1"), SubResource("Resource_bfpxh"), SubResource("Resource_ay7bt"), SubResource("Resource_8ugrd"), SubResource("Resource_6ify6"), SubResource("Resource_tclfk"), SubResource("Resource_mlm8m"), SubResource("Resource_af6t7"), SubResource("Resource_7ru2f"), SubResource("Resource_e3h77"), SubResource("Resource_gwgtb"), SubResource("Resource_kamjd"), SubResource("Resource_gf5s3"), SubResource("Resource_w3s7q"), SubResource("Resource_nbuyp"), SubResource("Resource_jaxpu"), SubResource("Resource_vna5n"), SubResource("Resource_re57m"), SubResource("Resource_fp01k"), SubResource("Resource_hblk7"), SubResource("Resource_toi0y"), SubResource("Resource_1swmw"), SubResource("Resource_ojyfm"), SubResource("Resource_8i5sq"), SubResource("Resource_srnhn"), SubResource("Resource_6xsbh"), SubResource("Resource_isngm"), SubResource("Resource_ceajo"), SubResource("Resource_hi3mp"), SubResource("Resource_g5wyt"), SubResource("Resource_yn1lo"), SubResource("Resource_stj4x"), SubResource("Resource_mw4ve"), SubResource("Resource_m0r1h"), SubResource("Resource_pr865"), SubResource("Resource_rqlji"), SubResource("Resource_e7hyc"), SubResource("Resource_g5m23"), SubResource("Resource_366dw"), SubResource("Resource_2cvy6"), SubResource("Resource_uqp77"), SubResource("Resource_b1tsc"), SubResource("Resource_uvmuc"), SubResource("Resource_7bikl"), SubResource("Resource_42288"), SubResource("Resource_1ld1y"), SubResource("Resource_hqakv"), SubResource("Resource_cn21p"), SubResource("Resource_beuyf"), SubResource("Resource_jkh2e"), SubResource("Resource_lb3yc"), SubResource("Resource_4gvqw"), SubResource("Resource_qw70y"), SubResource("Resource_rquoh"), SubResource("Resource_ygbwc"), SubResource("Resource_dbd63"), SubResource("Resource_y0mj2"), SubResource("Resource_mi3el"), SubResource("Resource_uxona"), SubResource("Resource_tko0n"), SubResource("Resource_aeklr"), SubResource("Resource_aeoxp"), SubResource("Resource_wjm2h"), SubResource("Resource_rghv5"), SubResource("Resource_ly8sc"), SubResource("Resource_2lpho"), SubResource("Resource_0yr1b"), SubResource("Resource_ceefk"), SubResource("Resource_lcxy6"), SubResource("Resource_kxko8"), SubResource("Resource_rbob6"), SubResource("Resource_ufi11"), SubResource("Resource_al65a"), SubResource("Resource_725f3"), SubResource("Resource_7x4sl"), SubResource("Resource_i3fts"), SubResource("Resource_01ylk"), SubResource("Resource_enpvr"), SubResource("Resource_7w2j7"), SubResource("Resource_jryfl"), SubResource("Resource_il756"), SubResource("Resource_qw27t"), SubResource("Resource_5apn4"), SubResource("Resource_siktq"), SubResource("Resource_4w67p"), SubResource("Resource_kec0s"), SubResource("Resource_757jb"), SubResource("Resource_fc3ef"), SubResource("Resource_weap4"), SubResource("Resource_w6ame"), SubResource("Resource_6syry"), SubResource("Resource_53tly"), SubResource("Resource_g2pkh"), SubResource("Resource_3f1qh"), SubResource("Resource_xvquo"), SubResource("Resource_7h1lx"), SubResource("Resource_c7ro0"), SubResource("Resource_dvdvq"), SubResource("Resource_4yv41"), SubResource("Resource_gqoyy"), SubResource("Resource_gl5pc"), SubResource("Resource_p155j"), SubResource("Resource_1vhsa"), SubResource("Resource_fgkg2"), SubResource("Resource_p8cde"), SubResource("Resource_p7u37"), SubResource("Resource_1do41"), SubResource("Resource_t65rg"), SubResource("Resource_ti2br"), SubResource("Resource_eed0x"), SubResource("Resource_pxnp2"), SubResource("Resource_j7car"), SubResource("Resource_cds2i"), SubResource("Resource_iottc"), SubResource("Resource_1flc6"), SubResource("Resource_h6epp"), SubResource("Resource_dfsmj"), SubResource("Resource_xyodb"), SubResource("Resource_ebyxa"), SubResource("Resource_bf6sl"), SubResource("Resource_68hmg"), SubResource("Resource_h3niu"), SubResource("Resource_wsxms"), SubResource("Resource_615ty"), SubResource("Resource_jw206"), SubResource("Resource_i3m6y"), SubResource("Resource_yt8ff"), SubResource("Resource_oyaxu"), SubResource("Resource_2k5if"), SubResource("Resource_npm20"), SubResource("Resource_2mviu"), SubResource("Resource_n7mji"), SubResource("Resource_h2lk2"), SubResource("Resource_ovuct"), SubResource("Resource_idqk2"), SubResource("Resource_2lsw5"), SubResource("Resource_5e4el"), SubResource("Resource_if0k6"), SubResource("Resource_b4dal"), SubResource("Resource_jpjh4"), SubResource("Resource_5vn1j"), SubResource("Resource_x6bw5"), SubResource("Resource_xv1lj"), SubResource("Resource_75au0"), SubResource("Resource_cda5i"), SubResource("Resource_a0f33"), SubResource("Resource_qednw"), SubResource("Resource_ox4pb"), SubResource("Resource_35kr8"), SubResource("Resource_y1kv2"), SubResource("Resource_twxpt"), SubResource("Resource_dxyfe"), SubResource("Resource_gy3ul"), SubResource("Resource_25u2e"), SubResource("Resource_vd6c1"), SubResource("Resource_ky6ha"), SubResource("Resource_og2yw"), SubResource("Resource_1kt2m"), SubResource("Resource_45kb7"), SubResource("Resource_hj6ad"), SubResource("Resource_glxos"), SubResource("Resource_bmmes"), SubResource("Resource_svs7o"), SubResource("Resource_jmq38"), SubResource("Resource_y0tv8"), SubResource("Resource_5hshv"), SubResource("Resource_8x6wf")])
+decoration_zones = Array[ExtResource("script_deco_zone")]([SubResource("Resource_sn7bt"), SubResource("Resource_wffyx"), SubResource("Resource_reg7a"), SubResource("Resource_4naxy"), SubResource("Resource_hn68n"), SubResource("Resource_fteol"), SubResource("Resource_glc8s"), SubResource("Resource_otvba"), SubResource("Resource_s2rqc"), SubResource("Resource_c367s"), SubResource("Resource_7xmc2"), SubResource("Resource_pxlx6"), SubResource("Resource_hxt4m"), SubResource("Resource_4e758"), SubResource("Resource_lbprq"), SubResource("Resource_0gcby"), SubResource("Resource_mool2")])
+map_scene_path = "res://scenes/maps/example_map.tscn"
+connections = Array[ExtResource("1_p7vab")]([SubResource("Resource_rv001")])
+battle_areas = Array[ExtResource("1_odqly")]([SubResource("Resource_odqly")])
+enemy_safe_zones = Array[Rect2]([Rect2(2, 2, 19, 17)])
