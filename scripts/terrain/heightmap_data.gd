@@ -34,6 +34,8 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 @export_group("Water")
 ## Placed water bodies (lakes, rivers, fountains). Each has its own position and size.
 @export var water_zones: Array[WaterZone] = []
+## Procedural river paths (polylines from mountain to ocean).
+@export var rivers: Array[RiverPath] = []
 
 @export_group("Structures (Procedural)")
 ## Modular building pieces placed on the terrain (walls, floors, roofs, etc.)
@@ -44,6 +46,11 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## World-space scale applied to the heightmap.  x/z = horizontal spacing between
 ## vertices, y = height multiplier.
 @export var terrain_scale: Vector3 = Vector3(1.0, 10.0, 1.0)
+
+
+## Cached river exclusion mask — one byte per vertex (0 = clear, 1 = inside river channel).
+## Built lazily by build_river_mask(), queried by is_river_at().
+var _river_mask: PackedByteArray = PackedByteArray()
 
 
 # ---------------------------------------------------------------------------
@@ -146,6 +153,50 @@ func auto_splatmap_by_height(thresholds: PackedFloat32Array) -> void:
 				weights.b = 0.0
 				weights.a = 1.0
 			set_splatmap_weights(x, z, weights)
+
+
+# ---------------------------------------------------------------------------
+# River exclusion mask
+# ---------------------------------------------------------------------------
+
+func build_river_mask(exclusion_radius: int = 8) -> void:
+	## Builds a per-vertex mask marking cells inside river channels.
+	## exclusion_radius is in heightmap grid units from each river centerline point.
+	## Call this once after rivers are generated and carved.
+	var total: int = width * height
+	_river_mask.resize(total)
+	_river_mask.fill(0)
+
+	var inv_sx: float = 1.0 / terrain_scale.x
+	var inv_sz: float = 1.0 / terrain_scale.z
+	var excl_sq: float = float(exclusion_radius * exclusion_radius)
+
+	for ri in range(rivers.size()):
+		var river: RiverPath = rivers[ri]
+		var pts: PackedVector3Array = river.points
+		for pi in range(pts.size()):
+			var wp: Vector3 = pts[pi]
+			var gx: int = roundi(wp.x * inv_sx)
+			var gz: int = roundi(wp.z * inv_sz)
+			for dz in range(-exclusion_radius, exclusion_radius + 1):
+				for dx in range(-exclusion_radius, exclusion_radius + 1):
+					if dx * dx + dz * dz > int(excl_sq):
+						continue
+					var nx: int = gx + dx
+					var nz: int = gz + dz
+					if nx < 0 or nx >= width or nz < 0 or nz >= height:
+						continue
+					_river_mask[nz * width + nx] = 1
+
+
+func is_river_at(x: int, z: int) -> bool:
+	## Returns true if the grid cell is inside a river exclusion zone.
+	## Returns false if the mask hasn't been built yet.
+	if _river_mask.is_empty():
+		return false
+	if x < 0 or x >= width or z < 0 or z >= height:
+		return false
+	return _river_mask[z * width + x] == 1
 
 
 # ---------------------------------------------------------------------------

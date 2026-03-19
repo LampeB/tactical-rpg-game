@@ -75,6 +75,10 @@ static func scatter_chunk(data: HeightmapData, cx: int, cz: int, seed_offset: in
 			if not (prop.allowed_layers & (1 << dominant_layer)):
 				continue
 
+			# Skip river channels — no trees/grass/rocks inside rivers
+			if data.is_river_at(ix, iz):
+				continue
+
 			# Get terrain height using triangle interpolation (matches mesh topology)
 			var h: float = _sample_height_tri(data, gx, gz)
 

@@ -5,6 +5,7 @@ extends RefCounted
 ## A moisture + temperature noise pair selects the biome at each vertex.
 
 const _TerrainErosion := preload("res://scripts/terrain/terrain_erosion.gd")
+const _RiverGenerator := preload("res://scripts/terrain/river_generator.gd")
 
 ## Material-LIB base path (gitignored — textures only exist locally)
 const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
@@ -174,8 +175,15 @@ static func generate(
 	# --- Erosion pass (modifies heights for natural drainage and valleys) ---
 	_TerrainErosion.apply(data, map_seed)
 
+	# --- Rivers (trace from mountains to ocean, carve riverbeds) ---
+	var rivers: Array[RiverPath] = _RiverGenerator.generate(data, map_seed)
+	data.rivers = rivers
+
 	# --- Pass 2: Assign splatmap from biome weights + post-erosion heights ---
 	_assign_splatmap(data, biome_splats, map_width, map_height)
+
+	# --- Paint river banks AFTER splatmap so they aren't overwritten ---
+	_RiverGenerator.paint_all_banks(data)
 
 	# --- Texture layers ---
 	_add_textured_layers(data)
@@ -185,6 +193,13 @@ static func generate(
 
 	# --- Place a town in a suitable flat area ---
 	_add_procedural_town(data, map_seed)
+
+	# --- Re-carve rivers and update Y coords after town flattening ---
+	# Town flattening overwrites carved riverbeds, so rivers must be re-applied.
+	_RiverGenerator.recarve_and_update(data)
+
+	# --- Build river exclusion mask for prop scatter ---
+	data.build_river_mask(8)
 
 	return data
 
@@ -236,7 +251,7 @@ const _EDGE_MOUNTAIN := 1 ## Mountain wall (north + west)
 const _EDGE_OCEAN := 2    ## Sea front (south + east)
 
 const _OCEAN_STRIP := 3        ## Vertices that drop below sea level
-const _MOUNTAIN_WALL_WIDTH := 8 ## Vertices of steep mountain wall at edge
+const _MOUNTAIN_WALL_WIDTH := 16 ## Vertices of mountain range at edge
 
 ## Edge warp noise — initialized per-generation, used to break up straight edge lines.
 static var _edge_noise: FastNoiseLite = null
@@ -266,8 +281,9 @@ static func _edge_elevation(x: int, z: int, w: int, h: int) -> float:
 	## Mountain sides (north, west): tall rock walls.
 	## Sea sides (south, east): coastal drop into ocean.
 	## Returns negative for ocean floor, positive for mountain/cliff rise, 0 for interior.
-	@warning_ignore("integer_division")
-	var margin: int = maxi(mini(w, h) / 10, 8)
+	var wall_width: int = _MOUNTAIN_WALL_WIDTH
+	# Foothills extend beyond the steep wall for a gradual slope into interior
+	var foothills_width: int = wall_width
 
 	# Per-edge distances with noise warp for organic boundaries
 	var warp_n: float = _edge_warp(x, z)
@@ -284,21 +300,26 @@ static func _edge_elevation(x: int, z: int, w: int, h: int) -> float:
 	var mountain_dist: float = minf(dist_north, dist_west)
 	var sea_dist: float = minf(dist_south, dist_east)
 
-	# Mountain walls (north + west): steep rock that rises at the border
-	if mountain_dist < float(margin):
-		var t: float = maxf(mountain_dist, 0.0) / float(margin)
-		# Steep wall: high at edge, drops to 0 at margin
-		var wall_h: float = (1.0 - t) * (1.0 - t) * 1.2
-		return wall_h
+	# Mountain range (north + west): steep peaks at edge, smooth transition to foothills
+	var wall_f: float = float(wall_width)
+	var foothills_f: float = float(foothills_width)
+	var total_f: float = wall_f + foothills_f
+	if mountain_dist < total_f:
+		var t: float = maxf(mountain_dist, 0.0) / total_f  # 0 at edge, 1 at interior
+		# Single smooth curve: 3.5 at edge, tapering to 0 at foothills end
+		var mountain_h: float = (1.0 - t) * (1.0 - t) * 3.5
+		return mountain_h
 
 	# Ocean (south + east): drop below sea level at very edge, gentle coast slope
+	@warning_ignore("integer_division")
+	var coast_margin: int = maxi(mini(w, h) / 10, 8)
 	var ocean_strip_f: float = float(_OCEAN_STRIP)
 	if sea_dist < ocean_strip_f:
 		var t: float = maxf(sea_dist, 0.0) / ocean_strip_f
 		return lerpf(-1.0, -0.1, t)
-	elif sea_dist < ocean_strip_f + float(margin):
+	elif sea_dist < ocean_strip_f + float(coast_margin):
 		# Gentle coastal slope — slight rise from shore into interior
-		var t: float = (sea_dist - ocean_strip_f) / float(margin)
+		var t: float = (sea_dist - ocean_strip_f) / float(coast_margin)
 		return (1.0 - (1.0 - t) * (1.0 - t)) * 0.2
 
 	return 0.0

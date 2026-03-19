@@ -365,7 +365,6 @@
 | Gen Overhaul P1: Beach strip enhancement (wider coast, sand splatmap) | PENDING-NOTION-SYNC |
 | Gen Overhaul P1: Slope-based cliff detection and splatmap painting | PENDING-NOTION-SYNC |
 | Gen Overhaul P1: Terrain erosion (thermal + hydraulic post-processing) | PENDING-NOTION-SYNC |
-| Gen Overhaul P2: River system (path tracing, carving, mesh, shader) | PENDING-NOTION-SYNC |
 | Gen Overhaul P3: Roads and paths (A* pathfinding, dirt splatmap, bridges) | PENDING-NOTION-SYNC |
 | Gen Overhaul P4: Named regions and encounter zone generation | PENDING-NOTION-SYNC |
 | Gen Overhaul P4: Points of interest (dungeons, ruins, camps, shrines) | PENDING-NOTION-SYNC |
@@ -384,6 +383,7 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Gen Overhaul P2: River system (path tracing, carving, mesh, shader) | 3277700f-d0fb-8132-a2c4-c41aca615eba |
 | Phase 1: Chunk streaming manager (load/unload by player distance) | 3227700f-d0fb-8127-bf65-db7872a52844 |
 | Phase 1: Heightmap mesh generator (ArrayMesh per chunk) | 3227700f-d0fb-8145-b1df-faf56ae15ef8 |
 | Phase 1: HeightmapData resource (chunk size, heights array, splatmap, biome) | 3227700f-d0fb-8165-80aa-d8c3fbe05284 |
