@@ -6,6 +6,7 @@ extends Node3D
 ## At runtime, TerrainManager reads the heightmap_data for LOD streaming.
 
 const _BiomeGenerator := preload("res://scripts/terrain/biome_heightmap_generator.gd")
+const _RiverBody := preload("res://scripts/terrain/river_body.gd")
 
 @export var heightmap_data: HeightmapData = null:
 	set(value):
@@ -38,6 +39,7 @@ const _BiomeGenerator := preload("res://scripts/terrain/biome_heightmap_generato
 
 
 var _chunk_parent: Node3D = null
+var _river_parent: Node3D = null
 var _chunks: Dictionary = {}  ## Vector2i -> HeightmapChunk
 
 
@@ -86,6 +88,29 @@ func _rebuild() -> void:
 			_chunk_parent.add_child(chunk)
 			_chunks[Vector2i(cx, cz)] = chunk
 
+	# Spawn river bodies
+	_rebuild_rivers()
+
+
+func _rebuild_rivers() -> void:
+	if _river_parent:
+		for child in _river_parent.get_children():
+			child.queue_free()
+	else:
+		_river_parent = Node3D.new()
+		_river_parent.name = "Rivers"
+		add_child(_river_parent)
+
+	if not heightmap_data:
+		return
+
+	var river_paths: Array = heightmap_data.rivers
+	for ri in range(river_paths.size()):
+		var rp = river_paths[ri]
+		var river_body: MeshInstance3D = _RiverBody.new()
+		river_body.setup(rp)
+		_river_parent.add_child(river_body)
+
 
 func _clear_chunks() -> void:
 	if _chunk_parent:
@@ -95,6 +120,9 @@ func _clear_chunks() -> void:
 			if is_instance_valid(chunk):
 				chunk.queue_free()
 		_chunks.clear()
+	if _river_parent:
+		for child in _river_parent.get_children():
+			child.queue_free()
 
 
 # ---------------------------------------------------------------------------

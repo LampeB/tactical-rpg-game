@@ -178,13 +178,17 @@ func _do_scatter() -> void:
 				var terrain_local: Vector3 = terrain_inv * world_pt
 
 				# Splatmap check (in terrain local coords)
+				var vx: int = clampi(roundi(terrain_local.x / tscale.x), 0, hdata.width - 1)
+				var vz: int = clampi(roundi(terrain_local.z / tscale.z), 0, hdata.height - 1)
 				if check_splatmap:
-					var vx: int = clampi(roundi(terrain_local.x / tscale.x), 0, hdata.width - 1)
-					var vz: int = clampi(roundi(terrain_local.z / tscale.z), 0, hdata.height - 1)
 					var weights: Color = hdata.get_splatmap_weights(vx, vz)
 					var layer: int = _get_dominant_layer(weights)
 					if not (prop.allowed_layers & (1 << layer)):
 						continue
+
+				# Skip river channels
+				if hdata.is_river_at(vx, vz):
+					continue
 
 				# Terrain height in terrain local space, then convert to world Y
 				var h_local: float = _sample_height(hdata, terrain_local.x, terrain_local.z)
@@ -225,13 +229,17 @@ func _do_scatter() -> void:
 				# Convert world point to terrain local space (accounts for terrain rotation)
 				var terrain_local: Vector3 = terrain_inv * world_pt
 
+				var vx: int = clampi(roundi(terrain_local.x / tscale.x), 0, hdata.width - 1)
+				var vz: int = clampi(roundi(terrain_local.z / tscale.z), 0, hdata.height - 1)
 				if check_splatmap:
-					var vx: int = clampi(roundi(terrain_local.x / tscale.x), 0, hdata.width - 1)
-					var vz: int = clampi(roundi(terrain_local.z / tscale.z), 0, hdata.height - 1)
 					var weights: Color = hdata.get_splatmap_weights(vx, vz)
 					var layer: int = _get_dominant_layer(weights)
 					if not (prop.allowed_layers & (1 << layer)):
 						continue
+
+				# Skip river channels
+				if hdata.is_river_at(vx, vz):
+					continue
 
 				var h_local: float = _sample_height(hdata, terrain_local.x, terrain_local.z)
 				# Transform terrain-local height back to world Y (handles rotation + position)
