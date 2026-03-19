@@ -3,7 +3,7 @@ class_name HeightmapTerrain3D
 extends Node3D
 ## @tool node that renders heightmap terrain directly in the Godot 3D viewport.
 ## Can either load an existing HeightmapData .tres or generate one from parameters.
-## At runtime, TerrainManager reads the heightmap_data for LOD streaming.
+## Baked chunks are visible at runtime — no streaming needed for pre-built maps.
 
 const _BiomeGenerator := preload("res://scripts/terrain/biome_heightmap_generator.gd")
 const _RiverBody := preload("res://scripts/terrain/river_body.gd")
@@ -44,13 +44,10 @@ var _chunks: Dictionary = {}  ## Vector2i -> HeightmapChunk
 
 
 func _ready() -> void:
-	if Engine.is_editor_hint():
-		_rebuild()
-	else:
-		# At runtime, hide editor terrain chunks — TerrainManager handles rendering.
-		# Don't hide the whole node so sibling/child props remain visible.
-		if _chunk_parent:
-			_chunk_parent.visible = false
+	# Build terrain chunks both in editor and at runtime.
+	# Chunks are children of this node so the node's own transform (position, rotation) applies.
+	# In editor: uses preview_lod for performance. At runtime: always uses full LOD 0.
+	_rebuild()
 
 
 func _generate_heightmap() -> void:
@@ -81,10 +78,11 @@ func _rebuild() -> void:
 	var cx_count: int = heightmap_data.get_chunk_count_x()
 	var cz_count: int = heightmap_data.get_chunk_count_z()
 
+	var build_lod: int = preview_lod if Engine.is_editor_hint() else 0
 	for cz in range(cz_count):
 		for cx in range(cx_count):
 			var chunk := HeightmapChunk.new()
-			chunk.build(heightmap_data, cx, cz, preview_lod)
+			chunk.build(heightmap_data, cx, cz, build_lod)
 			_chunk_parent.add_child(chunk)
 			_chunks[Vector2i(cx, cz)] = chunk
 
@@ -131,10 +129,15 @@ func _clear_chunks() -> void:
 
 func get_height_at_world(world_pos: Vector3) -> float:
 	## Triangle interpolation of terrain height matching HeightmapChunk mesh topology.
+	## world_pos is in world space; the node's own transform is applied automatically.
 	if not heightmap_data:
 		return 0.0
-	var lx: float = world_pos.x / heightmap_data.terrain_scale.x
-	var lz: float = world_pos.z / heightmap_data.terrain_scale.z
+	# Convert world position to terrain-local space to account for node transform/rotation
+	var local_pos: Vector3 = world_pos
+	if is_inside_tree():
+		local_pos = global_transform.affine_inverse() * world_pos
+	var lx: float = local_pos.x / heightmap_data.terrain_scale.x
+	var lz: float = local_pos.z / heightmap_data.terrain_scale.z
 	var ix: int = clampi(floori(lx), 0, heightmap_data.width - 2)
 	var iz: int = clampi(floori(lz), 0, heightmap_data.height - 2)
 	var fx: float = clampf(lx - float(ix), 0.0, 1.0)

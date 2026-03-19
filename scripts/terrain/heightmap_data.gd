@@ -191,7 +191,9 @@ func build_river_mask(exclusion_radius: int = 8) -> void:
 
 func is_river_at(x: int, z: int) -> bool:
 	## Returns true if the grid cell is inside a river exclusion zone.
-	## Returns false if the mask hasn't been built yet.
+	## Lazily builds the mask on first call (mask is not serialized to .tres).
+	if _river_mask.is_empty() and not rivers.is_empty():
+		build_river_mask()
 	if _river_mask.is_empty():
 		return false
 	if x < 0 or x >= width or z < 0 or z >= height:

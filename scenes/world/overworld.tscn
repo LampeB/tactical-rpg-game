@@ -15,6 +15,7 @@ radius = 1.5
 [node name="Overworld" type="Node3D" unique_id=1261045950]
 script = ExtResource("1")
 use_heightmap_terrain = true
+map_scene_path = "res://scenes/maps/example_map.tscn"
 
 [node name="Environment3D" parent="." unique_id=722123307 instance=ExtResource("10_env")]
 

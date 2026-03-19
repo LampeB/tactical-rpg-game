@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MapData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/map_connection.gd" id="1_conn"]
+[ext_resource type="Script" path="res://scripts/resources/map_data.gd" id="script_map_data"]
+
+[sub_resource type="Resource" id="Resource_back"]
+script = ExtResource("1_conn")
+position = Vector3(64, 0, 64)
+target_map_id = "example_map"
+target_spawn = Vector3(80, 0, 30)
+display_name = "Back to Overworld"
+
+[resource]
+script = ExtResource("script_map_data")
+id = "example_overworld"
+display_name = "Example Overworld"
+map_scene_path = "res://scenes/maps/example_overworld.tscn"
+grid_width = 128
+grid_height = 128
+decoration_seed = 7391
+player_spawn = Vector3(64, 0, 64)
+connections = Array[ExtResource("1_conn")]([SubResource("Resource_back")])

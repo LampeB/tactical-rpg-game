@@ -3,21 +3,32 @@ extends Node3D
 ## Manages heightmap terrain chunk loading/unloading based on player distance.
 ## Assigns LOD levels: 0 (full) for nearby, 1 (half) for mid, 2 (quarter) for far.
 
+signal loading_progress(done: int, total: int)  ## Emitted each frame during preload
+signal loading_complete                          ## Emitted when all chunks are preloaded
+
 @export var view_distance: int = 3  ## Chunks visible in each direction from player
 @export var unload_distance: int = 5  ## Chunks beyond this are freed
 @export var lod1_distance: int = 2  ## Chebyshev distance threshold for LOD 1
 @export var lod2_distance: int = 4  ## Chebyshev distance threshold for LOD 2
 @export var scatter_props: bool = true  ## Enable prop scattering on nearby chunks
 @export var prop_distance: int = 2  ## Max chunk distance for prop spawning
+@export var build_nav_mesh: bool = true  ## Build a NavMesh on setup (slow for large maps)
+@export var chunks_per_frame: int = 4  ## How many chunks to build per frame during preload
 var visual_only_props: bool = false  ## When true, scatter only grass/flowers (trees placed in scene)
 
-var _data: HeightmapData
+var _data: HeightmapData  ## Set directly before calling preload_all()
 var _loaded_chunks: Dictionary = {}  ## Key: Vector2i(cx, cz), Value: HeightmapChunk
 var _loaded_props: Dictionary = {}  ## Key: Vector2i(cx, cz), Value: Node3D (prop root)
 var _player: Node3D
 var _last_player_chunk := Vector2i(-999, -999)
 var _prop_seed: int = 42
 var _nav_region: NavigationRegion3D = null  ## Terrain navigation mesh
+
+## Preload queue — filled by preload_all(), drained in _process()
+var _preload_queue: Array[Vector2i] = []
+var _prop_preload_queue: Array[Vector2i] = []
+var _preload_total: int = 0
+var _preloading: bool = false
 
 
 func setup(data: HeightmapData, player: Node3D) -> void:
@@ -26,16 +37,89 @@ func setup(data: HeightmapData, player: Node3D) -> void:
 	_player = player
 	name = "TerrainManager"
 	_update_chunks()
-	_build_navigation_mesh()
+	if build_nav_mesh:
+		_build_navigation_mesh()
+
+
+func preload_all(player: Node3D) -> void:
+	## Queues every chunk for loading across multiple frames.
+	## Emits loading_progress(done, total) each frame and loading_complete when done.
+	## Call this instead of setup() when you want a loading screen.
+	_data = _data  # already set via the data property before calling
+	_player = player
+	name = "TerrainManager"
+
+	var cx_count: int = _data.get_chunk_count_x()
+	var cz_count: int = _data.get_chunk_count_z()
+	_preload_queue.clear()
+	# Queue from center outward so terrain appears in a ring expanding from the player
+	var center_cx: int = clampi(int(_player.global_position.x / ((HeightmapData.CHUNK_SIZE - 1) * _data.terrain_scale.x)), 0, cx_count - 1)
+	var center_cz: int = clampi(int(_player.global_position.z / ((HeightmapData.CHUNK_SIZE - 1) * _data.terrain_scale.z)), 0, cz_count - 1)
+	var max_r: int = maxi(cx_count, cz_count)
+	for r in range(max_r + 1):
+		for dz in range(-r, r + 1):
+			for dx in range(-r, r + 1):
+				if absi(dx) != r and absi(dz) != r:
+					continue  # only the ring edge
+				var cx2: int = center_cx + dx
+				var cz2: int = center_cz + dz
+				if cx2 < 0 or cx2 >= cx_count or cz2 < 0 or cz2 >= cz_count:
+					continue
+				var key := Vector2i(cx2, cz2)
+				if not _loaded_chunks.has(key):
+					_preload_queue.append(key)
+
+	# Also queue all prop chunks so grass/flowers are preloaded during the loading screen
+	if scatter_props:
+		_prop_preload_queue.clear()
+		for cz2 in range(cz_count):
+			for cx2 in range(cx_count):
+				_prop_preload_queue.append(Vector2i(cx2, cz2))
+
+	_preload_total = _preload_queue.size() + _prop_preload_queue.size()
+	_preloading = true
+	if build_nav_mesh:
+		_build_navigation_mesh()
 
 
 func _process(_delta: float) -> void:
+	if _preloading:
+		_process_preload_queue()
+		return
 	if not _data or not _player:
 		return
 	var current_chunk: Vector2i = _world_to_chunk(_player.global_position)
 	if current_chunk != _last_player_chunk:
 		_last_player_chunk = current_chunk
 		_update_chunks()
+
+
+func _process_preload_queue() -> void:
+	var done_this_frame: int = 0
+
+	# Phase 1: terrain chunks
+	while _preload_queue.size() > 0 and done_this_frame < chunks_per_frame:
+		var key: Vector2i = _preload_queue[0]
+		_preload_queue.remove_at(0)
+		if not _loaded_chunks.has(key):
+			_load_chunk(key.x, key.y, 0)
+		done_this_frame += 1
+
+	# Phase 2: prop chunks (only once terrain queue is empty)
+	if _preload_queue.is_empty():
+		while _prop_preload_queue.size() > 0 and done_this_frame < chunks_per_frame:
+			var key: Vector2i = _prop_preload_queue[0]
+			_prop_preload_queue.remove_at(0)
+			if not _loaded_props.has(key):
+				_load_props(key.x, key.y)
+			done_this_frame += 1
+
+	var remaining: int = _preload_queue.size() + _prop_preload_queue.size()
+	loading_progress.emit(_preload_total - remaining, _preload_total)
+
+	if _preload_queue.is_empty() and _prop_preload_queue.is_empty():
+		_preloading = false
+		loading_complete.emit()
 
 
 func _world_to_chunk(world_pos: Vector3) -> Vector2i:
