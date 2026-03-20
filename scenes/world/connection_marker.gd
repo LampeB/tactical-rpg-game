@@ -1,7 +1,9 @@
+@tool
 extends Area3D
 ## Interactive marker that transitions to another map when the player interacts.
-## Place directly in a map scene and set connection_data in the inspector,
-## or let MapLoader.spawn_connections() create it from MapData at runtime.
+## Place directly in a map scene and set connection_data in the inspector.
+## Shows a portal pillar in the editor. Link two markers across maps by setting
+## matching connection_id / target_connection_id values — no manual coordinates needed.
 
 @export var connection_data: MapConnection
 
@@ -10,8 +12,9 @@ var _visual: Node3D = null
 
 
 func _ready() -> void:
-	collision_layer = 4  # interactables layer
-	collision_mask = 0
+	if not Engine.is_editor_hint():
+		collision_layer = 4  # interactables layer
+		collision_mask = 0
 
 	if connection_data:
 		_build_visual()
@@ -53,8 +56,9 @@ func _build_visual() -> void:
 	collision.shape = sphere
 	add_child(collision)
 
-	mouse_entered.connect(_on_mouse_entered)
-	mouse_exited.connect(_on_mouse_exited)
+	if not Engine.is_editor_hint():
+		mouse_entered.connect(_on_mouse_entered)
+		mouse_exited.connect(_on_mouse_exited)
 
 
 func try_enter() -> void:
@@ -68,11 +72,16 @@ func try_enter() -> void:
 
 	# Set target map before transitioning so the new overworld reads it in _ready()
 	GameManager.current_map_id = connection_data.target_map_id
-	GameManager.set_flag("overworld_position", connection_data.target_spawn)
+	# If linked by connection ID, store it so the target map can find the matching marker
+	if not connection_data.target_connection_id.is_empty():
+		GameManager.set_flag("target_connection_id", connection_data.target_connection_id)
+		GameManager.set_flag("overworld_position", Vector3.ZERO)  # will be resolved on arrival
+	else:
+		GameManager.set_flag("target_connection_id", "")
+		GameManager.set_flag("overworld_position", connection_data.target_spawn)
 
 	SceneManager.replace_scene("res://scenes/world/overworld.tscn", {
 		"map_id": connection_data.target_map_id,
-		"spawn_position": connection_data.target_spawn,
 	})
 
 

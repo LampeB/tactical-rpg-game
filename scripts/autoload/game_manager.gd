@@ -7,7 +7,7 @@ var gold: int = 0
 var story_flags: Dictionary = {}
 var is_game_started: bool = false
 var current_location_name: String = "Overworld"
-var current_map_id: String = "example_map"
+var current_map_id: String = "example_overworld"
 var current_heightmap_data: Resource = null  ## Transient HeightmapData for battle backgrounds (not saved)
 
 ## Preloaded battle background (generated in overworld when player nears a battle area)

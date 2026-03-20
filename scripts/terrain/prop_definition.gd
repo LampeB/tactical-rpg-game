@@ -21,5 +21,16 @@ enum CollisionType { NONE, BLOCKING }  ## NONE = visual only, BLOCKING = player 
 @export var random_rotation_y: bool = true  ## Random Y rotation
 @export var align_to_normal: bool = false  ## Tilt prop to match terrain normal
 
+@export_group("LOD")
+## Distance at which this prop becomes invisible. 0 = no culling.
+## Typical values: trees 120, rocks 80, bushes 60, grass 40.
+@export var lod_distance: float = 0.0
+
+@export_group("Island")
+## Which island this prop can spawn on (overworld only). 0 = any island, 1+ = specific island index.
+@export var allowed_island: int = 0
+## When true, this prop only spawns inside forest zones (where forest_density > 0).
+@export var forest_only: bool = false
+
 @export_group("Wind")
 @export var affected_by_wind: bool = false  ## Apply foliage wind shader

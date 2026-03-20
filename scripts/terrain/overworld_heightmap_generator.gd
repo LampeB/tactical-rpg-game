@@ -1,0 +1,794 @@
+class_name OverworldHeightmapGenerator
+extends RefCounted
+## Generates an island-shaped overworld HeightmapData in the style of classic
+## FF/DQ overworlds: ocean on all 4 edges, central landmass with 6 biomes
+## (plains, forest, hills, mountains, arid, wetlands).
+##
+## Key differences from BiomeHeightmapGenerator:
+##   - Island falloff mask instead of directional mountain/ocean edges
+##   - terrain_scale = Vector3(3, 20, 3): 3m per vertex, dramatic height range
+##   - No roads — overworld uses direct free-roaming movement
+##   - Single ocean WaterZone covering the whole map
+##   - Tiny walk-through props via OverworldPropRegistry
+
+const _TerrainErosion := preload("res://scripts/terrain/terrain_erosion.gd")
+const _RiverGenerator := preload("res://scripts/terrain/river_generator.gd")
+const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
+
+## Material-LIB base path (same textures as area maps)
+const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
+
+## Splatmap layer defs — identical to BiomeHeightmapGenerator (shared texture set)
+const _LAYER_DEFS: Array[Dictionary] = [
+	{"folder": "FoliageGrass",  "base": "FoliageGrass",  "uv": 15.0, "label": "Grass"},
+	{"folder": "Sand",          "base": "Sand",           "uv": 12.0, "label": "Sand"},
+	{"folder": "SurfaceRock",   "base": "SurfaceRock",   "uv": 8.0,  "label": "Rock"},
+	{"folder": "SurfaceStone",  "base": "SurfaceStone",   "uv": 10.0, "label": "Snow"},
+	{"folder": "SurfaceSoil",   "base": "SurfaceSoil",   "uv": 10.0, "label": "Soil"},
+	{"folder": "SurfacePebbles","base": "SurfacePebbles", "uv": 8.0,  "label": "Pebbles"},
+	{"folder": "SurfaceCliff",  "base": "SurfaceCliff",   "uv": 6.0,  "label": "Cliff"},
+	{"folder": "Moss",          "base": "Moss",           "uv": 12.0, "label": "Moss"},
+]
+
+
+## Biome profile for overworld terrain generation.
+class BiomeProfile:
+	var id: String
+	var height_base: float
+	var height_amplitude: float
+	var noise_frequency: float
+	var noise_octaves: int
+	var splat_weights: Color   ## Splatmap1: R=Grass G=Sand B=Rock A=Snow
+	var splat_weights2: Color  ## Splatmap2: R=Soil G=Pebbles B=Cliff A=Moss
+
+	func _init(
+		p_id: String, p_base: float, p_amp: float,
+		p_freq: float, p_oct: int, p_splat: Color,
+		p_splat2: Color = Color(0, 0, 0, 0)
+	) -> void:
+		id = p_id
+		height_base = p_base
+		height_amplitude = p_amp
+		noise_frequency = p_freq
+		noise_octaves = p_oct
+		splat_weights = p_splat
+		splat_weights2 = p_splat2
+
+
+## Lazy-cached biomes
+static var _biomes_cache: Array = []
+
+
+static func _get_biomes() -> Array:
+	if not _biomes_cache.is_empty():
+		return _biomes_cache
+	_biomes_cache = [
+		#                                                 splat1(Grass Sand Rock Snow)    splat2(Soil Pebbles Cliff Moss)
+		BiomeProfile.new("plains",    0.15, 0.20, 0.015, 3, Color(0.90, 0.00, 0.04, 0.0), Color(0.04, 0.0,  0.0,  0.02)),
+		BiomeProfile.new("forest",    0.25, 0.35, 0.025, 4, Color(0.70, 0.00, 0.08, 0.0), Color(0.04, 0.0,  0.0,  0.18)),
+		BiomeProfile.new("hills",     0.45, 0.45, 0.022, 4, Color(0.30, 0.00, 0.55, 0.0), Color(0.0,  0.12, 0.03, 0.0)),
+		BiomeProfile.new("mountains", 0.65, 0.70, 0.030, 5, Color(0.05, 0.00, 0.75, 0.1), Color(0.0,  0.08, 0.12, 0.0)),
+		BiomeProfile.new("arid",      0.08, 0.18, 0.018, 3, Color(0.10, 0.78, 0.08, 0.0), Color(0.14, 0.0,  0.0,  0.0)),
+		BiomeProfile.new("wetlands",  0.03, 0.10, 0.012, 2, Color(0.55, 0.00, 0.08, 0.0), Color(0.22, 0.0,  0.0,  0.15)),
+	]
+	return _biomes_cache
+
+
+## Island warp noise (lazy) — used to give the coastline an organic shape
+static var _island_warp: FastNoiseLite = null
+static var _island_warp2: FastNoiseLite = null  ## Second warp layer for X/Z independent distortion
+
+
+static func _init_noises(map_seed: int) -> void:
+	# Large-scale shape distortion
+	_island_warp = FastNoiseLite.new()
+	_island_warp.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_island_warp.frequency = 0.012
+	_island_warp.fractal_octaves = 3
+	_island_warp.fractal_lacunarity = 2.0
+	_island_warp.fractal_gain = 0.5
+	_island_warp.seed = map_seed + 7500
+	# Second layer — warps independently for asymmetric coastlines
+	_island_warp2 = FastNoiseLite.new()
+	_island_warp2.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_island_warp2.frequency = 0.025
+	_island_warp2.fractal_octaves = 4
+	_island_warp2.fractal_lacunarity = 2.2
+	_island_warp2.fractal_gain = 0.45
+	_island_warp2.seed = map_seed + 8200
+
+
+## Computed at generation time — main continent placed first, second island fills remaining space
+static var _islands: Array[Dictionary] = []
+
+## Mountain peaks — {"cx", "cz" in -1..1 normalized, "height" in normalized units, "radius" in normalized}
+static var _mountains: Array[Dictionary] = []
+
+
+static func _compute_islands(map_width: int, map_height: int) -> void:
+	## Places the main continent, scans its warped extent, then fits the second island
+	## in the largest remaining gap.
+	_islands.clear()
+	# height_boost: extra normalized height added to land on this island
+	# edge_sharp: smoothstep range (lower = steeper cliffs at coastline)
+	var main := {"cx": -0.25, "cz": 0.0, "radius": 0.70, "height_boost": 0.0, "edge_sharp": 0.30}
+	_islands.append(main)
+
+	# Coarse scan: find the rightmost extent of the main continent (mask > 0.1)
+	var step: int = maxi(map_width / 64, 4)
+	var max_nx: float = -1.0  # rightmost normalized x where main island has land
+	for sz in range(0, map_height, step):
+		for sx in range(0, map_width, step):
+			var mask: float = _island_mask_single(sx, sz, map_width, map_height, main)
+			if mask > 0.1:
+				var nx: float = float(sx) / float(map_width - 1) * 2.0 - 1.0
+				max_nx = maxf(max_nx, nx)
+
+	# Place second island in the remaining space to the right
+	var gap_center: float = (max_nx + 1.0) * 0.5 + max_nx  # midpoint between edge and right border
+	var gap_size: float = 1.0 - max_nx  # space available to the right
+	var second_radius: float = gap_size * 0.55  # fill ~55% of the gap
+	second_radius = clampf(second_radius, 0.20, 0.55)
+	# Nudge vertically with slight offset for visual variety
+	var second := {"cx": clampf(gap_center, -0.8, 0.8), "cz": 0.10, "radius": second_radius,
+		"height_boost": 0.60, "edge_sharp": 0.10}  # elevated island with steep cliffs
+	_islands.append(second)
+
+	# Mountain ranges across the main continent
+	_mountains.clear()
+	var mcx: float = main["cx"]
+
+	# --- Main ridge: runs diagonally NW to E across northern part ---
+	var main_ridge: Array[Dictionary] = [
+		{"ox": -0.28, "oz": -0.12, "h": 2.50, "r": 0.09},
+		{"ox": -0.22, "oz": -0.16, "h": 3.40, "r": 0.07},
+		{"ox": -0.16, "oz": -0.20, "h": 4.00, "r": 0.06},
+		{"ox": -0.10, "oz": -0.22, "h": 4.80, "r": 0.06},
+		{"ox": -0.04, "oz": -0.19, "h": 3.50, "r": 0.07},
+		{"ox":  0.02, "oz": -0.17, "h": 4.20, "r": 0.06},
+		{"ox":  0.08, "oz": -0.20, "h": 5.20, "r": 0.05},  # highest peak
+		{"ox":  0.13, "oz": -0.18, "h": 4.60, "r": 0.06},
+		{"ox":  0.18, "oz": -0.14, "h": 3.80, "r": 0.07},
+		{"ox":  0.24, "oz": -0.10, "h": 2.80, "r": 0.09},
+		{"ox":  0.28, "oz": -0.06, "h": 2.00, "r": 0.10},
+	]
+	# Filler peaks between main ridge points for density
+	var ridge_fill: Array[Dictionary] = [
+		{"ox": -0.19, "oz": -0.18, "h": 3.00, "r": 0.05},
+		{"ox": -0.13, "oz": -0.21, "h": 3.60, "r": 0.05},
+		{"ox": -0.07, "oz": -0.20, "h": 3.80, "r": 0.05},
+		{"ox":  0.05, "oz": -0.18, "h": 3.20, "r": 0.05},
+		{"ox":  0.11, "oz": -0.19, "h": 4.00, "r": 0.05},
+		{"ox":  0.21, "oz": -0.12, "h": 3.00, "r": 0.06},
+	]
+
+	# --- Northern spur: branches off the main ridge toward the north ---
+	var north_spur: Array[Dictionary] = [
+		{"ox": -0.06, "oz": -0.26, "h": 3.20, "r": 0.06},
+		{"ox": -0.02, "oz": -0.30, "h": 3.80, "r": 0.05},
+		{"ox":  0.03, "oz": -0.33, "h": 3.00, "r": 0.06},
+		{"ox":  0.00, "oz": -0.28, "h": 2.60, "r": 0.05},
+		{"ox":  0.06, "oz": -0.25, "h": 2.80, "r": 0.06},
+	]
+
+	# --- SW branch: forks off the main ridge toward the southwest, fading into foothills ---
+	var sw_branch: Array[Dictionary] = [
+		{"ox": -0.12, "oz": -0.14, "h": 3.20, "r": 0.06},  # fork point from main ridge
+		{"ox": -0.18, "oz": -0.06, "h": 3.60, "r": 0.05},
+		{"ox": -0.24, "oz":  0.02, "h": 3.00, "r": 0.06},
+		{"ox": -0.28, "oz":  0.10, "h": 2.40, "r": 0.07},
+		{"ox": -0.30, "oz":  0.18, "h": 1.80, "r": 0.08},  # fades out
+		# fillers
+		{"ox": -0.15, "oz": -0.10, "h": 3.40, "r": 0.04},
+		{"ox": -0.21, "oz": -0.02, "h": 3.20, "r": 0.04},
+		{"ox": -0.26, "oz":  0.06, "h": 2.60, "r": 0.05},
+	]
+
+	# --- SE range: separate smaller range in the southeast, runs NE-SW ---
+	var se_range: Array[Dictionary] = [
+		{"ox":  0.22, "oz":  0.06, "h": 2.00, "r": 0.07},  # starts low
+		{"ox":  0.16, "oz":  0.12, "h": 2.80, "r": 0.06},
+		{"ox":  0.10, "oz":  0.18, "h": 3.20, "r": 0.05},
+		{"ox":  0.04, "oz":  0.22, "h": 2.60, "r": 0.06},
+		{"ox": -0.02, "oz":  0.26, "h": 2.00, "r": 0.07},  # fades out
+		# fillers
+		{"ox":  0.19, "oz":  0.09, "h": 2.40, "r": 0.04},
+		{"ox":  0.13, "oz":  0.15, "h": 3.00, "r": 0.04},
+		{"ox":  0.07, "oz":  0.20, "h": 2.80, "r": 0.04},
+	]
+
+	# Add all peaks
+	var all_peaks: Array[Array] = [main_ridge, ridge_fill, north_spur,
+		sw_branch, se_range]
+	for gi in range(all_peaks.size()):
+		var group: Array = all_peaks[gi]
+		for pi in range(group.size()):
+			var rp: Dictionary = group[pi]
+			_mountains.append({
+				"cx": mcx + rp["ox"],
+				"cz": rp["oz"],
+				"height": rp["h"],
+				"radius": rp["r"],
+			})
+
+
+static func _island_mask_single(x: int, z: int, map_width: int, map_height: int, isle: Dictionary) -> float:
+	## Computes island mask for a single island definition.
+	var nx: float = float(x) / float(map_width - 1) * 2.0 - 1.0
+	var nz: float = float(z) / float(map_height - 1) * 2.0 - 1.0
+	var warp_x: float = 0.0
+	var warp_z: float = 0.0
+	var warp_r: float = 0.0
+	if _island_warp != null:
+		warp_x = _island_warp.get_noise_2d(float(x), float(z)) * 0.25
+		warp_z = _island_warp.get_noise_2d(float(x) + 500.0, float(z) + 500.0) * 0.25
+	if _island_warp2 != null:
+		warp_r = _island_warp2.get_noise_2d(float(x), float(z)) * 0.20
+	var dx: float = (nx + warp_x) - isle["cx"]
+	var dz: float = (nz + warp_z) - isle["cz"]
+	var r: float = isle["radius"]
+	var edge_sharp: float = isle.get("edge_sharp", 0.30)
+	var dist: float = sqrt(dx * dx + dz * dz) / r + warp_r
+	return 1.0 - smoothstep(0.50, 0.50 + edge_sharp, dist)
+
+
+static func _island_mask(x: int, z: int, map_width: int, map_height: int) -> float:
+	## Returns 1.0 in the interior, 0.0 at ocean edges, smooth transition in between.
+	## Evaluates all computed islands and takes the highest mask value.
+	var best: float = 0.0
+	for i in range(_islands.size()):
+		var mask: float = _island_mask_single(x, z, map_width, map_height, _islands[i])
+		best = maxf(best, mask)
+	return best
+
+
+static func _mountain_height(x: int, z: int, map_width: int, map_height: int) -> float:
+	## Returns extra height from nearby mountain peaks. Sharp conical falloff for jagged ridges.
+	var nx: float = float(x) / float(map_width - 1) * 2.0 - 1.0
+	var nz: float = float(z) / float(map_height - 1) * 2.0 - 1.0
+	# Ridge noise adds craggy detail to mountain slopes
+	var ridge: float = 0.0
+	if _island_warp2 != null:
+		ridge = absf(_island_warp2.get_noise_2d(float(x) * 1.5, float(z) * 1.5)) * 0.6
+	var total: float = 0.0
+	for i in range(_mountains.size()):
+		var mtn: Dictionary = _mountains[i]
+		var dx: float = nx - mtn["cx"]
+		var dz: float = nz - mtn["cz"]
+		var dist: float = sqrt(dx * dx + dz * dz)
+		var r: float = mtn["radius"]
+		if dist < r:
+			# Sharp conical falloff — steep sides, pointed peak
+			var t: float = dist / r
+			var falloff: float = (1.0 - t) * (1.0 - t)  # quadratic = steeper than quartic
+			# Ridge noise makes slopes jagged and uneven
+			falloff *= (1.0 + ridge * (1.0 - t))
+			total += mtn["height"] * falloff
+	return total
+
+
+static func _island_height_boost(x: int, z: int, map_width: int, map_height: int) -> float:
+	## Returns the height_boost of the dominant island at this point.
+	var best_mask: float = 0.0
+	var boost: float = 0.0
+	for i in range(_islands.size()):
+		var mask: float = _island_mask_single(x, z, map_width, map_height, _islands[i])
+		if mask > best_mask:
+			best_mask = mask
+			boost = _islands[i].get("height_boost", 0.0)
+	return boost * best_mask
+
+
+static func _island_index_at(x: int, z: int, map_width: int, map_height: int) -> int:
+	## Returns which island this vertex belongs to (1-based), or 0 for ocean.
+	var best_mask: float = 0.0
+	var best_idx: int = 0
+	for i in range(_islands.size()):
+		var mask: float = _island_mask_single(x, z, map_width, map_height, _islands[i])
+		if mask > best_mask:
+			best_mask = mask
+			best_idx = i + 1  # 1-based: island 1, island 2, etc.
+	if best_mask < 0.15:
+		return 0  # ocean
+	return best_idx
+
+
+static func generate(
+	map_width: int = 512, map_depth: int = 512, map_seed: int = 42
+) -> HeightmapData:
+	## Creates a complete overworld HeightmapData: island terrain, biomes, rivers,
+	## splatmap, water, town, and POIs. No roads — overworld traversal is direct.
+	var data := HeightmapData.new()
+	data.id = "overworld_%d" % map_seed
+	data.display_name = "Overworld"
+	data.width = map_width
+	data.height = map_depth
+	data.terrain_scale = Vector3(3.0, 20.0, 3.0)
+	data.is_overworld = true
+
+	data.initialize(0.0)
+	data.island_indices.resize(map_width * map_depth)
+	data.forest_density.resize(map_width * map_depth)
+
+	# --- Initialize island warp noise + compute island placement ---
+	_init_noises(map_seed)
+	_compute_islands(map_width, map_depth)
+
+	# --- Biome selection noises ---
+	var temp_noise := FastNoiseLite.new()
+	temp_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	temp_noise.frequency = 0.006
+	temp_noise.fractal_octaves = 2
+	temp_noise.seed = map_seed
+
+	var moisture_noise := FastNoiseLite.new()
+	moisture_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	moisture_noise.frequency = 0.005
+	moisture_noise.fractal_octaves = 2
+	moisture_noise.seed = map_seed + 1000
+
+	# --- Detail height noise ---
+	var detail_noise := FastNoiseLite.new()
+	detail_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	detail_noise.frequency = 0.018
+	detail_noise.fractal_octaves = 4
+	detail_noise.fractal_lacunarity = 2.0
+	detail_noise.fractal_gain = 0.5
+	detail_noise.seed = map_seed + 2000
+
+	# --- Per-biome noise layers ---
+	var biomes: Array = _get_biomes()
+	var biome_count: int = biomes.size()
+	var biome_noises: Array[FastNoiseLite] = []
+	for i in range(biome_count):
+		var bp: BiomeProfile = biomes[i]
+		var bn := FastNoiseLite.new()
+		bn.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+		bn.frequency = bp.noise_frequency
+		bn.fractal_octaves = bp.noise_octaves
+		bn.fractal_lacunarity = 2.0
+		bn.fractal_gain = 0.5
+		bn.seed = map_seed + 3000 + i * 100
+		biome_noises.append(bn)
+
+	# --- Pass 1: Heights + biome splat storage ---
+	var biome_splats := PackedColorArray()
+	biome_splats.resize(map_width * map_depth)
+	var biome_splats2 := PackedColorArray()
+	biome_splats2.resize(map_width * map_depth)
+	# Per-vertex island mask, stored for Pass 2 splatmap (beach detection uses it)
+	var island_masks := PackedFloat32Array()
+	island_masks.resize(map_width * map_depth)
+
+	for z in range(map_depth):
+		for x in range(map_width):
+			var island: float = _island_mask(x, z, map_width, map_depth)
+			var island_boost: float = _island_height_boost(x, z, map_width, map_depth)
+			island_masks[z * map_width + x] = island
+			data.island_indices[z * map_width + x] = _island_index_at(x, z, map_width, map_depth)
+
+			var temp_val: float = temp_noise.get_noise_2d(x, z) * 0.5 + 0.5
+			var moist_val: float = moisture_noise.get_noise_2d(x, z) * 0.5 + 0.5
+			var biome_weights: Array[float] = _get_biome_weights(temp_val, moist_val)
+
+			var h: float = 0.0
+			var splat := Color(0, 0, 0, 0)
+			var splat2 := Color(0, 0, 0, 0)
+			for bi in range(biome_count):
+				var w: float = biome_weights[bi]
+				if w < 0.001:
+					continue
+				var bp: BiomeProfile = biomes[bi]
+				var bn: FastNoiseLite = biome_noises[bi]
+				var noise_val: float = bn.get_noise_2d(x, z)
+				var biome_h: float = bp.height_base + noise_val * bp.height_amplitude
+				h += biome_h * w
+				splat.r += bp.splat_weights.r * w
+				splat.g += bp.splat_weights.g * w
+				splat.b += bp.splat_weights.b * w
+				splat.a += bp.splat_weights.a * w
+				splat2.r += bp.splat_weights2.r * w
+				splat2.g += bp.splat_weights2.g * w
+				splat2.b += bp.splat_weights2.b * w
+				splat2.a += bp.splat_weights2.a * w
+
+			# Fine detail
+			h += detail_noise.get_noise_2d(x, z) * 0.10
+
+			# Mountain peaks — added before island mask so they're part of the landmass
+			h += _mountain_height(x, z, map_width, map_depth)
+
+			# Apply island mask: interior keeps full height, edges sink to ocean floor
+			# +0.15 base lift keeps all land well above sea level
+			# island_boost raises elevated islands (e.g. cliff island)
+			h = (h + 0.15 + island_boost) * island - (1.0 - island) * 1.50
+
+			data.set_height_at(x, z, h)
+
+			if island < 0.25:
+				# Deep ocean floor — dark rock/soil
+				biome_splats[z * map_width + x] = Color(0.0, 0.15, 0.45, 0.0)
+				biome_splats2[z * map_width + x] = Color(0.20, 0.0, 0.20, 0.0)
+			else:
+				biome_splats[z * map_width + x] = splat
+				biome_splats2[z * map_width + x] = splat2
+
+	# --- Forest zones: one circle per island ---
+	_compute_forest_zones(data, map_width, map_depth)
+
+	# --- Erosion ---
+	_TerrainErosion.apply(data, map_seed)
+
+	# --- Rivers ---
+	var rivers: Array[RiverPath] = _RiverGenerator.generate(data, map_seed)
+	data.rivers = rivers
+
+	# --- Pass 2: Splatmap ---
+	_assign_splatmap(data, biome_splats, biome_splats2, island_masks, map_width, map_depth)
+
+	# --- River banks ---
+	_RiverGenerator.paint_all_banks(data)
+
+	# --- Texture layers ---
+	_add_textured_layers(data)
+
+	# --- Water zones ---
+	_add_water(data, map_seed)
+
+	# --- Town (starting hub) ---
+	_add_procedural_town(data, map_seed)
+
+	# --- Re-carve rivers after town flattening ---
+	_RiverGenerator.recarve_and_update(data)
+
+	# --- Points of interest (area transition markers) ---
+	_PoiGenerator.generate(data, map_seed)
+
+	# --- River exclusion mask for prop scatter ---
+	data.build_river_mask(10)
+
+	print("[OverworldGenerator] %dx%d overworld generated (seed %d)" % [map_width, map_depth, map_seed])
+
+	return data
+
+
+# ---------------------------------------------------------------------------
+# Forest density
+# ---------------------------------------------------------------------------
+
+## Forest zones: simple circles placed on each island.
+## {"cx": vertex x, "cz": vertex z, "radius": in vertices, "island": island index}
+static var _forest_zones: Array[Dictionary] = []
+
+
+static func _compute_forest_zones(data: HeightmapData, map_width: int, map_height: int) -> void:
+	## Places one forest circle per island on a flat grassy area.
+	_forest_zones.clear()
+	var tscale: Vector3 = data.terrain_scale
+
+	for isle_idx in range(_islands.size()):
+		var isle: Dictionary = _islands[isle_idx]
+		# Convert island center from normalized -1..1 to vertex coords
+		var cx: int = roundi((isle["cx"] + 1.0) * 0.5 * float(map_width - 1))
+		var cz: int = roundi((isle["cz"] + 1.0) * 0.5 * float(map_height - 1))
+		# Offset from island center so forest isn't on top of town
+		cx = clampi(cx + 30, 0, map_width - 1)
+		cz = clampi(cz - 20, 0, map_height - 1)
+		# Small radius: ~25 vertices = 75m world radius
+		_forest_zones.append({"cx": cx, "cz": cz, "radius": 25, "island": isle_idx + 1})
+
+	# Fill forest_density: 255 inside circles, 0 outside
+	for z in range(map_height):
+		for x in range(map_width):
+			var idx: int = z * map_width + x
+			var fd: int = 0
+			for fi in range(_forest_zones.size()):
+				var fz: Dictionary = _forest_zones[fi]
+				var dx: float = float(x - fz["cx"])
+				var dz: float = float(z - fz["cz"])
+				var r: float = float(fz["radius"])
+				if dx * dx + dz * dz < r * r:
+					fd = 255
+					break
+			data.forest_density[idx] = fd
+
+
+# ---------------------------------------------------------------------------
+# Biome blending
+# ---------------------------------------------------------------------------
+
+static func _get_biome_weights(temperature: float, moisture: float) -> Array[float]:
+	## Maps temperature (0=cold, 1=hot) and moisture (0=dry, 1=wet) to blend weights.
+	## Order matches _get_biomes(): [plains, forest, hills, mountains, arid, wetlands]
+	var weights: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+	# Plains: moderate temp, low-mid moisture
+	weights[0] = _affinity(temperature, 0.5, 0.30) * _affinity(moisture, 0.35, 0.30)
+	# Forest: moderate temp, high moisture
+	weights[1] = _affinity(temperature, 0.5, 0.25) * _affinity(moisture, 0.75, 0.25)
+	# Hills: warm, moderate moisture
+	weights[2] = _affinity(temperature, 0.65, 0.25) * _affinity(moisture, 0.50, 0.30)
+	# Mountains: any temp, low moisture (dry highlands)
+	weights[3] = _affinity(temperature, 0.40, 0.40) * _affinity(moisture, 0.15, 0.20)
+	# Arid: hot, dry
+	weights[4] = _affinity(temperature, 0.85, 0.20) * _affinity(moisture, 0.15, 0.20)
+	# Wetlands: warm, very high moisture
+	weights[5] = _affinity(temperature, 0.60, 0.30) * _affinity(moisture, 0.92, 0.12)
+
+	var total: float = 0.0
+	for i in range(weights.size()):
+		total += weights[i]
+	if total > 0.001:
+		for i in range(weights.size()):
+			weights[i] /= total
+	else:
+		weights[0] = 1.0  # Fallback to plains
+	return weights
+
+
+static func _affinity(value: float, center: float, radius: float) -> float:
+	var dist: float = absf(value - center)
+	if dist >= radius:
+		return 0.0
+	var t: float = dist / radius
+	return 1.0 - t * t
+
+
+# ---------------------------------------------------------------------------
+# Splatmap Pass 2
+# ---------------------------------------------------------------------------
+
+static func _assign_splatmap(
+	data: HeightmapData,
+	biome_splats: PackedColorArray, biome_splats2: PackedColorArray,
+	island_masks: PackedFloat32Array,
+	map_width: int, map_height: int
+) -> void:
+	var tscale_y: float = data.terrain_scale.y
+	var tscale_x: float = data.terrain_scale.x
+
+	for z in range(map_height):
+		for x in range(map_width):
+			var splat: Color = biome_splats[z * map_width + x]
+			var splat2: Color = biome_splats2[z * map_width + x]
+			var h: float = data.get_height_at(x, z)
+			var world_h: float = h * tscale_y
+			var island: float = island_masks[z * map_width + x]
+
+			# --- Slope-based cliff/scree detection ---
+			var h_left: float = data.get_height_at(x - 1, z) * tscale_y
+			var h_right: float = data.get_height_at(x + 1, z) * tscale_y
+			var h_up: float = data.get_height_at(x, z - 1) * tscale_y
+			var h_down: float = data.get_height_at(x, z + 1) * tscale_y
+			var ddx: float = (h_right - h_left) / (2.0 * tscale_x)
+			var ddz: float = (h_down - h_up) / (2.0 * tscale_x)
+			var slope: float = sqrt(ddx * ddx + ddz * ddz)
+
+			if slope > 0.5:
+				if slope < 1.0:
+					var scree_t: float = clampf((slope - 0.5) / 0.5, 0.0, 1.0)
+					splat = splat.lerp(Color(0.1, 0.0, 0.6, 0.0), scree_t * 0.6)
+					splat2 = splat2.lerp(Color(0.0, 0.4, 0.0, 0.0), scree_t * 0.6)
+				else:
+					var cliff_t: float = clampf((slope - 1.0) / 0.73, 0.0, 1.0)
+					splat = splat.lerp(Color(0.0, 0.0, 0.3, 0.0), cliff_t)
+					splat2 = splat2.lerp(Color(0.0, 0.0, 0.7, 0.0), cliff_t)
+
+			# --- Height-based overrides ---
+			# Snow caps above ~24m world height (h > 1.2 with tscale_y=20)
+			if world_h > 22.0:
+				var snow_t: float = clampf((world_h - 22.0) / 6.0, 0.0, 1.0)
+				splat = splat.lerp(Color(0.0, 0.0, 0.2, 0.8), snow_t)
+
+			# --- Beach / shoreline (where island mask is transitioning and height is low) ---
+			if island > 0.15 and island < 0.70 and world_h > -2.0 and world_h < 3.5 and slope < 0.30:
+				var shore_t: float = clampf(1.0 - (island - 0.15) / 0.55, 0.0, 1.0)
+				# Wet sand at waterline, dry sand further inland
+				var wet: float = clampf(1.0 - (island - 0.15) / 0.25, 0.0, 1.0)
+				var sand_color: Color = Color(0.05, 0.90, 0.05, 0.0).lerp(Color(0.25, 0.65, 0.10, 0.0), 1.0 - wet)
+				splat = splat.lerp(sand_color, shore_t)
+				splat2 = splat2.lerp(Color(0.0, 0.0, 0.0, 0.0), shore_t * 0.6)
+
+			# --- Normalize all 8 channels ---
+			var total_w: float = (splat.r + splat.g + splat.b + splat.a
+				+ splat2.r + splat2.g + splat2.b + splat2.a)
+			if total_w > 0.001:
+				splat.r /= total_w; splat.g /= total_w; splat.b /= total_w; splat.a /= total_w
+				splat2.r /= total_w; splat2.g /= total_w; splat2.b /= total_w; splat2.a /= total_w
+			else:
+				splat = Color(1, 0, 0, 0)
+				splat2 = Color(0, 0, 0, 0)
+
+			data.set_splatmap_weights(x, z, splat)
+			data.set_splatmap2_weights(x, z, splat2)
+
+
+# ---------------------------------------------------------------------------
+# Texture layers
+# ---------------------------------------------------------------------------
+
+static func _add_textured_layers(data: HeightmapData) -> void:
+	for i in range(_LAYER_DEFS.size()):
+		var def: Dictionary = _LAYER_DEFS[i]
+		var layer := TerrainTextureLayer.new()
+		layer.name = def["label"]
+		layer.uv_scale = def["uv"]
+		var folder: String = def["folder"]
+		var base_name: String = def["base"]
+		var albedo_path: String = _LIB + folder + "/" + base_name + "-B.png"
+		var normal_path: String = _LIB + folder + "/" + base_name + "-N.png"
+		if ResourceLoader.exists(albedo_path):
+			layer.albedo_texture = load(albedo_path)
+		if ResourceLoader.exists(normal_path):
+			layer.normal_texture = load(normal_path)
+		data.texture_layers.append(layer)
+
+
+# ---------------------------------------------------------------------------
+# Water zones
+# ---------------------------------------------------------------------------
+
+static func _add_water(data: HeightmapData, map_seed: int) -> void:
+	## Adds one full-map ocean zone (sits at y=0, island terrain rises above it)
+	## plus a few interior lakes at low basins.
+	var tscale: Vector3 = data.terrain_scale
+	var world_w: float = float(data.width) * tscale.x
+	var world_d: float = float(data.height) * tscale.z
+
+	# Ocean as 4 non-overlapping border strips — N/S span full width, W/E fill the gap
+	var border_frac: float = 0.45
+	var bw: float = world_w * border_frac
+	var bd: float = world_d * border_frac
+	var mid_h: float = world_d - bd * 2.0  # height of W/E strips (between N and S)
+	var shallow_col := Color(0.10, 0.35, 0.55, 0.60)
+	var deep_col := Color(0.02, 0.08, 0.20, 0.90)
+	var strip_defs: Array[Dictionary] = [
+		{"id": "ocean_north", "center": Vector3(world_w * 0.5, 0.0, bd * 0.5), "size": Vector2(world_w, bd)},
+		{"id": "ocean_south", "center": Vector3(world_w * 0.5, 0.0, world_d - bd * 0.5), "size": Vector2(world_w, bd)},
+		{"id": "ocean_west",  "center": Vector3(bw * 0.5, 0.0, world_d * 0.5), "size": Vector2(bw, mid_h)},
+		{"id": "ocean_east",  "center": Vector3(world_w - bw * 0.5, 0.0, world_d * 0.5), "size": Vector2(bw, mid_h)},
+	]
+	for i in range(strip_defs.size()):
+		var sd: Dictionary = strip_defs[i]
+		var strip := WaterZone.new()
+		strip.id = sd["id"]
+		strip.shape = WaterZone.Shape.RECTANGLE
+		strip.center = sd["center"]
+		strip.size = sd["size"]
+		strip.shallow_color = shallow_col
+		strip.deep_color = deep_col
+		strip.wave_strength = 0.05
+		strip.wave_speed = 0.25
+		data.water_zones.append(strip)
+
+	# Interior lakes at local basins — each gets its own water level at basin height
+	var rng := RandomNumberGenerator.new()
+	rng.seed = map_seed + 5000
+	var sample_step: int = maxi(data.width / 12, 8)
+	var candidates: Array[Vector3] = []
+
+	for sz in range(2, data.height - 2, sample_step):
+		for sx in range(2, data.width - 2, sample_step):
+			var h: float = data.get_height_at(sx, sz) * tscale.y
+			# Consider any land basin (including below sea level for sunken areas)
+			if h < -8.0 or h > 12.0:
+				continue
+			# Must be a local minimum
+			var is_basin: bool = true
+			@warning_ignore("integer_division")
+			var check_r: int = sample_step / 2
+			for dz in range(-check_r, check_r + 1, maxi(check_r, 1)):
+				for dx in range(-check_r, check_r + 1, maxi(check_r, 1)):
+					if dx == 0 and dz == 0:
+						continue
+					var nx: int = clampi(sx + dx, 0, data.width - 1)
+					var nz: int = clampi(sz + dz, 0, data.height - 1)
+					if data.get_height_at(nx, nz) * tscale.y < h - 0.2:
+						is_basin = false
+						break
+				if not is_basin:
+					break
+			if is_basin:
+				candidates.append(Vector3(float(sx) * tscale.x, h, float(sz) * tscale.z))
+
+	candidates.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.y < b.y)
+	var placed: int = 0
+	for ci in range(candidates.size()):
+		if placed >= 3:
+			break
+		var c: Vector3 = candidates[ci]
+		var too_close: bool = false
+		for wi in range(data.water_zones.size()):
+			var existing: WaterZone = data.water_zones[wi]
+			if existing.id.begins_with("ocean_"):
+				continue
+			var ddx: float = c.x - existing.center.x
+			var ddz: float = c.z - existing.center.z
+			if ddx * ddx + ddz * ddz < 1600.0:
+				too_close = true
+				break
+		if too_close:
+			continue
+		var zone := WaterZone.new()
+		zone.id = "lake_%d" % placed
+		# Water level sits at basin height + small offset so surface is visible
+		zone.center = Vector3(c.x, c.y + 0.3, c.z)
+		zone.size = Vector2(rng.randf_range(18.0, 40.0), rng.randf_range(15.0, 35.0))
+		zone.shape = WaterZone.Shape.ELLIPSE
+		zone.shallow_color = Color(0.15, 0.45, 0.65, 0.55)
+		zone.deep_color = Color(0.04, 0.12, 0.28, 0.85)
+		zone.wave_strength = rng.randf_range(0.01, 0.03)
+		zone.wave_speed = rng.randf_range(0.2, 0.4)
+		data.water_zones.append(zone)
+		placed += 1
+
+
+# ---------------------------------------------------------------------------
+# Town placement
+# ---------------------------------------------------------------------------
+
+static func _add_procedural_town(data: HeightmapData, map_seed: int) -> void:
+	## Finds the flattest interior area and places the starting town/hub.
+	var tscale: Vector3 = data.terrain_scale
+	var world_w: float = float(data.width) * tscale.x
+	var world_d: float = float(data.height) * tscale.z
+
+	# Avoid 30% of the map edges (ocean fringe)
+	var margin_x: float = world_w * 0.30
+	var margin_z: float = world_d * 0.30
+	var best_x: float = world_w * 0.5
+	var best_z: float = world_d * 0.5
+	var best_variance: float = INF
+	var step: float = world_w * 0.08
+
+	var sx: float = margin_x
+	while sx <= world_w - margin_x:
+		var sz: float = margin_z
+		while sz <= world_d - margin_z:
+			# Only consider land (height > 1.0m world)
+			var ix: int = clampi(roundi(sx / tscale.x), 0, data.width - 1)
+			var iz: int = clampi(roundi(sz / tscale.z), 0, data.height - 1)
+			if data.get_height_at(ix, iz) * tscale.y > 0.5:
+				var variance: float = _terrain_variance(data, sx, sz, 30.0)
+				if variance < best_variance:
+					best_variance = variance
+					best_x = sx
+					best_z = sz
+			sz += step
+		sx += step
+
+	# Overworld maps are large — always use CITY
+	TownLayoutGenerator.generate_town(data, best_x, best_z,
+		TownLayoutGenerator.TownSize.CITY, map_seed + 9500)
+	var tc_ix: int = clampi(roundi(best_x / tscale.x), 0, data.width - 1)
+	var tc_iz: int = clampi(roundi(best_z / tscale.z), 0, data.height - 1)
+	data.town_center = Vector3(best_x, data.get_height_at(tc_ix, tc_iz) * tscale.y, best_z)
+
+
+static func _terrain_variance(data: HeightmapData, cx: float, cz: float, radius: float) -> float:
+	var tscale: Vector3 = data.terrain_scale
+	var heights: Array[float] = []
+	var step: float = 6.0
+
+	var x: float = cx - radius
+	while x <= cx + radius:
+		var z: float = cz - radius
+		while z <= cz + radius:
+			var ix: int = clampi(roundi(x / tscale.x), 0, data.width - 1)
+			var iz: int = clampi(roundi(z / tscale.z), 0, data.height - 1)
+			heights.append(data.get_height_at(ix, iz))
+			z += step
+		x += step
+
+	if heights.is_empty():
+		return INF
+
+	var mean: float = 0.0
+	for i in range(heights.size()):
+		mean += heights[i]
+	mean /= float(heights.size())
+
+	var variance: float = 0.0
+	for i in range(heights.size()):
+		var diff: float = heights[i] - mean
+		variance += diff * diff
+	return variance / float(heights.size())
