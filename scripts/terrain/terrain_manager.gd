@@ -3,6 +3,8 @@ extends Node3D
 ## Manages heightmap terrain chunk loading/unloading based on player distance.
 ## Assigns LOD levels: 0 (full) for nearby, 1 (half) for mid, 2 (quarter) for far.
 
+const _OverworldPropRegistry := preload("res://scripts/terrain/overworld_prop_registry.gd")
+
 signal loading_progress(done: int, total: int)  ## Emitted each frame during preload
 signal loading_complete                          ## Emitted when all chunks are preloaded
 
@@ -220,9 +222,18 @@ func _unload_chunk(key: Vector2i) -> void:
 
 func _load_props(cx: int, cz: int) -> void:
 	var key := Vector2i(cx, cz)
-	var props_root: Node3D = PropScatter.scatter_chunk(_data, cx, cz, _prop_seed, visual_only_props)
+	var ow_defs: Array = _get_prop_defs()
+	var props_root: Node3D = PropScatter.scatter_chunk(_data, cx, cz, _prop_seed, visual_only_props, ow_defs)
 	add_child(props_root)
 	_loaded_props[key] = props_root
+
+
+func _get_prop_defs() -> Array:
+	## Returns the appropriate prop list for the current map.
+	## Empty array means PropScatter will use PropRegistry.get_all() (area maps).
+	if _data != null and _data.is_overworld:
+		return _OverworldPropRegistry.get_all()
+	return []
 
 
 func _unload_props(key: Vector2i) -> void:

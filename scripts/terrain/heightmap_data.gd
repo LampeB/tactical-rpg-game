@@ -25,10 +25,12 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## Size = width × height × 4.  Channels map to texture_layers[0..3].
 ## Weights are 0–255, normalized to 0.0–1.0 in the shader.
 @export var splatmap: PackedByteArray = PackedByteArray()
+## Second splatmap — channels map to texture_layers[4..7].
+@export var splatmap2: PackedByteArray = PackedByteArray()
 
 @export_group("Texture Layers")
-## Up to 4 terrain texture layers. Each entry is an albedo texture path.
-## The splatmap R/G/B/A channels correspond to layers 0/1/2/3.
+## Up to 8 terrain texture layers. Each entry is an albedo texture path.
+## splatmap channels 0-3 → layers 0-3. splatmap2 channels 0-3 → layers 4-7.
 @export var texture_layers: Array[TerrainTextureLayer] = []
 
 @export_group("Water")
@@ -41,11 +43,26 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## Modular building pieces placed on the terrain (walls, floors, roofs, etc.)
 ## Used by procedural generators. For scene-based maps, place structures as scene nodes instead.
 @export var structures: Array[PlacedStructure] = []
+## Points of interest placed by the procedural generator (dungeons, ruins, camps, shrines).
+## Road generator routes toward these. Overworld spawns encounter zones around them.
+@export var points_of_interest: Array[PointOfInterest] = []
 
 @export_group("Metadata")
 ## World-space scale applied to the heightmap.  x/z = horizontal spacing between
 ## vertices, y = height multiplier.
 @export var terrain_scale: Vector3 = Vector3(1.0, 10.0, 1.0)
+## World-space position of the procedurally generated town center (set by BiomeHeightmapGenerator).
+## Vector3.ZERO means no town has been placed yet.
+@export var town_center: Vector3 = Vector3.ZERO
+## True when this heightmap represents an overworld map (island shape, no roads,
+## tiny decorative props). Used by TerrainManager to select the correct prop registry.
+@export var is_overworld: bool = false
+## Per-vertex island index (overworld only). 0 = ocean, 1 = first island, 2 = second, etc.
+## Empty for non-overworld maps. Size = width × height when populated.
+@export var island_indices: PackedByteArray = PackedByteArray()
+## Per-vertex forest density (overworld only). 0 = open land, 255 = dense forest.
+## Props with forest_only=true only spawn where this is > 0.
+@export var forest_density: PackedByteArray = PackedByteArray()
 
 
 ## Cached river exclusion mask — one byte per vertex (0 = clear, 1 = inside river channel).
@@ -106,6 +123,33 @@ func set_splatmap_weights(x: int, z: int, weights: Color) -> void:
 	splatmap[idx + 1] = clampi(int(weights.g * 255.0), 0, 255)
 	splatmap[idx + 2] = clampi(int(weights.b * 255.0), 0, 255)
 	splatmap[idx + 3] = clampi(int(weights.a * 255.0), 0, 255)
+
+
+func get_splatmap2_weights(x: int, z: int) -> Color:
+	if x < 0 or x >= width or z < 0 or z >= height:
+		return Color(0, 0, 0, 0)
+	if splatmap2.is_empty():
+		return Color(0, 0, 0, 0)
+	var idx: int = (z * width + x) * 4
+	if idx + 3 >= splatmap2.size():
+		return Color(0, 0, 0, 0)
+	return Color(
+		splatmap2[idx] / 255.0,
+		splatmap2[idx + 1] / 255.0,
+		splatmap2[idx + 2] / 255.0,
+		splatmap2[idx + 3] / 255.0
+	)
+
+
+func set_splatmap2_weights(x: int, z: int, weights: Color) -> void:
+	if x < 0 or x >= width or z < 0 or z >= height:
+		return
+	_ensure_splatmap2()
+	var idx: int = (z * width + x) * 4
+	splatmap2[idx] = clampi(int(weights.r * 255.0), 0, 255)
+	splatmap2[idx + 1] = clampi(int(weights.g * 255.0), 0, 255)
+	splatmap2[idx + 2] = clampi(int(weights.b * 255.0), 0, 255)
+	splatmap2[idx + 3] = clampi(int(weights.a * 255.0), 0, 255)
 
 
 func initialize(default_height: float = 0.0) -> void:
@@ -217,6 +261,12 @@ func _ensure_splatmap() -> void:
 	if splatmap.size() != total:
 		splatmap.resize(total)
 		splatmap.fill(0)
-		# Default: layer 0 full weight
 		for i in range(width * height):
-			splatmap[i * 4] = 255
+			splatmap[i * 4] = 255  # Default: layer 0 full weight
+
+
+func _ensure_splatmap2() -> void:
+	var total: int = width * height * 4
+	if splatmap2.size() != total:
+		splatmap2.resize(total)
+		splatmap2.fill(0)  # Default: all zeros (no weight in layers 4-7)

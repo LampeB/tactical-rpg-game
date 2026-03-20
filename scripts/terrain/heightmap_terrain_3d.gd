@@ -6,7 +6,12 @@ extends Node3D
 ## Baked chunks are visible at runtime — no streaming needed for pre-built maps.
 
 const _BiomeGenerator := preload("res://scripts/terrain/biome_heightmap_generator.gd")
+const _OverworldGenerator := preload("res://scripts/terrain/overworld_heightmap_generator.gd")
 const _RiverBody := preload("res://scripts/terrain/river_body.gd")
+const _WaterBody := preload("res://scripts/terrain/water_body.gd")
+const _PropScatter := preload("res://scripts/terrain/prop_scatter.gd")
+const _OverworldPropRegistry := preload("res://scripts/terrain/overworld_prop_registry.gd")
+const _PropRegistry := preload("res://scripts/terrain/prop_registry.gd")
 
 @export var heightmap_data: HeightmapData = null:
 	set(value):
@@ -21,6 +26,9 @@ const _RiverBody := preload("res://scripts/terrain/river_body.gd")
 @export_range(17, 1025) var gen_depth: int = 81
 ## Seed for procedural noise generation. Different seeds = different terrain.
 @export var gen_seed: int = 42
+## When true, uses OverworldHeightmapGenerator (island shape, terrain_scale 3×20×3).
+## When false, uses BiomeHeightmapGenerator (directional edges, terrain_scale 1×8×1).
+@export var use_overworld_generator: bool = false
 ## Click to generate a new HeightmapData from the parameters above.
 ## Replaces the current heightmap_data. The resource is saved alongside the scene.
 @export var generate: bool = false:
@@ -40,6 +48,8 @@ const _RiverBody := preload("res://scripts/terrain/river_body.gd")
 
 var _chunk_parent: Node3D = null
 var _river_parent: Node3D = null
+var _water_parent: Node3D = null
+var _prop_parent: Node3D = null
 var _chunks: Dictionary = {}  ## Vector2i -> HeightmapChunk
 
 
@@ -52,13 +62,16 @@ func _ready() -> void:
 
 func _generate_heightmap() -> void:
 	## Generates a new HeightmapData from the gen_* parameters.
-	heightmap_data = _BiomeGenerator.generate(gen_width, gen_depth, gen_seed)
-	# Mark the resource as local so it saves with the scene
-	heightmap_data.resource_name = "terrain_%d" % gen_seed
+	if use_overworld_generator:
+		heightmap_data = _OverworldGenerator.generate(gen_width, gen_depth, gen_seed)
+		heightmap_data.resource_name = "overworld_%d" % gen_seed
+	else:
+		heightmap_data = _BiomeGenerator.generate(gen_width, gen_depth, gen_seed)
+		heightmap_data.resource_name = "terrain_%d" % gen_seed
 	notify_property_list_changed()
 	_rebuild()
-	print("[HeightmapTerrain3D] Generated %dx%d terrain (seed %d), %d chunks" % [
-		gen_width, gen_depth, gen_seed,
+	print("[HeightmapTerrain3D] Generated %dx%d terrain (seed %d, overworld=%s), %d chunks" % [
+		gen_width, gen_depth, gen_seed, str(use_overworld_generator),
 		heightmap_data.get_chunk_count_x() * heightmap_data.get_chunk_count_z()
 	])
 
@@ -86,8 +99,10 @@ func _rebuild() -> void:
 			_chunk_parent.add_child(chunk)
 			_chunks[Vector2i(cx, cz)] = chunk
 
-	# Spawn river bodies
+	# Spawn river bodies, water, and props
 	_rebuild_rivers()
+	_rebuild_water()
+	_rebuild_props()
 
 
 func _rebuild_rivers() -> void:
@@ -110,6 +125,58 @@ func _rebuild_rivers() -> void:
 		_river_parent.add_child(river_body)
 
 
+func _rebuild_water() -> void:
+	if _water_parent:
+		for child in _water_parent.get_children():
+			child.queue_free()
+	else:
+		_water_parent = Node3D.new()
+		_water_parent.name = "Water"
+		add_child(_water_parent)
+
+	if not heightmap_data:
+		return
+
+	var zones: Array = heightmap_data.water_zones
+	for i in range(zones.size()):
+		var zone = zones[i]
+		var water: MeshInstance3D = _WaterBody.new()
+		water.water_size = zone.size
+		water.water_shape = zone.shape
+		water.water_level = zone.center.y
+		water.shallow_color = zone.shallow_color
+		water.deep_color = zone.deep_color
+		water.wave_speed = zone.wave_speed
+		water.wave_strength = zone.wave_strength
+		water.position = Vector3(zone.center.x, zone.center.y, zone.center.z)
+		_water_parent.add_child(water)
+
+
+func _rebuild_props() -> void:
+	if _prop_parent:
+		for child in _prop_parent.get_children():
+			child.queue_free()
+	else:
+		_prop_parent = Node3D.new()
+		_prop_parent.name = "Props"
+		add_child(_prop_parent)
+
+	if not heightmap_data:
+		return
+
+	var prop_defs: Array = []
+	if heightmap_data.is_overworld:
+		prop_defs = _OverworldPropRegistry.get_all()
+
+	var cx_count: int = heightmap_data.get_chunk_count_x()
+	var cz_count: int = heightmap_data.get_chunk_count_z()
+	for cz in range(cz_count):
+		for cx in range(cx_count):
+			var props_root: Node3D = _PropScatter.scatter_chunk(
+				heightmap_data, cx, cz, 42, false, prop_defs)
+			_prop_parent.add_child(props_root)
+
+
 func _clear_chunks() -> void:
 	if _chunk_parent:
 		var keys: Array = _chunks.keys()
@@ -120,6 +187,12 @@ func _clear_chunks() -> void:
 		_chunks.clear()
 	if _river_parent:
 		for child in _river_parent.get_children():
+			child.queue_free()
+	if _water_parent:
+		for child in _water_parent.get_children():
+			child.queue_free()
+	if _prop_parent:
+		for child in _prop_parent.get_children():
 			child.queue_free()
 
 

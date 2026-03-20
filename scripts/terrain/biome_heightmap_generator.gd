@@ -6,16 +6,24 @@ extends RefCounted
 
 const _TerrainErosion := preload("res://scripts/terrain/terrain_erosion.gd")
 const _RiverGenerator := preload("res://scripts/terrain/river_generator.gd")
+const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
+const _RoadGenerator := preload("res://scripts/terrain/road_generator.gd")
 
 ## Material-LIB base path (gitignored — textures only exist locally)
 const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
 
-## Layer definitions: [folder, albedo_suffix, normal_suffix, uv_scale]
+## Layer definitions: [folder, base, uv_scale, label]
+## Layers 0-3 → splatmap1 (vertex colors R/G/B/A)
+## Layers 4-7 → splatmap2 (texture channels R/G/B/A)
 const _LAYER_DEFS: Array[Dictionary] = [
-	{"folder": "FoliageGrass", "base": "FoliageGrass", "uv": 15.0, "label": "Grass"},
-	{"folder": "SurfaceGround", "base": "SurfaceGround", "uv": 12.0, "label": "Dirt"},
-	{"folder": "SurfaceRock", "base": "SurfaceRock", "uv": 8.0, "label": "Rock"},
-	{"folder": "SurfaceStone", "base": "SurfaceStone", "uv": 10.0, "label": "Snow"},
+	{"folder": "FoliageGrass",  "base": "FoliageGrass",  "uv": 15.0, "label": "Grass"},
+	{"folder": "Sand",          "base": "Sand",           "uv": 12.0, "label": "Sand"},
+	{"folder": "SurfaceRock",   "base": "SurfaceRock",   "uv": 8.0,  "label": "Rock"},
+	{"folder": "SurfaceStone",  "base": "SurfaceStone",  "uv": 10.0, "label": "Snow"},
+	{"folder": "SurfaceSoil",   "base": "SurfaceSoil",   "uv": 10.0, "label": "Soil"},
+	{"folder": "SurfacePebbles","base": "SurfacePebbles","uv": 8.0,  "label": "Pebbles"},
+	{"folder": "SurfaceCliff",  "base": "SurfaceCliff",  "uv": 6.0,  "label": "Cliff"},
+	{"folder": "Moss",          "base": "Moss",          "uv": 12.0, "label": "Moss"},
 ]
 
 
@@ -28,12 +36,14 @@ class BiomeProfile:
 	var height_amplitude: float
 	var noise_frequency: float
 	var noise_octaves: int
-	var splat_weights: Color  ## Primary splatmap blend
+	var splat_weights: Color   ## Splatmap1 blend: R=Grass G=Sand B=Rock A=Snow
+	var splat_weights2: Color  ## Splatmap2 blend: R=Soil G=Pebbles B=Cliff A=Moss
 	var water_level: float  ## Below this height, terrain is submerged (negative = no water)
 
 	func _init(
 		p_id: String, p_base: float, p_amp: float,
-		p_freq: float, p_oct: int, p_splat: Color, p_water: float = -1.0
+		p_freq: float, p_oct: int, p_splat: Color, p_water: float = -1.0,
+		p_splat2: Color = Color(0, 0, 0, 0)
 	) -> void:
 		id = p_id
 		height_base = p_base
@@ -41,6 +51,7 @@ class BiomeProfile:
 		noise_frequency = p_freq
 		noise_octaves = p_oct
 		splat_weights = p_splat
+		splat_weights2 = p_splat2
 		water_level = p_water
 
 
@@ -52,18 +63,19 @@ static func _get_biomes() -> Array:
 	if not _biomes_cache.is_empty():
 		return _biomes_cache
 	_biomes_cache = [
-		# Plains: flat with gentle rolling hills, grass dominant
-		BiomeProfile.new("plains", 0.2, 0.3, 0.015, 3, Color(0.9, 0.1, 0.0, 0.0)),
-		# Forest: moderate hills, grass + dirt
-		BiomeProfile.new("forest", 0.3, 0.5, 0.025, 4, Color(0.6, 0.3, 0.1, 0.0)),
-		# Hills: taller rolling terrain, dirt + rock
-		BiomeProfile.new("hills", 0.5, 0.7, 0.02, 4, Color(0.2, 0.5, 0.3, 0.0)),
-		# Mountains: high peaks, rock dominant
-		BiomeProfile.new("mountains", 0.7, 1.0, 0.03, 5, Color(0.0, 0.1, 0.8, 0.1)),
-		# Snow peaks: highest, snow + rock
-		BiomeProfile.new("snow_peaks", 0.8, 1.0, 0.035, 5, Color(0.0, 0.0, 0.3, 0.7)),
-		# Wetlands: low and flat with water, grass + dirt
-		BiomeProfile.new("wetlands", 0.05, 0.15, 0.01, 2, Color(0.5, 0.4, 0.1, 0.0), 0.8),
+		# Plains: flat grass, soil patches
+		#                                                splat1                        water  splat2(Soil Pebbles Cliff Moss)
+		BiomeProfile.new("plains",     0.2, 0.3, 0.015, 3, Color(0.9, 0.0, 0.05, 0.0), -1.0, Color(0.05, 0.0, 0.0, 0.0)),
+		# Forest: grass + moss understory
+		BiomeProfile.new("forest",     0.3, 0.5, 0.025, 4, Color(0.7, 0.0, 0.1,  0.0), -1.0, Color(0.05, 0.0, 0.0, 0.15)),
+		# Hills: rock dominant, pebble scree
+		BiomeProfile.new("hills",      0.5, 0.7, 0.02,  4, Color(0.2, 0.0, 0.7,  0.0), -1.0, Color(0.0,  0.1, 0.0, 0.0)),
+		# Mountains: rock + cliff faces
+		BiomeProfile.new("mountains",  0.7, 1.0, 0.03,  5, Color(0.0, 0.0, 0.8,  0.1), -1.0, Color(0.0,  0.1, 0.1, 0.0)),
+		# Snow peaks: snow + rock + cliff
+		BiomeProfile.new("snow_peaks", 0.8, 1.0, 0.035, 5, Color(0.0, 0.0, 0.15, 0.8), -1.0, Color(0.0,  0.05,0.05,0.0)),
+		# Wetlands: grass + soil + moss
+		BiomeProfile.new("wetlands",   0.05,0.15,0.01,  2, Color(0.5, 0.0, 0.1,  0.0), 0.8,  Color(0.25, 0.0, 0.0, 0.15)),
 	]
 	return _biomes_cache
 
@@ -125,6 +137,8 @@ static func generate(
 	# Store biome-blended splatmap weights for Pass 2 (after erosion modifies heights).
 	var biome_splats := PackedColorArray()
 	biome_splats.resize(map_width * map_height)
+	var biome_splats2 := PackedColorArray()
+	biome_splats2.resize(map_width * map_height)
 
 	for z in range(map_height):
 		for x in range(map_width):
@@ -137,6 +151,7 @@ static func generate(
 			# Blend height from all biomes
 			var h: float = 0.0
 			var splat := Color(0, 0, 0, 0)
+			var splat2 := Color(0, 0, 0, 0)
 			for bi in range(biome_count):
 				var w: float = biome_weights[bi]
 				if w < 0.001:
@@ -150,6 +165,10 @@ static func generate(
 				splat.g += bp.splat_weights.g * w
 				splat.b += bp.splat_weights.b * w
 				splat.a += bp.splat_weights.a * w
+				splat2.r += bp.splat_weights2.r * w
+				splat2.g += bp.splat_weights2.g * w
+				splat2.b += bp.splat_weights2.b * w
+				splat2.a += bp.splat_weights2.a * w
 
 			# Add fine detail noise
 			h += detail_noise.get_noise_2d(x, z) * 0.15
@@ -171,6 +190,7 @@ static func generate(
 
 			data.set_height_at(x, z, h)
 			biome_splats[z * map_width + x] = splat
+			biome_splats2[z * map_width + x] = splat2
 
 	# --- Erosion pass (modifies heights for natural drainage and valleys) ---
 	_TerrainErosion.apply(data, map_seed)
@@ -180,7 +200,7 @@ static func generate(
 	data.rivers = rivers
 
 	# --- Pass 2: Assign splatmap from biome weights + post-erosion heights ---
-	_assign_splatmap(data, biome_splats, map_width, map_height)
+	_assign_splatmap(data, biome_splats, biome_splats2, map_width, map_height)
 
 	# --- Paint river banks AFTER splatmap so they aren't overwritten ---
 	_RiverGenerator.paint_all_banks(data)
@@ -197,6 +217,12 @@ static func generate(
 	# --- Re-carve rivers and update Y coords after town flattening ---
 	# Town flattening overwrites carved riverbeds, so rivers must be re-applied.
 	_RiverGenerator.recarve_and_update(data)
+
+	# --- Points of interest (dungeons, ruins, camps, shrines) ---
+	_PoiGenerator.generate(data, map_seed)
+
+	# --- Roads (connect town to POIs and ocean exits) ---
+	_RoadGenerator.generate(data, map_seed)
 
 	# --- Build river exclusion mask for prop scatter ---
 	data.build_river_mask(8)
@@ -336,15 +362,20 @@ static func _is_sea_edge(x: int, z: int, w: int, h: int) -> bool:
 
 
 static func _assign_splatmap(data: HeightmapData, biome_splats: PackedColorArray,
-		map_width: int, map_height: int) -> void:
+		biome_splats2: PackedColorArray, map_width: int, map_height: int) -> void:
 	## Pass 2: Assigns splatmap weights using biome-blended colors + post-erosion heights.
 	## Adds slope-based cliff painting and height-based overrides.
 	var tscale_y: float = data.terrain_scale.y
 	var tscale_x: float = data.terrain_scale.x
 
+	var beach_vertex_count: int = 0
+	var cliff_vertex_count: int = 0
+	var scree_vertex_count: int = 0
+
 	for z in range(map_height):
 		for x in range(map_width):
 			var splat: Color = biome_splats[z * map_width + x]
+			var splat2: Color = biome_splats2[z * map_width + x]
 			var h: float = data.get_height_at(x, z)
 			var world_h: float = h * tscale_y
 
@@ -357,10 +388,20 @@ static func _assign_splatmap(data: HeightmapData, biome_splats: PackedColorArray
 			var dx: float = (h_right - h_left) / (2.0 * tscale_x)
 			var dz: float = (h_down - h_up) / (2.0 * tscale_x)
 			var slope: float = sqrt(dx * dx + dz * dz)
-			# slope ~1.0 = 45 degrees, ~1.73 = 60 degrees
-			if slope > 1.0:
-				var cliff_t: float = clampf((slope - 1.0) / 0.73, 0.0, 1.0)
-				splat = splat.lerp(Color(0.0, 0.05, 0.85, 0.1), cliff_t)
+			# slope ~0.6 = 31° (scree begins), ~1.0 = 45° (cliff begins), ~1.73 = 60° (full cliff)
+			if slope > 0.5:
+				if slope < 1.0:
+					# Medium slope — pebble scree (layer5 = Pebbles)
+					var scree_t: float = clampf((slope - 0.5) / 0.5, 0.0, 1.0)
+					splat = splat.lerp(Color(0.1, 0.0, 0.6, 0.0), scree_t * 0.6)
+					splat2 = splat2.lerp(Color(0.0, 0.4, 0.0, 0.0), scree_t * 0.6)
+					scree_vertex_count += 1
+				else:
+					# Steep cliff — cliff texture (layer6 = Cliff)
+					var cliff_t: float = clampf((slope - 1.0) / 0.73, 0.0, 1.0)
+					splat = splat.lerp(Color(0.0, 0.0, 0.3, 0.0), cliff_t)
+					splat2 = splat2.lerp(Color(0.0, 0.0, 0.7, 0.0), cliff_t)
+					cliff_vertex_count += 1
 
 			# --- Height-based overrides ---
 			if world_h > 6.0:
@@ -374,26 +415,44 @@ static func _assign_splatmap(data: HeightmapData, biome_splats: PackedColorArray
 					splat = splat.lerp(Color(0.8, 0.2, 0.0, 0.0), grass_t * 0.5)
 
 			# --- Beach detection (near ocean edges) ---
+			# Wide sandy shore: wet sand right at waterline, dry sand further in.
 			var warp_s: float = _edge_warp(x, z + 1000)
 			var warp_e: float = _edge_warp(x, z + 3000)
 			var dist_south: float = float(map_height - 1 - z) + warp_s
 			var dist_east: float = float(map_width - 1 - x) + warp_e
 			var sea_dist: float = minf(dist_south, dist_east)
 			var beach_start: float = float(_OCEAN_STRIP)
-			var beach_end: float = beach_start + 8.0
-			if sea_dist >= beach_start and sea_dist < beach_end and world_h >= 0.0 and world_h < 2.0:
+			var beach_end: float = beach_start + 20.0
+			if sea_dist >= beach_start and sea_dist < beach_end and world_h >= 0.0 and world_h < 2.5 and slope < 0.35:
 				var beach_t: float = 1.0 - (sea_dist - beach_start) / (beach_end - beach_start)
-				splat = splat.lerp(Color(0.15, 0.75, 0.1, 0.0), beach_t * 0.7)
+				# Wet sand at waterline (pure dirt), dry sand fades to grass further in
+				var wet_t: float = clampf(1.0 - (sea_dist - beach_start) / 10.0, 0.0, 1.0)
+				var sand_color: Color = Color(0.0, 0.95, 0.05, 0.0).lerp(
+					Color(0.25, 0.65, 0.1, 0.0), 1.0 - wet_t)
+				splat = splat.lerp(sand_color, beach_t)
+				beach_vertex_count += 1
 
-			# Normalize
-			var total_w: float = splat.r + splat.g + splat.b + splat.a
+			# Normalize across all 8 channels together
+			var total_w: float = splat.r + splat.g + splat.b + splat.a \
+				+ splat2.r + splat2.g + splat2.b + splat2.a
 			if total_w > 0.001:
 				splat.r /= total_w
 				splat.g /= total_w
 				splat.b /= total_w
 				splat.a /= total_w
+				splat2.r /= total_w
+				splat2.g /= total_w
+				splat2.b /= total_w
+				splat2.a /= total_w
+			else:
+				splat = Color(1, 0, 0, 0)
+				splat2 = Color(0, 0, 0, 0)
 
 			data.set_splatmap_weights(x, z, splat)
+			data.set_splatmap2_weights(x, z, splat2)
+
+	print("[Splatmap] beach=%d  scree=%d  cliff=%d  (total=%d, layers=8)" % [
+		beach_vertex_count, scree_vertex_count, cliff_vertex_count, map_width * map_height])
 
 
 static func _add_textured_layers(data: HeightmapData) -> void:
@@ -570,6 +629,10 @@ static func _add_procedural_town(data: HeightmapData, map_seed: int) -> void:
 		town_size = TownLayoutGenerator.TownSize.CITY
 
 	TownLayoutGenerator.generate_town(data, best_x, best_z, town_size, map_seed + 9500)
+	data.town_center = Vector3(best_x, data.get_height_at(
+		clampi(roundi(best_x / data.terrain_scale.x), 0, data.width - 1),
+		clampi(roundi(best_z / data.terrain_scale.z), 0, data.height - 1)
+	) * data.terrain_scale.y, best_z)
 
 
 static func _terrain_variance(data: HeightmapData, cx: float, cz: float, radius: float) -> float:

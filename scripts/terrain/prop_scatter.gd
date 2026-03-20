@@ -11,7 +11,7 @@ static var _wind_shader: Shader = null
 
 
 static func scatter_chunk(data: HeightmapData, cx: int, cz: int, seed_offset: int,
-		visual_only: bool = false) -> Node3D:
+		visual_only: bool = false, prop_defs: Array = []) -> Node3D:
 	## Generates props for chunk (cx, cz). Returns a Node3D parent containing
 	## MultiMeshInstance3D nodes (visual) and StaticBody3D nodes (blocking).
 	var root := Node3D.new()
@@ -33,8 +33,12 @@ static func scatter_chunk(data: HeightmapData, cx: int, cz: int, seed_offset: in
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(Vector2i(cx, cz)) + seed_offset
 
-	# Get all prop definitions
-	var all_props: Array[PropDefinition] = PropRegistry.get_all()
+	# Get prop definitions — caller can override with a custom list (e.g. overworld)
+	var all_props: Array[PropDefinition] = []
+	if prop_defs.is_empty():
+		all_props = PropRegistry.get_all()
+	else:
+		all_props.assign(prop_defs)
 
 	# For each prop type, decide how many to place and scatter them
 	for pi in range(all_props.size()):
@@ -68,6 +72,22 @@ static func scatter_chunk(data: HeightmapData, cx: int, cz: int, seed_offset: in
 			var gz: float = float(origin_z) + local_z / tscale.z
 			var ix: int = clampi(roundi(gx), 0, data.width - 1)
 			var iz: int = clampi(roundi(gz), 0, data.height - 1)
+
+			# Check island restriction (overworld only)
+			if not data.island_indices.is_empty():
+				var vertex_island: int = data.island_indices[iz * data.width + ix]
+				# Skip ocean (index 0) for all props
+				if vertex_island == 0:
+					continue
+				# Skip wrong island for island-specific props
+				if prop.allowed_island > 0 and vertex_island != prop.allowed_island:
+					continue
+
+			# Forest-only props: skip if not inside a forest zone
+			if prop.forest_only and not data.forest_density.is_empty():
+				var fd: int = data.forest_density[iz * data.width + ix]
+				if fd < 20:
+					continue
 
 			# Check splatmap layer compatibility
 			var weights: Color = data.get_splatmap_weights(ix, iz)

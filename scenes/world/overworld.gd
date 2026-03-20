@@ -281,6 +281,21 @@ func _build_scene_based_terrain() -> void:
 
 	# Ground player to spawn position
 	var spawn_pos: Vector3 = _map_data.player_spawn if _map_data else Vector3.ZERO
+	# 1. Check if arriving via a linked connection (target_connection_id)
+	var target_conn_id: String = GameManager.get_flag("target_connection_id", "")
+	if not target_conn_id.is_empty():
+		GameManager.set_flag("target_connection_id", "")
+		var conn_pos: Vector3 = _find_connection_position(_map_scene_root, target_conn_id)
+		if conn_pos != Vector3.ZERO:
+			spawn_pos = conn_pos
+	# 2. Otherwise check for saved position (returning from battle/menu)
+	elif GameManager.get_flag("overworld_position", Vector3.ZERO) != Vector3.ZERO:
+		spawn_pos = GameManager.get_flag("overworld_position", Vector3.ZERO)
+	# 3. Otherwise use SpawnPoint3D node if present
+	else:
+		var spawn_node: Node3D = _find_child_of_type(_map_scene_root, "SpawnPoint3D") as Node3D
+		if spawn_node:
+			spawn_pos = spawn_node.global_position
 	spawn_pos.y = _get_terrain_height(spawn_pos) + 2.0
 	_player.global_position = spawn_pos
 
@@ -357,6 +372,23 @@ func _find_child_of_type(node: Node, type_name: String) -> Node:
 		if found:
 			return found
 	return null
+
+
+func _find_connection_position(root: Node, conn_id: String) -> Vector3:
+	## Finds a ConnectionMarker whose connection_data.connection_id matches conn_id.
+	## Returns its global_position, or Vector3.ZERO if not found.
+	if root.get_script() and root.get_script().get_global_name() == "":
+		# Check if it's a connection marker by duck-typing
+		pass
+	if root is Area3D and root.has_method("get_display_name"):
+		var data = root.get("connection_data")
+		if data is MapConnection and data.connection_id == conn_id:
+			return root.global_position
+	for i in range(root.get_child_count()):
+		var result: Vector3 = _find_connection_position(root.get_child(i), conn_id)
+		if result != Vector3.ZERO:
+			return result
+	return Vector3.ZERO
 
 
 func _find_children_of_type(node: Node, type_name: String) -> Array:
