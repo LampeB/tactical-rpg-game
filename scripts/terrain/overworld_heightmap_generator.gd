@@ -77,6 +77,8 @@ static func _get_biomes() -> Array:
 ## Island warp noise (lazy) — used to give the coastline an organic shape
 static var _island_warp: FastNoiseLite = null
 static var _island_warp2: FastNoiseLite = null  ## Second warp layer for X/Z independent distortion
+static var _forest_placement: FastNoiseLite = null  ## Cellular noise for forest patch centers
+static var _forest_shape: FastNoiseLite = null       ## Simplex noise for organic edge distortion
 
 
 static func _init_noises(map_seed: int) -> void:
@@ -97,12 +99,37 @@ static func _init_noises(map_seed: int) -> void:
 	_island_warp2.fractal_gain = 0.45
 	_island_warp2.seed = map_seed + 8200
 
+	# Forest patch placement — cellular creates distinct blob centers
+	_forest_placement = FastNoiseLite.new()
+	_forest_placement.noise_type = FastNoiseLite.TYPE_CELLULAR
+	_forest_placement.frequency = 0.007
+	_forest_placement.fractal_octaves = 1
+	_forest_placement.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
+	_forest_placement.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+	_forest_placement.seed = map_seed + 9000
+
+	# Forest edge distortion — makes patch shapes organic and irregular
+	_forest_shape = FastNoiseLite.new()
+	_forest_shape.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_forest_shape.frequency = 0.03
+	_forest_shape.fractal_octaves = 3
+	_forest_shape.fractal_lacunarity = 2.0
+	_forest_shape.fractal_gain = 0.5
+	_forest_shape.seed = map_seed + 9500
+
 
 ## Computed at generation time — main continent placed first, second island fills remaining space
 static var _islands: Array[Dictionary] = []
 
 ## Mountain peaks — {"cx", "cz" in -1..1 normalized, "height" in normalized units, "radius" in normalized}
 static var _mountains: Array[Dictionary] = []
+
+## Ridge polylines (normalized coords) — used for zone assignment via signed distance
+## Each is an Array[Vector2] of spine points (not fillers), ordered along the ridge.
+static var _ridge_main: Array[Vector2] = []
+static var _ridge_sw: Array[Vector2] = []
+static var _ridge_se: Array[Vector2] = []
+static var _ridge_north_spur: Array[Vector2] = []
 
 
 static func _compute_islands(map_width: int, map_height: int) -> void:
@@ -196,6 +223,20 @@ static func _compute_islands(map_width: int, map_height: int) -> void:
 		{"ox":  0.13, "oz":  0.15, "h": 3.00, "r": 0.04},
 		{"ox":  0.07, "oz":  0.20, "h": 2.80, "r": 0.04},
 	]
+
+	# Build ridge polylines from spine points (excluding fillers) for zone assignment
+	_ridge_main.clear()
+	for i in range(main_ridge.size()):
+		_ridge_main.append(Vector2(mcx + main_ridge[i]["ox"], main_ridge[i]["oz"]))
+	_ridge_sw.clear()
+	for i in range(5):  # first 5 are spine, rest are fillers
+		_ridge_sw.append(Vector2(mcx + sw_branch[i]["ox"], sw_branch[i]["oz"]))
+	_ridge_se.clear()
+	for i in range(5):  # first 5 are spine, rest are fillers
+		_ridge_se.append(Vector2(mcx + se_range[i]["ox"], se_range[i]["oz"]))
+	_ridge_north_spur.clear()
+	for i in range(north_spur.size()):
+		_ridge_north_spur.append(Vector2(mcx + north_spur[i]["ox"], north_spur[i]["oz"]))
 
 	# Add all peaks
 	var all_peaks: Array[Array] = [main_ridge, ridge_fill, north_spur,
@@ -309,6 +350,7 @@ static func generate(
 	data.initialize(0.0)
 	data.island_indices.resize(map_width * map_depth)
 	data.forest_density.resize(map_width * map_depth)
+	data.zone_ids.resize(map_width * map_depth)
 
 	# --- Initialize island warp noise + compute island placement ---
 	_init_noises(map_seed)
@@ -413,21 +455,17 @@ static func generate(
 				biome_splats[z * map_width + x] = splat
 				biome_splats2[z * map_width + x] = splat2
 
-	# --- Forest zones: one circle per island ---
-	_compute_forest_zones(data, map_width, map_depth)
+	# --- Zone assignment: classify vertices into regions using ridge polylines ---
+	_compute_zone_ids(data, map_width, map_depth)
+
+	# --- Forest zones: noise-based organic patches (zone-aware) ---
+	_compute_forest_zones(data, map_width, map_depth, island_masks)
 
 	# --- Erosion ---
 	_TerrainErosion.apply(data, map_seed)
 
-	# --- Rivers ---
-	var rivers: Array[RiverPath] = _RiverGenerator.generate(data, map_seed)
-	data.rivers = rivers
-
 	# --- Pass 2: Splatmap ---
 	_assign_splatmap(data, biome_splats, biome_splats2, island_masks, map_width, map_depth)
-
-	# --- River banks ---
-	_RiverGenerator.paint_all_banks(data)
 
 	# --- Texture layers ---
 	_add_textured_layers(data)
@@ -435,17 +473,8 @@ static func generate(
 	# --- Water zones ---
 	_add_water(data, map_seed)
 
-	# --- Town (starting hub) ---
-	_add_procedural_town(data, map_seed)
-
-	# --- Re-carve rivers after town flattening ---
-	_RiverGenerator.recarve_and_update(data)
-
-	# --- Points of interest (area transition markers) ---
+	# --- Points of interest ---
 	_PoiGenerator.generate(data, map_seed)
-
-	# --- River exclusion mask for prop scatter ---
-	data.build_river_mask(10)
 
 	print("[OverworldGenerator] %dx%d overworld generated (seed %d)" % [map_width, map_depth, map_seed])
 
@@ -453,44 +482,175 @@ static func generate(
 
 
 # ---------------------------------------------------------------------------
-# Forest density
+# Zone assignment
 # ---------------------------------------------------------------------------
 
-## Forest zones: simple circles placed on each island.
-## {"cx": vertex x, "cz": vertex z, "radius": in vertices, "island": island index}
-static var _forest_zones: Array[Dictionary] = []
+## Zone IDs
+const ZONE_OCEAN: int = 0
+const ZONE_JUNGLE: int = 1       ## Default land — dense tropical, covers the central area
+const ZONE_DESERT: int = 2       ## West corridor between SW branch and main ridge
+const ZONE_SWAMP: int = 3        ## North of main ridge
+const ZONE_DEATHBLIGHT: int = 4  ## Circular patch within the jungle
+const ZONE_FORTRESS: int = 5     ## Cliff island + north mountain pocket
+const ZONE_CLIFF_ISLAND: int = 255
+
+## Deathblight patch center (normalized coords) — placed in the middle of the jungle
+const _DEATHBLIGHT_CENTER := Vector2(-0.15, 0.12)
+const _DEATHBLIGHT_RADIUS: float = 0.12
 
 
-static func _compute_forest_zones(data: HeightmapData, map_width: int, map_height: int) -> void:
-	## Places one forest circle per island on a flat grassy area.
-	_forest_zones.clear()
-	var tscale: Vector3 = data.terrain_scale
-
-	for isle_idx in range(_islands.size()):
-		var isle: Dictionary = _islands[isle_idx]
-		# Convert island center from normalized -1..1 to vertex coords
-		var cx: int = roundi((isle["cx"] + 1.0) * 0.5 * float(map_width - 1))
-		var cz: int = roundi((isle["cz"] + 1.0) * 0.5 * float(map_height - 1))
-		# Offset from island center so forest isn't on top of town
-		cx = clampi(cx + 30, 0, map_width - 1)
-		cz = clampi(cz - 20, 0, map_height - 1)
-		# Small radius: ~25 vertices = 75m world radius
-		_forest_zones.append({"cx": cx, "cz": cz, "radius": 25, "island": isle_idx + 1})
-
-	# Fill forest_density: 255 inside circles, 0 outside
+static func _compute_zone_ids(data: HeightmapData, map_width: int, map_height: int) -> void:
+	## Assigns a zone ID to each vertex using Z-interpolation on ridge polylines.
+	## For roughly horizontal ridges: compare point.z vs ridge.z at point.x → north/south.
+	## For roughly vertical ridges: compare point.x vs ridge.x at point.z → west/east.
 	for z in range(map_height):
 		for x in range(map_width):
 			var idx: int = z * map_width + x
-			var fd: int = 0
-			for fi in range(_forest_zones.size()):
-				var fz: Dictionary = _forest_zones[fi]
-				var dx: float = float(x - fz["cx"])
-				var dz: float = float(z - fz["cz"])
-				var r: float = float(fz["radius"])
-				if dx * dx + dz * dz < r * r:
-					fd = 255
-					break
-			data.forest_density[idx] = fd
+
+			var isle_idx: int = data.island_indices[idx]
+			if isle_idx == 0 or data.get_height_at(x, z) < 0.0:
+				data.zone_ids[idx] = ZONE_OCEAN
+				continue
+			if isle_idx == 2:
+				data.zone_ids[idx] = ZONE_FORTRESS
+				continue
+
+			var nx: float = float(x) / float(map_width - 1) * 2.0 - 1.0
+			var nz: float = float(z) / float(map_height - 1) * 2.0 - 1.0
+
+			# Main ridge runs W→E: check if point is north (nz < ridge_z)
+			var north_of_main: bool = _is_north_of(nx, nz, _ridge_main)
+			# SW branch runs NE→SW (more vertical): check if point is west (nx < ridge_x)
+			var west_of_sw: bool = _is_west_of(nx, nz, _ridge_sw)
+
+			if north_of_main:
+				# Fortress pocket between main ridge and north spur
+				if not _ridge_north_spur.is_empty():
+					var d_main: float = _dist_to_polyline(nx, nz, _ridge_main)
+					var d_spur: float = _dist_to_polyline(nx, nz, _ridge_north_spur)
+					if d_main < 0.10 and d_spur < 0.10:
+						data.zone_ids[idx] = ZONE_FORTRESS
+						continue
+				data.zone_ids[idx] = ZONE_SWAMP
+			elif west_of_sw:
+				data.zone_ids[idx] = ZONE_DESERT
+			else:
+				# Deathblight circle in the jungle
+				var dx: float = nx - _DEATHBLIGHT_CENTER.x
+				var dz: float = nz - _DEATHBLIGHT_CENTER.y
+				if dx * dx + dz * dz < _DEATHBLIGHT_RADIUS * _DEATHBLIGHT_RADIUS:
+					data.zone_ids[idx] = ZONE_DEATHBLIGHT
+				else:
+					data.zone_ids[idx] = ZONE_JUNGLE
+
+
+static func _is_north_of(px: float, pz: float, ridge: Array[Vector2]) -> bool:
+	## Returns true if point is north of the ridge (pz < ridge's interpolated z at px).
+	if ridge.size() < 2:
+		return false
+	for i in range(ridge.size() - 1):
+		var ax: float = ridge[i].x
+		var bx: float = ridge[i + 1].x
+		var min_x: float = minf(ax, bx)
+		var max_x: float = maxf(ax, bx)
+		if px >= min_x and px <= max_x:
+			var t: float = (px - ax) / (bx - ax) if absf(bx - ax) > 0.001 else 0.0
+			var ridge_z: float = ridge[i].y + t * (ridge[i + 1].y - ridge[i].y)
+			return pz < ridge_z
+	# Outside ridge X range — compare to nearest endpoint
+	if px < minf(ridge[0].x, ridge[ridge.size() - 1].x):
+		return pz < ridge[0].y
+	return pz < ridge[ridge.size() - 1].y
+
+
+static func _is_west_of(px: float, pz: float, ridge: Array[Vector2]) -> bool:
+	## Returns true if point is west of the ridge (px < ridge's interpolated x at pz).
+	if ridge.size() < 2:
+		return false
+	for i in range(ridge.size() - 1):
+		var az: float = ridge[i].y
+		var bz: float = ridge[i + 1].y
+		var min_z: float = minf(az, bz)
+		var max_z: float = maxf(az, bz)
+		if pz >= min_z and pz <= max_z:
+			var t: float = (pz - az) / (bz - az) if absf(bz - az) > 0.001 else 0.0
+			var ridge_x: float = ridge[i].x + t * (ridge[i + 1].x - ridge[i].x)
+			return px < ridge_x
+	# Outside ridge Z range — compare to nearest endpoint
+	if pz < minf(ridge[0].y, ridge[ridge.size() - 1].y):
+		return px < ridge[0].x
+	return px < ridge[ridge.size() - 1].x
+
+
+static func _dist_to_polyline(px: float, pz: float, poly: Array[Vector2]) -> float:
+	## Returns unsigned distance from point to the closest point on the polyline.
+	var best: float = INF
+	for i in range(poly.size() - 1):
+		var a: Vector2 = poly[i]
+		var b: Vector2 = poly[i + 1]
+		var ab: Vector2 = b - a
+		var ap := Vector2(px - a.x, pz - a.y)
+		var len_sq: float = ab.dot(ab)
+		if len_sq < 0.0001:
+			continue
+		var t: float = clampf(ap.dot(ab) / len_sq, 0.0, 1.0)
+		var closest: Vector2 = a + ab * t
+		var d: float = Vector2(px - closest.x, pz - closest.y).length()
+		best = minf(best, d)
+	return best
+
+
+# ---------------------------------------------------------------------------
+# Forest density
+# ---------------------------------------------------------------------------
+
+static func _compute_forest_zones(data: HeightmapData, map_width: int, map_height: int,
+		island_masks: PackedFloat32Array) -> void:
+	## Noise-based organic forest patches. Cellular noise picks where forests go,
+	## simplex noise distorts edges for natural shapes. Filtered by elevation and island.
+	var tscale_y: float = data.terrain_scale.y
+
+	for z in range(map_height):
+		for x in range(map_width):
+			var idx: int = z * map_width + x
+			var island: float = island_masks[idx]
+
+			# No forest on ocean or coastline
+			if island < 0.50:
+				data.forest_density[idx] = 0
+				continue
+
+			var h: float = data.get_height_at(x, z) * tscale_y
+
+			# No forest on mountains (above 12m) or very low coast (below 1.5m)
+			if h > 12.0 or h < 1.5:
+				data.forest_density[idx] = 0
+				continue
+
+			# Cellular noise: -1 at cell center, ~0 at cell edge
+			var cell_val: float = _forest_placement.get_noise_2d(float(x), float(z))
+
+			# Simplex distortion: warps the threshold for irregular edges
+			var warp: float = _forest_shape.get_noise_2d(float(x), float(z)) * 0.18
+
+			# Zone overrides for forest density
+			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else ZONE_JUNGLE
+			if zone == ZONE_DESERT or zone == ZONE_DEATHBLIGHT:
+				data.forest_density[idx] = 0
+				continue
+			if zone == ZONE_JUNGLE:
+				data.forest_density[idx] = 255
+				continue
+			if zone == ZONE_SWAMP:
+				# Swamp has sparse dead vegetation, not dense forest
+				data.forest_density[idx] = 0
+				continue
+
+			# Only the core of each cell becomes forest (with warped edge)
+			if cell_val + warp < -0.65:
+				data.forest_density[idx] = 255
+			else:
+				data.forest_density[idx] = 0
 
 
 # ---------------------------------------------------------------------------
@@ -531,6 +691,56 @@ static func _affinity(value: float, center: float, radius: float) -> float:
 		return 0.0
 	var t: float = dist / radius
 	return 1.0 - t * t
+
+
+# ---------------------------------------------------------------------------
+# Splatmap rebuild from imported zone map
+# ---------------------------------------------------------------------------
+
+static func rebuild_splatmap_from_zones(data: HeightmapData) -> void:
+	## Re-applies zone-based splatmap tinting after a zone map import.
+	## Reads existing splatmap weights and overrides them per zone.
+	var w: int = data.width
+	var h: int = data.height
+	for z in range(h):
+		for x in range(w):
+			var idx: int = z * w + x
+			var splat: Color = data.get_splatmap_weights(x, z)
+			var splat2: Color = Color(0, 0, 0, 0)
+			if data.splatmap2.size() >= (idx + 1) * 4:
+				splat2 = data.get_splatmap2_weights(x, z)
+
+			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else 1
+			if zone == ZONE_DESERT:
+				splat = Color(0.0, 0.95, 0.05, 0.0)
+				splat2 = Color(0.0, 0.0, 0.0, 0.0)
+			elif zone == ZONE_SWAMP:
+				splat = Color(0.0, 0.0, 0.0, 0.90)
+				splat2 = Color(0.0, 0.0, 0.0, 0.10)
+			elif zone == ZONE_DEATHBLIGHT:
+				splat = Color(0.0, 0.0, 0.0, 0.0)
+				splat2 = Color(0.10, 0.0, 0.90, 0.0)
+			elif zone == ZONE_FORTRESS:
+				splat = Color(0.0, 0.0, 0.85, 0.15)
+				splat2 = Color(0.0, 0.0, 0.0, 0.0)
+			elif zone == ZONE_JUNGLE:
+				splat = Color(0.90, 0.0, 0.0, 0.0)
+				splat2 = Color(0.0, 0.0, 0.0, 0.10)
+
+			data.set_splatmap_weights(x, z, splat)
+			if data.splatmap2.size() >= (idx + 1) * 4:
+				data.set_splatmap2_weights(x, z, splat2)
+
+	# Also update forest density per zone
+	if not data.forest_density.is_empty():
+		for z2 in range(h):
+			for x2 in range(w):
+				var idx2: int = z2 * w + x2
+				var zone2: int = data.zone_ids[idx2]
+				if zone2 == ZONE_DESERT or zone2 == ZONE_DEATHBLIGHT or zone2 == ZONE_SWAMP:
+					data.forest_density[idx2] = 0
+				elif zone2 == ZONE_JUNGLE:
+					data.forest_density[idx2] = 255
 
 
 # ---------------------------------------------------------------------------
@@ -587,6 +797,30 @@ static func _assign_splatmap(
 				var sand_color: Color = Color(0.05, 0.90, 0.05, 0.0).lerp(Color(0.25, 0.65, 0.10, 0.0), 1.0 - wet)
 				splat = splat.lerp(sand_color, shore_t)
 				splat2 = splat2.lerp(Color(0.0, 0.0, 0.0, 0.0), shore_t * 0.6)
+
+			# --- Zone-based splatmap tinting (DEBUG: extreme colors for visibility) ---
+			if not data.zone_ids.is_empty():
+				var zone: int = data.zone_ids[z * map_width + x]
+				if zone == ZONE_DESERT:
+					# Bright sand — very yellow
+					splat = Color(0.0, 0.95, 0.05, 0.0)
+					splat2 = Color(0.0, 0.0, 0.0, 0.0)
+				elif zone == ZONE_SWAMP:
+					# Snow texture as debug purple stand-in — very visible
+					splat = Color(0.0, 0.0, 0.0, 0.90)
+					splat2 = Color(0.0, 0.0, 0.0, 0.10)
+				elif zone == ZONE_DEATHBLIGHT:
+					# Dark cliff — almost black
+					splat = Color(0.0, 0.0, 0.0, 0.0)
+					splat2 = Color(0.10, 0.0, 0.90, 0.0)
+				elif zone == ZONE_FORTRESS:
+					# Grey rock — stone fortress feel
+					splat = Color(0.0, 0.0, 0.85, 0.15)
+					splat2 = Color(0.0, 0.0, 0.0, 0.0)
+				elif zone == ZONE_JUNGLE:
+					# Bright pure grass — vivid green
+					splat = Color(0.90, 0.0, 0.0, 0.0)
+					splat2 = Color(0.0, 0.0, 0.0, 0.10)
 
 			# --- Normalize all 8 channels ---
 			var total_w: float = (splat.r + splat.g + splat.b + splat.a

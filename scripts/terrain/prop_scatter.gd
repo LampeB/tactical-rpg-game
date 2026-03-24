@@ -83,6 +83,12 @@ static func scatter_chunk(data: HeightmapData, cx: int, cz: int, seed_offset: in
 				if prop.allowed_island > 0 and vertex_island != prop.allowed_island:
 					continue
 
+			# Zone restriction (overworld only)
+			if prop.allowed_zones > 0 and not data.zone_ids.is_empty():
+				var vertex_zone: int = data.zone_ids[iz * data.width + ix]
+				if not (prop.allowed_zones & (1 << vertex_zone)):
+					continue
+
 			# Forest-only props: skip if not inside a forest zone
 			if prop.forest_only and not data.forest_density.is_empty():
 				var fd: int = data.forest_density[iz * data.width + ix]

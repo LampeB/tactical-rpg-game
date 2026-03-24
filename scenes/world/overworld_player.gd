@@ -90,6 +90,25 @@ func _physics_process(delta: float) -> void:
 	var previous_pos := global_position
 	move_and_slide()
 
+	# Terrain checks — SDF wall collision (O(1) lookup)
+	var terrain: HeightmapTerrain3D = _get_terrain()
+	if terrain and terrain.heightmap_data:
+		var data: HeightmapData = terrain.heightmap_data
+		if not data.wall_sdf.is_empty():
+			var ts: Vector3 = data.terrain_scale
+			var local_pos: Vector3 = global_position
+			if terrain.is_inside_tree():
+				local_pos = terrain.global_transform.affine_inverse() * global_position
+			var gx: int = clampi(roundi(local_pos.x / ts.x), 0, data.width - 1)
+			var gz: int = clampi(roundi(local_pos.z / ts.z), 0, data.height - 1)
+			var idx: int = gz * data.width + gx
+			var sdf_dist: float = data.wall_sdf[idx]
+			# Block if within 1 pixel of a wall (sdf < 1.0 = on or adjacent to wall)
+			if sdf_dist < 1.0:
+				var wall_type: int = data.wall_type_map[idx]
+				if wall_type > 0 and not _is_wall_unlocked(wall_type):
+					global_position = previous_pos
+
 	# Step counting for random encounters
 	if velocity.length() > 0:
 		# Only count horizontal distance
@@ -132,6 +151,7 @@ func _update_model_direction(direction: Vector3) -> void:
 		_model.rotation.y = atan2(-direction.x, -direction.z)
 
 
+
 func _on_location_entered(area: Area3D) -> void:
 	if area.has_method("get_location_data"):
 		_current_location_area = area
@@ -156,6 +176,44 @@ func _interact_with_location() -> void:
 
 func enable_input(enabled: bool) -> void:
 	_is_input_enabled = enabled
+
+
+const _WALL_UNLOCK_FLAGS: Dictionary = {
+	1: "has_airship",       # mountain
+	2: "has_boat",          # water
+	3: "gate_opened",       # gate
+	4: "barrier_broken",    # magical barrier
+	5: "forest_cleared",    # dense forest
+	6: "blight_cured",      # deathblight
+}
+
+var _terrain_cache: HeightmapTerrain3D = null
+
+
+func _is_wall_unlocked(wall_type: int) -> bool:
+	var flag: String = _WALL_UNLOCK_FLAGS.get(wall_type, "")
+	return not flag.is_empty() and GameManager.has_flag(flag)
+
+func _get_terrain() -> HeightmapTerrain3D:
+	if _terrain_cache and is_instance_valid(_terrain_cache):
+		return _terrain_cache
+	var nodes: Array = get_tree().get_nodes_in_group("terrain")
+	if not nodes.is_empty():
+		_terrain_cache = nodes[0] as HeightmapTerrain3D
+		return _terrain_cache
+	# Fallback: search parent for HeightmapTerrain3D
+	var parent: Node = get_parent()
+	while parent:
+		if parent is HeightmapTerrain3D:
+			_terrain_cache = parent as HeightmapTerrain3D
+			return _terrain_cache
+		for i in range(parent.get_child_count()):
+			var child: Node = parent.get_child(i)
+			if child is HeightmapTerrain3D:
+				_terrain_cache = child as HeightmapTerrain3D
+				return _terrain_cache
+		parent = parent.get_parent()
+	return null
 
 
 func get_step_count() -> int:
