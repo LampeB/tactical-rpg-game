@@ -31,6 +31,9 @@ enum CollisionType { NONE, BLOCKING }  ## NONE = visual only, BLOCKING = player 
 @export var allowed_island: int = 0
 ## When true, this prop only spawns inside forest zones (where forest_density > 0).
 @export var forest_only: bool = false
+## Bitmask of allowed zone IDs (overworld only). 0 = all zones.
+## Bit 1 = Zone 1 (start), Bit 2 = Zone 2 (desert), etc.
+@export var allowed_zones: int = 0
 
 @export_group("Wind")
 @export var affected_by_wind: bool = false  ## Apply foliage wind shader

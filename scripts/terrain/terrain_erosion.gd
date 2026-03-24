@@ -11,10 +11,10 @@ const THERMAL_TALUS: float = 0.6
 ## Thermal erosion: fraction of excess height transferred per iteration.
 const THERMAL_TRANSFER: float = 0.4
 ## Thermal erosion: number of iterations over the full grid.
-const THERMAL_ITERATIONS: int = 4
+const THERMAL_ITERATIONS: int = 6
 
 ## Hydraulic erosion: number of water droplets to simulate.
-const HYDRO_DROPLETS: int = 800
+const HYDRO_DROPLETS: int = 2500
 ## Hydraulic erosion: max steps a droplet can travel before evaporating.
 const HYDRO_MAX_STEPS: int = 120
 ## Hydraulic erosion: inertia factor (0 = pure gradient, 1 = pure momentum).
@@ -30,7 +30,7 @@ const HYDRO_FRICTION: float = 0.05
 ## Hydraulic erosion: minimum speed before droplet dies.
 const HYDRO_MIN_SPEED: float = 0.01
 ## Hydraulic erosion: radius of erosion/deposition brush (in vertices).
-const HYDRO_RADIUS: int = 2
+const HYDRO_RADIUS: int = 3
 ## Hydraulic erosion: gravity constant for speed calculation.
 const HYDRO_GRAVITY: float = 4.0
 

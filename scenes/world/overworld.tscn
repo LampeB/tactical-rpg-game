@@ -22,7 +22,7 @@ map_scene_path = "res://scenes/maps/example_map.tscn"
 [node name="LocationMarkers" type="Node3D" parent="." unique_id=2012694793]
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=9568841]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 17)
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 30, 0, 17)
 collision_layer = 2
 script = ExtResource("2")
 
