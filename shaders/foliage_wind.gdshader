@@ -9,14 +9,17 @@ uniform float wind_strength : hint_range(0.0, 1.0) = 0.15;
 uniform float wind_speed : hint_range(0.0, 5.0) = 1.5;
 uniform vec2 wind_direction = vec2(1.0, 0.5);
 uniform float wind_turbulence : hint_range(0.0, 2.0) = 0.3;
+/// Approximate height of the mesh in local units. Used to normalize height_factor.
+/// 1.0 = grass, ~5.0 = bush, ~8.0–15.0 = tree. Trunk stays planted, only tips sway.
+uniform float mesh_height : hint_range(0.1, 30.0) = 1.0;
 
 group_uniforms appearance;
 uniform sampler2D base_texture : source_color, filter_linear_mipmap;
 uniform float alpha_scissor : hint_range(0.0, 1.0) = 0.5;
 
 void vertex() {
-	// Displacement increases with vertex height (roots stay planted)
-	float height_factor = clamp(VERTEX.y, 0.0, 1.0);
+	// Displacement increases with vertex height, normalized by mesh height so roots stay planted
+	float height_factor = clamp(VERTEX.y / mesh_height, 0.0, 1.0);
 	height_factor *= height_factor; // Quadratic — tips move more than base
 
 	// World-space position for consistent wind across instances
