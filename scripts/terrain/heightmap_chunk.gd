@@ -57,6 +57,7 @@ func build(data: HeightmapData, cx: int, cz: int, lod: int = 0) -> void:
 	var uvs := PackedVector2Array()
 	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
+	var splatmap2_img := Image.create(verts_x, verts_z, false, Image.FORMAT_RGBA8)
 
 	var vert_count: int = verts_x * verts_z
 	vertices.resize(vert_count)
@@ -89,8 +90,10 @@ func build(data: HeightmapData, cx: int, cz: int, lod: int = 0) -> void:
 				float(lz) / float(full_quads_z) if full_quads_z > 0 else 0.0
 			)
 
-			# Vertex color = splatmap weights
+			# Vertex color = splatmap weights (channels 0-3)
 			colors[idx] = data.get_splatmap_weights(gx, gz)
+			# Splatmap2 image pixel (channels 4-7)
+			splatmap2_img.set_pixel(ix, iz, data.get_splatmap2_weights(gx, gz))
 
 	# Calculate normals from height differences (central differencing)
 	for iz in range(verts_z):
@@ -146,7 +149,7 @@ func build(data: HeightmapData, cx: int, cz: int, lod: int = 0) -> void:
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 	# Apply splatmap material
-	var material := _create_material(data)
+	var material := _create_material(data, splatmap2_img)
 	mesh.surface_set_material(0, material)
 
 	# --- MeshInstance3D ---
@@ -187,13 +190,13 @@ static func _build_lod_indices(full_count: int, step: int) -> PackedInt32Array:
 	return result
 
 
-func _create_material(data: HeightmapData) -> ShaderMaterial:
+func _create_material(data: HeightmapData, splatmap2_img: Image) -> ShaderMaterial:
 	var shader: Shader = load(SHADER_PATH) as Shader
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 
-	# Assign textures from layers
-	for i in range(mini(data.texture_layers.size(), 4)):
+	# Assign textures from layers (up to 8)
+	for i in range(mini(data.texture_layers.size(), 8)):
 		var layer: TerrainTextureLayer = data.texture_layers[i]
 		var suffix: String = str(i)
 		if layer.albedo_texture:
@@ -201,5 +204,9 @@ func _create_material(data: HeightmapData) -> ShaderMaterial:
 		if layer.normal_texture:
 			mat.set_shader_parameter("normal_" + suffix, layer.normal_texture)
 		mat.set_shader_parameter("uv_scale_" + suffix, layer.uv_scale)
+
+	# Splatmap2 texture (channels 4-7)
+	var splatmap2_tex := ImageTexture.create_from_image(splatmap2_img)
+	mat.set_shader_parameter("splatmap2_tex", splatmap2_tex)
 
 	return mat
