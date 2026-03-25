@@ -67,6 +67,11 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## Per-vertex zone ID (overworld only). Determines visual region and progression gating.
 ## 0=ocean, 1=starting valley, 2=desert, 3=deathblight, 4=fortress, 5=jungle, 255=cliff island.
 @export var zone_ids: PackedByteArray = PackedByteArray()
+## Wall grid at ORA resolution (7168×7168). 0=passable, 1-6=wall type.
+## Loaded from tools/wall_grid.bin by the import step. O(1) player lookup.
+@export var wall_grid: PackedByteArray = PackedByteArray()
+@export var wall_grid_width: int = 0
+@export var wall_grid_height: int = 0
 
 
 ## Cached river exclusion mask — one byte per vertex (0 = clear, 1 = inside river channel).
