@@ -64,12 +64,6 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## Per-vertex forest density (overworld only). 0 = open land, 255 = dense forest.
 ## Props with forest_only=true only spawn where this is > 0.
 @export var forest_density: PackedByteArray = PackedByteArray()
-## Signed distance field for wall collision. Size = width × height (matches heightmap).
-## Each value = distance in PIXELS to nearest wall. Negative = inside wall.
-## Wall type stored separately. Player blocked when sdf[pos] < wall_width_threshold.
-@export var wall_sdf: PackedFloat32Array = PackedFloat32Array()
-## Per-pixel wall type at the nearest wall (0 = no wall nearby).
-@export var wall_type_map: PackedByteArray = PackedByteArray()
 ## Per-vertex zone ID (overworld only). Determines visual region and progression gating.
 ## 0=ocean, 1=starting valley, 2=desert, 3=deathblight, 4=fortress, 5=jungle, 255=cliff island.
 @export var zone_ids: PackedByteArray = PackedByteArray()

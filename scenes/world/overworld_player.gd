@@ -90,24 +90,35 @@ func _physics_process(delta: float) -> void:
 	var previous_pos := global_position
 	move_and_slide()
 
-	# Terrain checks — SDF wall collision (O(1) lookup)
-	var terrain: HeightmapTerrain3D = _get_terrain()
-	if terrain and terrain.heightmap_data:
-		var data: HeightmapData = terrain.heightmap_data
-		if not data.wall_sdf.is_empty():
-			var ts: Vector3 = data.terrain_scale
-			var local_pos: Vector3 = global_position
-			if terrain.is_inside_tree():
-				local_pos = terrain.global_transform.affine_inverse() * global_position
-			var gx: int = clampi(roundi(local_pos.x / ts.x), 0, data.width - 1)
-			var gz: int = clampi(roundi(local_pos.z / ts.z), 0, data.height - 1)
-			var idx: int = gz * data.width + gx
-			var sdf_dist: float = data.wall_sdf[idx]
-			# Block if within 1 pixel of a wall (sdf < 1.0 = on or adjacent to wall)
-			if sdf_dist < 1.0:
-				var wall_type: int = data.wall_type_map[idx]
-				if wall_type > 0 and not _is_wall_unlocked(wall_type):
+	# Wall crossing check — only check walls within 50m of the player
+	var prev_xz := Vector2(previous_pos.x, previous_pos.z)
+	var cur_xz := Vector2(global_position.x, global_position.z)
+	if prev_xz.distance_squared_to(cur_xz) > 0.0001:
+		# Refresh wall list every 60 frames (not every frame)
+		if _wall_cache.is_empty() or Engine.get_frames_drawn() % 60 == 0:
+			_wall_cache = get_tree().get_nodes_in_group("wall_paths")
+		var check_radius_sq: float = 2500.0  # 50m squared
+		var player_xz := Vector2(global_position.x, global_position.z)
+		var was_blocked: bool = false
+		for wi in range(_wall_cache.size()):
+			if was_blocked:
+				break
+			var wall = _wall_cache[wi]
+			if not wall.has_method("is_locked") or not wall.is_locked():
+				continue
+			# Quick distance check: skip walls far from player
+			var wall_pos: Vector3 = wall.global_position
+			var wall_xz := Vector2(wall_pos.x, wall_pos.z)
+			if player_xz.distance_squared_to(wall_xz) > check_radius_sq:
+				continue
+			var pts: PackedVector3Array = wall.get_baked_points_global()
+			for si in range(pts.size() - 1):
+				var a_xz := Vector2(pts[si].x, pts[si].z)
+				var b_xz := Vector2(pts[si + 1].x, pts[si + 1].z)
+				if _segments_intersect(prev_xz, cur_xz, a_xz, b_xz):
 					global_position = previous_pos
+					was_blocked = true
+					break
 
 	# Step counting for random encounters
 	if velocity.length() > 0:
@@ -178,21 +189,21 @@ func enable_input(enabled: bool) -> void:
 	_is_input_enabled = enabled
 
 
-const _WALL_UNLOCK_FLAGS: Dictionary = {
-	1: "has_airship",       # mountain
-	2: "has_boat",          # water
-	3: "gate_opened",       # gate
-	4: "barrier_broken",    # magical barrier
-	5: "forest_cleared",    # dense forest
-	6: "blight_cured",      # deathblight
-}
-
 var _terrain_cache: HeightmapTerrain3D = null
+var _wall_cache: Array = []
 
 
-func _is_wall_unlocked(wall_type: int) -> bool:
-	var flag: String = _WALL_UNLOCK_FLAGS.get(wall_type, "")
-	return not flag.is_empty() and GameManager.has_flag(flag)
+func _segments_intersect(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:
+	## Returns true if line segment (p1→p2) crosses (p3→p4). 2D cross product method.
+	var d1: Vector2 = p2 - p1
+	var d2: Vector2 = p4 - p3
+	var denom: float = d1.x * d2.y - d1.y * d2.x
+	if absf(denom) < 0.0001:
+		return false  # parallel
+	var t: float = ((p3.x - p1.x) * d2.y - (p3.y - p1.y) * d2.x) / denom
+	var u: float = ((p3.x - p1.x) * d1.y - (p3.y - p1.y) * d1.x) / denom
+	return t >= 0.0 and t <= 1.0 and u >= 0.0 and u <= 1.0
+
 
 func _get_terrain() -> HeightmapTerrain3D:
 	if _terrain_cache and is_instance_valid(_terrain_cache):
