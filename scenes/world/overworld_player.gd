@@ -90,35 +90,61 @@ func _physics_process(delta: float) -> void:
 	var previous_pos := global_position
 	move_and_slide()
 
-	# Wall crossing check — only check walls within 50m of the player
-	var prev_xz := Vector2(previous_pos.x, previous_pos.z)
-	var cur_xz := Vector2(global_position.x, global_position.z)
-	if prev_xz.distance_squared_to(cur_xz) > 0.0001:
-		# Refresh wall list every 60 frames (not every frame)
-		if _wall_cache.is_empty() or Engine.get_frames_drawn() % 60 == 0:
-			_wall_cache = get_tree().get_nodes_in_group("wall_paths")
-		var check_radius_sq: float = 2500.0  # 50m squared
-		var player_xz := Vector2(global_position.x, global_position.z)
-		var was_blocked: bool = false
-		for wi in range(_wall_cache.size()):
-			if was_blocked:
-				break
-			var wall = _wall_cache[wi]
-			if not wall.has_method("is_locked") or not wall.is_locked():
-				continue
-			# Quick distance check: skip walls far from player
-			var wall_pos: Vector3 = wall.global_position
-			var wall_xz := Vector2(wall_pos.x, wall_pos.z)
-			if player_xz.distance_squared_to(wall_xz) > check_radius_sq:
-				continue
-			var pts: PackedVector3Array = wall.get_baked_points_global()
-			for si in range(pts.size() - 1):
-				var a_xz := Vector2(pts[si].x, pts[si].z)
-				var b_xz := Vector2(pts[si + 1].x, pts[si + 1].z)
-				if _segments_intersect(prev_xz, cur_xz, a_xz, b_xz):
-					global_position = previous_pos
-					was_blocked = true
+	# === WALL SYSTEM LOGS ===
+	if Engine.get_frames_drawn() % 60 == 0:
+		print("[Wall] Frame %d — _wall_grid_loaded=%s, grid_size=%d, grid_w=%d, grid_h=%d" % [
+			Engine.get_frames_drawn(), str(_wall_grid_loaded), _wall_grid.size(), _wall_grid_width, _wall_grid_height])
+
+	# Wall grid check — O(1) lookup at full ORA resolution
+	# Load wall_grid.bin on first frame if not yet loaded
+	if _wall_grid.is_empty() and not _wall_grid_loaded:
+		_wall_grid_loaded = true
+		var bin_path: String = "res://tools/wall_grid.bin"
+		var abs_path: String = ProjectSettings.globalize_path(bin_path)
+		if FileAccess.file_exists(abs_path):
+			var bf: FileAccess = FileAccess.open(abs_path, FileAccess.READ)
+			_wall_grid_width = bf.get_32()
+			_wall_grid_height = bf.get_32()
+			_wall_grid = bf.get_buffer(_wall_grid_width * _wall_grid_height)
+			bf.close()
+			print("[Player] Loaded wall_grid.bin: %dx%d (%d bytes)" % [_wall_grid_width, _wall_grid_height, _wall_grid.size()])
+			var ps: float = 3069.0 / float(_wall_grid_width)
+			print("[Player] pixel_size=%.4f, world_range=0..%.1f, player_pos=(%.1f, %.1f, %.1f)" % [
+				ps, float(_wall_grid_width) * ps, global_position.x, global_position.y, global_position.z])
+			# Find first wall pixel to verify
+			for gi in range(mini(_wall_grid.size(), 100000000)):
+				if _wall_grid[gi] > 0:
+					@warning_ignore("integer_division")
+					var wz: int = gi / _wall_grid_width
+					var wx: int = gi - wz * _wall_grid_width
+					print("[Player] First wall pixel: grid=(%d, %d) → world=(%.1f, %.1f)" % [
+						wx, wz, float(wx) * ps, float(wz) * ps])
 					break
+		else:
+			print("[Player] No wall_grid.bin found at %s" % abs_path)
+
+	# Wall grid check — transform to terrain local space (terrain has 1° Y rotation)
+	if not _wall_grid.is_empty() and _wall_grid_width > 0:
+		var pixel_size: float = 3.0 / 7.0
+		var wall_check_pos: Vector3 = global_position
+		var terrain: HeightmapTerrain3D = _get_terrain()
+		if terrain and terrain.is_inside_tree():
+			wall_check_pos = terrain.global_transform.affine_inverse() * global_position
+		var gx: int = clampi(roundi(wall_check_pos.x / pixel_size), 0, _wall_grid_width - 1)
+		var gz: int = clampi(roundi(wall_check_pos.z / pixel_size), 0, _wall_grid_height - 1)
+		var idx: int = gz * _wall_grid_width + gx
+		var wall_type: int = _wall_grid[idx]
+		if Engine.get_frames_drawn() % 60 == 0:
+			print("[Wall] pos=(%.1f, %.1f) grid=(%d, %d) wall=%d" % [
+				global_position.x, global_position.z, gx, gz, wall_type])
+		if wall_type > 0 and not _is_wall_unlocked(wall_type):
+			print("[Wall] BLOCKED type=%d grid=(%d, %d) world=(%.1f, %.1f, %.1f) height=%.1f" % [
+				wall_type, gx, gz, global_position.x, global_position.y, global_position.z, global_position.y])
+			global_position = previous_pos
+		# Also log when near an edge (height < 2m) to see where coastline actually is
+		elif global_position.y < 2.0 and Engine.get_frames_drawn() % 10 == 0:
+			print("[Wall] NEAR EDGE world=(%.1f, %.1f, %.1f) height=%.1f grid=(%d, %d) wall=%d" % [
+				global_position.x, global_position.y, global_position.z, global_position.y, gx, gz, wall_type])
 
 	# Step counting for random encounters
 	if velocity.length() > 0:
@@ -190,7 +216,24 @@ func enable_input(enabled: bool) -> void:
 
 
 var _terrain_cache: HeightmapTerrain3D = null
-var _wall_cache: Array = []
+var _wall_grid: PackedByteArray = PackedByteArray()
+var _wall_grid_width: int = 0
+var _wall_grid_height: int = 0
+var _wall_grid_loaded: bool = false
+
+const _WALL_UNLOCK_FLAGS: Dictionary = {
+	1: "has_airship",
+	2: "has_boat",
+	3: "gate_opened",
+	4: "barrier_broken",
+	5: "forest_cleared",
+	6: "blight_cured",
+}
+
+
+func _is_wall_unlocked(wall_type: int) -> bool:
+	var flag: String = _WALL_UNLOCK_FLAGS.get(wall_type, "")
+	return not flag.is_empty() and GameManager.has_flag(flag)
 
 
 func _segments_intersect(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2) -> bool:

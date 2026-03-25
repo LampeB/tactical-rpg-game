@@ -61,6 +61,12 @@ const _PropRegistry := preload("res://scripts/terrain/prop_registry.gd")
 			_import_all_layers()
 
 @export_group("Walls")
+## Show wall grid as a red overlay on the terrain in the editor.
+@export var show_walls: bool = false:
+	set(value):
+		show_walls = value
+		if is_inside_tree() and Engine.is_editor_hint():
+			_rebuild_wall_overlay()
 ## Step 1: Preprocess the ORA wall layer → saves wall pixel data to tools/wall_data.json.
 ## Only needed after painting new walls in GIMP. Scans the full image once.
 @export var preprocess_walls: bool = false:
@@ -71,7 +77,7 @@ const _PropRegistry := preload("res://scripts/terrain/prop_registry.gd")
 @export var import_walls: bool = false:
 	set(_value):
 		if Engine.is_editor_hint():
-			_import_walls_to_paths()
+			_import_walls_to_grid()
 
 @export_group("Editor Preview")
 @export_range(0, 2) var preview_lod: int = 0:
@@ -144,6 +150,7 @@ var _river_parent: Node3D = null
 var _water_parent: Node3D = null
 var _prop_parent: Node3D = null
 var _poi_parent: Node3D = null
+var _wall_overlay: MeshInstance3D = null
 var _chunks: Dictionary = {}
 
 
@@ -292,6 +299,73 @@ func _rebuild_pois() -> void:
 		marker.add_child(label)
 		_poi_parent.add_child(marker)
 
+
+
+func _rebuild_wall_overlay() -> void:
+	if _wall_overlay and is_instance_valid(_wall_overlay):
+		_wall_overlay.queue_free()
+		_wall_overlay = null
+	if not show_walls or not heightmap_data:
+		return
+	# Load wall_grid.bin
+	var bin_path: String = ProjectSettings.globalize_path("res://tools/wall_grid.bin")
+	if not FileAccess.file_exists(bin_path):
+		print("[WallOverlay] wall_grid.bin not found")
+		return
+	var bf: FileAccess = FileAccess.open(bin_path, FileAccess.READ)
+	var gw: int = bf.get_32()
+	var gh: int = bf.get_32()
+	var grid: PackedByteArray = bf.get_buffer(gw * gh)
+	bf.close()
+	print("[WallOverlay] Loaded %dx%d grid, building overlay..." % [gw, gh])
+	# Downsample to 1024×1024 for the texture (7168 is too large for a texture)
+	var tw: int = heightmap_data.width  # 1024
+	var th: int = heightmap_data.height
+	var bw: int = maxi(gw / tw, 1)  # 7
+	var bh: int = maxi(gh / th, 1)
+	var img := Image.create(tw, th, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var px_count: int = 0
+	for z in range(th):
+		for x in range(tw):
+			# Max-pool: if any pixel in the block is a wall, show it
+			var found: int = 0
+			for bz2 in range(bh):
+				if found > 0:
+					break
+				for bx2 in range(bw):
+					var sx: int = x * bw + bx2
+					var sz: int = z * bh + bz2
+					if sx < gw and sz < gh and grid[sz * gw + sx] > 0:
+						found = grid[sz * gw + sx]
+						break
+			if found > 0:
+				var col: Color = _WALL_COLORS.get(found, Color(1, 0, 0, 0.7))
+				col.a = 0.7
+				img.set_pixel(x, z, col)
+				px_count += 1
+	if px_count == 0:
+		print("[WallOverlay] No wall pixels found in grid")
+		return
+	var tex := ImageTexture.create_from_image(img)
+	var ts: Vector3 = heightmap_data.terrain_scale
+	var world_w: float = float(tw - 1) * ts.x
+	var world_h: float = float(th - 1) * ts.z
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(world_w, world_h)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	mat.no_depth_test = true
+	_wall_overlay = MeshInstance3D.new()
+	_wall_overlay.name = "WallOverlay"
+	_wall_overlay.mesh = plane
+	_wall_overlay.material_override = mat
+	_wall_overlay.position = Vector3(world_w * 0.5, 0.5, world_h * 0.5)
+	add_child(_wall_overlay)
+	print("[WallOverlay] Showing %d wall pixels at y=25" % px_count)
 
 
 func _clear_chunks() -> void:
@@ -973,8 +1047,9 @@ func _import_pois(img: Image) -> void:
 # ---------------------------------------------------------------------------
 
 func _preprocess_walls() -> void:
-	## Scans the ORA wall layer, extracts wall pixel coordinates and types,
-	## saves to tools/wall_data.json. Run this after painting in GIMP.
+	## Scans the ORA wall layer at full resolution (7168×7168), classifies each pixel,
+	## saves as a flat binary file (tools/wall_grid.bin). One byte per pixel.
+	## Uses coarse thumbnail to skip empty areas (99%+ of the image).
 	var log_path: String = ProjectSettings.globalize_path("res://tools/preprocess_walls_log.txt")
 	var lf: FileAccess = FileAccess.open(log_path, FileAccess.WRITE)
 	var t0: int = Time.get_ticks_msec()
@@ -1002,326 +1077,101 @@ func _preprocess_walls() -> void:
 		if lf:
 			lf.close()
 		return
-	_wlog.call("Image loaded: %dx%d" % [img.get_width(), img.get_height()])
-
-	# Hierarchical matrix: 1024×1024 coarse grid, each occupied cell has a 7×7 sub-grid
-	# ORA is 7168×7168, heightmap is 1024×1024 → each coarse cell = 7×7 ORA pixels
 	var iw: int = img.get_width()
 	var ih: int = img.get_height()
-	var w: int = heightmap_data.width
-	var h: int = heightmap_data.height
-	var sub_w: int = maxi(iw / w, 1)  # 7
-	var sub_h: int = maxi(ih / h, 1)  # 7
-	_wlog.call("Building hierarchical matrix: %dx%d coarse, %dx%d sub-grid..." % [w, h, sub_w, sub_h])
+	_wlog.call("Image loaded: %dx%d" % [iw, ih])
 
+	# Direct scan — classify every pixel, skip transparent ones
+	var grid := PackedByteArray()
+	grid.resize(iw * ih)
 	var wall_keys: Array = _WALL_COLORS.keys()
-	# Output: array of occupied cells, each with {x, z, type, sub: [49 bools as 0/1]}
-	var wall_cells: Array = []
-	var occupied_count: int = 0
+	var wall_count: int = 0
 
-	for oz in range(h):
-		for ox in range(w):
-			var src_x0: int = ox * sub_w
-			var src_z0: int = oz * sub_h
-			# Quick check: scan the sub-grid for any wall pixel
-			var has_wall: bool = false
-			var cell_type: int = 0
-			var sub_grid: Array = []
-			sub_grid.resize(sub_w * sub_h)
-			for i in range(sub_grid.size()):
-				sub_grid[i] = 0
-			for bz in range(sub_h):
-				for bx in range(sub_w):
-					var sx: int = src_x0 + bx
-					var sz: int = src_z0 + bz
-					if sx >= iw or sz >= ih:
-						continue
-					var col: Color = img.get_pixel(sx, sz)
-					if col.a < 0.2:
-						continue
-					# Classify color
-					var best_type: int = 0
-					var best_dist: float = 0.5
-					for ki in range(wall_keys.size()):
-						var wtype: int = wall_keys[ki]
-						var wcol: Color = _WALL_COLORS[wtype]
-						var cdist: float = absf(col.r - wcol.r) + absf(col.g - wcol.g) + absf(col.b - wcol.b)
-						if cdist < best_dist:
-							best_dist = cdist
-							best_type = wtype
-					if best_type > 0:
-						sub_grid[bz * sub_w + bx] = 1
-						has_wall = true
-						cell_type = best_type
-			if has_wall:
-				wall_cells.append({
-					"x": ox, "z": oz, "type": cell_type,
-					"sub": sub_grid, "sw": sub_w, "sh": sub_h
-				})
-				occupied_count += 1
+	_wlog.call("Scanning %dx%d pixels..." % [iw, ih])
+	for sz in range(ih):
+		for sx in range(iw):
+			var col: Color = img.get_pixel(sx, sz)
+			if col.a < 0.2:
+				continue
+			var best_type: int = 0
+			var best_dist: float = 0.5
+			for ki in range(wall_keys.size()):
+				var wtype: int = wall_keys[ki]
+				var wcol: Color = _WALL_COLORS[wtype]
+				var cdist: float = absf(col.r - wcol.r) + absf(col.g - wcol.g) + absf(col.b - wcol.b)
+				if cdist < best_dist:
+					best_dist = cdist
+					best_type = wtype
+			if best_type > 0:
+				grid[sz * iw + sx] = best_type
+				wall_count += 1
 
-	_wlog.call("Found %d occupied cells out of %d (%.1f%%)" % [
-		occupied_count, w * h, float(occupied_count) / float(w * h) * 100.0])
+	_wlog.call("Classified %d wall pixels in %dx%d grid" % [wall_count, iw, ih])
 
-	# Save to JSON
-	var json_path: String = ProjectSettings.globalize_path("res://tools/wall_data.json")
-	var json_str: String = JSON.stringify(wall_cells)
-	var jf: FileAccess = FileAccess.open(json_path, FileAccess.WRITE)
-	if jf:
-		jf.store_string(json_str)
-		jf.close()
-		_wlog.call("Saved %d cells to %s (%d bytes)" % [wall_cells.size(), json_path, json_str.length()])
+	# Dilate by 1px to fill diagonal gaps without pushing walls off the edge
+	_wlog.call("Dilating wall pixels by 1px...")
+	var dilated := PackedByteArray()
+	dilated.resize(iw * ih)
+	for i in range(grid.size()):
+		dilated[i] = grid[i]
+	for _pass in range(1):
+		var src: PackedByteArray = dilated.duplicate()
+		for sz in range(1, ih - 1):
+			for sx in range(1, iw - 1):
+				if src[sz * iw + sx] > 0:
+					var wt: int = src[sz * iw + sx]
+					for dz in range(-1, 2):
+						for dx in range(-1, 2):
+							var nidx: int = (sz + dz) * iw + (sx + dx)
+							if dilated[nidx] == 0:
+								dilated[nidx] = wt
+	# Count new total
+	var dilated_count: int = 0
+	for i in range(dilated.size()):
+		if dilated[i] > 0:
+			dilated_count += 1
+	grid = dilated
+	_wlog.call("After dilation: %d wall pixels (was %d)" % [dilated_count, wall_count])
+
+	# Save as binary — raw PackedByteArray + dimensions header
+	var bin_path: String = ProjectSettings.globalize_path("res://tools/wall_grid.bin")
+	var bf: FileAccess = FileAccess.open(bin_path, FileAccess.WRITE)
+	if bf:
+		bf.store_32(iw)
+		bf.store_32(ih)
+		bf.store_buffer(grid)
+		bf.close()
+		_wlog.call("Saved %dx%d grid to %s (%d bytes)" % [iw, ih, bin_path, 8 + grid.size()])
 	else:
-		_wlog.call("ERROR: Failed to write %s" % json_path)
+		_wlog.call("ERROR: Failed to write %s" % bin_path)
 
 	_wlog.call("=== Preprocess done: %dms ===" % (Time.get_ticks_msec() - t0))
 	if lf:
 		lf.close()
 
 
-func _import_walls_to_paths() -> void:
-	## Reads preprocessed wall_data.json and creates WallPath3D nodes.
-	## Run preprocess_walls first if you changed the painting.
-	var log_path: String = ProjectSettings.globalize_path("res://tools/import_walls_log.txt")
-	var lf: FileAccess = FileAccess.open(log_path, FileAccess.WRITE)
-	var t0: int = Time.get_ticks_msec()
-
-	var _wlog := func(msg: String) -> void:
-		var line: String = "[%dms] %s" % [Time.get_ticks_msec() - t0, msg]
-		print("[WallImport] %s" % msg)
-		if lf:
-			lf.store_line(line)
-			lf.flush()
-
-	_wlog.call("=== Wall import started ===")
-
-	if not heightmap_data:
-		_wlog.call("ERROR: No heightmap data")
-		if lf:
-			lf.close()
+func _import_walls_to_grid() -> void:
+	## Loads wall_grid.bin into heightmap_data.wall_grid. That's it.
+	## Player reads this grid directly at runtime — O(1) per frame.
+	var bin_path: String = ProjectSettings.globalize_path("res://tools/wall_grid.bin")
+	print("[WallImport] Loading %s..." % bin_path)
+	if not FileAccess.file_exists(bin_path):
+		print("[WallImport] ERROR: wall_grid.bin not found — click preprocess_walls first")
 		return
-
-	# Step 1: Load preprocessed data
-	var json_path: String = ProjectSettings.globalize_path("res://tools/wall_data.json")
-	_wlog.call("Step 1: Loading %s..." % json_path)
-	if not FileAccess.file_exists(json_path):
-		_wlog.call("ERROR: wall_data.json not found — click preprocess_walls first")
-		if lf:
-			lf.close()
-		return
-	var jf: FileAccess = FileAccess.open(json_path, FileAccess.READ)
-	var json_str: String = jf.get_as_text()
-	jf.close()
-	var parsed = JSON.parse_string(json_str)
-	if parsed == null or not (parsed is Array):
-		_wlog.call("ERROR: Failed to parse wall_data.json")
-		if lf:
-			lf.close()
-		return
-	var wall_pixels: Array = parsed
-	_wlog.call("Step 1 done: %d wall pixels loaded" % wall_pixels.size())
-
-	if wall_pixels.is_empty():
-		_wlog.call("No wall pixels — aborting")
-		if lf:
-			lf.close()
-		return
-
-	# Step 2: Build fine-resolution grid from hierarchical data
-	# Each cell has a 7×7 sub-grid → total resolution = 1024*7 = 7168 (matches ORA)
-	var w: int = heightmap_data.width
-	var h: int = heightmap_data.height
-	var first_cell: Dictionary = wall_pixels[0]
-	var sub_w: int = int(first_cell.get("sw", 7))
-	var sub_h: int = int(first_cell.get("sh", 7))
-	var fine_w: int = w * sub_w  # 7168
-	var fine_h: int = h * sub_h  # 7168
-	_wlog.call("Step 2: Building fine grid %dx%d from %d cells (sub %dx%d)..." % [
-		fine_w, fine_h, wall_pixels.size(), sub_w, sub_h])
-
-	# Build a fine-resolution type grid (PackedByteArray for memory efficiency)
-	var type_grid := PackedByteArray()
-	type_grid.resize(fine_w * fine_h)
-	var wall_pixel_count: int = 0
-	for pi in range(wall_pixels.size()):
-		var entry: Dictionary = wall_pixels[pi]
-		var ox: int = int(entry["x"])
-		var oz: int = int(entry["z"])
-		var wtype: int = int(entry["type"])
-		var sub: Array = entry["sub"]
-		for bz in range(sub_h):
-			for bx in range(sub_w):
-				if int(sub[bz * sub_w + bx]) > 0:
-					var fx: int = ox * sub_w + bx
-					var fz: int = oz * sub_h + bz
-					if fx < fine_w and fz < fine_h:
-						type_grid[fz * fine_w + fx] = wtype
-						wall_pixel_count += 1
-	_wlog.call("Step 2 done: %d fine pixels set" % wall_pixel_count)
-
-	# Step 3: Flood-fill to find connected blobs on the fine grid
-	_wlog.call("Step 3: Flood-fill grouping on %dx%d fine grid..." % [fine_w, fine_h])
-	var visited := PackedByteArray()
-	visited.resize(fine_w * fine_h)
-	var blobs: Array = []
-
-	for z in range(fine_h):
-		for x in range(fine_w):
-			var idx: int = z * fine_w + x
-			if type_grid[idx] == 0 or visited[idx] == 1:
-				continue
-			var blob_type: int = type_grid[idx]
-			var blob_pixels: Array[Vector2i] = []
-			var queue: Array[Vector2i] = [Vector2i(x, z)]
-			visited[idx] = 1
-			while queue.size() > 0:
-				var cur: Vector2i = queue[0]
-				queue.remove_at(0)
-				blob_pixels.append(cur)
-				for dz in range(-1, 2):
-					for dx in range(-1, 2):
-						if dx == 0 and dz == 0:
-							continue
-						var nx: int = cur.x + dx
-						var nz: int = cur.y + dz
-						if nx < 0 or nx >= fine_w or nz < 0 or nz >= fine_h:
-							continue
-						var nidx: int = nz * fine_w + nx
-						if visited[nidx] == 0 and type_grid[nidx] == blob_type:
-							visited[nidx] = 1
-							queue.append(Vector2i(nx, nz))
-			if blob_pixels.size() >= 3:
-				blobs.append({"type": blob_type, "pixels": blob_pixels})
-	_wlog.call("Step 3 done: %d blobs found" % blobs.size())
-	for bi in range(blobs.size()):
-		_wlog.call("  Blob %d: type=%d, %d pixels" % [bi, blobs[bi]["type"], blobs[bi]["pixels"].size()])
-
-	# Step 4: Chain-walk each blob to get ordered pixel sequence
-	_wlog.call("Step 4: Chain-walking blobs...")
-	var ordered_blobs: Array = []  # Array of {"type": int, "points": Array[Vector2i]}
-	for bi in range(blobs.size()):
-		var blob: Dictionary = blobs[bi]
-		var pixels: Array = blob["pixels"]
-		# Build a set for fast neighbor lookup
-		var pixel_set: Dictionary = {}
-		for pi in range(pixels.size()):
-			var p: Vector2i = pixels[pi]
-			pixel_set[p.y * fine_w + p.x] = p
-		# Find endpoint: pixel with fewest colored neighbors
-		var best_endpoint: Vector2i = pixels[0]
-		var min_neighbors: int = 9
-		for pi in range(pixels.size()):
-			var p: Vector2i = pixels[pi]
-			var n_count: int = 0
-			for dz in range(-1, 2):
-				for dx in range(-1, 2):
-					if dx == 0 and dz == 0:
-						continue
-					var nk: int = (p.y + dz) * fine_w + (p.x + dx)
-					if pixel_set.has(nk):
-						n_count += 1
-			if n_count < min_neighbors:
-				min_neighbors = n_count
-				best_endpoint = p
-		# Walk from endpoint, always picking the unvisited neighbor
-		var chain: Array[Vector2i] = []
-		var walk_visited: Dictionary = {}
-		var cur: Vector2i = best_endpoint
-		for _safety in range(pixels.size() + 1):
-			chain.append(cur)
-			walk_visited[cur.y * w + cur.x] = true
-			var found_next: bool = false
-			for dz in range(-1, 2):
-				for dx in range(-1, 2):
-					if dx == 0 and dz == 0:
-						continue
-					var nk: int = (cur.y + dz) * fine_w + (cur.x + dx)
-					if pixel_set.has(nk) and not walk_visited.has(nk):
-						cur = pixel_set[nk]
-						found_next = true
-						break
-				if found_next:
-					break
-			if not found_next:
-				break
-		ordered_blobs.append({"type": blob["type"], "points": chain})
-		_wlog.call("  Blob %d chain: %d points (of %d pixels)" % [bi, chain.size(), pixels.size()])
-	_wlog.call("Step 4 done")
-
-	# Step 6: Subsample and create WallPath3D nodes
-	_wlog.call("Step 6: Creating WallPath3D nodes...")
-	var ts: Vector3 = heightmap_data.terrain_scale
-	# Remove existing wall container if any
-	for ci in range(get_child_count()):
-		var child: Node = get_child(ci)
-		if child.name == "ImportedWalls":
-			child.queue_free()
-	var wall_container := Node3D.new()
-	wall_container.name = "ImportedWalls"
-	add_child(wall_container)
-	var total_walls: int = 0
-
-	for bi in range(ordered_blobs.size()):
-		var blob: Dictionary = ordered_blobs[bi]
-		var chain: Array = blob["points"]
-		var blob_type: int = blob["type"]
-		# Subsample: keep every Nth pixel. Target ~3m spacing between points (= sub_w pixels)
-		var step: int = maxi(sub_w, 1)  # 7 pixels = ~3m = 1 heightmap cell
-		var sub_points: Array[Vector3] = []
-		var si: int = 0
-		# Fine-grid coords → world coords: divide by sub_w to get heightmap coords, then * terrain_scale
-		while si < chain.size():
-			var p: Vector2i = chain[si]
-			var hx: float = float(p.x) / float(sub_w)  # heightmap-space x
-			var hz: float = float(p.y) / float(sub_h)  # heightmap-space z
-			var wx: float = hx * ts.x
-			var wz: float = hz * ts.z
-			var ix: int = clampi(roundi(hx), 0, w - 1)
-			var iz: int = clampi(roundi(hz), 0, h - 1)
-			var wy: float = heightmap_data.get_height_at(ix, iz) * ts.y
-			sub_points.append(Vector3(wx, wy, wz))
-			si += step
-		# Always include last point
-		if si - step != chain.size() - 1 and chain.size() > 0:
-			var last: Vector2i = chain[chain.size() - 1]
-			var last_hx: float = float(last.x) / float(sub_w)
-			var last_hz: float = float(last.y) / float(sub_h)
-			sub_points.append(Vector3(
-				last_hx * ts.x,
-				heightmap_data.get_height_at(clampi(roundi(last_hx), 0, w - 1), clampi(roundi(last_hz), 0, h - 1)) * ts.y,
-				last_hz * ts.z))
-
-		if sub_points.size() < 2:
-			continue
-
-		# Split long paths into chunks of max 200 points each
-		var max_pts: int = 200
-		var chunk_idx: int = 0
-		var start_pi: int = 0
-		while start_pi < sub_points.size():
-			var end_pi: int = mini(start_pi + max_pts, sub_points.size())
-			if end_pi - start_pi < 2:
-				break
-			var wall_node: WallPath3D = WallPath3D.new()
-			wall_node.name = "Wall_%d_%d_type%d" % [bi, chunk_idx, blob_type]
-			wall_node.wall_type = blob_type
-			var c := Curve3D.new()
-			for pi2 in range(start_pi, end_pi):
-				c.add_point(sub_points[pi2])
-			wall_node.curve = c
-			wall_container.add_child(wall_node)
-			wall_node.owner = get_tree().edited_scene_root
-			wall_container.owner = get_tree().edited_scene_root
-			total_walls += 1
-			_wlog.call("  Created Wall_%d_%d: type=%d, %d points" % [bi, chunk_idx, blob_type, end_pi - start_pi])
-			chunk_idx += 1
-			start_pi = end_pi - 1  # overlap by 1 point so segments connect
-
-	_wlog.call("Step 6 done: %d WallPath3D nodes created" % total_walls)
-	_wlog.call("=== Wall import complete: %dms total ===" % (Time.get_ticks_msec() - t0))
-	if lf:
-		lf.close()
-	print("[WallImport] Done — %d walls created. Log: %s" % [total_walls, log_path])
+	var bf: FileAccess = FileAccess.open(bin_path, FileAccess.READ)
+	var gw: int = bf.get_32()
+	var gh: int = bf.get_32()
+	var grid: PackedByteArray = bf.get_buffer(gw * gh)
+	bf.close()
+	heightmap_data.wall_grid = grid
+	heightmap_data.wall_grid_width = gw
+	heightmap_data.wall_grid_height = gh
+	# Count wall pixels
+	var count: int = 0
+	for i in range(grid.size()):
+		if grid[i] > 0:
+			count += 1
+	print("[WallImport] Loaded %dx%d wall grid — %d wall pixels" % [gw, gh, count])
 
 
 # ---------------------------------------------------------------------------
