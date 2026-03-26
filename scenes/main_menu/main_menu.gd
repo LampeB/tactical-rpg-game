@@ -39,14 +39,13 @@ func _update_button_states() -> void:
 
 func _on_continue_pressed() -> void:
 	if GameManager.is_game_started:
-		# Already in session — just return to overworld
 		SceneManager.clear_stack()
-		SceneManager.replace_scene("res://scenes/world/overworld.tscn")
+		SceneManager.replace_scene(_resolve_map_scene())
 	else:
 		SaveManager.load_most_recent()
 		SaveManager.start_playtime_tracking()
 		SceneManager.clear_stack()
-		SceneManager.replace_scene("res://scenes/world/overworld.tscn")
+		SceneManager.replace_scene(_resolve_map_scene())
 
 
 func _on_load_game_pressed() -> void:
@@ -62,8 +61,19 @@ func _on_new_game_pressed() -> void:
 
 func _start_new_game() -> void:
 	GameManager.new_game()
+	GameManager.current_map_id = "starter_town"
 	SceneManager.clear_stack()
-	SceneManager.replace_scene("res://scenes/world/overworld.tscn")
+	SceneManager.replace_scene("res://scenes/world/local_map.tscn")
+
+
+func _resolve_map_scene() -> String:
+	## Returns the correct scene path for the current map (overworld vs local).
+	var target_map: MapData = MapDatabase.get_map(GameManager.current_map_id)
+	if target_map and target_map.is_overworld:
+		return "res://scenes/world/overworld.tscn"
+	if target_map:
+		return "res://scenes/world/local_map.tscn"
+	return "res://scenes/world/overworld.tscn"  # fallback
 
 
 func _on_inventory_pressed() -> void:

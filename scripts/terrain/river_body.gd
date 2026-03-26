@@ -26,7 +26,11 @@ const DEBUG_COLORS: Array = [
 
 
 func _ready() -> void:
-	if river_path and river_path.get_point_count() >= 2:
+	if not river_path:
+		return
+	if not river_path.has_method("get_point_count"):
+		return
+	if river_path.get_point_count() >= 2:
 		_build_mesh()
 
 
@@ -47,15 +51,12 @@ func _build_mesh() -> void:
 	# Pre-compute per-point curvature (0 = straight, 1 = sharp bend)
 	var curvatures: PackedFloat32Array = _compute_curvatures(points, count)
 
-	var vertices: PackedVector3Array = PackedVector3Array()
-	var normals: PackedVector3Array = PackedVector3Array()
-	var uvs: PackedVector2Array = PackedVector2Array()
-	var colors: PackedColorArray = PackedColorArray()
-	var indices: PackedInt32Array = PackedInt32Array()
-
-	# Accumulated distance for UV.y (downstream direction)
-	var accum_dist: float = 0.0
-	var prev_perp: Vector3 = Vector3.ZERO  # Track previous perpendicular to prevent flipping
+	# --- Pass 1: compute raw left/right bank positions ---
+	var raw_left: PackedVector3Array = PackedVector3Array()
+	var raw_right: PackedVector3Array = PackedVector3Array()
+	raw_left.resize(count)
+	raw_right.resize(count)
+	var prev_perp: Vector3 = Vector3.ZERO
 
 	for i in range(count):
 		var p: Vector3 = points[i]
@@ -80,30 +81,60 @@ func _build_mesh() -> void:
 			perp = -perp
 		prev_perp = perp
 
-		# Left and right bank vertices
 		var left: Vector3 = p + perp * half_w
 		var right: Vector3 = p - perp * half_w
 		left.y = p.y + SURFACE_OFFSET
 		right.y = p.y + SURFACE_OFFSET
+		raw_left[i] = left
+		raw_right[i] = right
 
-		vertices.append(left)
-		vertices.append(right)
+	# --- Pass 2: smooth bank vertices (moving average, XZ only, preserve Y) ---
+	const SMOOTH_WINDOW: int = 4
+	var sm_left: PackedVector3Array = PackedVector3Array()
+	var sm_right: PackedVector3Array = PackedVector3Array()
+	sm_left.resize(count)
+	sm_right.resize(count)
+	for i in range(count):
+		var lo: int = maxi(i - SMOOTH_WINDOW, 0)
+		var hi: int = mini(i + SMOOTH_WINDOW, count - 1)
+		var sl: Vector3 = Vector3.ZERO
+		var sr: Vector3 = Vector3.ZERO
+		var n: int = hi - lo + 1
+		for j in range(lo, hi + 1):
+			sl += raw_left[j]
+			sr += raw_right[j]
+		sl /= float(n)
+		sr /= float(n)
+		# Keep original Y (water height) — only smooth XZ
+		sl.y = raw_left[i].y
+		sr.y = raw_right[i].y
+		sm_left[i] = sl
+		sm_right[i] = sr
+
+	# --- Pass 3: build mesh arrays from smoothed banks ---
+	var vertices: PackedVector3Array = PackedVector3Array()
+	var normals: PackedVector3Array = PackedVector3Array()
+	var uvs: PackedVector2Array = PackedVector2Array()
+	var colors: PackedColorArray = PackedColorArray()
+	var indices: PackedInt32Array = PackedInt32Array()
+	var accum_dist: float = 0.0
+
+	for i in range(count):
+		vertices.append(sm_left[i])
+		vertices.append(sm_right[i])
 		normals.append(Vector3.UP)
 		normals.append(Vector3.UP)
 
-		# UV: x = 0 (left bank) to 1 (right bank), y = accumulated distance
 		if i > 0:
-			accum_dist += points[i - 1].distance_to(p)
-		var uv_y: float = accum_dist * 0.1  # Scale for tiling
+			accum_dist += points[i - 1].distance_to(points[i])
+		var uv_y: float = accum_dist * 0.1
 		uvs.append(Vector2(0.0, uv_y))
 		uvs.append(Vector2(1.0, uv_y))
 
-		# Vertex color: R = curvature (used by shader for turbulence foam)
 		var curv: float = curvatures[i]
 		colors.append(Color(curv, 0.0, 0.0, 1.0))
 		colors.append(Color(curv, 0.0, 0.0, 1.0))
 
-		# Quad indices (two triangles per segment)
 		if i > 0:
 			var base: int = (i - 1) * 2
 			indices.append(base)
@@ -121,6 +152,8 @@ func _build_mesh() -> void:
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_INDEX] = indices
 
+	if indices.size() < 3:
+		return
 	var arr_mesh: ArrayMesh = ArrayMesh.new()
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	mesh = arr_mesh

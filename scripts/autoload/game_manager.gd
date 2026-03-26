@@ -11,6 +11,9 @@ var current_map_id: String = "example_overworld"
 var current_heightmap_data: Resource = null  ## Transient HeightmapData for battle backgrounds (not saved)
 
 ## Preloaded battle background (generated in overworld when player nears a battle area)
+## Cache of instantiated map scene roots (Node3D) — reparented instead of re-instantiated.
+var cached_map_nodes: Dictionary = {}  # map_scene_path → Node3D
+
 var preloaded_battle_bg: Node3D = null
 var preloaded_battle_arena_center: Vector3 = Vector3.ZERO
 var preloaded_battle_arena_rotation: float = 0.0

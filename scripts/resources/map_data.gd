@@ -7,6 +7,8 @@ extends Resource
 @export var display_name: String = ""
 ## Optional path to a .tscn scene containing HeightmapTerrain3D. Empty = procedural generation.
 @export_file("*.tscn") var map_scene_path: String = ""
+## True for the main overworld map. False for local maps (forests, caves, towns).
+@export var is_overworld: bool = false
 
 @export_group("Grid")
 @export var grid_width: int = 80
