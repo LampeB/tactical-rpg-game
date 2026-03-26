@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 278 -->
-<\!-- Last updated: 2026-03-16 -->
+<\!-- Total tasks: 287 -->
+<\!-- Last updated: 2026-03-26 -->
 
 ## Prerequisites
 
@@ -193,7 +193,6 @@
 | Name | Notion ID |
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
-| Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
@@ -202,7 +201,18 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
+| Forest zone system (noise-based patches per island) | 32e7700f-d0fb-81d1-a252-dfe00875daea |
+| GIMP-based map painting system (ORA export/import) | 32e7700f-d0fb-8178-b6ed-c513803d0e04 |
+| Invisible wall system (7168×7168 grid from GIMP painting) | 32e7700f-d0fb-81d4-bb98-ce42c7e2af75 |
+| Overworld generation system (dual islands, mountains, biomes) | 32e7700f-d0fb-81ae-b050-c0b2ca31b29b |
+| Player movement blocking (walls, water) | 32e7700f-d0fb-81be-9202-ebf546e730c8 |
+| POI system (8 types with GIMP painting) | 32e7700f-d0fb-8172-8f83-f2a5fe6a8c37 |
+| River painting and import from GIMP (water mesh + bank textures, no auto-carve) | 32e7700f-d0fb-814f-bcef-e11dbc42a7de |
+| SpawnPoint3D and ConnectionMarker improvements | 32e7700f-d0fb-81a7-a837-d0e33c1fb01b |
+| Zone system (13 zones with noise-based texture variation) | 32e7700f-d0fb-8197-814d-ddb655e0f758 |
+| Improve terrain textures (PBR texture pipeline, 12+8 textures) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
 | Fix orbit camera hiding mouse cursor on scene transitions | 3227700f-d0fb-814d-bb81-f93d45187773 |
 | Hide and confine mouse cursor during right-click camera orbit | 31d7700f-d0fb-8176-81e6-d3457debd704 |
 | Sprint option on overworld (hold Shift to run faster) | 3217700f-d0fb-81e4-b9df-fc2e8453d162 |
@@ -234,7 +244,6 @@
 | Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
 | Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
 | Enemy aggro system (monsters chase player when close enough) | 3217700f-d0fb-8192-8bff-c03350d5630d |
-| Improve terrain textures (replace flat colors with tiled textures/shaders) | 3217700f-d0fb-81f7-94d7-cbacd80d3554 |
 | Voxel Phase 1: VoxelChunk with greedy meshing (16x16x16 chunks, face culling, quad merging) | 3217700f-d0fb-81f0-aa48-f23f133f2509 |
 | Voxel Phase 2: VoxelTerrain chunk manager (loading, culling, camera distance) | 3217700f-d0fb-8169-a991-fb61a97e4db2 |
 | Voxel Phase 3: VoxelMapData resource and MapLoader integration | 3217700f-d0fb-819e-ad44-c28b33c98060 |

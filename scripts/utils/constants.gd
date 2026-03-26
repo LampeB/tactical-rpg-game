@@ -44,6 +44,7 @@ const MAX_STASH_SLOTS := 100        ## Items in shared stash
 const PIXEL_TO_WORLD := 32.0        ## 32 pixels = 1 world unit (for legacy position conversion)
 const PLAYER_SPEED := 6.0           ## World units per second
 const PLAYER_SPRINT_MULTIPLIER := 1.8  ## Speed multiplier when holding sprint
+const PLAYER_GRAVITY := 72.0        ## Fall acceleration (world units/s²)
 const UNITS_PER_STEP := 0.5         ## Distance per step for encounter checks
 const INTERACTION_RANGE := 1.5      ## World units
 const ENEMY_MOVE_SPEED := 1.5       ## World units per second

@@ -10,13 +10,30 @@ target_map_id = "example_map"
 target_spawn = Vector3(80, 0, 30)
 display_name = "Back to Overworld"
 
+[sub_resource type="Resource" id="conn_forest"]
+script = ExtResource("1_conn")
+position = Vector3(1590, 6.2, 1650)
+target_map_id = "forest_clearing"
+display_name = "Forest Clearing"
+connection_id = "forest_clearing_entrance"
+target_connection_id = "forest_clearing_exit"
+
+[sub_resource type="Resource" id="conn_town"]
+script = ExtResource("1_conn")
+position = Vector3(1560, 6.2, 1620)
+target_map_id = "starter_town"
+display_name = "Willowbrook"
+connection_id = "town_entrance"
+target_connection_id = "town_exit_south"
+
 [resource]
 script = ExtResource("script_map_data")
 id = "example_overworld"
 display_name = "Example Overworld"
 map_scene_path = "res://scenes/maps/example_overworld.tscn"
+is_overworld = true
 grid_width = 128
 grid_height = 128
 decoration_seed = 7391
 player_spawn = Vector3(768, 0, 768)
-connections = Array[ExtResource("1_conn")]([SubResource("Resource_back")])
+connections = Array[ExtResource("1_conn")]([SubResource("Resource_back"), SubResource("conn_forest"), SubResource("conn_town")])

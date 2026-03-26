@@ -80,7 +80,11 @@ func try_enter() -> void:
 		GameManager.set_flag("target_connection_id", "")
 		GameManager.set_flag("overworld_position", connection_data.target_spawn)
 
-	SceneManager.replace_scene("res://scenes/world/overworld.tscn", {
+	var target_data: MapData = MapDatabase.get_map(connection_data.target_map_id)
+	var scene_path: String = "res://scenes/world/local_map.tscn"
+	if target_data and target_data.is_overworld:
+		scene_path = "res://scenes/world/overworld.tscn"
+	SceneManager.replace_scene(scene_path, {
 		"map_id": connection_data.target_map_id,
 	})
 

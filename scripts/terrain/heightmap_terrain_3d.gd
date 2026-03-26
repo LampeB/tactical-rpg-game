@@ -786,11 +786,8 @@ func _import_single(layer_key: String) -> void:
 				_OverworldGenerator.rebuild_splatmap_from_zones(heightmap_data)
 				_ilog(lf, "Splatmap rebuild: %dms" % (Time.get_ticks_msec() - t3))
 		"rivers":
-			if img.get_width() != w or img.get_height() != h:
-				_ilog(lf, "Resizing %dx%d → %dx%d (nearest)" % [img.get_width(), img.get_height(), w, h])
-				img.resize(w, h, Image.INTERPOLATE_NEAREST)
-				_ilog(lf, "Resize: %dms" % (Time.get_ticks_msec() - t1))
-			_ilog(lf, "Starting river import...")
+			# Process at full ORA resolution to preserve thin rivers, then downsample
+			_ilog(lf, "Starting river import at full res %dx%d..." % [img.get_width(), img.get_height()])
 			if lf:
 				lf.flush()
 			_import_rivers(img)
@@ -911,33 +908,38 @@ func _import_all_layers() -> void:
 # ---------------------------------------------------------------------------
 
 func _import_rivers(img: Image) -> void:
-	## Simplest river: blue pixel = carve that vertex, water at ground level.
+	## Detects blue pixels at full ORA resolution, traces centerlines for water
+	## mesh placement, and paints riverbed/bank textures. Does NOT carve heights —
+	## the user carves manually on the heightmap layer.
 	var w: int = heightmap_data.width
 	var h: int = heightmap_data.height
+	var iw: int = img.get_width()
+	var ih: int = img.get_height()
 	var tscale: Vector3 = heightmap_data.terrain_scale
-	var carve_depth: float = 0.15 + river_carve_offset
 
-	# Step 1: Find blue pixels (mark mask only, carve later along smooth path)
+	# Step 1: Scan blue pixels at full ORA resolution → terrain-res mask
 	var river_mask := PackedByteArray()
 	river_mask.resize(w * h)
 	var blue_count: int = 0
-	for z in range(h):
-		for x in range(w):
-			var col: Color = img.get_pixel(x, z)
+	var scale_x: float = float(w) / float(iw)
+	var scale_z: float = float(h) / float(ih)
+	for sz in range(ih):
+		for sx in range(iw):
+			var col: Color = img.get_pixel(sx, sz)
 			if col.b > 0.5 and col.r < 0.3 and col.g < 0.3 and col.a > 0.3:
-				river_mask[z * w + x] = 1
 				blue_count += 1
-	print("[Import] Rivers: %d blue pixels" % blue_count)
-	if blue_count == 0:
+				var tx: int = clampi(int(float(sx) * scale_x), 0, w - 1)
+				var tz: int = clampi(int(float(sz) * scale_z), 0, h - 1)
+				river_mask[tz * w + tx] = 1
+	var marked: int = 0
+	for i in range(w * h):
+		if river_mask[i] == 1:
+			marked += 1
+	print("[Import] Rivers: %d blue pixels (ORA %dx%d) → %d terrain vertices" % [blue_count, iw, ih, marked])
+	if marked == 0:
 		return
 
-	# Save original heights before carving
-	var orig_heights := PackedFloat32Array()
-	orig_heights.resize(w * h)
-	for i in range(w * h):
-		orig_heights[i] = heightmap_data.heights[i]
-
-	# Step 2: Cluster blue pixels into blobs, trace centerline, smooth, build RiverPath
+	# Step 2: Cluster, trace centerline, smooth → build RiverPath for water mesh
 	heightmap_data.rivers.clear()
 	var blue_pixels: Array[Vector2i] = []
 	for z in range(h):
@@ -956,12 +958,12 @@ func _import_rivers(img: Image) -> void:
 		var path: Array[Vector2i] = _bfs_path(ep_a, ep_b, blob, w)
 		if path.size() < 3:
 			continue
-		# RDP simplification to collapse grid-staircase into clean diagonal segments
+		# RDP simplification
 		var raw_floats := PackedVector2Array()
 		for pi in range(path.size()):
 			raw_floats.append(Vector2(float(path[pi].x), float(path[pi].y)))
 		var simplified: PackedVector2Array = _rdp_simplify(raw_floats, 1.5)
-		# Chaikin smoothing (4 passes for extra-smooth curves)
+		# Chaikin smoothing (4 passes)
 		var smoothed: PackedVector2Array = simplified
 		for _iter in range(4):
 			if smoothed.size() < 3:
@@ -973,7 +975,7 @@ func _import_rivers(img: Image) -> void:
 				next.append(smoothed[si] * 0.25 + smoothed[si + 1] * 0.75)
 			next.append(smoothed[smoothed.size() - 1])
 			smoothed = next
-		# Ensure flow direction: highest point first (river flows downhill)
+		# Flow direction: highest point first
 		var first_h: float = heightmap_data.get_height_at(
 			clampi(roundi(smoothed[0].x), 0, w - 1),
 			clampi(roundi(smoothed[0].y), 0, h - 1))
@@ -981,23 +983,19 @@ func _import_rivers(img: Image) -> void:
 			clampi(roundi(smoothed[smoothed.size() - 1].x), 0, w - 1),
 			clampi(roundi(smoothed[smoothed.size() - 1].y), 0, h - 1))
 		if last_h > first_h:
-			# Reverse so highest point is first
 			var reversed := PackedVector2Array()
 			for ri2 in range(smoothed.size() - 1, -1, -1):
 				reversed.append(smoothed[ri2])
 			smoothed = reversed
-
 		# Filter: remove points too close together and sharp turns
-		var min_dist_sq: float = 4.0  # minimum 2 pixels apart
+		var min_dist_sq: float = 4.0
 		var filtered := PackedVector2Array()
 		filtered.append(smoothed[0])
 		for fi in range(1, smoothed.size() - 1):
 			var prev: Vector2 = filtered[filtered.size() - 1]
 			var cur: Vector2 = smoothed[fi]
-			# Skip if too close
 			if prev.distance_squared_to(cur) < min_dist_sq:
 				continue
-			# Skip if sharp turn (> 90 degrees)
 			if filtered.size() >= 2:
 				var pprev: Vector2 = filtered[filtered.size() - 2]
 				var d0: Vector2 = (prev - pprev).normalized()
@@ -1006,45 +1004,9 @@ func _import_rivers(img: Image) -> void:
 					continue
 			filtered.append(cur)
 		filtered.append(smoothed[smoothed.size() - 1])
-		# Use dense points for carving (no gaps), filtered points for water mesh
-		var carve_pts: PackedVector2Array = smoothed  # pre-filter, dense
 		smoothed = filtered
-		# Carve along the dense centerline (not the filtered one)
-		# Measure painted width at each point for carve radius
-		for pi in range(carve_pts.size()):
-			var cx: int = clampi(roundi(carve_pts[pi].x), 0, w - 1)
-			var cz: int = clampi(roundi(carve_pts[pi].y), 0, h - 1)
-			# Scan perpendicular to find painted width
-			var half_r: float = 1.0
-			if pi + 1 < carve_pts.size():
-				var dx: float = carve_pts[pi + 1].x - carve_pts[pi].x
-				var dz: float = carve_pts[pi + 1].y - carve_pts[pi].y
-				var dl: float = sqrt(dx * dx + dz * dz)
-				if dl > 0.01:
-					var px: float = -dz / dl
-					var pz: float = dx / dl
-					for sd in range(1, 20):
-						var sx: int = clampi(roundi(carve_pts[pi].x + px * float(sd)), 0, w - 1)
-						var sz: int = clampi(roundi(carve_pts[pi].y + pz * float(sd)), 0, h - 1)
-						if river_mask[sz * w + sx] == 0:
-							half_r = float(sd)
-							break
-			var cr: int = clampi(roundi(half_r) + 1, 2, 10)
-			for dz2 in range(-cr, cr + 1):
-				for dx2 in range(-cr, cr + 1):
-					var dist: float = sqrt(float(dx2 * dx2 + dz2 * dz2))
-					if dist > float(cr):
-						continue
-					var nx: int = cx + dx2
-					var nz: int = cz + dz2
-					if nx < 0 or nx >= w or nz < 0 or nz >= h:
-						continue
-					# Carve from original height (prevents stacking)
-					var target_h: float = orig_heights[nz * w + nx] - carve_depth
-					if target_h < heightmap_data.get_height_at(nx, nz):
-						heightmap_data.set_height_at(nx, nz, target_h)
 
-		# Build RiverPath — water Y = carved height + 1.5m
+		# Build RiverPath — water Y sits on the existing terrain surface
 		var river := RiverPath.new()
 		river.id = "river_%d" % river_index
 		river.color_index = river_index
@@ -1053,13 +1015,9 @@ func _import_rivers(img: Image) -> void:
 		for pi in range(smoothed.size()):
 			var ix: int = clampi(roundi(smoothed[pi].x), 0, w - 1)
 			var iz: int = clampi(roundi(smoothed[pi].y), 0, h - 1)
-			var bed_val: float = heightmap_data.get_height_at(ix, iz)
-			var ground_val: float = bed_val + carve_depth  # original height before carving
-			var yh: float = bed_val * tscale.y + 1.5 + river_water_offset
+			var terrain_h: float = heightmap_data.get_height_at(ix, iz)
+			var yh: float = terrain_h * tscale.y + river_water_offset
 			points.append(Vector3(smoothed[pi].x * tscale.x, yh, smoothed[pi].y * tscale.z))
-			if pi < 5:
-				print("[River] WATER point %d: ground_Y=%.1f bed_Y=%.1f carve=%.1f water_Y=%.1f" % [
-					pi, ground_val * tscale.y, bed_val * tscale.y, carve_depth * tscale.y, yh])
 			# Width: count blue pixels perpendicular
 			var half_w: float = 1.0
 			if pi + 1 < smoothed.size():
@@ -1070,13 +1028,13 @@ func _import_rivers(img: Image) -> void:
 					var px: float = -dz / dl
 					var pz: float = dx / dl
 					for sd in range(1, 30):
-						var sx: int = clampi(roundi(smoothed[pi].x + px * float(sd)), 0, w - 1)
-						var sz: int = clampi(roundi(smoothed[pi].y + pz * float(sd)), 0, h - 1)
-						if river_mask[sz * w + sx] == 0:
+						var sx2: int = clampi(roundi(smoothed[pi].x + px * float(sd)), 0, w - 1)
+						var sz2: int = clampi(roundi(smoothed[pi].y + pz * float(sd)), 0, h - 1)
+						if river_mask[sz2 * w + sx2] == 0:
 							half_w = float(sd)
 							break
 			widths.append(maxf(half_w * (3.0 + river_width_offset) * tscale.x, 8.0))
-		# Smooth widths to remove grid-measurement oscillation
+		# Smooth widths
 		var smooth_w := PackedFloat32Array()
 		smooth_w.resize(widths.size())
 		for wi in range(widths.size()):
@@ -1091,15 +1049,20 @@ func _import_rivers(img: Image) -> void:
 		heightmap_data.rivers.append(river)
 		river_index += 1
 		print("[Import] River %d: %d pixels, %d points" % [river_index - 1, blob.size(), smoothed.size()])
-	# Paint riverbed and banks — sand/rock for bed, wet dirt for banks
+
+	# Paint riverbed and bank textures (no height changes)
 	for z in range(h):
 		for x in range(w):
 			if river_mask[z * w + x] != 1:
 				continue
-			# Riverbed: sand + rock
-			var bed_splat := Color(0.05, 0.65, 0.25, 0.0)  # sand-heavy with some rock
+			# Riverbed: sand + rock + mud
+			var bed_splat := Color(0.05, 0.55, 0.25, 0.0)
+			var bed_splat2 := Color(0.0, 0.10, 0.0, 0.0)
+			var bed_splat3 := Color(0.05, 0.0, 0.0, 0.0)
 			heightmap_data.set_splatmap_weights(x, z, bed_splat)
-			# Banks: blend surrounding terrain toward wet dirt
+			heightmap_data.set_splatmap2_weights(x, z, bed_splat2)
+			heightmap_data.set_splatmap3_weights(x, z, bed_splat3)
+			# Banks: blend surrounding terrain toward wet dirt/mud
 			for dz in range(-3, 4):
 				for dx in range(-3, 4):
 					var nx: int = x + dx
@@ -1107,14 +1070,18 @@ func _import_rivers(img: Image) -> void:
 					if nx < 0 or nx >= w or nz < 0 or nz >= h:
 						continue
 					if river_mask[nz * w + nx] == 1:
-						continue  # skip actual river pixels
+						continue
 					var dist: float = sqrt(float(dx * dx + dz * dz))
 					if dist > 3.0:
 						continue
 					var t: float = dist / 3.0
+					var blend: float = (1.0 - t) * 0.6
 					var cur: Color = heightmap_data.get_splatmap_weights(nx, nz)
-					var bank: Color = Color(0.15, 0.55, 0.25, 0.0)  # sandy dirt
-					heightmap_data.set_splatmap_weights(nx, nz, cur.lerp(bank, (1.0 - t) * 0.6))
+					var bank: Color = Color(0.10, 0.45, 0.25, 0.0)
+					heightmap_data.set_splatmap_weights(nx, nz, cur.lerp(bank, blend))
+					var cur2: Color = heightmap_data.get_splatmap2_weights(nx, nz)
+					var bank2: Color = Color(0.15, 0.0, 0.0, 0.05)
+					heightmap_data.set_splatmap2_weights(nx, nz, cur2.lerp(bank2, blend * 0.5))
 
 	heightmap_data.build_river_mask(6)
 

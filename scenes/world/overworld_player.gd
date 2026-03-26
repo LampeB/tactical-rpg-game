@@ -4,7 +4,7 @@ extends CharacterBody3D
 signal step_taken(step_count: int)
 
 const UNITS_PER_STEP := Constants.UNITS_PER_STEP
-const GRAVITY := 18.0
+const GRAVITY := Constants.PLAYER_GRAVITY
 const JUMP_VELOCITY := 6.0
 const MAX_SLOPE_DEG := 45.0
 
