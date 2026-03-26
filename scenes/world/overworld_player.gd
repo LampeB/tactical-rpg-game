@@ -14,6 +14,7 @@ var _is_input_enabled: bool = true
 var _current_location_area: Area3D = null
 var _model: Node3D = null
 var _animator: ModelAnimator = null
+var _animated_char: Node3D = null  ## AnimatedCharacter instance (if using real 3D model)
 
 @onready var _interaction_area: Area3D = $InteractionArea
 
@@ -32,13 +33,8 @@ func _ready() -> void:
 	_interaction_area.area_entered.connect(_on_location_entered)
 	_interaction_area.area_exited.connect(_on_location_exited)
 
-	# Build CSG character model
+	# Build player model — try animated 3D model first, fallback to CSG
 	_build_player_model()
-
-	# Attach procedural walk/idle animator
-	_animator = ModelAnimator.new()
-	add_child(_animator)
-	_animator.setup(_model)
 
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +70,16 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = Vector3.ZERO
 
-	if _animator:
+	if _animated_char:
+		# Use real skeletal animations
+		var speed: float = velocity.length()
+		if speed < 0.1:
+			_animated_char.play("idle")
+		elif is_sprinting:
+			_animated_char.play("sprint")
+		else:
+			_animated_char.play("walk")
+	elif _animator:
 		_animator.set_walking(velocity.length() > 0.1)
 		var anim_sprint: float = LiveTweaks.get_float("sprint_multiplier")
 		_animator.speed_scale = anim_sprint if is_sprinting else 1.0
@@ -166,26 +171,34 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build_player_model() -> void:
-	## Builds a CSG character model for the player using the first squad member.
+	## Builds the player model using CSGCharacterFactory (which tries animated → voxel → CSG).
+	var char_data: CharacterData = null
 	if GameManager.party and not GameManager.party.squad.is_empty():
 		var char_id: String = GameManager.party.squad[0]
-		var char_data: CharacterData = GameManager.party.roster.get(char_id)
-		if char_data:
-			_model = CSGCharacterFactory.create_from_character(char_data)
-			add_child(_model)
-			return
-	# Fallback: default warrior model
-	var fallback := CharacterData.new()
-	fallback.display_name = "Player"
-	fallback.character_class = "Warrior"
-	_model = CSGCharacterFactory.create_from_character(fallback)
-	add_child(_model)
+		char_data = GameManager.party.roster.get(char_id)
+	if not char_data:
+		char_data = CharacterData.new()
+		char_data.display_name = "Player"
+		char_data.character_class = "Warrior"
+
+	_model = CSGCharacterFactory.create_from_character(char_data)
+	add_child(_model)  # triggers _ready() on AnimatedCharacter if applicable
+
+	# Check if factory returned an AnimatedCharacter (has play method after _ready)
+	if _model.has_method("play"):
+		_animated_char = _model
+		print("[Player] Using animated 3D model")
+	else:
+		_animator = ModelAnimator.new()
+		add_child(_animator)
+		_animator.setup(_model)
+		print("[Player] Using CSG/voxel model")
 
 
 func _update_model_direction(direction: Vector3) -> void:
 	## Rotates the model to face movement direction.
 	if _model and direction.length() > 0.1:
-		_model.rotation.y = atan2(-direction.x, -direction.z)
+		_model.rotation.y = atan2(direction.x, direction.z)
 
 
 

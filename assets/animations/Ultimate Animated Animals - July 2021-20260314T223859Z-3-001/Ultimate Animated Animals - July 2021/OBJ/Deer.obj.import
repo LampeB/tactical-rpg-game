@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://daot37khd7v2r"
+path="res://.godot/imported/Deer.obj-3256b9d3e3393bb2958e85aaf9628ce7.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Deer.obj-3256b9d3e3393bb2958e85aaf9628ce7.mesh"]
+
+source_file="res://assets/animations/Ultimate Animated Animals - July 2021-20260314T223859Z-3-001/Ultimate Animated Animals - July 2021/OBJ/Deer.obj"
+dest_files=["res://.godot/imported/Deer.obj-3256b9d3e3393bb2958e85aaf9628ce7.mesh", "res://.godot/imported/Deer.obj-3256b9d3e3393bb2958e85aaf9628ce7.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

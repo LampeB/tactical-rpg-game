@@ -150,7 +150,7 @@ func _physics_process(delta: float) -> void:
 	if _animator:
 		_animator.set_walking(_move_direction.length() > 0.1)
 	if _model and _move_direction.length() > 0.1:
-		_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+		_model.rotation.y = atan2(_move_direction.x, _move_direction.z)
 
 
 func _is_in_safe_zone(pos: Vector3) -> bool:

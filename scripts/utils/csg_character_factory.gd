@@ -1,7 +1,17 @@
 class_name CSGCharacterFactory
-## Builds simple humanoid figures from CSG primitives at runtime.
-## Falls back to CSG when no voxel model is available.
-## Prefers multi-part articulated voxel models (with limb pivots) when present.
+## Builds 3D character models at runtime.
+## Priority: animated 3D model → multi-part voxel → single voxel → CSG fallback.
+
+const _AnimatedCharacter = preload("res://scripts/utils/animated_character.gd")
+
+const _OUTFIT_BASE := "res://assets/animations/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Outfits/"
+
+## Character ID → outfit model path. Add entries as models become available.
+const CHARACTER_MODEL_MAP: Dictionary = {
+	"warrior": _OUTFIT_BASE + "Male_Peasant.gltf",
+	"mage": _OUTFIT_BASE + "Female_Peasant.gltf",
+	"rogue": _OUTFIT_BASE + "Female_Ranger.gltf",
+}
 
 
 ## Create a 3D model for any data resource that has model_scene/model_scale.
@@ -21,14 +31,23 @@ static func create_from_character(char_data: CharacterData) -> Node3D:
 		var scene_model: Node3D = char_data.model_scene.instantiate()
 		scene_model.scale = Vector3.ONE * char_data.model_scale
 		return scene_model
+	# Try animated 3D model from outfit map
+	var model_path: String = CHARACTER_MODEL_MAP.get(char_data.id, "")
+	if model_path.is_empty():
+		model_path = CHARACTER_MODEL_MAP.get(char_data.character_class.to_lower(), "")
+	if not model_path.is_empty() and ResourceLoader.exists(model_path):
+		var anim_char: Node3D = _AnimatedCharacter.create(model_path, 1.0)
+		if anim_char:
+			return anim_char
 	# Try multi-part articulated voxel model (limbs + pivots)
 	var multipart := _try_load_multipart_vox("res://assets/voxels/characters/%s" % char_data.id)
 	if multipart:
 		_add_name_label(multipart, char_data.display_name, 2.0)
 		return multipart
-	# Try single-file voxel model
+	# Try single-file voxel model (faces -Z, rotate to +Z)
 	var vox_model := _try_load_vox("res://assets/voxels/characters/%s.vox" % char_data.id)
 	if vox_model:
+		vox_model.rotation.y = PI
 		_add_name_label(vox_model, char_data.display_name, 2.0)
 		return vox_model
 	var color: Color = Constants.CHARACTER_CLASS_COLORS.get(
@@ -52,9 +71,10 @@ static func create_from_enemy(enemy_data: EnemyData) -> Node3D:
 		multipart.position.y *= enemy_data.model_scale
 		_add_name_label(multipart, enemy_data.display_name, _get_model_top(multipart) + 0.3)
 		return multipart
-	# Try single-file voxel model
+	# Try single-file voxel model (faces -Z, rotate to +Z)
 	var vox_model := _try_load_vox("res://assets/voxels/enemies/%s.vox" % enemy_data.id)
 	if vox_model:
+		vox_model.rotation.y = PI
 		vox_model.scale = Vector3.ONE * enemy_data.model_scale
 		_add_name_label(vox_model, enemy_data.display_name, _get_model_top(vox_model) + 0.3)
 		return vox_model
@@ -94,9 +114,10 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 	if multipart:
 		_add_name_label(multipart, npc_data.display_name, 2.0)
 		return multipart
-	# Try single-file voxel model
+	# Try single-file voxel model (faces -Z, rotate to +Z)
 	var vox_model := _try_load_vox("res://assets/voxels/npcs/%s.vox" % npc_data.id)
 	if vox_model:
+		vox_model.rotation.y = PI
 		_add_name_label(vox_model, npc_data.display_name, 2.0)
 		return vox_model
 	var color: Color = npc_data.model_color

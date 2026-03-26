@@ -2,11 +2,14 @@ class_name PassiveNodeData
 extends Resource
 ## Definition of a single node in a character's passive skill tree.
 
+enum Tier { MINOR, NOTABLE, KEYSTONE }
+
 @export_group("Identity")
 @export var id: String = ""
 @export var display_name: String = ""
 @export_multiline var description: String = ""
 @export var icon: Texture2D
+@export var tier: Tier = Tier.MINOR
 
 @export_group("Bonuses")
 ## Stat bonuses applied when this node is unlocked (reuses StatModifier).

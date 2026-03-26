@@ -1,0 +1,176 @@
+[0ms] === Wall import started ===
+[0ms] Step 1: Loading E:/Projects/tactical-rpg-game/tools/wall_data.json...
+[37ms] Step 1 done: 9569 wall pixels loaded
+[37ms] Step 2: Building fine grid 7168x7168 from 9569 cells (sub 7x7)...
+[86ms] Step 2 done: 92028 fine pixels set
+[86ms] Step 3: Flood-fill grouping on 7168x7168 fine grid...
+[2650ms] Step 3 done: 35 blobs found
+[2651ms]   Blob 0: type=1, 80046 pixels
+[2651ms]   Blob 1: type=1, 52 pixels
+[2651ms]   Blob 2: type=1, 160 pixels
+[2651ms]   Blob 3: type=1, 344 pixels
+[2651ms]   Blob 4: type=1, 1284 pixels
+[2651ms]   Blob 5: type=1, 108 pixels
+[2651ms]   Blob 6: type=1, 264 pixels
+[2651ms]   Blob 7: type=1, 186 pixels
+[2651ms]   Blob 8: type=1, 80 pixels
+[2651ms]   Blob 9: type=1, 80 pixels
+[2651ms]   Blob 10: type=1, 214 pixels
+[2651ms]   Blob 11: type=1, 610 pixels
+[2651ms]   Blob 12: type=1, 158 pixels
+[2651ms]   Blob 13: type=1, 80 pixels
+[2651ms]   Blob 14: type=1, 52 pixels
+[2651ms]   Blob 15: type=1, 332 pixels
+[2651ms]   Blob 16: type=1, 248 pixels
+[2651ms]   Blob 17: type=1, 134 pixels
+[2651ms]   Blob 18: type=1, 134 pixels
+[2651ms]   Blob 19: type=1, 458 pixels
+[2651ms]   Blob 20: type=1, 432 pixels
+[2651ms]   Blob 21: type=1, 160 pixels
+[2651ms]   Blob 22: type=1, 910 pixels
+[2651ms]   Blob 23: type=1, 266 pixels
+[2651ms]   Blob 24: type=1, 614 pixels
+[2651ms]   Blob 25: type=1, 106 pixels
+[2651ms]   Blob 26: type=1, 108 pixels
+[2651ms]   Blob 27: type=1, 162 pixels
+[2651ms]   Blob 28: type=1, 162 pixels
+[2651ms]   Blob 29: type=1, 2930 pixels
+[2651ms]   Blob 30: type=1, 268 pixels
+[2651ms]   Blob 31: type=1, 52 pixels
+[2651ms]   Blob 32: type=1, 324 pixels
+[2651ms]   Blob 33: type=1, 430 pixels
+[2651ms]   Blob 34: type=1, 80 pixels
+[2651ms] Step 4: Chain-walking blobs...
+[2810ms]   Blob 0 chain: 80047 points (of 80046 pixels)
+[2812ms]   Blob 1 chain: 53 points (of 52 pixels)
+[2813ms]   Blob 2 chain: 161 points (of 160 pixels)
+[2813ms]   Blob 3 chain: 345 points (of 344 pixels)
+[2816ms]   Blob 4 chain: 1285 points (of 1284 pixels)
+[2816ms]   Blob 5 chain: 109 points (of 108 pixels)
+[2816ms]   Blob 6 chain: 265 points (of 264 pixels)
+[2817ms]   Blob 7 chain: 187 points (of 186 pixels)
+[2817ms]   Blob 8 chain: 81 points (of 80 pixels)
+[2817ms]   Blob 9 chain: 81 points (of 80 pixels)
+[2818ms]   Blob 10 chain: 215 points (of 214 pixels)
+[2819ms]   Blob 11 chain: 611 points (of 610 pixels)
+[2819ms]   Blob 12 chain: 159 points (of 158 pixels)
+[2819ms]   Blob 13 chain: 81 points (of 80 pixels)
+[2819ms]   Blob 14 chain: 53 points (of 52 pixels)
+[2820ms]   Blob 15 chain: 333 points (of 332 pixels)
+[2820ms]   Blob 16 chain: 249 points (of 248 pixels)
+[2821ms]   Blob 17 chain: 135 points (of 134 pixels)
+[2821ms]   Blob 18 chain: 135 points (of 134 pixels)
+[2822ms]   Blob 19 chain: 459 points (of 458 pixels)
+[2822ms]   Blob 20 chain: 433 points (of 432 pixels)
+[2823ms]   Blob 21 chain: 161 points (of 160 pixels)
+[2825ms]   Blob 22 chain: 911 points (of 910 pixels)
+[2825ms]   Blob 23 chain: 267 points (of 266 pixels)
+[2826ms]   Blob 24 chain: 615 points (of 614 pixels)
+[2826ms]   Blob 25 chain: 107 points (of 106 pixels)
+[2827ms]   Blob 26 chain: 109 points (of 108 pixels)
+[2827ms]   Blob 27 chain: 163 points (of 162 pixels)
+[2827ms]   Blob 28 chain: 163 points (of 162 pixels)
+[2833ms]   Blob 29 chain: 2931 points (of 2930 pixels)
+[2833ms]   Blob 30 chain: 269 points (of 268 pixels)
+[2834ms]   Blob 31 chain: 53 points (of 52 pixels)
+[2834ms]   Blob 32 chain: 325 points (of 324 pixels)
+[2835ms]   Blob 33 chain: 431 points (of 430 pixels)
+[2835ms]   Blob 34 chain: 81 points (of 80 pixels)
+[2835ms] Step 4 done
+[2835ms] Step 6: Creating WallPath3D nodes...
+[2843ms]   Created Wall_0_0: type=1, 200 points
+[2844ms]   Created Wall_0_1: type=1, 200 points
+[2845ms]   Created Wall_0_2: type=1, 200 points
+[2845ms]   Created Wall_0_3: type=1, 200 points
+[2846ms]   Created Wall_0_4: type=1, 200 points
+[2847ms]   Created Wall_0_5: type=1, 200 points
+[2847ms]   Created Wall_0_6: type=1, 200 points
+[2848ms]   Created Wall_0_7: type=1, 200 points
+[2849ms]   Created Wall_0_8: type=1, 200 points
+[2849ms]   Created Wall_0_9: type=1, 200 points
+[2850ms]   Created Wall_0_10: type=1, 200 points
+[2851ms]   Created Wall_0_11: type=1, 200 points
+[2851ms]   Created Wall_0_12: type=1, 200 points
+[2852ms]   Created Wall_0_13: type=1, 200 points
+[2853ms]   Created Wall_0_14: type=1, 200 points
+[2853ms]   Created Wall_0_15: type=1, 200 points
+[2854ms]   Created Wall_0_16: type=1, 200 points
+[2855ms]   Created Wall_0_17: type=1, 200 points
+[2855ms]   Created Wall_0_18: type=1, 200 points
+[2856ms]   Created Wall_0_19: type=1, 200 points
+[2857ms]   Created Wall_0_20: type=1, 200 points
+[2857ms]   Created Wall_0_21: type=1, 200 points
+[2858ms]   Created Wall_0_22: type=1, 200 points
+[2859ms]   Created Wall_0_23: type=1, 200 points
+[2859ms]   Created Wall_0_24: type=1, 200 points
+[2860ms]   Created Wall_0_25: type=1, 200 points
+[2861ms]   Created Wall_0_26: type=1, 200 points
+[2861ms]   Created Wall_0_27: type=1, 200 points
+[2862ms]   Created Wall_0_28: type=1, 200 points
+[2863ms]   Created Wall_0_29: type=1, 200 points
+[2863ms]   Created Wall_0_30: type=1, 200 points
+[2864ms]   Created Wall_0_31: type=1, 200 points
+[2865ms]   Created Wall_0_32: type=1, 200 points
+[2865ms]   Created Wall_0_33: type=1, 200 points
+[2866ms]   Created Wall_0_34: type=1, 200 points
+[2867ms]   Created Wall_0_35: type=1, 200 points
+[2868ms]   Created Wall_0_36: type=1, 200 points
+[2868ms]   Created Wall_0_37: type=1, 200 points
+[2869ms]   Created Wall_0_38: type=1, 200 points
+[2870ms]   Created Wall_0_39: type=1, 200 points
+[2870ms]   Created Wall_0_40: type=1, 200 points
+[2871ms]   Created Wall_0_41: type=1, 200 points
+[2872ms]   Created Wall_0_42: type=1, 200 points
+[2872ms]   Created Wall_0_43: type=1, 200 points
+[2873ms]   Created Wall_0_44: type=1, 200 points
+[2874ms]   Created Wall_0_45: type=1, 200 points
+[2874ms]   Created Wall_0_46: type=1, 200 points
+[2875ms]   Created Wall_0_47: type=1, 200 points
+[2876ms]   Created Wall_0_48: type=1, 200 points
+[2876ms]   Created Wall_0_49: type=1, 200 points
+[2877ms]   Created Wall_0_50: type=1, 200 points
+[2878ms]   Created Wall_0_51: type=1, 200 points
+[2878ms]   Created Wall_0_52: type=1, 200 points
+[2879ms]   Created Wall_0_53: type=1, 200 points
+[2880ms]   Created Wall_0_54: type=1, 200 points
+[2880ms]   Created Wall_0_55: type=1, 200 points
+[2881ms]   Created Wall_0_56: type=1, 200 points
+[2881ms]   Created Wall_0_57: type=1, 94 points
+[2882ms]   Created Wall_1_0: type=1, 9 points
+[2882ms]   Created Wall_2_0: type=1, 24 points
+[2882ms]   Created Wall_3_0: type=1, 51 points
+[2883ms]   Created Wall_4_0: type=1, 185 points
+[2883ms]   Created Wall_5_0: type=1, 17 points
+[2883ms]   Created Wall_6_0: type=1, 39 points
+[2883ms]   Created Wall_7_0: type=1, 28 points
+[2883ms]   Created Wall_8_0: type=1, 13 points
+[2883ms]   Created Wall_9_0: type=1, 13 points
+[2884ms]   Created Wall_10_0: type=1, 32 points
+[2884ms]   Created Wall_11_0: type=1, 89 points
+[2884ms]   Created Wall_12_0: type=1, 24 points
+[2884ms]   Created Wall_13_0: type=1, 13 points
+[2884ms]   Created Wall_14_0: type=1, 9 points
+[2885ms]   Created Wall_15_0: type=1, 49 points
+[2885ms]   Created Wall_16_0: type=1, 37 points
+[2885ms]   Created Wall_17_0: type=1, 21 points
+[2885ms]   Created Wall_18_0: type=1, 21 points
+[2885ms]   Created Wall_19_0: type=1, 67 points
+[2886ms]   Created Wall_20_0: type=1, 63 points
+[2886ms]   Created Wall_21_0: type=1, 24 points
+[2887ms]   Created Wall_22_0: type=1, 131 points
+[2887ms]   Created Wall_23_0: type=1, 39 points
+[2887ms]   Created Wall_24_0: type=1, 89 points
+[2887ms]   Created Wall_25_0: type=1, 17 points
+[2887ms]   Created Wall_26_0: type=1, 17 points
+[2888ms]   Created Wall_27_0: type=1, 25 points
+[2888ms]   Created Wall_28_0: type=1, 25 points
+[2889ms]   Created Wall_29_0: type=1, 200 points
+[2889ms]   Created Wall_29_1: type=1, 200 points
+[2889ms]   Created Wall_29_2: type=1, 22 points
+[2890ms]   Created Wall_30_0: type=1, 40 points
+[2890ms]   Created Wall_31_0: type=1, 9 points
+[2890ms]   Created Wall_32_0: type=1, 48 points
+[2890ms]   Created Wall_33_0: type=1, 63 points
+[2891ms]   Created Wall_34_0: type=1, 13 points
+[2891ms] Step 6 done: 94 WallPath3D nodes created
+[2891ms] === Wall import complete: 2891ms total ===

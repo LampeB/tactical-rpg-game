@@ -1,0 +1,12 @@
+[70347ms] === Import 'zones' started at 2026-03-26T18:27:51 ===
+[70629ms] ORA load: 282ms
+[70629ms] Image: 7168x7168 format=5
+[70629ms] Terrain: 1024x1024 = 1048576 vertices
+[70629ms] Resizing 7168x7168 → 1024x1024 (nearest)
+[70639ms] Resize: 10ms
+[73750ms] Zone classify: 3111ms
+[73789ms] Texture layers: 12 loaded
+[78843ms] Splatmap rebuild: 5054ms
+[78843ms] Starting rebuild...
+[102777ms] Rebuild: 23934ms
+[102777ms] === TOTAL: 32430ms ===

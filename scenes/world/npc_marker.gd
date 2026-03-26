@@ -114,7 +114,7 @@ func _process(delta: float) -> void:
 				_move_direction = dir
 				position += _move_direction * patrol_speed * delta
 				if _model:
-					_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+					_model.rotation.y = atan2(_move_direction.x, _move_direction.z)
 			else:
 				_move_direction = Vector3.ZERO
 		else:
@@ -136,7 +136,7 @@ func _process(delta: float) -> void:
 				_move_direction = Vector3(dir.x, 0, dir.z)
 
 			if _model:
-				_model.rotation.y = atan2(-_move_direction.x, -_move_direction.z)
+				_model.rotation.y = atan2(_move_direction.x, _move_direction.z)
 
 	# Ground NPC to terrain surface
 	_update_ground_height()

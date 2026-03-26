@@ -1,0 +1,10 @@
+[94498ms] === Import 'heightmap' started at 2026-03-26T19:01:02 ===
+[94716ms] ORA load: 219ms
+[94716ms] Image: 7168x7168 format=5
+[94716ms] Terrain: 1024x1024 = 1048576 vertices
+[94716ms] Resizing 7168x7168 → 1024x1024 (bilinear)
+[94737ms] Resize: 21ms
+[95449ms] Height scan: 712ms — 9057 changed / 1048576
+[95449ms] Starting rebuild...
+[116196ms] Rebuild: 20747ms
+[116196ms] === TOTAL: 21699ms ===

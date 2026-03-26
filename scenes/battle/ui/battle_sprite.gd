@@ -49,16 +49,19 @@ func setup(entity: CombatEntity) -> void:
 	add_child(_model)
 
 	# Face units toward opponents along the X axis.
-	# Voxel models default to facing -Z; rotate to face ±X for side-view layout.
+	# Models face +Z by default; rotate to face ±X for side-view layout.
 	if entity.is_player:
-		_model.rotation.y = -PI / 2.0  # Face +X (toward enemies)
+		_model.rotation.y = PI / 2.0   # Face +X (toward enemies)
 	else:
-		_model.rotation.y = PI / 2.0   # Face -X (toward players)
+		_model.rotation.y = -PI / 2.0  # Face -X (toward players)
 
-	# Attach idle breathing animator
-	_animator = ModelAnimator.new()
-	add_child(_animator)
-	_animator.setup(_model)
+	# Animated models use their own AnimationPlayer for idle; CSG/voxel use ModelAnimator
+	if _model.has_method("play"):
+		_model.play("idle")
+	else:
+		_animator = ModelAnimator.new()
+		add_child(_animator)
+		_animator.setup(_model)
 
 	# Cache all body part references for full-body attack animations
 	_hip = _find_part(_model, "Hip")

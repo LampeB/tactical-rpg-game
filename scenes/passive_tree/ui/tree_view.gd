@@ -8,9 +8,15 @@ signal node_double_clicked(node_id: String)
 signal node_hovered(node_id: String)
 signal node_exited()
 
-const NODE_RADIUS := 28.0
+const NODE_RADIUS_MINOR := 22.0
+const NODE_RADIUS_NOTABLE := 32.0
+const NODE_RADIUS_KEYSTONE := 40.0
+const NODE_RADIUS := 28.0  ## Legacy fallback
 const LINE_WIDTH := 3.0
-const HOVER_RADIUS := 36.0
+const HOVER_RADIUS_MINOR := 28.0
+const HOVER_RADIUS_NOTABLE := 38.0
+const HOVER_RADIUS_KEYSTONE := 46.0
+const HOVER_RADIUS := 36.0  ## Legacy fallback
 const ZOOM_MIN := 0.3
 const ZOOM_MAX := 2.5
 const ZOOM_STEP := 0.1
@@ -145,6 +151,7 @@ func _draw() -> void:
 		if not node:
 			continue
 		var pos: Vector2 = _tree_to_screen(node.position)
+		var node_radius: float = _get_node_radius(node) * _zoom
 		var is_unlocked: bool = _unlocked_ids.has(node.id)
 		var is_pending: bool = _pending_ids.has(node.id)
 		var is_available: bool = _available_ids.has(node.id)
@@ -164,17 +171,17 @@ func _draw() -> void:
 
 		# Draw outer ring if hovered (but not if selected)
 		if is_hovered and not is_selected:
-			draw_circle(pos, scaled_radius + 4.0 * _zoom, _color_hovered)
+			_draw_node_shape(pos, node_radius + 4.0 * _zoom, node.tier, _color_hovered)
 
-		# Draw filled circle
-		draw_circle(pos, scaled_radius, fill_color)
+		# Draw filled shape based on tier
+		_draw_node_shape(pos, node_radius, node.tier, fill_color)
 
 		# Draw border (thicker and colored if selected)
 		if is_selected:
-			_draw_circle_outline(pos, scaled_radius, _color_selected, 4.0 * _zoom)
+			_draw_node_outline(pos, node_radius, node.tier, _color_selected, 4.0 * _zoom)
 		else:
 			var border_color: Color = fill_color.lightened(0.3)
-			_draw_circle_outline(pos, scaled_radius, border_color, 2.0 * _zoom)
+			_draw_node_outline(pos, node_radius, node.tier, border_color, 2.0 * _zoom)
 
 		# Draw icon if available, otherwise draw first letter
 		if node.icon:
@@ -182,11 +189,85 @@ func _draw() -> void:
 			var icon_rect := Rect2(pos - icon_size / 2.0, icon_size)
 			draw_texture_rect(node.icon, icon_rect, false)
 		else:
-			# Draw abbreviated text
+			# Draw abbreviated text — longer for Notable/Keystone
 			var font: Font = ThemeDB.fallback_font
-			var abbr: String = node.display_name.left(2).to_upper()
+			var abbr_len: int = 2 if node.tier == PassiveNodeData.Tier.MINOR else 3
+			var abbr: String = node.display_name.left(abbr_len).to_upper()
 			var text_size: Vector2 = font.get_string_size(abbr, HORIZONTAL_ALIGNMENT_CENTER, -1, scaled_font_size)
 			draw_string(font, pos - Vector2(text_size.x / 2.0, -5.0 * _zoom), abbr, HORIZONTAL_ALIGNMENT_CENTER, -1, scaled_font_size, Color.WHITE)
+
+
+func _get_node_radius(node: PassiveNodeData) -> float:
+	match node.tier:
+		PassiveNodeData.Tier.NOTABLE: return NODE_RADIUS_NOTABLE
+		PassiveNodeData.Tier.KEYSTONE: return NODE_RADIUS_KEYSTONE
+		_: return NODE_RADIUS_MINOR
+
+
+func _get_hover_radius(node: PassiveNodeData) -> float:
+	match node.tier:
+		PassiveNodeData.Tier.NOTABLE: return HOVER_RADIUS_NOTABLE
+		PassiveNodeData.Tier.KEYSTONE: return HOVER_RADIUS_KEYSTONE
+		_: return HOVER_RADIUS_MINOR
+
+
+func _draw_node_shape(center: Vector2, radius: float, tier: PassiveNodeData.Tier, color: Color) -> void:
+	match tier:
+		PassiveNodeData.Tier.NOTABLE:
+			_draw_diamond_filled(center, radius, color)
+		PassiveNodeData.Tier.KEYSTONE:
+			_draw_hexagon_filled(center, radius, color)
+		_:
+			draw_circle(center, radius, color)
+
+
+func _draw_node_outline(center: Vector2, radius: float, tier: PassiveNodeData.Tier, color: Color, width: float) -> void:
+	match tier:
+		PassiveNodeData.Tier.NOTABLE:
+			_draw_diamond_outline(center, radius, color, width)
+		PassiveNodeData.Tier.KEYSTONE:
+			_draw_hexagon_outline(center, radius, color, width)
+		_:
+			_draw_circle_outline(center, radius, color, width)
+
+
+func _draw_diamond_filled(center: Vector2, radius: float, color: Color) -> void:
+	var points: PackedVector2Array = PackedVector2Array([
+		center + Vector2(0, -radius),
+		center + Vector2(radius, 0),
+		center + Vector2(0, radius),
+		center + Vector2(-radius, 0),
+	])
+	draw_colored_polygon(points, color)
+
+
+func _draw_diamond_outline(center: Vector2, radius: float, color: Color, width: float) -> void:
+	var points: PackedVector2Array = PackedVector2Array([
+		center + Vector2(0, -radius),
+		center + Vector2(radius, 0),
+		center + Vector2(0, radius),
+		center + Vector2(-radius, 0),
+		center + Vector2(0, -radius),
+	])
+	for i in range(4):
+		draw_line(points[i], points[i + 1], color, width, true)
+
+
+func _draw_hexagon_filled(center: Vector2, radius: float, color: Color) -> void:
+	var points: PackedVector2Array = PackedVector2Array()
+	for i in range(6):
+		var angle: float = i * TAU / 6.0 - PI / 6.0
+		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	draw_colored_polygon(points, color)
+
+
+func _draw_hexagon_outline(center: Vector2, radius: float, color: Color, width: float) -> void:
+	var points: PackedVector2Array = PackedVector2Array()
+	for i in range(7):
+		var angle: float = i * TAU / 6.0 - PI / 6.0
+		points.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	for i in range(6):
+		draw_line(points[i], points[i + 1], color, width, true)
 
 
 func _draw_circle_outline(center: Vector2, radius: float, color: Color, width: float) -> void:
@@ -265,6 +346,6 @@ func _get_node_at(screen_pos: Vector2) -> String:
 	# Check in reverse order so topmost drawn nodes are clicked first
 	for i in range(_tree_data.nodes.size() - 1, -1, -1):
 		var node: PassiveNodeData = _tree_data.nodes[i]
-		if node and tree_pos.distance_to(node.position) <= HOVER_RADIUS:
+		if node and tree_pos.distance_to(node.position) <= _get_hover_radius(node):
 			return node.id
 	return ""

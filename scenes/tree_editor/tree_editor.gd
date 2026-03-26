@@ -14,9 +14,29 @@ var _selected_node_id: String = ""
 
 # Effect IDs for the dropdown
 const EFFECT_IDS: Array = [
-	"", "counter_attack", "lifesteal_5", "lifesteal_10",
+	"",
+	# Minor
+	"counter_attack", "lifesteal_5", "lifesteal_10",
 	"start_shield", "thorns", "mana_regen", "evasion",
-	"first_strike", "double_gold",
+	"first_strike", "double_gold", "auto_revive",
+	"first_hit_evasion", "damage_shield_on_kill",
+	"execute_threshold", "mp_on_kill",
+	# Notable — Warrior
+	"bulwark_stance", "crushing_blow", "second_wind",
+	"unbreaking", "taunt_mastery", "ironblood", "bloodthirst",
+	# Notable — Mage
+	"elemental_mastery", "spell_echo", "overcharged",
+	"focused_mind_cond", "chain_reaction", "arcane_shield", "resonance",
+	# Notable — Rogue
+	"ambush", "exploit_weakness", "lucky_strike",
+	"shadowstep", "poison_mastery", "quick_hands",
+	"blade_flurry", "treasure_sense",
+	# Notable — Cross-path
+	"spell_sword", "battle_mage", "shadow_knight", "arcane_trickster",
+	# Keystones
+	"ks_immortal_fortress", "ks_berserker_rage",
+	"ks_archmage", "ks_elemental_overload",
+	"ks_phantom", "ks_executioner", "ks_jack_of_all_trades",
 ]
 
 
@@ -235,6 +255,19 @@ func _build_property_panel(node: PassiveNodeData) -> void:
 		node.description = desc_edit.text
 	)
 	_property_vbox.add_child(desc_edit)
+
+	_add_label_row("Tier:")
+	var tier_btn: OptionButton = OptionButton.new()
+	tier_btn.add_item("Minor (small circle)", 0)
+	tier_btn.add_item("Notable (diamond)", 1)
+	tier_btn.add_item("Keystone (hexagon)", 2)
+	tier_btn.selected = node.tier as int
+	tier_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tier_btn.item_selected.connect(func(idx: int) -> void:
+		node.tier = idx as PassiveNodeData.Tier
+		_editor_view.queue_redraw()
+	)
+	_property_vbox.add_child(tier_btn)
 
 	_add_separator()
 

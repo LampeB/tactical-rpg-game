@@ -75,6 +75,7 @@ func _draw() -> void:
 		if not node:
 			continue
 		var pos: Vector2 = _tree_to_screen(node.position)
+		var node_radius: float = _get_node_radius(node) * _zoom
 		var is_hovered: bool = (_hovered_node_id == node.id)
 		var is_selected: bool = (_selected_node_id == node.id)
 		var is_connect_source: bool = (_connecting_from_id == node.id)
@@ -85,17 +86,17 @@ func _draw() -> void:
 
 		# Hover ring
 		if is_hovered and not is_selected:
-			draw_circle(pos, scaled_radius + 4.0 * _zoom, _color_hovered)
+			_draw_node_shape(pos, node_radius + 4.0 * _zoom, node.tier, _color_hovered)
 
-		# Filled circle
-		draw_circle(pos, scaled_radius, fill_color)
+		# Filled shape based on tier
+		_draw_node_shape(pos, node_radius, node.tier, fill_color)
 
 		# Border
 		if is_selected:
-			_draw_circle_outline(pos, scaled_radius, _color_selected, 4.0 * _zoom)
+			_draw_node_outline(pos, node_radius, node.tier, _color_selected, 4.0 * _zoom)
 		else:
 			var border_color: Color = fill_color.lightened(0.3)
-			_draw_circle_outline(pos, scaled_radius, border_color, 2.0 * _zoom)
+			_draw_node_outline(pos, node_radius, node.tier, border_color, 2.0 * _zoom)
 
 		# Label
 		if node.icon:
@@ -104,15 +105,16 @@ func _draw() -> void:
 			draw_texture_rect(node.icon, icon_rect, false)
 		else:
 			var font: Font = ThemeDB.fallback_font
-			var abbr: String = node.display_name.left(2).to_upper()
+			var abbr_len: int = 2 if node.tier == PassiveNodeData.Tier.MINOR else 3
+			var abbr: String = node.display_name.left(abbr_len).to_upper()
 			var text_size: Vector2 = font.get_string_size(abbr, HORIZONTAL_ALIGNMENT_CENTER, -1, scaled_font_size)
 			draw_string(font, pos - Vector2(text_size.x / 2.0, -5.0 * _zoom), abbr, HORIZONTAL_ALIGNMENT_CENTER, -1, scaled_font_size, Color.WHITE)
 
-		# Draw node ID below the circle
+		# Draw node ID below the shape
 		var font: Font = ThemeDB.fallback_font
 		var id_font_size: int = maxi(int(10.0 * _zoom), 6)
 		var id_text_size: Vector2 = font.get_string_size(node.id, HORIZONTAL_ALIGNMENT_CENTER, -1, id_font_size)
-		draw_string(font, pos + Vector2(-id_text_size.x / 2.0, scaled_radius + 12.0 * _zoom), node.id, HORIZONTAL_ALIGNMENT_CENTER, -1, id_font_size, Color(0.7, 0.7, 0.7, 0.8))
+		draw_string(font, pos + Vector2(-id_text_size.x / 2.0, node_radius + 12.0 * _zoom), node.id, HORIZONTAL_ALIGNMENT_CENTER, -1, id_font_size, Color(0.7, 0.7, 0.7, 0.8))
 
 
 func _draw_arrow(from: Vector2, to: Vector2, arrow_len: float, color: Color, width: float) -> void:
