@@ -205,6 +205,10 @@ func _create_material(data: HeightmapData, splatmap2_img: Image, splatmap3_img: 
 			mat.set_shader_parameter("albedo_" + suffix, layer.albedo_texture)
 		if layer.normal_texture:
 			mat.set_shader_parameter("normal_" + suffix, layer.normal_texture)
+		if layer.roughness_texture:
+			mat.set_shader_parameter("roughness_" + suffix, layer.roughness_texture)
+		if layer.metallic_texture:
+			mat.set_shader_parameter("metallic_" + suffix, layer.metallic_texture)
 		mat.set_shader_parameter("uv_scale_" + suffix, layer.uv_scale)
 
 	# Splatmap2 texture (channels 4-7)

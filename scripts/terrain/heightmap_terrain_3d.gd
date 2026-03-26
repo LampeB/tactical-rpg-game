@@ -166,15 +166,21 @@ const _POI_COLORS: Dictionary = {
 	PointOfInterest.Type.BRIDGE:  Color(1.0, 0.0, 1.0, 1.0),
 }
 
-## Zone ID → pixel color
+## Zone ID → pixel color (must match overworld_heightmap_generator.gd zone IDs)
 const _ZONE_COLORS: Dictionary = {
-	0:   Color(0.0, 0.0, 0.5),
-	1:   Color(0.0, 0.8, 0.0),
-	2:   Color(1.0, 0.9, 0.0),
-	3:   Color(0.5, 0.0, 0.5),
-	4:   Color(0.2, 0.2, 0.2),
-	5:   Color(0.8, 0.8, 0.8),
-	255: Color(1.0, 1.0, 1.0),
+	0:  Color(0.0, 0.0, 0.502),       # Ocean        #000080
+	1:  Color(0.0, 1.0, 0.0),         # Grassland    #00FF00
+	2:  Color(1.0, 0.902, 0.0),       # Desert       #FFE600
+	3:  Color(0.502, 0.502, 0.502),   # Mountain     #808080
+	4:  Color(0.878, 0.878, 1.0),     # Snow Peak    #E0E0FF
+	5:  Color(0.545, 0.271, 0.075),   # Farmland     #8B4513
+	6:  Color(0.753, 0.627, 0.502),   # Gravel Path  #C0A080
+	7:  Color(0.251, 0.251, 0.251),   # Cliff        #404040
+	8:  Color(0.0, 0.392, 0.0),       # Deep Forest  #006400
+	9:  Color(0.502, 0.0, 0.502),     # Swamp        #800080
+	10: Color(0.2, 0.2, 0.2),         # Deathblight  #333333
+	11: Color(0.0, 0.8, 0.0),         # Jungle       #00CC00
+	12: Color(0.8, 0.8, 0.8),         # Fortress     #CCCCCC
 }
 
 
@@ -220,7 +226,7 @@ func _rebuild() -> void:
 	if not _chunk_parent:
 		_chunk_parent = Node3D.new()
 		_chunk_parent.name = "Chunks"
-		add_child(_chunk_parent)
+		add_child(_chunk_parent, false, Node.INTERNAL_MODE_FRONT)
 
 	var cx_count: int = heightmap_data.get_chunk_count_x()
 	var cz_count: int = heightmap_data.get_chunk_count_z()
@@ -246,7 +252,7 @@ func _rebuild_rivers() -> void:
 	else:
 		_river_parent = Node3D.new()
 		_river_parent.name = "Rivers"
-		add_child(_river_parent)
+		add_child(_river_parent, false, Node.INTERNAL_MODE_FRONT)
 	if not heightmap_data:
 		return
 	for ri in range(heightmap_data.rivers.size()):
@@ -275,7 +281,7 @@ func _rebuild_water() -> void:
 	else:
 		_water_parent = Node3D.new()
 		_water_parent.name = "Water"
-		add_child(_water_parent)
+		add_child(_water_parent, false, Node.INTERNAL_MODE_FRONT)
 	if not heightmap_data:
 		return
 	for i in range(heightmap_data.water_zones.size()):
@@ -305,7 +311,7 @@ func _rebuild_props() -> void:
 	else:
 		_prop_parent = Node3D.new()
 		_prop_parent.name = "Props"
-		add_child(_prop_parent)
+		add_child(_prop_parent, false, Node.INTERNAL_MODE_FRONT)
 	if not heightmap_data:
 		return
 	var prop_defs: Array = []
@@ -327,7 +333,7 @@ func _rebuild_pois() -> void:
 	else:
 		_poi_parent = Node3D.new()
 		_poi_parent.name = "POIs"
-		add_child(_poi_parent)
+		add_child(_poi_parent, false, Node.INTERNAL_MODE_FRONT)
 	if not heightmap_data:
 		return
 	var ts: Vector3 = heightmap_data.terrain_scale
@@ -423,13 +429,23 @@ func _rebuild_wall_overlay() -> void:
 
 
 func _clear_chunks() -> void:
+	# Clear runtime-tracked chunks
 	if _chunk_parent:
-		var keys: Array = _chunks.keys()
-		for i in range(keys.size()):
-			var chunk: HeightmapChunk = _chunks[keys[i]]
-			if is_instance_valid(chunk):
-				chunk.queue_free()
+		for child in _chunk_parent.get_children():
+			child.queue_free()
 		_chunks.clear()
+	# Also clear any stale saved nodes from .tscn (Chunks, Rivers, Water, Props, POIs)
+	for child_name in ["Chunks", "Rivers", "Water", "Props", "POIs"]:
+		var existing: Node = get_node_or_null(child_name)
+		if existing and existing != _chunk_parent and existing != _river_parent \
+			and existing != _water_parent and existing != _prop_parent and existing != _poi_parent:
+			existing.queue_free()
+	# Reset parents so _rebuild creates fresh ones
+	_chunk_parent = null
+	_river_parent = null
+	_water_parent = null
+	_prop_parent = null
+	_poi_parent = null
 	if _river_parent:
 		for child in _river_parent.get_children():
 			child.queue_free()
@@ -761,6 +777,10 @@ func _import_single(layer_key: String) -> void:
 				for x in range(w):
 					heightmap_data.zone_ids[z * w + x] = _color_to_zone(img.get_pixel(x, z))
 			_ilog(lf, "Zone classify: %dms" % (Time.get_ticks_msec() - t2))
+			# Always refresh texture layers to pick up new/changed textures
+			heightmap_data.texture_layers.clear()
+			_OverworldGenerator.refresh_texture_layers(heightmap_data)
+			_ilog(lf, "Texture layers: %d loaded" % heightmap_data.texture_layers.size())
 			if heightmap_data.is_overworld:
 				var t3: int = Time.get_ticks_msec()
 				_OverworldGenerator.rebuild_splatmap_from_zones(heightmap_data)
@@ -936,16 +956,14 @@ func _import_rivers(img: Image) -> void:
 		var path: Array[Vector2i] = _bfs_path(ep_a, ep_b, blob, w)
 		if path.size() < 3:
 			continue
-		# Subsample
-		var step: int = maxi(path.size() / 100, 1)
-		var raw_pts := PackedVector2Array()
-		for pi in range(0, path.size(), step):
-			raw_pts.append(Vector2(float(path[pi].x), float(path[pi].y)))
-		if path.size() > 0 and (path.size() - 1) % step != 0:
-			raw_pts.append(Vector2(float(path[path.size() - 1].x), float(path[path.size() - 1].y)))
-		# Chaikin smoothing
-		var smoothed: PackedVector2Array = raw_pts
-		for _iter in range(3):
+		# RDP simplification to collapse grid-staircase into clean diagonal segments
+		var raw_floats := PackedVector2Array()
+		for pi in range(path.size()):
+			raw_floats.append(Vector2(float(path[pi].x), float(path[pi].y)))
+		var simplified: PackedVector2Array = _rdp_simplify(raw_floats, 1.5)
+		# Chaikin smoothing (4 passes for extra-smooth curves)
+		var smoothed: PackedVector2Array = simplified
+		for _iter in range(4):
 			if smoothed.size() < 3:
 				break
 			var next := PackedVector2Array()
@@ -1058,8 +1076,18 @@ func _import_rivers(img: Image) -> void:
 							half_w = float(sd)
 							break
 			widths.append(maxf(half_w * (3.0 + river_width_offset) * tscale.x, 8.0))
+		# Smooth widths to remove grid-measurement oscillation
+		var smooth_w := PackedFloat32Array()
+		smooth_w.resize(widths.size())
+		for wi in range(widths.size()):
+			var lo2: int = maxi(wi - 3, 0)
+			var hi2: int = mini(wi + 3, widths.size() - 1)
+			var sum: float = 0.0
+			for wj in range(lo2, hi2 + 1):
+				sum += widths[wj]
+			smooth_w[wi] = sum / float(hi2 - lo2 + 1)
 		river.points = points
-		river.widths = widths
+		river.widths = smooth_w
 		heightmap_data.rivers.append(river)
 		river_index += 1
 		print("[Import] River %d: %d pixels, %d points" % [river_index - 1, blob.size(), smoothed.size()])
@@ -1443,6 +1471,50 @@ static func _bfs_path(from: Vector2i, to: Vector2i, blob: Array, grid_w: int) ->
 		trace = parent[pk]
 	path.reverse()
 	return path
+
+
+static func _rdp_simplify(pts: PackedVector2Array, epsilon: float) -> PackedVector2Array:
+	## Ramer-Douglas-Peucker line simplification.
+	## Collapses near-collinear point sequences (e.g. grid staircases) into
+	## straight segments while preserving genuine curves.
+	if pts.size() < 3:
+		return pts
+	# Iterative stack-based RDP to avoid GDScript recursion limits
+	var keep := PackedByteArray()
+	keep.resize(pts.size())
+	keep[0] = 1
+	keep[pts.size() - 1] = 1
+	var stack: Array[Vector2i] = [Vector2i(0, pts.size() - 1)]
+	while stack.size() > 0:
+		var seg: Vector2i = stack[stack.size() - 1]
+		stack.resize(stack.size() - 1)
+		var a: int = seg.x
+		var b: int = seg.y
+		var max_dist: float = 0.0
+		var max_idx: int = a
+		var ab: Vector2 = pts[b] - pts[a]
+		var ab_len_sq: float = ab.length_squared()
+		for i in range(a + 1, b):
+			var d: float = 0.0
+			if ab_len_sq < 0.0001:
+				d = pts[i].distance_to(pts[a])
+			else:
+				var t: float = clampf((pts[i] - pts[a]).dot(ab) / ab_len_sq, 0.0, 1.0)
+				d = pts[i].distance_to(pts[a] + ab * t)
+			if d > max_dist:
+				max_dist = d
+				max_idx = i
+		if max_dist > epsilon:
+			keep[max_idx] = 1
+			if max_idx - a > 1:
+				stack.append(Vector2i(a, max_idx))
+			if b - max_idx > 1:
+				stack.append(Vector2i(max_idx, b))
+	var result := PackedVector2Array()
+	for i in range(pts.size()):
+		if keep[i] == 1:
+			result.append(pts[i])
+	return result
 
 
 # ---------------------------------------------------------------------------
