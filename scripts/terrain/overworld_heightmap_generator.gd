@@ -900,8 +900,8 @@ static func _add_water(data: HeightmapData, map_seed: int) -> void:
 	var bw: float = world_w * border_frac
 	var bd: float = world_d * border_frac
 	var mid_h: float = world_d - bd * 2.0  # height of W/E strips (between N and S)
-	var shallow_col := Color(0.10, 0.35, 0.55, 0.60)
-	var deep_col := Color(0.02, 0.08, 0.20, 0.90)
+	var shallow_col := Color(0.15, 0.40, 0.60, 0.85)
+	var deep_col := Color(0.03, 0.10, 0.25, 0.95)
 	var strip_defs: Array[Dictionary] = [
 		{"id": "ocean_north", "center": Vector3(world_w * 0.5, 0.0, bd * 0.5), "size": Vector2(world_w, bd)},
 		{"id": "ocean_south", "center": Vector3(world_w * 0.5, 0.0, world_d - bd * 0.5), "size": Vector2(world_w, bd)},
@@ -917,8 +917,8 @@ static func _add_water(data: HeightmapData, map_seed: int) -> void:
 		strip.size = sd["size"]
 		strip.shallow_color = shallow_col
 		strip.deep_color = deep_col
-		strip.wave_strength = 0.05
-		strip.wave_speed = 0.25
+		strip.wave_strength = 0.25
+		strip.wave_speed = 0.6
 		data.water_zones.append(strip)
 
 	# Interior lakes at local basins — each gets its own water level at basin height

@@ -29,6 +29,28 @@ const _PropRegistry := preload("res://scripts/terrain/prop_registry.gd")
 		if Engine.is_editor_hint():
 			_generate_heightmap()
 
+@export_group("Ocean")
+@export var ocean_shallow_color: Color = Color(0.15, 0.40, 0.60, 0.85):
+	set(value):
+		ocean_shallow_color = value
+		if is_inside_tree():
+			_rebuild_water()
+@export var ocean_deep_color: Color = Color(0.03, 0.10, 0.25, 0.95):
+	set(value):
+		ocean_deep_color = value
+		if is_inside_tree():
+			_rebuild_water()
+@export_range(0.0, 1.0, 0.01) var ocean_wave_strength: float = 0.25:
+	set(value):
+		ocean_wave_strength = value
+		if is_inside_tree():
+			_rebuild_water()
+@export_range(0.0, 2.0, 0.05) var ocean_wave_speed: float = 0.6:
+	set(value):
+		ocean_wave_speed = value
+		if is_inside_tree():
+			_rebuild_water()
+
 @export_group("Rivers")
 ## Offset river water surface height in meters. Positive = higher, negative = lower.
 ## Adjust this slider until the water looks right, then reimport rivers to bake it.
@@ -262,10 +284,16 @@ func _rebuild_water() -> void:
 		water.water_size = zone.size
 		water.water_shape = zone.shape
 		water.water_level = zone.center.y
-		water.shallow_color = zone.shallow_color
-		water.deep_color = zone.deep_color
-		water.wave_speed = zone.wave_speed
-		water.wave_strength = zone.wave_strength
+		if zone.id.begins_with("ocean"):
+			water.shallow_color = ocean_shallow_color
+			water.deep_color = ocean_deep_color
+			water.wave_strength = ocean_wave_strength
+			water.wave_speed = ocean_wave_speed
+		else:
+			water.shallow_color = zone.shallow_color
+			water.deep_color = zone.deep_color
+			water.wave_speed = zone.wave_speed
+			water.wave_strength = zone.wave_strength
 		water.position = Vector3(zone.center.x, zone.center.y, zone.center.z)
 		_water_parent.add_child(water)
 
@@ -927,27 +955,63 @@ func _import_rivers(img: Image) -> void:
 				next.append(smoothed[si] * 0.25 + smoothed[si + 1] * 0.75)
 			next.append(smoothed[smoothed.size() - 1])
 			smoothed = next
-		# Carve along the smoothed centerline (not raw pixels)
+		# Ensure flow direction: highest point first (river flows downhill)
+		var first_h: float = heightmap_data.get_height_at(
+			clampi(roundi(smoothed[0].x), 0, w - 1),
+			clampi(roundi(smoothed[0].y), 0, h - 1))
+		var last_h: float = heightmap_data.get_height_at(
+			clampi(roundi(smoothed[smoothed.size() - 1].x), 0, w - 1),
+			clampi(roundi(smoothed[smoothed.size() - 1].y), 0, h - 1))
+		if last_h > first_h:
+			# Reverse so highest point is first
+			var reversed := PackedVector2Array()
+			for ri2 in range(smoothed.size() - 1, -1, -1):
+				reversed.append(smoothed[ri2])
+			smoothed = reversed
+
+		# Filter: remove points too close together and sharp turns
+		var min_dist_sq: float = 4.0  # minimum 2 pixels apart
+		var filtered := PackedVector2Array()
+		filtered.append(smoothed[0])
+		for fi in range(1, smoothed.size() - 1):
+			var prev: Vector2 = filtered[filtered.size() - 1]
+			var cur: Vector2 = smoothed[fi]
+			# Skip if too close
+			if prev.distance_squared_to(cur) < min_dist_sq:
+				continue
+			# Skip if sharp turn (> 90 degrees)
+			if filtered.size() >= 2:
+				var pprev: Vector2 = filtered[filtered.size() - 2]
+				var d0: Vector2 = (prev - pprev).normalized()
+				var d1: Vector2 = (cur - prev).normalized()
+				if d0.dot(d1) < 0.0:
+					continue
+			filtered.append(cur)
+		filtered.append(smoothed[smoothed.size() - 1])
+		# Use dense points for carving (no gaps), filtered points for water mesh
+		var carve_pts: PackedVector2Array = smoothed  # pre-filter, dense
+		smoothed = filtered
+		# Carve along the dense centerline (not the filtered one)
 		# Measure painted width at each point for carve radius
-		for pi in range(smoothed.size()):
-			var cx: int = clampi(roundi(smoothed[pi].x), 0, w - 1)
-			var cz: int = clampi(roundi(smoothed[pi].y), 0, h - 1)
+		for pi in range(carve_pts.size()):
+			var cx: int = clampi(roundi(carve_pts[pi].x), 0, w - 1)
+			var cz: int = clampi(roundi(carve_pts[pi].y), 0, h - 1)
 			# Scan perpendicular to find painted width
 			var half_r: float = 1.0
-			if pi + 1 < smoothed.size():
-				var dx: float = smoothed[pi + 1].x - smoothed[pi].x
-				var dz: float = smoothed[pi + 1].y - smoothed[pi].y
+			if pi + 1 < carve_pts.size():
+				var dx: float = carve_pts[pi + 1].x - carve_pts[pi].x
+				var dz: float = carve_pts[pi + 1].y - carve_pts[pi].y
 				var dl: float = sqrt(dx * dx + dz * dz)
 				if dl > 0.01:
 					var px: float = -dz / dl
 					var pz: float = dx / dl
 					for sd in range(1, 20):
-						var sx: int = clampi(roundi(smoothed[pi].x + px * float(sd)), 0, w - 1)
-						var sz: int = clampi(roundi(smoothed[pi].y + pz * float(sd)), 0, h - 1)
+						var sx: int = clampi(roundi(carve_pts[pi].x + px * float(sd)), 0, w - 1)
+						var sz: int = clampi(roundi(carve_pts[pi].y + pz * float(sd)), 0, h - 1)
 						if river_mask[sz * w + sx] == 0:
 							half_r = float(sd)
 							break
-			var cr: int = clampi(roundi(half_r) + 1, 2, 12)
+			var cr: int = clampi(roundi(half_r) + 1, 2, 10)
 			for dz2 in range(-cr, cr + 1):
 				for dx2 in range(-cr, cr + 1):
 					var dist: float = sqrt(float(dx2 * dx2 + dz2 * dz2))
