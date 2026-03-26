@@ -1,0 +1,138 @@
+[5982ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[5982ms] map_id resolved to 'starter_town'
+[5998ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[6237ms] Spawned 2 connections
+[6237ms] target_connection_id=''
+[6245ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[10290ms] === _ready() START map_id='example_overworld' scene='Overworld' ===
+[10290ms] map_id resolved to 'example_overworld'
+[10303ms] MapData loaded: true (is_overworld=true, scene_path='res://scenes/maps/example_overworld.tscn', heightmap=true)
+[10303ms] Building heightmap terrain...
+[10303ms] _build_scene_based_terrain: map_scene_path='res://scenes/maps/example_overworld.tscn'
+[10303ms]   cached_node=false valid=n/a
+[10304ms]   First load — starting async request
+[10304ms] _await_scene_load: polling...
+[17768ms] _finish_scene_load: scene=true
+[17772ms]   Adding scene root to tree...
+[38803ms]   Scene root added. Finding HeightmapTerrain3D...
+[38803ms]   _terrain_node=true has_data=true
+[38804ms] Heightmap terrain done. _terrain_node=true _map_scene_root=true
+[38804ms] Spawned 3 connections
+[38804ms] target_connection_id='town_entrance'
+[38811ms] === _ready() DONE — player at (1560.0, 8.19608, 1620.0) ===
+[43138ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[43139ms] map_id resolved to 'starter_town'
+[43147ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[43238ms] Spawned 2 connections
+[43238ms] target_connection_id='town_exit_south'
+[43246ms] === _ready() DONE — player at (15.0, 2.0, 28.0) ===
+[45126ms] === _ready() START map_id='example_overworld' scene='Overworld' ===
+[45126ms] map_id resolved to 'example_overworld'
+[45129ms] MapData loaded: true (is_overworld=true, scene_path='res://scenes/maps/example_overworld.tscn', heightmap=true)
+[45129ms] Building heightmap terrain...
+[45129ms] _build_scene_based_terrain: map_scene_path='res://scenes/maps/example_overworld.tscn'
+[45129ms]   cached_node=true valid=true
+[45129ms]   Reusing cached node
+[45185ms] Heightmap terrain done. _terrain_node=true _map_scene_root=true
+[45185ms] Spawned 3 connections
+[45185ms] target_connection_id='town_entrance'
+[45194ms] === _ready() DONE — player at (1560.0, 8.19608, 1620.0) ===
+[51785ms] === _ready() START map_id='forest_clearing' scene='LocalMap' ===
+[51785ms] map_id resolved to 'forest_clearing'
+[51800ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[51829ms] Spawned 2 connections
+[51829ms] target_connection_id='forest_clearing_exit'
+[51839ms] === _ready() DONE — player at (2.0, 2.0, 20.0) ===
+[53232ms] === _ready() START map_id='example_overworld' scene='Overworld' ===
+[53232ms] map_id resolved to 'example_overworld'
+[53234ms] MapData loaded: true (is_overworld=true, scene_path='res://scenes/maps/example_overworld.tscn', heightmap=true)
+[53234ms] Building heightmap terrain...
+[53234ms] _build_scene_based_terrain: map_scene_path='res://scenes/maps/example_overworld.tscn'
+[53234ms]   cached_node=true valid=true
+[53234ms]   Reusing cached node
+[53279ms] Heightmap terrain done. _terrain_node=true _map_scene_root=true
+[53280ms] Spawned 3 connections
+[53280ms] target_connection_id='forest_clearing_entrance'
+[53287ms] === _ready() DONE — player at (1590.0, 8.19608, 1650.0) ===
+[5525ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[5525ms] map_id resolved to 'starter_town'
+[5534ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[5760ms] Spawned 2 connections
+[5760ms] target_connection_id=''
+[5767ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[5064ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[5064ms] map_id resolved to 'starter_town'
+[5072ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[5298ms] Spawned 2 connections
+[5298ms] target_connection_id=''
+[5304ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[69420ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[69420ms] map_id resolved to 'starter_town'
+[69428ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[69656ms] Spawned 2 connections
+[69656ms] target_connection_id=''
+[69664ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[44399ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[44399ms] map_id resolved to 'starter_town'
+[44407ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[44631ms] Spawned 2 connections
+[44631ms] target_connection_id=''
+[44638ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[5259ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[5259ms] map_id resolved to 'starter_town'
+[5266ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[5487ms] Spawned 2 connections
+[5487ms] target_connection_id=''
+[5494ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[7861ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[7861ms] map_id resolved to 'starter_town'
+[7869ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[8091ms] Spawned 2 connections
+[8091ms] target_connection_id=''
+[8098ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[4412ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[4412ms] map_id resolved to 'starter_town'
+[4420ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[4646ms] Spawned 2 connections
+[4646ms] target_connection_id=''
+[4653ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[13788ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[13788ms] map_id resolved to 'starter_town'
+[13796ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[14022ms] Spawned 2 connections
+[14022ms] target_connection_id=''
+[14030ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[5619ms] === _ready() START map_id='starter_town' scene='LocalMap' ===
+[5619ms] map_id resolved to 'starter_town'
+[5628ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[5853ms] Spawned 2 connections
+[5853ms] target_connection_id=''
+[5860ms] === _ready() DONE — player at (4.0, 0.0, 20.0) ===
+[35012ms] === _ready() START map_id='example_overworld' scene='Overworld' ===
+[35012ms] map_id resolved to 'example_overworld'
+[35025ms] MapData loaded: true (is_overworld=true, scene_path='res://scenes/maps/example_overworld.tscn', heightmap=true)
+[35025ms] Building heightmap terrain...
+[35025ms] _build_scene_based_terrain: map_scene_path='res://scenes/maps/example_overworld.tscn'
+[35025ms]   cached_node=false valid=n/a
+[35025ms]   First load — starting async request
+[35025ms] _await_scene_load: polling...
+[42281ms] _finish_scene_load: scene=true
+[42283ms]   Adding scene root to tree...
+[63456ms]   Scene root added. Finding HeightmapTerrain3D...
+[63456ms]   _terrain_node=true has_data=true
+[63456ms] Heightmap terrain done. _terrain_node=true _map_scene_root=true
+[63457ms] Spawned 3 connections
+[63457ms] target_connection_id='town_entrance'
+[63464ms] === _ready() DONE — player at (1560.0, 8.19608, 1620.0) ===
+[71438ms] === _ready() START map_id='forest_clearing' scene='LocalMap' ===
+[71438ms] map_id resolved to 'forest_clearing'
+[71446ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[71480ms] Spawned 2 connections
+[71480ms] target_connection_id='forest_clearing_exit'
+[71493ms] === _ready() DONE — player at (2.0, 2.0, 20.0) ===
+[5919ms] === _ready() START map_id='forest_clearing' scene='LocalMap' ===
+[5919ms] map_id resolved to 'forest_clearing'
+[5928ms] MapData loaded: true (is_overworld=false, scene_path='', heightmap=false)
+[6094ms] Spawned 2 connections
+[6094ms] target_connection_id=''
+[6100ms] === _ready() DONE — player at (23.83926, 0.000941, 14.59859) ===

@@ -1,0 +1,9 @@
+[66676ms] === Import 'rivers' started at 2026-03-26T19:00:34 ===
+[66806ms] ORA load: 130ms
+[66806ms] Image: 7168x7168 format=5
+[66806ms] Terrain: 1024x1024 = 1048576 vertices
+[66806ms] Starting river import at full res 7168x7168...
+[70091ms] Rivers: 3285ms
+[70091ms] Starting rebuild...
+[91046ms] Rebuild: 20955ms
+[91046ms] === TOTAL: 24370ms ===

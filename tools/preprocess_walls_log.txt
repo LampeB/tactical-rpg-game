@@ -1,0 +1,9 @@
+[0ms] === Wall preprocess started ===
+[0ms] Loading wall layer from ORA...
+[161ms] Image loaded: 7168x7168
+[166ms] Scanning 7168x7168 pixels...
+[2297ms] Classified 199132 wall pixels in 7168x7168 grid
+[2298ms] Dilating wall pixels by 1px...
+[5877ms] After dilation: 303268 wall pixels (was 199132)
+[6597ms] Saved 7168x7168 grid to E:/Projects/tactical-rpg-game/tools/wall_grid.bin (51380232 bytes)
+[6597ms] === Preprocess done: 6597ms ===
