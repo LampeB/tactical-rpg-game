@@ -28,10 +28,11 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 @export var splatmap: PackedByteArray = PackedByteArray()
 ## Second splatmap — channels map to texture_layers[4..7].
 @export var splatmap2: PackedByteArray = PackedByteArray()
+## Third splatmap — channels map to texture_layers[8..11].
+@export var splatmap3: PackedByteArray = PackedByteArray()
 
 @export_group("Texture Layers")
-## Up to 8 terrain texture layers. Each entry is an albedo texture path.
-## splatmap channels 0-3 → layers 0-3. splatmap2 channels 0-3 → layers 4-7.
+## Up to 12 terrain texture layers. splatmap 0-3, splatmap2 4-7, splatmap3 8-11.
 @export var texture_layers: Array[TerrainTextureLayer] = []
 
 @export_group("Water")
@@ -159,6 +160,32 @@ func set_splatmap2_weights(x: int, z: int, weights: Color) -> void:
 	splatmap2[idx + 1] = clampi(int(weights.g * 255.0), 0, 255)
 	splatmap2[idx + 2] = clampi(int(weights.b * 255.0), 0, 255)
 	splatmap2[idx + 3] = clampi(int(weights.a * 255.0), 0, 255)
+
+
+func get_splatmap3_weights(x: int, z: int) -> Color:
+	if x < 0 or x >= width or z < 0 or z >= height:
+		return Color(0, 0, 0, 0)
+	if splatmap3.is_empty():
+		return Color(0, 0, 0, 0)
+	var idx: int = (z * width + x) * 4
+	if idx + 3 >= splatmap3.size():
+		return Color(0, 0, 0, 0)
+	return Color(
+		splatmap3[idx] / 255.0,
+		splatmap3[idx + 1] / 255.0,
+		splatmap3[idx + 2] / 255.0,
+		splatmap3[idx + 3] / 255.0
+	)
+
+func set_splatmap3_weights(x: int, z: int, weights: Color) -> void:
+	if x < 0 or x >= width or z < 0 or z >= height:
+		return
+	_ensure_splatmap3()
+	var idx: int = (z * width + x) * 4
+	splatmap3[idx] = clampi(int(weights.r * 255.0), 0, 255)
+	splatmap3[idx + 1] = clampi(int(weights.g * 255.0), 0, 255)
+	splatmap3[idx + 2] = clampi(int(weights.b * 255.0), 0, 255)
+	splatmap3[idx + 3] = clampi(int(weights.a * 255.0), 0, 255)
 
 
 func initialize(default_height: float = 0.0) -> void:
@@ -291,4 +318,11 @@ func _ensure_splatmap2() -> void:
 	var total: int = width * height * 4
 	if splatmap2.size() != total:
 		splatmap2.resize(total)
-		splatmap2.fill(0)  # Default: all zeros (no weight in layers 4-7)
+		splatmap2.fill(0)
+
+
+func _ensure_splatmap3() -> void:
+	var total: int = width * height * 4
+	if splatmap3.size() != total:
+		splatmap3.resize(total)
+		splatmap3.fill(0)
