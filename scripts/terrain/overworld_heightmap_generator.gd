@@ -17,17 +17,25 @@ const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
 
 ## Material-LIB base path (same textures as area maps)
 const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
+const _LIB_ROOT := "res://assets/3D/Material-LIB/Material-LIB/"
 
-## Splatmap layer defs — identical to BiomeHeightmapGenerator (shared texture set)
+## Splatmap layer defs — 12 layers across 3 splatmaps
+## Splatmap1 (0-3): Grass, Sand, Rock, Snow
+## Splatmap2 (4-7): Soil, Pebbles, Cliff, Moss
+## Splatmap3 (8-11): Mud, Cracked, FoliageForest, Cobblestone
 const _LAYER_DEFS: Array[Dictionary] = [
-	{"folder": "FoliageGrass",  "base": "FoliageGrass",  "uv": 15.0, "label": "Grass"},
-	{"folder": "Sand",          "base": "Sand",           "uv": 12.0, "label": "Sand"},
-	{"folder": "SurfaceRock",   "base": "SurfaceRock",   "uv": 8.0,  "label": "Rock"},
-	{"folder": "SurfaceStone",  "base": "SurfaceStone",   "uv": 10.0, "label": "Snow"},
-	{"folder": "SurfaceSoil",   "base": "SurfaceSoil",   "uv": 10.0, "label": "Soil"},
-	{"folder": "SurfacePebbles","base": "SurfacePebbles", "uv": 8.0,  "label": "Pebbles"},
-	{"folder": "SurfaceCliff",  "base": "SurfaceCliff",   "uv": 6.0,  "label": "Cliff"},
-	{"folder": "Moss",          "base": "Moss",           "uv": 12.0, "label": "Moss"},
+	{"folder": "FoliageGrass",   "base": "FoliageGrass",   "uv": 15.0, "label": "Grass",       "lib": "Nature"},
+	{"folder": "Sand",           "base": "Sand",            "uv": 12.0, "label": "Sand",        "lib": "Nature"},
+	{"folder": "SurfaceRock",    "base": "SurfaceRock",    "uv": 8.0,  "label": "Rock",        "lib": "Nature"},
+	{"folder": "SurfaceStone",   "base": "SurfaceStone",    "uv": 10.0, "label": "Snow",        "lib": "Nature"},
+	{"folder": "SurfaceSoil",    "base": "SurfaceSoil",    "uv": 10.0, "label": "Soil",        "lib": "Nature"},
+	{"folder": "SurfacePebbles", "base": "SurfacePebbles",  "uv": 8.0,  "label": "Pebbles",     "lib": "Nature"},
+	{"folder": "SurfaceCliff",   "base": "SurfaceCliff",    "uv": 6.0,  "label": "Cliff",       "lib": "Nature"},
+	{"folder": "Moss",           "base": "Moss",            "uv": 12.0, "label": "Moss",        "lib": "Nature"},
+	{"folder": "SurfaceMud",     "base": "SurfaceMud",      "uv": 10.0, "label": "Mud",         "lib": "Nature"},
+	{"folder": "SurfaceCracked", "base": "SurfaceCracked",  "uv": 8.0,  "label": "Cracked",     "lib": "Nature"},
+	{"folder": "FoliageForest",  "base": "FoliageForest",   "uv": 12.0, "label": "ForestFloor", "lib": "Nature"},
+	{"folder": "Cobblestone",    "base": "Cobblestone",      "uv": 8.0,  "label": "Cobblestone", "lib": ""},
 ]
 
 
@@ -711,25 +719,31 @@ static func rebuild_splatmap_from_zones(data: HeightmapData) -> void:
 				splat2 = data.get_splatmap2_weights(x, z)
 
 			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else 1
+			var splat3 := Color(0, 0, 0, 0)
 			if zone == ZONE_DESERT:
-				splat = Color(0.0, 0.95, 0.05, 0.0)
-				splat2 = Color(0.0, 0.0, 0.0, 0.0)
+				splat = Color(0.05, 0.70, 0.10, 0.0)
+				splat2 = Color(0.0, 0.05, 0.0, 0.0)
+				splat3 = Color(0.0, 0.10, 0.0, 0.0)
 			elif zone == ZONE_SWAMP:
-				splat = Color(0.0, 0.0, 0.0, 0.90)
-				splat2 = Color(0.0, 0.0, 0.0, 0.10)
+				splat = Color(0.15, 0.0, 0.0, 0.0)
+				splat2 = Color(0.10, 0.0, 0.0, 0.20)
+				splat3 = Color(0.55, 0.0, 0.0, 0.0)
 			elif zone == ZONE_DEATHBLIGHT:
-				splat = Color(0.0, 0.0, 0.0, 0.0)
-				splat2 = Color(0.10, 0.0, 0.90, 0.0)
+				splat = Color(0.0, 0.0, 0.05, 0.0)
+				splat2 = Color(0.15, 0.0, 0.45, 0.0)
+				splat3 = Color(0.0, 0.35, 0.0, 0.0)
 			elif zone == ZONE_FORTRESS:
-				splat = Color(0.0, 0.0, 0.85, 0.15)
-				splat2 = Color(0.0, 0.0, 0.0, 0.0)
+				splat = Color(0.0, 0.0, 0.50, 0.05)
+				splat2 = Color(0.0, 0.15, 0.0, 0.0)
+				splat3 = Color(0.0, 0.0, 0.0, 0.30)
 			elif zone == ZONE_JUNGLE:
-				splat = Color(0.90, 0.0, 0.0, 0.0)
-				splat2 = Color(0.0, 0.0, 0.0, 0.10)
+				splat = Color(0.35, 0.0, 0.0, 0.0)
+				splat2 = Color(0.05, 0.0, 0.0, 0.15)
+				splat3 = Color(0.0, 0.0, 0.45, 0.0)
 
 			data.set_splatmap_weights(x, z, splat)
-			if data.splatmap2.size() >= (idx + 1) * 4:
-				data.set_splatmap2_weights(x, z, splat2)
+			data.set_splatmap2_weights(x, z, splat2)
+			data.set_splatmap3_weights(x, z, splat3)
 
 	# Also update forest density per zone
 	if not data.forest_density.is_empty():
@@ -798,42 +812,53 @@ static func _assign_splatmap(
 				splat = splat.lerp(sand_color, shore_t)
 				splat2 = splat2.lerp(Color(0.0, 0.0, 0.0, 0.0), shore_t * 0.6)
 
-			# --- Zone-based splatmap tinting (DEBUG: extreme colors for visibility) ---
+			# --- Zone-based splatmap tinting using new textures ---
+			# splat3: R=Mud(8), G=Cracked(9), B=ForestFloor(10), A=Cobblestone(11)
+			var splat3 := Color(0, 0, 0, 0)
 			if not data.zone_ids.is_empty():
 				var zone: int = data.zone_ids[z * map_width + x]
 				if zone == ZONE_DESERT:
-					# Bright sand — very yellow
-					splat = Color(0.0, 0.95, 0.05, 0.0)
-					splat2 = Color(0.0, 0.0, 0.0, 0.0)
+					# Sand + rock + cracked earth
+					splat = Color(0.05, 0.70, 0.10, 0.0)
+					splat2 = Color(0.0, 0.05, 0.0, 0.0)
+					splat3 = Color(0.0, 0.10, 0.0, 0.0)  # cracked
 				elif zone == ZONE_SWAMP:
-					# Snow texture as debug purple stand-in — very visible
-					splat = Color(0.0, 0.0, 0.0, 0.90)
-					splat2 = Color(0.0, 0.0, 0.0, 0.10)
+					# Mud + moss + soil
+					splat = Color(0.15, 0.0, 0.0, 0.0)
+					splat2 = Color(0.10, 0.0, 0.0, 0.20)  # soil + moss
+					splat3 = Color(0.55, 0.0, 0.0, 0.0)   # mud dominant
 				elif zone == ZONE_DEATHBLIGHT:
-					# Dark cliff — almost black
-					splat = Color(0.0, 0.0, 0.0, 0.0)
-					splat2 = Color(0.10, 0.0, 0.90, 0.0)
+					# Cracked + cliff + soil — dead wasteland
+					splat = Color(0.0, 0.0, 0.05, 0.0)
+					splat2 = Color(0.15, 0.0, 0.45, 0.0)   # soil + cliff
+					splat3 = Color(0.0, 0.35, 0.0, 0.0)    # cracked
 				elif zone == ZONE_FORTRESS:
-					# Grey rock — stone fortress feel
-					splat = Color(0.0, 0.0, 0.85, 0.15)
-					splat2 = Color(0.0, 0.0, 0.0, 0.0)
+					# Rock + cobblestone + pebbles
+					splat = Color(0.0, 0.0, 0.50, 0.05)
+					splat2 = Color(0.0, 0.15, 0.0, 0.0)
+					splat3 = Color(0.0, 0.0, 0.0, 0.30)    # cobblestone
 				elif zone == ZONE_JUNGLE:
-					# Bright pure grass — vivid green
-					splat = Color(0.90, 0.0, 0.0, 0.0)
-					splat2 = Color(0.0, 0.0, 0.0, 0.10)
+					# Forest floor + grass + moss
+					splat = Color(0.35, 0.0, 0.0, 0.0)
+					splat2 = Color(0.05, 0.0, 0.0, 0.15)   # soil + moss
+					splat3 = Color(0.0, 0.0, 0.45, 0.0)    # forest floor dominant
 
-			# --- Normalize all 8 channels ---
+			# --- Normalize all 12 channels ---
 			var total_w: float = (splat.r + splat.g + splat.b + splat.a
-				+ splat2.r + splat2.g + splat2.b + splat2.a)
+				+ splat2.r + splat2.g + splat2.b + splat2.a
+				+ splat3.r + splat3.g + splat3.b + splat3.a)
 			if total_w > 0.001:
 				splat.r /= total_w; splat.g /= total_w; splat.b /= total_w; splat.a /= total_w
 				splat2.r /= total_w; splat2.g /= total_w; splat2.b /= total_w; splat2.a /= total_w
+				splat3.r /= total_w; splat3.g /= total_w; splat3.b /= total_w; splat3.a /= total_w
 			else:
 				splat = Color(1, 0, 0, 0)
 				splat2 = Color(0, 0, 0, 0)
+				splat3 = Color(0, 0, 0, 0)
 
 			data.set_splatmap_weights(x, z, splat)
 			data.set_splatmap2_weights(x, z, splat2)
+			data.set_splatmap3_weights(x, z, splat3)
 
 
 # ---------------------------------------------------------------------------
@@ -848,8 +873,10 @@ static func _add_textured_layers(data: HeightmapData) -> void:
 		layer.uv_scale = def["uv"]
 		var folder: String = def["folder"]
 		var base_name: String = def["base"]
-		var albedo_path: String = _LIB + folder + "/" + base_name + "-B.png"
-		var normal_path: String = _LIB + folder + "/" + base_name + "-N.png"
+		var lib_sub: String = def.get("lib", "Nature")
+		var lib_base: String = _LIB if lib_sub == "Nature" else _LIB_ROOT + lib_sub + "/" if not lib_sub.is_empty() else _LIB_ROOT
+		var albedo_path: String = lib_base + folder + "/" + base_name + "-B.png"
+		var normal_path: String = lib_base + folder + "/" + base_name + "-N.png"
 		if ResourceLoader.exists(albedo_path):
 			layer.albedo_texture = load(albedo_path)
 		if ResourceLoader.exists(normal_path):
