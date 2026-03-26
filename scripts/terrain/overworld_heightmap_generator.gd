@@ -18,24 +18,26 @@ const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
 ## Material-LIB base path (same textures as area maps)
 const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
 const _LIB_ROOT := "res://assets/3D/Material-LIB/Material-LIB/"
+const _TERRAIN_LIB := "res://assets/terrain_textures/"
 
 ## Splatmap layer defs — 12 layers across 3 splatmaps
 ## Splatmap1 (0-3): Grass, Sand, Rock, Snow
 ## Splatmap2 (4-7): Soil, Pebbles, Cliff, Moss
-## Splatmap3 (8-11): Mud, Cracked, FoliageForest, Cobblestone
+## Splatmap3 (8-11): Mud, Cracked, ForestFloor, Cobblestone
+## "src": "terrain" uses _TERRAIN_LIB, "lib" uses _LIB/_LIB_ROOT
 const _LAYER_DEFS: Array[Dictionary] = [
-	{"folder": "FoliageGrass",   "base": "FoliageGrass",   "uv": 15.0, "label": "Grass",       "lib": "Nature"},
-	{"folder": "Sand",           "base": "Sand",            "uv": 12.0, "label": "Sand",        "lib": "Nature"},
-	{"folder": "SurfaceRock",    "base": "SurfaceRock",    "uv": 8.0,  "label": "Rock",        "lib": "Nature"},
-	{"folder": "SurfaceStone",   "base": "SurfaceStone",    "uv": 10.0, "label": "Snow",        "lib": "Nature"},
-	{"folder": "SurfaceSoil",    "base": "SurfaceSoil",    "uv": 10.0, "label": "Soil",        "lib": "Nature"},
-	{"folder": "SurfacePebbles", "base": "SurfacePebbles",  "uv": 8.0,  "label": "Pebbles",     "lib": "Nature"},
-	{"folder": "SurfaceCliff",   "base": "SurfaceCliff",    "uv": 6.0,  "label": "Cliff",       "lib": "Nature"},
-	{"folder": "Moss",           "base": "Moss",            "uv": 12.0, "label": "Moss",        "lib": "Nature"},
-	{"folder": "SurfaceMud",     "base": "SurfaceMud",      "uv": 10.0, "label": "Mud",         "lib": "Nature"},
-	{"folder": "SurfaceCracked", "base": "SurfaceCracked",  "uv": 8.0,  "label": "Cracked",     "lib": "Nature"},
-	{"folder": "FoliageForest",  "base": "FoliageForest",   "uv": 12.0, "label": "ForestFloor", "lib": "Nature"},
-	{"folder": "Cobblestone",    "base": "Cobblestone",      "uv": 8.0,  "label": "Cobblestone", "lib": ""},
+	{"folder": "Grass",          "base": "Grass",           "uv": 15.0, "label": "Grass"},
+	{"folder": "Sand",           "base": "Sand",            "uv": 12.0, "label": "Sand"},
+	{"folder": "Rock",           "base": "Rock",            "uv": 8.0,  "label": "Rock"},
+	{"folder": "Snow",           "base": "Snow",            "uv": 10.0, "label": "Snow"},
+	{"folder": "Soil",           "base": "Soil",            "uv": 10.0, "label": "Soil"},
+	{"folder": "Pebbles",        "base": "Pebbles",         "uv": 8.0,  "label": "Pebbles"},
+	{"folder": "Cliff",          "base": "Cliff",           "uv": 6.0,  "label": "Cliff"},
+	{"folder": "Moss",           "base": "Moss",            "uv": 12.0, "label": "Moss"},
+	{"folder": "Mud",            "base": "Mud",             "uv": 10.0, "label": "Mud"},
+	{"folder": "Cracked",        "base": "Cracked",         "uv": 8.0,  "label": "Cracked"},
+	{"folder": "ForestFloor",    "base": "ForestFloor",     "uv": 12.0, "label": "ForestFloor"},
+	{"folder": "Cobblestone",    "base": "Cobblestone",     "uv": 8.0,  "label": "Cobblestone"},
 ]
 
 
@@ -472,8 +474,11 @@ static func generate(
 	# --- Erosion ---
 	_TerrainErosion.apply(data, map_seed)
 
-	# --- Pass 2: Splatmap ---
+	# --- Pass 2: Splatmap (slope/shore/snow base) ---
 	_assign_splatmap(data, biome_splats, biome_splats2, island_masks, map_width, map_depth)
+
+	# --- Pass 3: Zone-based noise variation (overwrites per-zone textures) ---
+	rebuild_splatmap_from_zones(data)
 
 	# --- Texture layers ---
 	_add_textured_layers(data)
@@ -493,14 +498,20 @@ static func generate(
 # Zone assignment
 # ---------------------------------------------------------------------------
 
-## Zone IDs
+## Zone IDs — painted in the zone map layer of the ORA file
 const ZONE_OCEAN: int = 0
-const ZONE_JUNGLE: int = 1       ## Default land — dense tropical, covers the central area
-const ZONE_DESERT: int = 2       ## West corridor between SW branch and main ridge
-const ZONE_SWAMP: int = 3        ## North of main ridge
-const ZONE_DEATHBLIGHT: int = 4  ## Circular patch within the jungle
-const ZONE_FORTRESS: int = 5     ## Cliff island + north mountain pocket
-const ZONE_CLIFF_ISLAND: int = 255
+const ZONE_GRASSLAND: int = 1     ## Green plains — default land
+const ZONE_DESERT: int = 2        ## Arid sandy terrain
+const ZONE_MOUNTAIN: int = 3      ## Rocky highland
+const ZONE_SNOW_PEAK: int = 4     ## High-altitude snow
+const ZONE_FARMLAND: int = 5      ## Tilled soil
+const ZONE_GRAVEL_PATH: int = 6   ## Pebble paths / roads
+const ZONE_CLIFF: int = 7         ## Steep cliff faces
+const ZONE_DEEP_FOREST: int = 8   ## Dense mossy forest
+const ZONE_SWAMP: int = 9         ## Muddy wetlands
+const ZONE_DEATHBLIGHT: int = 10  ## Cracked dead wasteland
+const ZONE_JUNGLE: int = 11       ## Lush tropical forest floor
+const ZONE_FORTRESS: int = 12     ## Stone / cobblestone fortifications
 
 ## Deathblight patch center (normalized coords) — placed in the middle of the jungle
 const _DEATHBLIGHT_CENTER := Vector2(-0.15, 0.12)
@@ -642,15 +653,15 @@ static func _compute_forest_zones(data: HeightmapData, map_width: int, map_heigh
 			var warp: float = _forest_shape.get_noise_2d(float(x), float(z)) * 0.18
 
 			# Zone overrides for forest density
-			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else ZONE_JUNGLE
-			if zone == ZONE_DESERT or zone == ZONE_DEATHBLIGHT:
+			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else ZONE_GRASSLAND
+			if zone == ZONE_DESERT or zone == ZONE_DEATHBLIGHT or zone == ZONE_SNOW_PEAK \
+				or zone == ZONE_CLIFF or zone == ZONE_GRAVEL_PATH or zone == ZONE_FORTRESS:
 				data.forest_density[idx] = 0
 				continue
-			if zone == ZONE_JUNGLE:
+			if zone == ZONE_JUNGLE or zone == ZONE_DEEP_FOREST:
 				data.forest_density[idx] = 255
 				continue
-			if zone == ZONE_SWAMP:
-				# Swamp has sparse dead vegetation, not dense forest
+			if zone == ZONE_SWAMP or zone == ZONE_FARMLAND or zone == ZONE_MOUNTAIN:
 				data.forest_density[idx] = 0
 				continue
 
@@ -707,39 +718,145 @@ static func _affinity(value: float, center: float, radius: float) -> float:
 
 static func rebuild_splatmap_from_zones(data: HeightmapData) -> void:
 	## Re-applies zone-based splatmap tinting after a zone map import.
-	## Reads existing splatmap weights and overrides them per zone.
+	## Uses noise to blend multiple textures within each zone for natural variation.
 	var w: int = data.width
 	var h: int = data.height
+
+	# Noise layers for intra-zone variation (different frequencies for different scales)
+	var noise_lo := FastNoiseLite.new()
+	noise_lo.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise_lo.frequency = 0.008  # Large patches
+	noise_lo.seed = 42
+
+	var noise_hi := FastNoiseLite.new()
+	noise_hi.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise_hi.frequency = 0.035  # Fine detail
+	noise_hi.seed = 137
+
+	var noise_cell := FastNoiseLite.new()
+	noise_cell.noise_type = FastNoiseLite.TYPE_CELLULAR
+	noise_cell.frequency = 0.015  # Organic patches
+	noise_cell.seed = 271
+	noise_cell.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+
 	for z in range(h):
 		for x in range(w):
 			var idx: int = z * w + x
-			var splat: Color = data.get_splatmap_weights(x, z)
-			var splat2: Color = Color(0, 0, 0, 0)
-			if data.splatmap2.size() >= (idx + 1) * 4:
-				splat2 = data.get_splatmap2_weights(x, z)
+			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else ZONE_GRASSLAND
 
-			var zone: int = data.zone_ids[idx] if not data.zone_ids.is_empty() else 1
-			var splat3 := Color(0, 0, 0, 0)
-			if zone == ZONE_DESERT:
-				splat = Color(0.05, 0.70, 0.10, 0.0)
-				splat2 = Color(0.0, 0.05, 0.0, 0.0)
-				splat3 = Color(0.0, 0.10, 0.0, 0.0)
+			# Sample noise at this position (range ~-1..1, remap to 0..1)
+			var fx: float = float(x)
+			var fz: float = float(z)
+			var n_lo: float = noise_lo.get_noise_2d(fx, fz) * 0.5 + 0.5
+			var n_hi: float = noise_hi.get_noise_2d(fx, fz) * 0.5 + 0.5
+			var n_cell: float = clampf(noise_cell.get_noise_2d(fx, fz) * 0.5 + 0.5, 0.0, 1.0)
+			# Blend: 60% large scale, 25% detail, 15% cellular
+			var n: float = clampf(n_lo * 0.6 + n_hi * 0.25 + n_cell * 0.15, 0.0, 1.0)
+
+			# Also factor in slope for cliff/rock breakup
+			var slope: float = 0.0
+			if x > 0 and x < w - 1 and z > 0 and z < h - 1:
+				var tsy: float = data.terrain_scale.y
+				var tsx: float = data.terrain_scale.x
+				var dx: float = (data.get_height_at(x + 1, z) - data.get_height_at(x - 1, z)) * tsy / (2.0 * tsx)
+				var dz: float = (data.get_height_at(x, z + 1) - data.get_height_at(x, z - 1)) * tsy / (2.0 * tsx)
+				slope = clampf(sqrt(dx * dx + dz * dz), 0.0, 1.0)
+
+			## Channel reference:
+			## Splatmap1: R=Grass(0) G=Sand(1) B=Rock(2) A=Snow(3)
+			## Splatmap2: R=Soil(4) G=Pebbles(5) B=Cliff(6) A=Moss(7)
+			## Splatmap3: R=Mud(8) G=Cracked(9) B=ForestFloor(10) A=Cobblestone(11)
+			var weights: Array[float] = [0,0,0,0, 0,0,0,0, 0,0,0,0]
+
+			# Use thresholded noise to create distinct patches rather than subtle blending.
+			# n_patch: hard-edged patches (0 or 1 with soft transition)
+			var n_patch: float = clampf((n - 0.45) / 0.10, 0.0, 1.0)      # sharp cutoff around 0.45
+			var n_patch2: float = clampf((n_cell - 0.4) / 0.15, 0.0, 1.0) # cellular patches
+			var n_patch3: float = clampf((n_hi - 0.5) / 0.12, 0.0, 1.0)   # fine patches
+
+			if zone == ZONE_OCEAN:
+				# Dark seabed: sand + rock (underwater, mostly hidden by water mesh)
+				weights[1] = 0.40                            # Sand
+				weights[2] = 0.50                            # Rock
+				weights[6] = 0.10                            # Cliff
+			elif zone == ZONE_GRASSLAND:
+				# Mostly grass, distinct soil patches, moss clusters
+				weights[0] = 0.80 * n_patch + 0.20          # Grass: 20-100%
+				weights[4] = 0.70 * (1.0 - n_patch)         # Soil: 0-70% (inverse of grass)
+				weights[7] = 0.50 * n_patch2                 # Moss: 0-50% in cell patches
+				weights[2] = slope * 0.6                     # Rock on slopes
+			elif zone == ZONE_DESERT:
+				# Sand with rock outcrops and cracked earth zones
+				weights[1] = 0.75 * n_patch + 0.15          # Sand: 15-90%
+				weights[2] = 0.60 * (1.0 - n_patch)         # Rock outcrops: 0-60%
+				weights[9] = 0.55 * n_patch2                 # Cracked earth patches: 0-55%
+				weights[5] = 0.30 * n_patch3                 # Pebble streaks: 0-30%
+			elif zone == ZONE_MOUNTAIN:
+				# Rock with pebble scree fields and cliff on slopes
+				weights[2] = 0.70 * n_patch + 0.15          # Rock: 15-85%
+				weights[5] = 0.65 * (1.0 - n_patch)         # Pebbles/scree: 0-65%
+				weights[6] = slope * 0.8                     # Cliff on steep parts
+				weights[0] = 0.40 * n_patch2 * (1.0 - slope) # Grass in flat spots: 0-40%
+			elif zone == ZONE_SNOW_PEAK:
+				# Snow with exposed rock patches
+				weights[3] = 0.75 * n_patch + 0.15          # Snow: 15-90%
+				weights[2] = 0.65 * (1.0 - n_patch)         # Rock: 0-65%
+				weights[6] = slope * 0.6                     # Cliff on slopes
+				weights[5] = 0.25 * n_patch2                 # Pebble/scree: 0-25%
+			elif zone == ZONE_FARMLAND:
+				# Soil with grass strips and muddy patches
+				weights[4] = 0.70 * n_patch + 0.15          # Soil: 15-85%
+				weights[0] = 0.65 * (1.0 - n_patch)         # Grass strips: 0-65%
+				weights[8] = 0.50 * n_patch2                 # Mud patches: 0-50%
+				weights[5] = 0.25 * n_patch3                 # Pebble paths: 0-25%
+			elif zone == ZONE_GRAVEL_PATH:
+				# Pebbles with cobblestone sections and soil edges
+				weights[5] = 0.65 * n_patch + 0.15          # Pebbles: 15-80%
+				weights[11] = 0.60 * (1.0 - n_patch)        # Cobblestone sections: 0-60%
+				weights[4] = 0.40 * n_patch2                 # Soil edges: 0-40%
+				weights[1] = 0.20 * n_patch3                 # Sand streaks: 0-20%
+			elif zone == ZONE_CLIFF:
+				# Cliff with rock faces and moss in crevices
+				weights[6] = 0.70 * n_patch + 0.20          # Cliff: 20-90%
+				weights[2] = 0.60 * (1.0 - n_patch)         # Rock: 0-60%
+				weights[5] = 0.35 * n_patch2                 # Pebble scree: 0-35%
+				weights[7] = 0.30 * n_patch3 * (1.0 - slope) # Moss in crevices: 0-30%
+			elif zone == ZONE_DEEP_FOREST:
+				# Moss and forest floor in large alternating patches
+				weights[7] = 0.75 * n_patch + 0.10          # Moss: 10-85%
+				weights[10] = 0.70 * (1.0 - n_patch)        # Forest floor: 0-70%
+				weights[0] = 0.45 * n_patch2                 # Grass clearings: 0-45%
+				weights[4] = 0.30 * n_patch3                 # Soil patches: 0-30%
+				weights[2] = slope * 0.5                     # Rock on slopes
 			elif zone == ZONE_SWAMP:
-				splat = Color(0.15, 0.0, 0.0, 0.0)
-				splat2 = Color(0.10, 0.0, 0.0, 0.20)
-				splat3 = Color(0.55, 0.0, 0.0, 0.0)
+				# Mud with moss banks and soil islands
+				weights[8] = 0.70 * n_patch + 0.15          # Mud: 15-85%
+				weights[7] = 0.65 * (1.0 - n_patch)         # Moss banks: 0-65%
+				weights[4] = 0.45 * n_patch2                 # Soil islands: 0-45%
+				weights[0] = 0.25 * n_patch3                 # Sparse grass tufts: 0-25%
 			elif zone == ZONE_DEATHBLIGHT:
-				splat = Color(0.0, 0.0, 0.05, 0.0)
-				splat2 = Color(0.15, 0.0, 0.45, 0.0)
-				splat3 = Color(0.0, 0.35, 0.0, 0.0)
-			elif zone == ZONE_FORTRESS:
-				splat = Color(0.0, 0.0, 0.50, 0.05)
-				splat2 = Color(0.0, 0.15, 0.0, 0.0)
-				splat3 = Color(0.0, 0.0, 0.0, 0.30)
+				# Cracked earth with cliff rubble zones
+				weights[9] = 0.70 * n_patch + 0.15          # Cracked: 15-85%
+				weights[6] = 0.60 * (1.0 - n_patch)         # Cliff rubble: 0-60%
+				weights[4] = 0.35 * n_patch2                 # Soil/dust: 0-35%
+				weights[2] = 0.30 * n_patch3                 # Rock fragments: 0-30%
 			elif zone == ZONE_JUNGLE:
-				splat = Color(0.35, 0.0, 0.0, 0.0)
-				splat2 = Color(0.05, 0.0, 0.0, 0.15)
-				splat3 = Color(0.0, 0.0, 0.45, 0.0)
+				# Forest floor with moss patches and grass breaks
+				weights[10] = 0.70 * n_patch + 0.15         # Forest floor: 15-85%
+				weights[7] = 0.60 * (1.0 - n_patch)         # Moss: 0-60%
+				weights[0] = 0.40 * n_patch2                 # Grass: 0-40%
+				weights[8] = 0.30 * n_patch3                 # Mud patches: 0-30%
+			elif zone == ZONE_FORTRESS:
+				# Cobblestone with rock sections and dirt fill
+				weights[11] = 0.70 * n_patch + 0.15         # Cobblestone: 15-85%
+				weights[2] = 0.60 * (1.0 - n_patch)         # Rock: 0-60%
+				weights[5] = 0.40 * n_patch2                 # Pebble fill: 0-40%
+				weights[4] = 0.25 * n_patch3                 # Soil in cracks: 0-25%
+
+			# Pack into splatmap Colors
+			var splat := Color(weights[0], weights[1], weights[2], weights[3])
+			var splat2 := Color(weights[4], weights[5], weights[6], weights[7])
+			var splat3 := Color(weights[8], weights[9], weights[10], weights[11])
 
 			data.set_splatmap_weights(x, z, splat)
 			data.set_splatmap2_weights(x, z, splat2)
@@ -751,9 +868,12 @@ static func rebuild_splatmap_from_zones(data: HeightmapData) -> void:
 			for x2 in range(w):
 				var idx2: int = z2 * w + x2
 				var zone2: int = data.zone_ids[idx2]
-				if zone2 == ZONE_DESERT or zone2 == ZONE_DEATHBLIGHT or zone2 == ZONE_SWAMP:
+				if zone2 == ZONE_DESERT or zone2 == ZONE_DEATHBLIGHT or zone2 == ZONE_SWAMP \
+					or zone2 == ZONE_SNOW_PEAK or zone2 == ZONE_CLIFF \
+					or zone2 == ZONE_GRAVEL_PATH or zone2 == ZONE_FORTRESS \
+					or zone2 == ZONE_FARMLAND or zone2 == ZONE_MOUNTAIN:
 					data.forest_density[idx2] = 0
-				elif zone2 == ZONE_JUNGLE:
+				elif zone2 == ZONE_JUNGLE or zone2 == ZONE_DEEP_FOREST:
 					data.forest_density[idx2] = 255
 
 
@@ -812,36 +932,9 @@ static func _assign_splatmap(
 				splat = splat.lerp(sand_color, shore_t)
 				splat2 = splat2.lerp(Color(0.0, 0.0, 0.0, 0.0), shore_t * 0.6)
 
-			# --- Zone-based splatmap tinting using new textures ---
-			# splat3: R=Mud(8), G=Cracked(9), B=ForestFloor(10), A=Cobblestone(11)
+			# Zone-based splatmap is now handled entirely by rebuild_splatmap_from_zones.
+			# During generation we skip per-zone tinting — it will be applied after.
 			var splat3 := Color(0, 0, 0, 0)
-			if not data.zone_ids.is_empty():
-				var zone: int = data.zone_ids[z * map_width + x]
-				if zone == ZONE_DESERT:
-					# Sand + rock + cracked earth
-					splat = Color(0.05, 0.70, 0.10, 0.0)
-					splat2 = Color(0.0, 0.05, 0.0, 0.0)
-					splat3 = Color(0.0, 0.10, 0.0, 0.0)  # cracked
-				elif zone == ZONE_SWAMP:
-					# Mud + moss + soil
-					splat = Color(0.15, 0.0, 0.0, 0.0)
-					splat2 = Color(0.10, 0.0, 0.0, 0.20)  # soil + moss
-					splat3 = Color(0.55, 0.0, 0.0, 0.0)   # mud dominant
-				elif zone == ZONE_DEATHBLIGHT:
-					# Cracked + cliff + soil — dead wasteland
-					splat = Color(0.0, 0.0, 0.05, 0.0)
-					splat2 = Color(0.15, 0.0, 0.45, 0.0)   # soil + cliff
-					splat3 = Color(0.0, 0.35, 0.0, 0.0)    # cracked
-				elif zone == ZONE_FORTRESS:
-					# Rock + cobblestone + pebbles
-					splat = Color(0.0, 0.0, 0.50, 0.05)
-					splat2 = Color(0.0, 0.15, 0.0, 0.0)
-					splat3 = Color(0.0, 0.0, 0.0, 0.30)    # cobblestone
-				elif zone == ZONE_JUNGLE:
-					# Forest floor + grass + moss
-					splat = Color(0.35, 0.0, 0.0, 0.0)
-					splat2 = Color(0.05, 0.0, 0.0, 0.15)   # soil + moss
-					splat3 = Color(0.0, 0.0, 0.45, 0.0)    # forest floor dominant
 
 			# --- Normalize all 12 channels ---
 			var total_w: float = (splat.r + splat.g + splat.b + splat.a
@@ -865,22 +958,34 @@ static func _assign_splatmap(
 # Texture layers
 # ---------------------------------------------------------------------------
 
+static func refresh_texture_layers(data: HeightmapData) -> void:
+	## Public wrapper — clears and reloads all texture layers from current _LAYER_DEFS.
+	data.texture_layers.clear()
+	_add_textured_layers(data)
+
+
+static func _find_texture(base_path: String, suffix: String) -> Texture2D:
+	## Tries .png then .jpg for a given base path + suffix (e.g. "-B").
+	for ext in [".png", ".jpg"]:
+		var p: String = base_path + suffix + ext
+		if ResourceLoader.exists(p):
+			return load(p) as Texture2D
+	return null
+
+
 static func _add_textured_layers(data: HeightmapData) -> void:
 	for i in range(_LAYER_DEFS.size()):
 		var def: Dictionary = _LAYER_DEFS[i]
 		var layer := TerrainTextureLayer.new()
 		layer.name = def["label"]
 		layer.uv_scale = def["uv"]
-		var folder: String = def["folder"]
-		var base_name: String = def["base"]
-		var lib_sub: String = def.get("lib", "Nature")
-		var lib_base: String = _LIB if lib_sub == "Nature" else _LIB_ROOT + lib_sub + "/" if not lib_sub.is_empty() else _LIB_ROOT
-		var albedo_path: String = lib_base + folder + "/" + base_name + "-B.png"
-		var normal_path: String = lib_base + folder + "/" + base_name + "-N.png"
-		if ResourceLoader.exists(albedo_path):
-			layer.albedo_texture = load(albedo_path)
-		if ResourceLoader.exists(normal_path):
-			layer.normal_texture = load(normal_path)
+		var base_path: String = _TERRAIN_LIB + def["folder"] + "/" + def["base"]
+		layer.albedo_texture = _find_texture(base_path, "-B")
+		layer.normal_texture = _find_texture(base_path, "-N")
+		layer.roughness_texture = _find_texture(base_path, "-R")
+		layer.metallic_texture = _find_texture(base_path, "-M")
+		if not layer.albedo_texture:
+			print("[TerrainTex] WARNING: no albedo for layer %d (%s) at %s" % [i, def["label"], base_path])
 		data.texture_layers.append(layer)
 
 
