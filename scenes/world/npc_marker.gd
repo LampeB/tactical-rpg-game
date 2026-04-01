@@ -53,10 +53,11 @@ func _build_visual() -> void:
 	_model = CSGCharacterFactory.create_from_npc(_npc_data)
 	add_child(_model)
 
-	# Attach idle breathing animator
-	_animator = ModelAnimator.new()
-	add_child(_animator)
-	_animator.setup(_model)
+	# Animated 3D models handle their own animations; CSG/voxel use ModelAnimator
+	if not _model.has_method("play"):
+		_animator = ModelAnimator.new()
+		add_child(_animator)
+		_animator.setup(_model)
 
 	# Collision shape for body detection
 	collision_layer = 4  # interactables
@@ -141,9 +142,15 @@ func _process(delta: float) -> void:
 	# Ground NPC to terrain surface
 	_update_ground_height()
 
-	# Update walk animation
-	if _animator:
-		_animator.set_walking(_move_direction.length() > 0.1)
+	# Update walk/idle animation
+	var is_moving: bool = _move_direction.length() > 0.1
+	if _model and _model.has_method("play"):
+		if is_moving:
+			_model.play("walk")
+		else:
+			_model.play("idle")
+	elif _animator:
+		_animator.set_walking(is_moving)
 
 
 func _pick_nav_target() -> void:

@@ -86,10 +86,11 @@ func _build_enemy_model() -> void:
 		elif first_id == "wraith":
 			_model.position.y += 0.5
 
-	# Attach procedural walk/idle animator
-	_animator = ModelAnimator.new()
-	add_child(_animator)
-	_animator.setup(_model)
+	# Animated 3D models handle their own animations; CSG/voxel use ModelAnimator
+	if not _model.has_method("play"):
+		_animator = ModelAnimator.new()
+		add_child(_animator)
+		_animator.setup(_model)
 
 
 func _physics_process(delta: float) -> void:
@@ -147,8 +148,14 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# Update walk animation and facing direction
-	if _animator:
-		_animator.set_walking(_move_direction.length() > 0.1)
+	var is_moving: bool = _move_direction.length() > 0.1
+	if _model and _model.has_method("play"):
+		if is_moving:
+			_model.play("walk")
+		else:
+			_model.play("idle")
+	elif _animator:
+		_animator.set_walking(is_moving)
 	if _model and _move_direction.length() > 0.1:
 		_model.rotation.y = atan2(_move_direction.x, _move_direction.z)
 
