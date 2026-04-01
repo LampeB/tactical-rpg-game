@@ -3,7 +3,7 @@ extends RefCounted
 ## Central registry of all modular building pieces from the Medieval Village MegaKit.
 ## Categorizes ~176 pieces by type for the structure placement system and editor.
 
-const _KIT_PATH := "res://assets/3D/Medieval Village MegaKit[Standard]/Medieval Village MegaKit[Standard]/glTF/"
+const _KIT_PATH := AssetPaths.VILLAGE_KIT
 
 static var _cache: Array[StructurePiece] = []
 static var _by_category: Dictionary = {}  ## Category int → Array[StructurePiece]

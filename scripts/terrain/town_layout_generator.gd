@@ -30,7 +30,7 @@ class BuildingBlueprint:
 
 
 ## -- Building prefab paths ----------------------------------------------------
-const _BUILDING_PATH := "res://assets/3D/building/"
+const _BUILDING_PATH := AssetPaths.BUILDING_PREFABS
 
 ## Lazy-init blueprint library
 static var _blueprints_cache: Array = []

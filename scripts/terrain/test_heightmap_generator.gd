@@ -4,7 +4,7 @@ extends RefCounted
 ## Used for development and testing of the heightmap terrain system.
 
 ## Material-LIB base path (gitignored — textures only exist locally)
-const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
+const _LIB := AssetPaths.MATERIALS_NATURE
 
 ## Layer definitions: [folder, albedo_suffix, normal_suffix, uv_scale]
 const _LAYER_DEFS: Array[Dictionary] = [

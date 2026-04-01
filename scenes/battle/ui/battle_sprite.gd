@@ -63,6 +63,10 @@ func setup(entity: CombatEntity) -> void:
 		add_child(_animator)
 		_animator.setup(_model)
 
+	# Attach weapon model to character's hand
+	if entity.is_player:
+		_attach_equipped_weapon(entity)
+
 	# Cache all body part references for full-body attack animations
 	_hip = _find_part(_model, "Hip")
 	if _hip:
@@ -193,10 +197,36 @@ static func _get_node_material(node: Node) -> StandardMaterial3D:
 # === Awaitable Animations ===
 
 func play_attack_animation() -> void:
-	## Weapon-type-specific attack animation. Falls back to lunge for non-humanoid.
+	## Weapon-type-specific attack animation.
+	## Animated 3D models use skeletal animations; CSG/voxel use tween-based limb animations.
+	if _model.has_method("play"):
+		var anim_type: AttackAnimType = _determine_attack_anim()
+		var anim_name: String = "attack_sword"
+		match anim_type:
+			AttackAnimType.SLASH:
+				anim_name = "sword_regular_combo"
+			AttackAnimType.BASH:
+				anim_name = "sword_heavy_a"
+			AttackAnimType.SHOOT:
+				anim_name = "bow_shoot"
+			AttackAnimType.CAST:
+				anim_name = "spell_cast"
+		_model.play(anim_name, 0.1)
+		# Lunge forward during the attack
+		var lunge_dir: float = 1.0 if _entity.is_player else -1.0
+		var base_x: float = position.x
+		var tween := create_tween()
+		tween.tween_property(self, "position:x", base_x + lunge_dir * 0.5, 0.15)
+		tween.tween_interval(0.4)
+		tween.tween_property(self, "position:x", base_x, 0.2)
+		tween.tween_callback(func() -> void:
+			_model.play("idle", 0.3)
+			animation_finished.emit()
+		)
+		return
+
 	var anim_type: AttackAnimType = _determine_attack_anim()
 	var lunge_dir: float = 1.0 if _entity.is_player else -1.0
-
 	match anim_type:
 		AttackAnimType.SLASH:
 			_play_slash_anim(lunge_dir)
@@ -211,23 +241,36 @@ func play_attack_animation() -> void:
 
 
 func play_hurt_animation() -> void:
-	## Flash red emission and shake.
+	## Flash red emission, shake, and play hit animation if available.
 	_set_emission(Color(1.0, 0.3, 0.3), 0.5)
+
+	# Play skeletal hit animation if model supports it
+	if _model.has_method("play"):
+		_model.play("hit", 0.1)
 
 	var tween := create_tween()
 	var base_x: float = position.x
 	tween.tween_property(self, "position:x", base_x + 0.2, 0.05)
 	tween.tween_property(self, "position:x", base_x - 0.2, 0.05)
+	tween.tween_property(self, "position:x", base_x + 0.1, 0.05)
 	tween.tween_property(self, "position:x", base_x, 0.05)
 	tween.tween_callback(func() -> void:
 		_set_emission(Color.BLACK, 0.0)
+		# Return to idle after hit
+		if _model.has_method("play"):
+			_model.play("idle", 0.3)
 		animation_finished.emit()
 	)
 
 
 func play_death_animation() -> void:
-	## Sink into ground and fade out.
+	## Play death animation, then sink and fade out.
+	if _model.has_method("play"):
+		_model.play("death", 0.1)
+
 	var tween := create_tween()
+	# Wait for the death animation to play before fading
+	tween.tween_interval(0.8)
 	tween.set_parallel(true)
 	tween.tween_property(self, "position:y", position.y - 0.5, 0.5)
 	for mat in _get_all_materials():
@@ -238,7 +281,17 @@ func play_death_animation() -> void:
 
 func play_cast_animation() -> void:
 	## Dedicated cast animation for skills that use magic.
-	## Humanoids get full channel/release/recoil; others get squash + glow.
+	if _model.has_method("play"):
+		_model.play("spell_cast", 0.1)
+		var tween := create_tween()
+		_set_emission(Color(0.4, 0.6, 1.0), 0.3)
+		tween.tween_interval(0.6)
+		tween.tween_callback(func() -> void:
+			_set_emission(Color.BLACK, 0.0)
+			_model.play("idle", 0.3)
+			animation_finished.emit()
+		)
+		return
 	if _has_limbs:
 		_play_cast_anim()
 	else:
@@ -246,7 +299,8 @@ func play_cast_animation() -> void:
 
 
 func play_idle_animation() -> void:
-	## Stub — idle breathing handled by ModelAnimator._process().
+	if _model.has_method("play"):
+		_model.play("idle", 0.3)
 	animation_finished.emit()
 
 
@@ -257,6 +311,52 @@ func set_walking(walking: bool) -> void:
 
 
 # === Attack Animation Helpers ===
+
+func _attach_equipped_weapon(entity: CombatEntity) -> void:
+	## Finds the first equipped weapon and attaches its 3D model to the character's hand.
+	if not entity.grid_inventory:
+		return
+	var placed_items: Array = entity.grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type != Enums.ItemType.ACTIVE_TOOL:
+			continue
+		# Find model path: item-specific → rarity-based default → category default
+		var model_path: String = placed.item_data.model_path
+		if model_path.is_empty():
+			var cat_id: int = placed.item_data.category
+			if placed.item_data.rarity <= Enums.Rarity.UNCOMMON:
+				model_path = AssetPaths.BRONZE_WEAPON_MODELS.get(cat_id, "")
+			if model_path.is_empty():
+				model_path = AssetPaths.DEFAULT_EQUIPMENT_MODELS.get(cat_id, "")
+		if model_path.is_empty() or not ResourceLoader.exists(model_path):
+			continue
+		# Find hand bone on skeleton (animated models) or attachment marker (CSG)
+		var attach_point: Node3D = null
+		if _model.has_method("get_skeleton"):
+			var skel: Skeleton3D = _model.get_skeleton()
+			if skel:
+				var bone_idx: int = skel.find_bone("hand_r")
+				if bone_idx >= 0:
+					var bone_attach := BoneAttachment3D.new()
+					bone_attach.name = "WeaponAttach"
+					bone_attach.bone_idx = bone_idx
+					skel.add_child(bone_attach)
+					attach_point = bone_attach
+		if not attach_point:
+			attach_point = _find_part(_model, "RightHandAttach")
+		if not attach_point:
+			continue
+		# Load and attach weapon model
+		var weapon_scene: PackedScene = load(model_path) as PackedScene
+		if weapon_scene:
+			var weapon: Node3D = weapon_scene.instantiate()
+			weapon.name = "EquippedWeapon"
+			weapon.scale = Vector3.ONE * 0.8
+			attach_point.add_child(weapon)
+			print("[BattleSprite] Attached weapon: %s → %s" % [placed.item_data.display_name, model_path])
+		break  # Only attach first weapon
+
 
 func _determine_attack_anim() -> AttackAnimType:
 	if not _has_limbs:
@@ -559,7 +659,19 @@ func _play_cast_no_limbs() -> void:
 
 
 func play_defend_animation() -> void:
-	## Guard pose animation: arms cross for humanoid, squash for non-humanoid.
+	## Guard pose animation.
+	if _model.has_method("play"):
+		_model.play("sword_block", 0.1)
+		_set_emission(Color(0.4, 0.6, 1.0), 0.4)
+		var tween := create_tween()
+		tween.tween_interval(0.5)
+		tween.tween_callback(func() -> void:
+			_set_emission(Color.BLACK, 0.0)
+			_model.play("idle", 0.3)
+			animation_finished.emit()
+		)
+		return
+
 	_pause_animator()
 	var tween := create_tween()
 

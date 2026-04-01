@@ -3,7 +3,7 @@ extends MeshInstance3D
 ## A flat water surface with animated shader. Supports rectangular and elliptical shapes.
 
 const WATER_SHADER_PATH := "res://shaders/water.gdshader"
-const _WATER_NORMAL := "res://assets/3D/Material-LIB/Material-LIB/Nature/Water/Water-N.png"
+const _WATER_NORMAL := AssetPaths.WATER_NORMAL
 const _ELLIPSE_SEGMENTS := 48  ## Radial segments for ellipse mesh
 
 @export var water_size: Vector2 = Vector2(100, 100)  ## Width × depth in world units

@@ -21,6 +21,11 @@ extends Resource
 ## Number of additional hand slots this item grants when equipped (for mechanical arms, etc.)
 @export var bonus_hand_slots: int = 0
 
+@export_group("Visual")
+## Optional 3D model for this item (displayed on character in battle).
+## If empty, falls back to default model based on equipment category.
+@export_file("*.gltf", "*.glb", "*.tscn") var model_path: String = ""
+
 @export_group("Shape")
 @export var shape: ItemShape
 

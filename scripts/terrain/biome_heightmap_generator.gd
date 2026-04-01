@@ -10,7 +10,7 @@ const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
 const _RoadGenerator := preload("res://scripts/terrain/road_generator.gd")
 
 ## Material-LIB base path (gitignored — textures only exist locally)
-const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
+const _LIB := AssetPaths.MATERIALS_NATURE
 
 ## Layer definitions: [folder, base, uv_scale, label]
 ## Layers 0-3 → splatmap1 (vertex colors R/G/B/A)
