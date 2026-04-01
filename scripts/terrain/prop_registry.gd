@@ -3,7 +3,7 @@ extends RefCounted
 ## Central registry of all scatterable props. Returns PropDefinition arrays
 ## filtered by biome layer. Loads glTF models from the Nature MegaKit.
 
-const _KIT_PATH := "res://assets/3D/Stylized Nature MegaKit[Standard]/glTF/"
+const _KIT_PATH := AssetPaths.NATURE_KIT
 
 ## Prop categories — each entry: [gltf_name, collision, allowed_layers_bitmask, density, min_scale, max_scale, wind, lod]
 ## Layers: 0=Grass, 1=Dirt, 2=Rock, 3=Snow  →  bitmask: 1=grass, 2=dirt, 4=rock, 8=snow

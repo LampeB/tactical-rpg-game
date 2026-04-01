@@ -4,13 +4,32 @@ class_name CSGCharacterFactory
 
 const _AnimatedCharacter = preload("res://scripts/utils/animated_character.gd")
 
-const _OUTFIT_BASE := "res://assets/animations/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Outfits/"
+const _OUTFIT_BASE := AssetPaths.CHARACTER_OUTFITS
 
-## Character ID → outfit model path. Add entries as models become available.
+const _HEAD_MALE := AssetPaths.CHARACTER_BASE + "Regular_Male_OnlyHead.gltf"
+const _HEAD_FEMALE := AssetPaths.CHARACTER_BASE + "Regular_Female_OnlyHead.gltf"
+const _HEAD_TEEN_MALE := AssetPaths.CHARACTER_BASE + "Teen_Male_OnlyHead.gltf"
+const _HEAD_TEEN_FEMALE := AssetPaths.CHARACTER_BASE + "Teen_Female_OnlyHead.gltf"
+
+## Character ID → {model, head} paths for party members.
 const CHARACTER_MODEL_MAP: Dictionary = {
-	"warrior": _OUTFIT_BASE + "Male_Peasant.gltf",
-	"mage": _OUTFIT_BASE + "Female_Peasant.gltf",
-	"rogue": _OUTFIT_BASE + "Female_Ranger.gltf",
+	"warrior": {"model": _OUTFIT_BASE + "Male_Knight.gltf", "head": _HEAD_MALE},
+	"mage": {"model": _OUTFIT_BASE + "Female_Wizard.gltf", "head": _HEAD_FEMALE},
+	"rogue": {"model": _OUTFIT_BASE + "Female_Ranger.gltf", "head": _HEAD_FEMALE},
+}
+
+## NPC ID → {model, head} paths.
+const NPC_MODEL_MAP: Dictionary = {
+	"guard": {"model": _OUTFIT_BASE + "Male_Knight.gltf", "head": _HEAD_MALE},
+	"blacksmith": {"model": _OUTFIT_BASE + "Male_Knight_Cloth.gltf", "head": _HEAD_MALE},
+	"merchant": {"model": _OUTFIT_BASE + "Female_Noble.gltf", "head": _HEAD_FEMALE},
+	"doctor": {"model": _OUTFIT_BASE + "Male_Wizard.gltf", "head": _HEAD_MALE},
+	"tavern_keeper": {"model": _OUTFIT_BASE + "Female_Peasant.gltf", "head": _HEAD_FEMALE},
+	"farmer": {"model": _OUTFIT_BASE + "Male_Peasant.gltf", "head": _HEAD_MALE},
+	"bard": {"model": _OUTFIT_BASE + "Male_Ranger.gltf", "head": _HEAD_MALE},
+	"old_man": {"model": _OUTFIT_BASE + "Male_Noble.gltf", "head": _HEAD_MALE},
+	"weaver": {"model": _OUTFIT_BASE + "Female_Wizard.gltf", "head": _HEAD_FEMALE},
+	"child": {"model": _OUTFIT_BASE + "Female_Peasant.gltf", "head": _HEAD_TEEN_FEMALE},
 }
 
 
@@ -32,13 +51,16 @@ static func create_from_character(char_data: CharacterData) -> Node3D:
 		scene_model.scale = Vector3.ONE * char_data.model_scale
 		return scene_model
 	# Try animated 3D model from outfit map
-	var model_path: String = CHARACTER_MODEL_MAP.get(char_data.id, "")
-	if model_path.is_empty():
-		model_path = CHARACTER_MODEL_MAP.get(char_data.character_class.to_lower(), "")
-	if not model_path.is_empty() and ResourceLoader.exists(model_path):
-		var anim_char: Node3D = _AnimatedCharacter.create(model_path, 1.0)
-		if anim_char:
-			return anim_char
+	var char_entry: Variant = CHARACTER_MODEL_MAP.get(char_data.id)
+	if not char_entry:
+		char_entry = CHARACTER_MODEL_MAP.get(char_data.character_class.to_lower())
+	if char_entry is Dictionary:
+		var model_path: String = char_entry.get("model", "")
+		var head_path: String = char_entry.get("head", "")
+		if not model_path.is_empty() and ResourceLoader.exists(model_path):
+			var anim_char: Node3D = _AnimatedCharacter.create(model_path, 1.0, head_path)
+			if anim_char:
+				return anim_char
 	# Try multi-part articulated voxel model (limbs + pivots)
 	var multipart := _try_load_multipart_vox("res://assets/voxels/characters/%s" % char_data.id)
 	if multipart:
@@ -109,6 +131,16 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 	if npc_data.model_scene:
 		var scene_model: Node3D = npc_data.model_scene.instantiate()
 		return scene_model
+	# Try animated 3D model from NPC map
+	var npc_entry: Variant = NPC_MODEL_MAP.get(npc_data.id)
+	if npc_entry is Dictionary:
+		var model_path: String = npc_entry.get("model", "")
+		var head_path: String = npc_entry.get("head", "")
+		if not model_path.is_empty() and ResourceLoader.exists(model_path):
+			var anim_char: Node3D = _AnimatedCharacter.create(model_path, 1.0, head_path)
+			if anim_char:
+				_add_name_label(anim_char, npc_data.display_name, 2.0)
+				return anim_char
 	# Try multi-part articulated voxel model
 	var multipart := _try_load_multipart_vox("res://assets/voxels/npcs/%s" % npc_data.id)
 	if multipart:
@@ -121,14 +153,13 @@ static func create_from_npc(npc_data: NpcData) -> Node3D:
 		_add_name_label(vox_model, npc_data.display_name, 2.0)
 		return vox_model
 	var color: Color = npc_data.model_color
-	# Role-based color hints
 	match npc_data.role:
 		Enums.NpcRole.SHOPKEEPER:
-			color = Color(0.55, 0.35, 0.2)   # Brown apron
+			color = Color(0.55, 0.35, 0.2)
 		Enums.NpcRole.CRAFTSMAN:
-			color = Color(0.4, 0.3, 0.25)    # Dark leather
+			color = Color(0.4, 0.3, 0.25)
 		Enums.NpcRole.QUEST_GIVER:
-			color = Color(0.8, 0.7, 0.2)     # Gold accent
+			color = Color(0.8, 0.7, 0.2)
 	var model := create_humanoid(color)
 	_add_name_label(model, npc_data.display_name, 2.0)
 	return model

@@ -2,8 +2,8 @@ extends Node3D
 ## Animated 3D character — loads a rigged model and plays animations from a library.
 ## Used for player, NPCs, and enemies that have real 3D models with skeletal animation.
 
-const UAL1_PATH := "res://assets/animations/Universal Animation Library[Standard]/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb"
-const UAL2_PATH := "res://assets/animations/Universal Animation Library 2[Standard]/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard.glb"
+const UAL1_PATH := AssetPaths.UAL1
+const UAL2_PATH := AssetPaths.UAL2
 
 var _model: Node3D = null
 var _anim_player: AnimationPlayer = null
@@ -11,47 +11,167 @@ var _skeleton: Skeleton3D = null
 var _current_anim: String = ""
 var _pending_model_path: String = ""
 var _pending_scale: float = 1.0
+var _pending_head_path: String = ""
 
 ## Map of logical animation names to UAL animation names
 ## Godot strips "_Loop" suffix from glTF animations and sets them to loop automatically.
 const ANIM_MAP: Dictionary = {
+	# --- Movement ---
 	"idle": "Idle",
+	"idle_tired": "Idle_Tired",
+	"idle_look": "Idle_LookAround",
 	"walk": "Walk",
+	"walk_back": "Walk_Bwd",
+	"walk_carry": "Walk_Carry",
+	"walk_formal": "Walk_Formal",
 	"run": "Jog_Fwd",
 	"sprint": "Sprint",
+	"sprint_enter": "Sprint_Enter",
+	"sprint_exit": "Sprint_Exit",
+	"crouch_idle": "Crouch_Idle",
+	"crouch_walk": "Crouch_Fwd",
+	"crouch_enter": "Crouch_Enter",
+	"crouch_exit": "Crouch_Exit",
+	"crawl": "Crawl_Fwd",
+	"crawl_idle": "Crawl_Idle",
+	"swim": "Swim_Fwd",
+	"swim_idle": "Swim_Idle",
+	# --- Jumping ---
 	"jump_start": "Jump_Start",
 	"jump_loop": "Jump",
 	"jump_land": "Jump_Land",
+	"double_jump": "DoubleJump",
+	"backflip": "BackFlip",
+	"roll": "Roll",
+	"dodge_left": "Dodge_Left",
+	"dodge_right": "Dodge_Right",
+	"slide": "Slide",
+	"slide_start": "Slide_Start",
+	"slide_exit": "Slide_Exit",
+	# --- Climbing ---
+	"climb_up": "Climb_Up",
+	"climb_down": "Climb_Down",
+	"climb_idle": "Climb_Idle",
+	"climb_enter": "Climb_Enter",
+	"climb_exit": "Climb_Exit",
+	"climb_ledge": "ClimbLedge",
+	# --- Sword combat ---
 	"attack_sword": "Sword_Attack",
-	"attack_combo": "Sword_Regular_Combo",
-	"block": "Sword_Block",
-	"hit": "Hit_Chest",
-	"hit_head": "Hit_Head",
-	"hit_knockback": "Hit_Knockback",
-	"death": "Death01",
+	"attack_sword_standing": "Sword_Attack_Standing",
+	"sword_enter": "Sword_Enter",
+	"sword_exit": "Sword_Exit",
+	"sword_idle": "Sword_Idle",
+	"sword_light_a": "Sword_Light_A",
+	"sword_light_b": "Sword_Light_B",
+	"sword_light_c": "Sword_Light_C",
+	"sword_light_combo": "Sword_Light_Combo",
+	"sword_heavy_a": "Sword_Heavy_A",
+	"sword_heavy_b": "Sword_Heavy_B",
+	"sword_heavy_c": "Sword_Heavy_C",
+	"sword_heavy_combo": "Sword_Heavy_Combo",
+	"sword_regular_a": "Sword_Regular_A",
+	"sword_regular_b": "Sword_Regular_B",
+	"sword_regular_c": "Sword_Regular_C",
+	"sword_regular_combo": "Sword_Regular_Combo",
+	"sword_block": "Sword_Block",
+	"sword_aerial_a": "Sword_Aerial_A",
+	"sword_aerial_b": "Sword_Aerial_B",
+	"sword_ground_pound": "Sword_GroundPound_RM",
+	"sword_uppercut": "Sword_UpperCut_RM",
+	# --- Bow combat ---
+	"bow_aim": "Bow_Aim_Neutral",
+	"bow_aim_up": "Bow_Aim_Up",
+	"bow_aim_down": "Bow_Aim_Down",
+	"bow_shoot": "Bow_Shoot",
+	"bow_notch": "Bow_Notch",
+	"bow_rapid": "Bow_RapidShoot",
+	# --- Shield ---
+	"shield_idle": "Idle_Shield",
+	"shield_break": "Idle_Shield_Break",
+	"shield_dash": "Shield_Dash_RM",
+	"shield_block": "Shield_OneShot",
+	"sprint_shield": "Sprint_Shield",
+	# --- Melee (unarmed) ---
+	"punch_jab": "Punch_Jab",
+	"punch_cross": "Punch_Cross",
+	"kick": "Kick",
+	"melee_combo": "Melee_Combo",
+	"melee_hook": "Melee_Hook",
+	"melee_knee": "Melee_Knee",
+	"melee_uppercut": "Melee_Uppercut",
+	# --- Magic ---
 	"spell_cast": "Spell_Simple_Shoot",
 	"spell_idle": "Spell_Simple_Idle",
+	"spell_enter": "Spell_Simple_Enter",
+	"spell_exit": "Spell_Simple_Exit",
+	"spell_double": "Spell_Double_Shoot",
+	"spell_double_idle": "Spell_Double_Idle",
+	# --- Hit/Death ---
+	"hit": "Hit_Chest",
+	"hit_head": "Hit_Head",
+	"hit_stomach": "Hit_Stomach",
+	"hit_shoulder_l": "Hit_Shoulder_L",
+	"hit_shoulder_r": "Hit_Shoulder_R",
+	"hit_knockback": "Hit_Knockback",
+	"death": "Death01",
+	"death2": "Death02",
+	# --- Social/NPC ---
 	"interact": "Interact",
 	"dance": "Dance",
-	"sit_idle": "Sitting_Idle",
 	"talk": "Idle_Talking",
-	"roll": "Roll",
-	"crouch_idle": "Crouch_Idle",
-	"crouch_walk": "Crouch_Fwd",
-	"swim": "Swim_Fwd",
+	"sit_idle": "Sitting_Idle",
+	"sit_enter": "Sitting_Enter",
+	"sit_exit": "Sitting_Exit",
+	"sit_talk": "Sitting_Talking",
+	"sit_nod": "Sitting_Nodding",
+	"ground_sit": "GroundSit_Idle",
+	"crying": "Crying",
+	"celebrate": "Celebration",
+	"surprise": "Surprise",
+	"yes": "Yes",
+	"idle_no": "Idle_No",
+	"fold_arms": "Idle_FoldArms",
+	"torch": "Idle_Torch",
+	"lantern": "Idle_Lantern",
+	"drink": "Drink",
+	# --- Utility ---
 	"chest_open": "Chest_Open",
 	"consume": "Consume",
+	"pickup": "PickUp_Kneeling",
+	"pickup_table": "PickUp_Table",
+	"push": "Push",
+	"throw": "OverhandThrow",
+	# --- Work ---
+	"mining": "Mining",
+	"chopping": "TreeChopping",
+	"farm_harvest": "Farm_Harvest",
+	"farm_plant": "Farm_PlantSeed",
+	"farm_water": "Farm_Watering",
+	"farm_scatter": "Farm_ScatteringSeeds",
+	"farm_picking": "Farm_PickingTree",
+	"fishing_cast": "Fish_Cast",
+	"fishing_idle": "Fish_Cast_Idle",
+	"fishing_reel": "Fish_Reel",
+	"bandage": "Bandage",
+	"fixing": "Fixing_Kneeling",
+	# --- Counter/Shop ---
+	"counter_idle": "Counter_Idle",
+	"counter_enter": "Counter_Enter",
+	"counter_exit": "Counter_Exit",
+	"counter_give": "Counter_Give",
+	"counter_show": "Counter_Show",
 }
 
 ## Cached animation libraries (shared across all instances)
 static var _cached_libs: Dictionary = {}  # lib_name → AnimationLibrary
 
 
-static func create(model_path: String, scale_factor: float = 1.0) -> Node3D:
+static func create(model_path: String, scale_factor: float = 1.0, head_path: String = "") -> Node3D:
 	var instance: Node3D = Node3D.new()
 	instance.set_script(load("res://scripts/utils/animated_character.gd"))
 	instance.set("_pending_model_path", model_path)
 	instance.set("_pending_scale", scale_factor)
+	instance.set("_pending_head_path", head_path)
 	return instance
 
 
@@ -127,25 +247,9 @@ func _setup(model_path: String, scale_factor: float) -> void:
 	print("[AnimatedCharacter] Model tree:")
 	_print_tree_debug(_model, 0, 3)
 
-	# Add a simple head if the model has no Head mesh (outfit-only models)
-	if _skeleton and not _find_node_by_name(_model, "Head_Mesh"):
-		var head_bone_idx: int = _skeleton.find_bone("Head")
-		if head_bone_idx >= 0:
-			var head_attach := BoneAttachment3D.new()
-			head_attach.name = "HeadAttach"
-			head_attach.bone_idx = head_bone_idx
-			_skeleton.add_child(head_attach)
-			var head_mesh := MeshInstance3D.new()
-			head_mesh.name = "Head_Mesh"
-			var sphere := SphereMesh.new()
-			sphere.radius = 0.12
-			sphere.height = 0.24
-			var mat := StandardMaterial3D.new()
-			mat.albedo_color = Color(0.85, 0.7, 0.6)  # skin tone
-			sphere.material = mat
-			head_mesh.mesh = sphere
-			head_mesh.position = Vector3(0, 0.06, 0)
-			head_attach.add_child(head_mesh)
+	# Attach base character head if outfit model has no head mesh
+	if _skeleton and _pending_head_path and not _pending_head_path.is_empty():
+		_attach_head(_pending_head_path)
 
 	# Start idle
 	play("idle")
@@ -238,6 +342,38 @@ func _print_tree_debug(node: Node, depth: int, max_depth: int) -> void:
 	print("[AnimatedCharacter] %s%s (%s)" % [indent, node.name, node.get_class()])
 	for i in range(node.get_child_count()):
 		_print_tree_debug(node.get_child(i), depth + 1, max_depth)
+
+
+func _attach_head(head_path: String) -> void:
+	## Loads a head-only model (.gltf) and merges its meshes onto this skeleton.
+	## The head model must share the same skeleton structure (bone names/hierarchy).
+	if not ResourceLoader.exists(head_path):
+		push_warning("[AnimatedCharacter] Head model not found: %s" % head_path)
+		return
+	var head_scene: PackedScene = load(head_path) as PackedScene
+	if not head_scene:
+		return
+	var head_instance: Node3D = head_scene.instantiate() as Node3D
+	if not head_instance:
+		return
+	# Find all MeshInstance3D nodes in the head model and reparent them to our skeleton
+	var meshes: Array = []
+	_collect_meshes(head_instance, meshes)
+	for i in range(meshes.size()):
+		var mesh_inst: MeshInstance3D = meshes[i]
+		mesh_inst.get_parent().remove_child(mesh_inst)
+		_skeleton.add_child(mesh_inst)
+		# Bind to our skeleton so the head follows bone animations
+		mesh_inst.skeleton = mesh_inst.get_path_to(_skeleton)
+	head_instance.free()
+	print("[AnimatedCharacter] Attached head from %s (%d meshes)" % [head_path, meshes.size()])
+
+
+func _collect_meshes(node: Node, result: Array) -> void:
+	if node is MeshInstance3D:
+		result.append(node)
+	for i in range(node.get_child_count()):
+		_collect_meshes(node.get_child(i), result)
 
 
 func _find_node_by_name(node: Node, node_name: String) -> Node:

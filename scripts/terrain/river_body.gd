@@ -5,7 +5,7 @@ extends MeshInstance3D
 
 const _RiverPath := preload("res://scripts/terrain/river_path.gd")
 const RIVER_SHADER_PATH: String = "res://shaders/river.gdshader"
-const _WATER_NORMAL: String = "res://assets/3D/Material-LIB/Material-LIB/Nature/Water/Water-N.png"
+const _WATER_NORMAL: String = AssetPaths.WATER_NORMAL
 ## Y offset above carved riverbed.
 ## Channel depth = CARVE_DEPTH(0.14) * terrain_scale.y(8) = 1.12 world units.
 const SURFACE_OFFSET: float = 1.10

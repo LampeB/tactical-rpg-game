@@ -5,7 +5,7 @@ extends RefCounted
 ## Tiny scales (~0.25–0.45) so trees look like map-icon miniatures at overworld
 ## camera height. No grass patches — too small to see at overworld scale.
 
-const _KIT_PATH := "res://assets/3D/Stylized Nature MegaKit[Standard]/glTF/"
+const _KIT_PATH := AssetPaths.NATURE_KIT
 
 ## Layers: 0=Grass, 1=Sand/Dirt, 2=Rock, 3=Snow, 4=Soil, 5=Pebbles, 6=Cliff, 7=Moss
 ## Bitmask: grass=1, dirt=2, rock=4, snow=8, soil=16, pebbles=32, cliff=64, moss=128

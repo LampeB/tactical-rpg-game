@@ -16,9 +16,9 @@ const _RiverGenerator := preload("res://scripts/terrain/river_generator.gd")
 const _PoiGenerator := preload("res://scripts/terrain/poi_generator.gd")
 
 ## Material-LIB base path (same textures as area maps)
-const _LIB := "res://assets/3D/Material-LIB/Material-LIB/Nature/"
-const _LIB_ROOT := "res://assets/3D/Material-LIB/Material-LIB/"
-const _TERRAIN_LIB := "res://assets/terrain_textures/"
+const _LIB := AssetPaths.MATERIALS_NATURE
+const _LIB_ROOT := AssetPaths.MATERIALS
+const _TERRAIN_LIB := AssetPaths.TERRAIN_TEXTURES
 
 ## Splatmap layer defs — 12 layers across 3 splatmaps
 ## Splatmap1 (0-3): Grass, Sand, Rock, Snow
