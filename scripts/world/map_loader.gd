@@ -417,14 +417,13 @@ const _BATTLE_TERRAIN_SHADER := "res://shaders/terrain_splatmap.gdshader"
 
 
 static func build_heightmap_battle_background(
-	heightmap: HeightmapData, arena_pos: Vector3, arena_rotation_y: float
+	heightmap: HeightmapData, arena_pos: Vector3, _arena_rotation_y: float
 ) -> Node3D:
 	## Builds a battle background from heightmap terrain around the arena position.
 	## Returns a Node3D containing a terrain mesh patch and scattered props.
 	var root := Node3D.new()
 	root.name = "BattleBackground"
 
-	var tscale: Vector3 = heightmap.terrain_scale
 	var arena_radius_sq: float = BattleAreaData.ARENA_RADIUS * BattleAreaData.ARENA_RADIUS
 
 	# --- Terrain mesh patch ---
@@ -521,13 +520,13 @@ static func _build_battle_terrain_patch(data: HeightmapData, center: Vector3) ->
 	for iz in range(quads_z):
 		for ix in range(quads_x):
 			var tl: int = iz * verts_x + ix
-			var tr: int = tl + 1
+			var top_r: int = tl + 1
 			var bl: int = (iz + 1) * verts_x + ix
 			var br: int = bl + 1
 			indices[tri_idx] = tl
-			indices[tri_idx + 1] = tr
+			indices[tri_idx + 1] = top_r
 			indices[tri_idx + 2] = bl
-			indices[tri_idx + 3] = tr
+			indices[tri_idx + 3] = top_r
 			indices[tri_idx + 4] = br
 			indices[tri_idx + 5] = bl
 			tri_idx += 6

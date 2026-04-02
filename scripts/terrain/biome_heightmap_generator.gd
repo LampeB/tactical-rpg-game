@@ -483,6 +483,7 @@ static func _add_procedural_water(data: HeightmapData, map_seed: int) -> void:
 	rng.seed = map_seed + 5000
 
 	# Find low points by sampling a grid
+	@warning_ignore("integer_division")
 	var sample_step: int = maxi(data.width / 10, 8)
 	var candidates: Array[Vector3] = []  # Vector3(world_x, height, world_z)
 

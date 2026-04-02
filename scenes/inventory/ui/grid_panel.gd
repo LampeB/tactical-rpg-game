@@ -24,10 +24,18 @@ var _grid_height_cells: int = 0  ## Actual shape height (max_y - min_y + 1).
 
 @onready var _cells_layer: Control = $CellsLayer
 @onready var _items_layer: Control = $ItemsLayer
+@onready var _panel_backdrop: NinePatchRect = $PanelBackdrop
 
 
 func _ready() -> void:
 	mouse_exited.connect(_on_mouse_exited)
+	_apply_panel_theme()
+
+
+func _apply_panel_theme() -> void:
+	# No backdrop — void cells should be transparent (game background shows through)
+	if _panel_backdrop:
+		_panel_backdrop.visible = false
 
 func setup(grid_inventory: GridInventory) -> void:
 	_grid_inventory = grid_inventory
@@ -48,15 +56,16 @@ func refresh() -> void:
 		else:
 			cell_node.set_state(cell_node.CellState.INACTIVE)
 
-	# Mark occupied cells with rarity tint
+	# Mark occupied cells with rarity slot colors
 	for i in range(_grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = _grid_inventory.get_all_placed_items()[i]
-		var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
+		var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
 		var occupied: Array[Vector2i] = placed.get_occupied_cells()
 		for cell in occupied:
 			if _cells.has(cell):
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				_cells[cell].set_rarity_tint(rarity_color)
+				if slot_colors.size() >= 2:
+					_cells[cell].set_rarity_tint(slot_colors[0])  # bg_normal
 
 	_update_item_visuals()
 
@@ -393,7 +402,207 @@ func _build_cells() -> void:
 	size = custom_minimum_size
 
 	# Deferred recalc — parent layout may not be settled during initial setup.
+	# Border drawing happens after resize so positions are correct.
 	call_deferred("_deferred_resize")
+
+
+func _build_zone_outlines(template: GridTemplate, all_positions: Array[Vector2i]) -> void:
+	## Places sprite-based border pieces along the edges of each zone.
+	## Uses edge and corner sprites from the inventory asset pack.
+	# Remove old border sprites
+	for child in _cells_layer.get_children():
+		if child.name.begins_with("BorderPiece"):
+			child.queue_free()
+
+	var active_set: Dictionary = {}
+	var layout_set: Dictionary = {}
+	for pos in all_positions:
+		layout_set[pos] = true
+		if template.is_cell_active(pos):
+			active_set[pos] = true
+
+	# Outer border (around all layout cells — expansion boundary)
+	_place_border_sprites(layout_set, Color(0.5, 0.3, 0.2, 0.9), "BorderPieceOuter")
+	# Inner border (around active cells only — usable area)
+	_place_border_sprites(active_set, Color(0.9, 0.85, 0.7, 1.0), "BorderPieceInner")
+
+
+func _place_border_sprites(cell_set: Dictionary, tint: Color, prefix: String) -> void:
+	## Places edge and corner TextureRects along boundary edges of the cell set.
+	var edge_v_tex: Texture2D = InventoryTheme.get_edge_v_texture()
+	var edge_h_tex: Texture2D = InventoryTheme.get_edge_h_texture()
+	var corner_tex: Texture2D = InventoryTheme.get_corner_texture()
+	if not edge_v_tex or not edge_h_tex:
+		return
+
+	var cs: int = cell_size
+	var border_w: float = 4.0  # border thickness in pixels
+	var idx: int = 0
+
+	for pos_variant in cell_set:
+		var pos: Vector2i = pos_variant as Vector2i
+		var px: float = float((pos.x - _grid_origin.x) * cs)
+		var py: float = float((pos.y - _grid_origin.y) * cs)
+
+		# Top edge
+		if not cell_set.has(Vector2i(pos.x, pos.y - 1)):
+			var tr := TextureRect.new()
+			tr.texture = edge_h_tex
+			tr.position = Vector2(px, py - border_w)
+			tr.size = Vector2(cs, border_w)
+			tr.stretch_mode = TextureRect.STRETCH_TILE
+			tr.modulate = tint
+			tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tr.name = "%s_%d" % [prefix, idx]
+			idx += 1
+			_cells_layer.add_child(tr)
+			_cells_layer.move_child(tr, 0)
+
+		# Bottom edge
+		if not cell_set.has(Vector2i(pos.x, pos.y + 1)):
+			var tr := TextureRect.new()
+			tr.texture = edge_h_tex
+			tr.position = Vector2(px, py + cs)
+			tr.size = Vector2(cs, border_w)
+			tr.stretch_mode = TextureRect.STRETCH_TILE
+			tr.modulate = tint
+			tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tr.name = "%s_%d" % [prefix, idx]
+			idx += 1
+			_cells_layer.add_child(tr)
+			_cells_layer.move_child(tr, 0)
+
+		# Left edge
+		if not cell_set.has(Vector2i(pos.x - 1, pos.y)):
+			var tr := TextureRect.new()
+			tr.texture = edge_v_tex
+			tr.position = Vector2(px - border_w, py)
+			tr.size = Vector2(border_w, cs)
+			tr.stretch_mode = TextureRect.STRETCH_TILE
+			tr.modulate = tint
+			tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tr.name = "%s_%d" % [prefix, idx]
+			idx += 1
+			_cells_layer.add_child(tr)
+			_cells_layer.move_child(tr, 0)
+
+		# Right edge
+		if not cell_set.has(Vector2i(pos.x + 1, pos.y)):
+			var tr := TextureRect.new()
+			tr.texture = edge_v_tex
+			tr.position = Vector2(px + cs, py)
+			tr.size = Vector2(border_w, cs)
+			tr.stretch_mode = TextureRect.STRETCH_TILE
+			tr.modulate = tint
+			tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			tr.name = "%s_%d" % [prefix, idx]
+			idx += 1
+			_cells_layer.add_child(tr)
+			_cells_layer.move_child(tr, 0)
+
+		# Corners — place at outer corners where two edges meet
+		if corner_tex:
+			var has_top: bool = not cell_set.has(Vector2i(pos.x, pos.y - 1))
+			var has_bottom: bool = not cell_set.has(Vector2i(pos.x, pos.y + 1))
+			var has_left: bool = not cell_set.has(Vector2i(pos.x - 1, pos.y))
+			var has_right: bool = not cell_set.has(Vector2i(pos.x + 1, pos.y))
+			var cw: float = border_w
+
+			if has_top and has_left:
+				_place_corner(corner_tex, Vector2(px - cw, py - cw), Vector2(cw, cw), tint, prefix, idx)
+				idx += 1
+			if has_top and has_right:
+				_place_corner(corner_tex, Vector2(px + cs, py - cw), Vector2(cw, cw), tint, prefix, idx)
+				idx += 1
+			if has_bottom and has_left:
+				_place_corner(corner_tex, Vector2(px - cw, py + cs), Vector2(cw, cw), tint, prefix, idx)
+				idx += 1
+			if has_bottom and has_right:
+				_place_corner(corner_tex, Vector2(px + cs, py + cs), Vector2(cw, cw), tint, prefix, idx)
+				idx += 1
+
+
+func _place_corner(tex: Texture2D, pos: Vector2, sz: Vector2, tint: Color, prefix: String, idx: int) -> void:
+	var tr := TextureRect.new()
+	tr.texture = tex
+	tr.position = pos
+	tr.size = sz
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.modulate = tint
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.name = "%s_%d" % [prefix, idx]
+	_cells_layer.add_child(tr)
+	_cells_layer.move_child(tr, 0)
+
+
+func _build_zone_borders(template: GridTemplate, all_positions: Array[Vector2i]) -> void:
+	## Draws colored border rectangles around the active zone and expansion zone.
+	# Remove old borders
+	for child in _cells_layer.get_children():
+		if child.name.begins_with("ZoneBorder"):
+			child.queue_free()
+
+	var active_positions: Array[Vector2i] = template.get_active_cells()
+	var inactive_positions: Array[Vector2i] = []
+	for pos in all_positions:
+		if not template.is_cell_active(pos):
+			inactive_positions.append(pos)
+
+	# Active zone border (bright blue — clearly marks the usable area)
+	if not active_positions.is_empty():
+		var border: Control = _create_zone_border(active_positions, Color(0.3, 0.5, 0.9, 1.0), 3)
+		border.name = "ZoneBorderActive"
+		_cells_layer.add_child(border)
+		_cells_layer.move_child(border, 0)
+
+	# Expansion zone border (dark red — locked/purchasable area)
+	if not inactive_positions.is_empty():
+		var border: Control = _create_zone_border(inactive_positions, Color(0.6, 0.15, 0.1, 0.9), 3)
+		border.name = "ZoneBorderExpansion"
+		_cells_layer.add_child(border)
+		_cells_layer.move_child(border, 0)
+
+
+func _create_zone_border(positions: Array[Vector2i], color: Color, thickness: int) -> Control:
+	## Creates a border rectangle around the bounding box of the given cell positions.
+	var min_x: int = positions[0].x
+	var min_y: int = positions[0].y
+	var max_x: int = positions[0].x
+	var max_y: int = positions[0].y
+	for pos in positions:
+		min_x = mini(min_x, pos.x)
+		min_y = mini(min_y, pos.y)
+		max_x = maxi(max_x, pos.x)
+		max_y = maxi(max_y, pos.y)
+
+	var rect_pos := Vector2((min_x - _grid_origin.x) * cell_size - thickness,
+							(min_y - _grid_origin.y) * cell_size - thickness)
+	var rect_size := Vector2((max_x - min_x + 1) * cell_size + thickness * 2,
+							(max_y - min_y + 1) * cell_size + thickness * 2)
+
+	# Use NinePatchRect with panel texture for the border
+	var panel_tex: Texture2D = InventoryTheme.get_panel_texture()
+	if panel_tex:
+		var nine := NinePatchRect.new()
+		nine.texture = panel_tex
+		nine.position = rect_pos
+		nine.size = rect_size
+		nine.modulate = color
+		var m: int = 6
+		nine.patch_margin_left = m
+		nine.patch_margin_top = m
+		nine.patch_margin_right = m
+		nine.patch_margin_bottom = m
+		nine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return nine
+	else:
+		# Fallback: simple ColorRect border
+		var rect := ColorRect.new()
+		rect.position = rect_pos
+		rect.size = rect_size
+		rect.color = color
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return rect
 
 
 func _recompute_cell_size() -> void:
@@ -420,7 +629,19 @@ func _deferred_resize() -> void:
 	## Re-evaluate cell size after the layout pass has settled parent sizes.
 	var old_size: int = cell_size
 	_recompute_cell_size()
-	if cell_size == old_size:
+	var size_changed: bool = cell_size != old_size
+	if not size_changed:
+		# Still draw borders on first call even if size didn't change
+		if _grid_inventory:
+			var template: GridTemplate = _grid_inventory.grid_template
+			var positions: Array[Vector2i] = []
+			if template.layout_cells.is_empty():
+				for y in range(template.height):
+					for x in range(template.width):
+						positions.append(Vector2i(x, y))
+			else:
+				positions = template.layout_cells.duplicate()
+			_build_zone_outlines(template, positions)
 		return
 	# Reposition and resize all cells.
 	for pos: Vector2i in _cells:
@@ -432,6 +653,17 @@ func _deferred_resize() -> void:
 	custom_minimum_size = Vector2(_grid_width_cells * cell_size, _grid_height_cells * cell_size)
 	size = custom_minimum_size
 	_update_item_visuals()
+	# Draw borders after cells are at final positions
+	if _grid_inventory:
+		var template: GridTemplate = _grid_inventory.grid_template
+		var positions: Array[Vector2i] = []
+		if template.layout_cells.is_empty():
+			for y in range(template.height):
+				for x in range(template.width):
+					positions.append(Vector2i(x, y))
+		else:
+			positions = template.layout_cells.duplicate()
+		_build_zone_outlines(template, positions)
 
 
 func _update_item_visuals() -> void:
@@ -472,6 +704,13 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	container.size = Vector2(bbox_w, bbox_h)
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
+	# Create shape outline container (background + border — drawn BEHIND the item sprite)
+	var shape_outline: Control = Control.new()
+	shape_outline.position = Vector2.ZERO
+	shape_outline.size = Vector2(bbox_w, bbox_h)
+	shape_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(shape_outline)
+
 	var tex_rect: TextureRect = TextureRect.new()
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -481,18 +720,14 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	tex_rect.pivot_offset = Vector2(bbox_w, bbox_h) / 2.0
 	tex_rect.rotation = placed.rotation * PI / 2.0
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
 	container.add_child(tex_rect)
 
-	# Create shape outline container
-	var shape_outline: Control = Control.new()
-	shape_outline.position = Vector2.ZERO
-	shape_outline.size = Vector2(bbox_w, bbox_h)
-	shape_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(shape_outline)
-
-	# Draw outer-only border for the item shape
-	var rarity_color: Color = Constants.get_rarity_color(placed.item_data.rarity)
+	# Draw outer-only border for the item shape with solid rarity background
+	var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
+	var bg_color: Color = slot_colors[0] if slot_colors.size() >= 1 else Color(0.3, 0.3, 0.3)
+	var border_color: Color = slot_colors[1] if slot_colors.size() >= 2 else Color(0.5, 0.5, 0.5)
+	bg_color.a = 1.0
+	border_color.a = 1.0
 	for cell in cells:
 		var cell_panel: PanelContainer = PanelContainer.new()
 		cell_panel.position = Vector2((cell.x - min_pos.x) * cell_size, (cell.y - min_pos.y) * cell_size)
@@ -501,8 +736,8 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 
 		# Only draw border on edges not shared with another cell of the same item
 		var style: StyleBoxFlat = StyleBoxFlat.new()
-		style.bg_color = Color.TRANSPARENT
-		style.border_color = rarity_color
+		style.bg_color = bg_color
+		style.border_color = border_color
 		@warning_ignore("integer_division")
 		var bw: int = maxi(1, cell_size / 24)
 		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0

@@ -361,9 +361,9 @@ func _attach_head(head_path: String) -> void:
 	_collect_meshes(head_instance, meshes)
 	for i in range(meshes.size()):
 		var mesh_inst: MeshInstance3D = meshes[i]
+		mesh_inst.owner = null
 		mesh_inst.get_parent().remove_child(mesh_inst)
 		_skeleton.add_child(mesh_inst)
-		# Bind to our skeleton so the head follows bone animations
 		mesh_inst.skeleton = mesh_inst.get_path_to(_skeleton)
 	head_instance.free()
 	print("[AnimatedCharacter] Attached head from %s (%d meshes)" % [head_path, meshes.size()])

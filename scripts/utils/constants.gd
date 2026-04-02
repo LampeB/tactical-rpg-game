@@ -78,25 +78,38 @@ const CHARACTER_CLASS_COLORS := {
 }
 const CHARACTER_DEFAULT_COLOR := Color(0.5, 0.5, 0.5)
 
-# === COLORS (for rarity display) ===
+# === COLORS (for rarity display — matches inventory color palette) ===
 const RARITY_COLORS := {
-	Enums.Rarity.COMMON: Color.WHITE,
-	Enums.Rarity.UNCOMMON: Color(0.2, 0.6, 1.0),      # Blue
-	Enums.Rarity.RARE: Color(1.0, 0.84, 0.0),          # Gold
-	Enums.Rarity.ELITE: Color(1.0, 0.5, 0.0),          # Orange
-	Enums.Rarity.LEGENDARY: Color(0.86, 0.08, 0.24),   # Crimson
-	Enums.Rarity.UNIQUE: Color(0.6, 0.2, 0.8),         # Purple
+	Enums.Rarity.COMMON: Color(0.38, 0.65, 0.45),      # Green
+	Enums.Rarity.MAGIC: Color(0.35, 0.60, 0.75),       # Steel blue
+	Enums.Rarity.RARE: Color(0.45, 0.30, 0.60),        # Purple
+	Enums.Rarity.MYTHIC: Color(0.90, 0.55, 0.25),      # Orange
+	Enums.Rarity.LEGENDARY: Color(0.70, 0.15, 0.15),   # Dark red
+	Enums.Rarity.UNIQUE: Color(0.70, 0.70, 0.30),      # Gold/olive
 }
 
 ## Colorblind-safe palette (Okabe-Ito inspired, distinguishable for all CVD types).
 const RARITY_COLORS_COLORBLIND := {
-	Enums.Rarity.COMMON: Color.WHITE,
-	Enums.Rarity.UNCOMMON: Color(0.0, 0.45, 0.70),     # Blue
-	Enums.Rarity.RARE: Color(0.95, 0.90, 0.25),        # Yellow
-	Enums.Rarity.ELITE: Color(0.90, 0.35, 0.0),        # Vermillion
+	Enums.Rarity.COMMON: Color(0.38, 0.65, 0.45),      # Green
+	Enums.Rarity.MAGIC: Color(0.0, 0.45, 0.70),        # Blue
+	Enums.Rarity.RARE: Color(0.45, 0.30, 0.60),        # Purple
+	Enums.Rarity.MYTHIC: Color(0.90, 0.55, 0.25),      # Orange
 	Enums.Rarity.LEGENDARY: Color(0.80, 0.15, 0.55),   # Reddish purple
-	Enums.Rarity.UNIQUE: Color(0.35, 0.70, 0.90),      # Sky blue
+	Enums.Rarity.UNIQUE: Color(0.95, 0.90, 0.25),      # Yellow
 }
+
+## Inventory slot colors — 4 states per rarity: bg_normal, border_normal, bg_unselected, border_unselected
+const RARITY_SLOT_COLORS := {
+	Enums.Rarity.COMMON: [Color(0.35, 0.55, 0.40), Color(0.45, 0.72, 0.50), Color(0.18, 0.28, 0.20), Color(0.25, 0.40, 0.28)],
+	Enums.Rarity.MAGIC: [Color(0.32, 0.55, 0.68), Color(0.42, 0.68, 0.80), Color(0.18, 0.30, 0.38), Color(0.22, 0.35, 0.42)],
+	Enums.Rarity.RARE: [Color(0.40, 0.25, 0.55), Color(0.55, 0.38, 0.70), Color(0.15, 0.12, 0.28), Color(0.28, 0.20, 0.42)],
+	Enums.Rarity.MYTHIC: [Color(0.85, 0.50, 0.22), Color(0.92, 0.62, 0.35), Color(0.48, 0.30, 0.12), Color(0.55, 0.38, 0.18)],
+	Enums.Rarity.LEGENDARY: [Color(0.55, 0.12, 0.12), Color(0.72, 0.20, 0.20), Color(0.22, 0.10, 0.08), Color(0.35, 0.12, 0.10)],
+	Enums.Rarity.UNIQUE: [Color(0.60, 0.62, 0.28), Color(0.80, 0.82, 0.35), Color(0.28, 0.32, 0.15), Color(0.40, 0.42, 0.25)],
+}
+
+## Inventory backdrop color
+const INVENTORY_BACKDROP_COLOR := Color(0.20, 0.15, 0.12)
 
 static var colorblind_palette: bool = false
 
@@ -127,9 +140,9 @@ const ELEMENT_NAMES := {
 
 const RARITY_NAMES := {
 	Enums.Rarity.COMMON: "Common",
-	Enums.Rarity.UNCOMMON: "Uncommon",
+	Enums.Rarity.MAGIC: "Magic",
 	Enums.Rarity.RARE: "Rare",
-	Enums.Rarity.ELITE: "Elite",
+	Enums.Rarity.MYTHIC: "Mythic",
 	Enums.Rarity.LEGENDARY: "Legendary",
 	Enums.Rarity.UNIQUE: "Unique",
 }

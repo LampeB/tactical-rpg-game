@@ -288,10 +288,10 @@ func get_zone_at(x: int, z: int) -> int:
 	return zone_ids[z * width + x]
 
 
-func set_zone_at(x: int, z: int, id: int) -> void:
+func set_zone_at(x: int, z: int, zone_id: int) -> void:
 	if zone_ids.is_empty() or x < 0 or x >= width or z < 0 or z >= height:
 		return
-	zone_ids[z * width + x] = id
+	zone_ids[z * width + x] = zone_id
 
 
 # ---------------------------------------------------------------------------

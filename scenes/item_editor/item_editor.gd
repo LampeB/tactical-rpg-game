@@ -652,16 +652,16 @@ static func _get_scaled_name(base_name: String, rarity: int) -> String:
 	match rarity:
 		Enums.Rarity.COMMON:
 			return clean_name
-		Enums.Rarity.UNCOMMON:
+		Enums.Rarity.MAGIC:
 			return "Fine " + clean_name
 		Enums.Rarity.RARE:
 			return "Superior " + clean_name
-		Enums.Rarity.ELITE:
-			return "Elite " + clean_name
+		Enums.Rarity.MYTHIC:
+			return "Mythic " + clean_name
 		Enums.Rarity.LEGENDARY:
 			return "Legendary " + clean_name
 		Enums.Rarity.UNIQUE:
-			return "Mythic " + clean_name
+			return "Unique " + clean_name
 		_:
 			return clean_name
 
