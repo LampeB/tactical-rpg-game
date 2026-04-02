@@ -1,5 +1,6 @@
 extends Control
-## A single inventory grid cell with state-driven coloring. Size set by Constants.GRID_CELL_SIZE.
+## A single inventory grid cell with state-driven visuals.
+## Uses a single NinePatchRect with the cell sprite from InventoryTheme.
 
 enum CellState {
 	EMPTY,
@@ -18,36 +19,42 @@ enum CellState {
 var STATE_COLORS: Dictionary:
 	get:
 		return {
-			CellState.EMPTY: UIColors.GRID_CELL_BG,
-			CellState.INACTIVE: Color(0.1, 0.1, 0.1, 0.4),
-			CellState.OCCUPIED: Color(0.3, 0.3, 0.4, 0.9),
-			CellState.VALID_DROP: Color(0.2, 0.8, 0.2, 0.4),
-			CellState.INVALID_DROP: Color(0.8, 0.2, 0.2, 0.4),
-			CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.3),
-			CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.3),
-			CellState.UPGRADEABLE: Color(0.2, 0.9, 0.2, 0.6),
-			CellState.PURCHASABLE: Color(0.7, 0.55, 0.0, 0.5),
-			CellState.SWAP_DROP: Color(0.9, 0.7, 0.1, 0.5),
-			CellState.INGREDIENT_MATCH: Color(0.3, 0.8, 1.0, 0.5),
+			CellState.EMPTY: Color.WHITE,
+			CellState.INACTIVE: Color(0.20, 0.15, 0.12, 0.9),
+			CellState.OCCUPIED: Color(0.85, 0.85, 0.85, 1.0),
+			CellState.VALID_DROP: Color(0.4, 1.0, 0.4, 0.7),
+			CellState.INVALID_DROP: Color(1.0, 0.4, 0.4, 0.7),
+			CellState.MODIFIER_HIGHLIGHT: Color(1.0, 0.9, 0.3, 0.6),
+			CellState.MODIFIER_REACH: Color(0.6, 0.6, 1.0, 0.5),
+			CellState.UPGRADEABLE: Color(0.4, 1.0, 0.4, 0.8),
+			CellState.PURCHASABLE: Color(0.9, 0.7, 0.2, 0.7),
+			CellState.SWAP_DROP: Color(1.0, 0.85, 0.2, 0.7),
+			CellState.INGREDIENT_MATCH: Color(0.4, 0.9, 1.0, 0.7),
 		}
-
-const BORDER_COLORS := {
-	CellState.UPGRADEABLE: Color(1.0, 0.9, 0.2, 1.0),
-	CellState.SWAP_DROP: Color(1.0, 0.8, 0.0, 1.0),
-	CellState.INGREDIENT_MATCH: Color(0.3, 0.9, 1.0, 1.0),
-}
 
 var grid_position: Vector2i
 var cell_state: CellState = CellState.EMPTY
 
-@onready var _background: ColorRect = $Background
-@onready var _border: ColorRect = $Border
+@onready var _background: NinePatchRect = $Background
 
 
 func _ready() -> void:
 	var sz := Vector2(Constants.GRID_CELL_SIZE, Constants.GRID_CELL_SIZE)
 	custom_minimum_size = sz
 	size = sz
+	_apply_theme_texture()
+
+
+func _apply_theme_texture() -> void:
+	var cell_tex: Texture2D = InventoryTheme.get_cell_texture()
+	if not cell_tex or not _background:
+		return
+	_background.texture = cell_tex
+	var m: int = 3
+	_background.patch_margin_left = m
+	_background.patch_margin_top = m
+	_background.patch_margin_right = m
+	_background.patch_margin_bottom = m
 
 
 func setup(pos: Vector2i) -> void:
@@ -57,31 +64,12 @@ func setup(pos: Vector2i) -> void:
 
 func set_state(state: CellState) -> void:
 	cell_state = state
-	if _background:
-		_background.color = STATE_COLORS.get(state, STATE_COLORS[CellState.EMPTY])
-		if state == CellState.OCCUPIED:
-			# Fill the entire cell (no 1px inset) to remove grid lines under items
-			_background.offset_left = 0.0
-			_background.offset_top = 0.0
-			_background.offset_right = 0.0
-			_background.offset_bottom = 0.0
-		else:
-			# Restore 1px inset for visible grid lines
-			_background.offset_left = 1.0
-			_background.offset_top = 1.0
-			_background.offset_right = -1.0
-			_background.offset_bottom = -1.0
-	if _border:
-		if state == CellState.OCCUPIED:
-			_border.visible = false
-		else:
-			_border.visible = true
-			if BORDER_COLORS.has(state):
-				_border.color = BORDER_COLORS[state]
-			else:
-				_border.color = UIColors.GRID_CELL_BORDER
+	if not _background:
+		return
+	_background.modulate = STATE_COLORS.get(state, Color.WHITE)
 
 
 func set_rarity_tint(color: Color) -> void:
 	if _background:
-		_background.color = color.darkened(0.4)
+		color.a = 1.0
+		_background.modulate = color

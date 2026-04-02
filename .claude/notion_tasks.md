@@ -1,22 +1,23 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 287 -->
-<\!-- Last updated: 2026-03-26 -->
+<\!-- Total tasks: 303 -->
+<\!-- Last updated: 2026-04-01 -->
 
 ## Prerequisites
 
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Create town area maps (starting town, cities, villages) | 3147700f-d0fb-813e-877a-d3243e44be13 |
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
 
 ### Done
 | Name | Notion ID |
 |---|---|
+| Asset folder reorganization + centralized AssetPaths | 3357700f-d0fb-8103-a1f7-d0a4233f3280 |
 | Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
+| Create town area maps (Willowbrook starter town + Forest Clearing) | 3147700f-d0fb-813e-877a-d3243e44be13 |
 | Quest EventBus integration (quest signals) | 3147700f-d0fb-81ec-8e9e-c87c73daa4e3 |
 | Quest log UI (active/completed quests, tracking, rewards) | 3147700f-d0fb-81e1-b662-c547118990b5 |
 | Quest marker visuals (icons above NPCs/locations) | 3147700f-d0fb-81e2-a100-da43c582626a |
@@ -58,6 +59,7 @@
 | Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
+| Weapon model attachment in battle (3D props on character hands) | 3357700f-d0fb-81cb-98ac-c495f400e591 |
 | Refactor: Battle highlight logic duplication (_clear/_update target highlights) | 31e7700f-d0fb-8198-8198-df9480a240af |
 | Camera behind player characters during fights (orbital intro, per-character focus, walk-in) | 3217700f-d0fb-81a1-9a90-c42cbae821af |
 | Create enemy variety (10 types with unique skills, loot tables, encounters) | 3147700f-d0fb-81f8-add1-c877a64ed3ec |
@@ -202,6 +204,8 @@
 | Name | Notion ID |
 |---|---|
 | Add mechanic to block parts of the map if conditions aren't met | 3147700f-d0fb-8175-a151-f28116c4da26 |
+| Animated 3D character system (skeletal models + UAL animations) | 3357700f-d0fb-814b-9267-d6a50eed6735 |
+| Base map refactor (base_map + overworld + local_map architecture) | 3357700f-d0fb-813a-a9e5-efb96a5e286c |
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
 | Forest zone system (noise-based patches per island) | 32e7700f-d0fb-81d1-a252-dfe00875daea |
 | GIMP-based map painting system (ORA export/import) | 32e7700f-d0fb-8178-b6ed-c513803d0e04 |
@@ -342,6 +346,19 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+
+### Done
+| Name | Notion ID |
+|---|---|
+| Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
+| Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
+| MapData, MapElement, MapConnection resource scripts | 3147700f-d0fb-8141-ac6e-ee067a9e7bc3 |
+| MapDatabase autoload | 3147700f-d0fb-81ab-a6f4-ea9947b348ff |
+| MapLoader runtime (convert MapData to playable scenes) | 3147700f-d0fb-81e7-b2c8-f73d0a9e46fc |
+
+### Canceled
+| Name | Notion ID |
+|---|---|
 | Canvas interaction (select, place, drag, delete) | 3147700f-d0fb-8193-af8b-fdbfba5c26ef |
 | Canvas rendering (grid, elements by type, spawn marker) | 3147700f-d0fb-8188-b1f9-cc2fec86fa6b |
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |
@@ -349,20 +366,7 @@
 | Map editor save/load (ResourceSaver, MapDatabase.reload()) | 3147700f-d0fb-8139-ad92-ef4e504e0dcf |
 | Map editor scene layout (.tscn) | 3147700f-d0fb-8132-a958-fa6c3c4904c7 |
 | Map list panel (CRUD, search, dirty tracking) | 3147700f-d0fb-8185-baad-fc2ffe8645d7 |
-| MapData, MapElement, MapConnection resource scripts | 3147700f-d0fb-8141-ac6e-ee067a9e7bc3 |
-| MapDatabase autoload | 3147700f-d0fb-81ab-a6f4-ea9947b348ff |
-| MapLoader runtime (convert MapData to playable scenes) | 3147700f-d0fb-81e7-b2c8-f73d0a9e46fc |
 | Property panel (map properties + per-element-type sections) | 3147700f-d0fb-8136-a690-d3203f860d02 |
-
-### Done
-| Name | Notion ID |
-|---|---|
-| Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
-| Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
-
-### Canceled
-| Name | Notion ID |
-|---|---|
 | Voxel Phase 4: 3D brush system for map editor (box/sphere, XYZ dimensions) | 3217700f-d0fb-811e-a902-df897ba5c3dd |
 | Voxel Phase 7: Map migration tool (convert 1x1 GridMap maps to 0.25 voxel format) | 3217700f-d0fb-8109-9e35-ca0cb7701fa8 |
 
@@ -381,18 +385,12 @@
 | Gen Overhaul P5: Intelligent prop distribution (slope, water, road awareness) | PENDING-NOTION-SYNC |
 | Gen Overhaul P6: Map variety profiles (island, valley, peninsula, etc.) | PENDING-NOTION-SYNC |
 | Gen Overhaul P7: Overworld integration (town NPCs, encounters, enemies) | PENDING-NOTION-SYNC |
-| Phase 8: Battle area and zone definition editor | 3227700f-d0fb-816b-bb25-e448e99b6219 |
-| Phase 8: Prop placement and scatter editor | 3227700f-d0fb-8168-8ae4-c9aa49144a25 |
-| Phase 8: Structure placement editor | 3227700f-d0fb-81b4-b80b-c711bf16be2d |
-| Phase 8: Terrain height painting tool (@tool editor plugin) | 3227700f-d0fb-8156-9136-e1c7e14fe2a8 |
-| Phase 8: Terrain splatmap painting tool | 3227700f-d0fb-81c5-b323-fdb4215e8c06 |
-| Phase 9: Distant landmark rendering (LOD billboards for far landmarks) | 3227700f-d0fb-8112-8e55-cbece3fb04a2 |
-| Phase 9: River system (spline-based water mesh following terrain) | 3227700f-d0fb-816a-97dd-ed8d7f65a52a |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Gen Overhaul P2: River system (path tracing, carving, mesh, shader) | 3277700f-d0fb-8132-a2c4-c41aca615eba |
+| Phase 9: River system (spline-based water mesh following terrain) | 3227700f-d0fb-816a-97dd-ed8d7f65a52a |
 | Phase 1: Chunk streaming manager (load/unload by player distance) | 3227700f-d0fb-8127-bf65-db7872a52844 |
 | Phase 1: Heightmap mesh generator (ArrayMesh per chunk) | 3227700f-d0fb-8145-b1df-faf56ae15ef8 |
 | Phase 1: HeightmapData resource (chunk size, heights array, splatmap, biome) | 3227700f-d0fb-8165-80aa-d8c3fbe05284 |
@@ -419,18 +417,28 @@
 | Phase 5: Update player controller (heightmap physics, jump, slope limits) | 3227700f-d0fb-81f5-a948-d55cd90c6d7f |
 | Phase 7: Procedural town/village layout generation | 3227700f-d0fb-816b-b892-d6685bd2fc46 |
 
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Phase 8: Battle area and zone definition editor | 3227700f-d0fb-816b-bb25-e448e99b6219 |
+| Phase 8: Prop placement and scatter editor | 3227700f-d0fb-8168-8ae4-c9aa49144a25 |
+| Phase 8: Structure placement editor | 3227700f-d0fb-81b4-b80b-c711bf16be2d |
+| Phase 8: Terrain height painting tool (@tool editor plugin) | 3227700f-d0fb-8156-9136-e1c7e14fe2a8 |
+| Phase 8: Terrain splatmap painting tool | 3227700f-d0fb-81c5-b323-fdb4215e8c06 |
+| Phase 9: Distant landmark rendering (LOD billboards for far landmarks) | 3227700f-d0fb-8112-8e55-cbece3fb04a2 |
+
 ## 3D Migration
 
 ### Todo
 | Name | Notion ID |
 |---|---|
-| 3D equipment models (CSG then voxel for weapons, armor, accessories) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
-| Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
+| 3D equipment models (weapon props on character hands) | 3157700f-d0fb-8123-8cfc-e54ef7f3c76f |
+| Visual equipment system (3D character appearance changes with gear) | 3157700f-d0fb-81e0-8c8b-e175caafef03 |
 | 3D project foundation (WorldEnvironment, lighting, renderer, physics layers) | 3157700f-d0fb-81ad-8a3f-d70c0325f9f4 |
 | Add model_scene field to CharacterData, EnemyData, NpcData | 3157700f-d0fb-81fc-919d-ddeb8e113937 |
 | Create GridMap terrain MeshLibrary (grass, dirt, stone, water blocks) | 3157700f-d0fb-813d-8fea-d3c5a0983843 |

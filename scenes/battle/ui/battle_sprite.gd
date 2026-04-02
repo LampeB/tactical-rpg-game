@@ -325,7 +325,7 @@ func _attach_equipped_weapon(entity: CombatEntity) -> void:
 		var model_path: String = placed.item_data.model_path
 		if model_path.is_empty():
 			var cat_id: int = placed.item_data.category
-			if placed.item_data.rarity <= Enums.Rarity.UNCOMMON:
+			if placed.item_data.rarity <= Enums.Rarity.MAGIC:
 				model_path = AssetPaths.BRONZE_WEAPON_MODELS.get(cat_id, "")
 			if model_path.is_empty():
 				model_path = AssetPaths.DEFAULT_EQUIPMENT_MODELS.get(cat_id, "")

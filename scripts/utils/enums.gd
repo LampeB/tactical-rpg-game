@@ -14,12 +14,12 @@ enum ItemType {
 }
 
 enum Rarity {
-	COMMON,         ## White - T1
-	UNCOMMON,       ## Blue - T2
-	RARE,           ## Gold - T3
-	ELITE,          ## Orange - T4
-	LEGENDARY,      ## Crimson - T5
-	UNIQUE,         ## Purple - T6
+	COMMON,         ## Green - T1
+	MAGIC,          ## Blue - T2
+	RARE,           ## Purple - T3
+	MYTHIC,         ## Orange - T4
+	LEGENDARY,      ## Red - T5
+	UNIQUE,         ## Gold - T6
 }
 
 enum EquipmentCategory {

@@ -27,12 +27,12 @@ static func can_upgrade(item1: ItemData, item2: ItemData) -> bool:
 static func get_next_rarity(current_rarity: Enums.Rarity) -> Enums.Rarity:
 	match current_rarity:
 		Enums.Rarity.COMMON:
-			return Enums.Rarity.UNCOMMON
-		Enums.Rarity.UNCOMMON:
+			return Enums.Rarity.MAGIC
+		Enums.Rarity.MAGIC:
 			return Enums.Rarity.RARE
 		Enums.Rarity.RARE:
-			return Enums.Rarity.ELITE
-		Enums.Rarity.ELITE:
+			return Enums.Rarity.MYTHIC
+		Enums.Rarity.MYTHIC:
 			return Enums.Rarity.LEGENDARY
 		Enums.Rarity.LEGENDARY:
 			return Enums.Rarity.UNIQUE
@@ -45,11 +45,11 @@ static func get_rarity_stat_multiplier(rarity: Enums.Rarity) -> float:
 	match rarity:
 		Enums.Rarity.COMMON:
 			return 1.0
-		Enums.Rarity.UNCOMMON:
+		Enums.Rarity.MAGIC:
 			return 1.3
 		Enums.Rarity.RARE:
 			return 1.7
-		Enums.Rarity.ELITE:
+		Enums.Rarity.MYTHIC:
 			return 2.2
 		Enums.Rarity.LEGENDARY:
 			return 3.0
@@ -146,11 +146,11 @@ static func _get_upgraded_name(item: ItemData) -> String:
 	var prefix := ""
 
 	match next_rarity:
-		Enums.Rarity.UNCOMMON:
+		Enums.Rarity.MAGIC:
 			prefix = "Fine "
 		Enums.Rarity.RARE:
 			prefix = "Superior "
-		Enums.Rarity.ELITE:
+		Enums.Rarity.MYTHIC:
 			prefix = "Elite "
 		Enums.Rarity.LEGENDARY:
 			prefix = "Legendary "
@@ -175,9 +175,9 @@ static func _find_next_tier_variant(base_item: ItemData) -> ItemData:
 	var all_suffixes := ["_common", "_uncommon", "_rare", "_elite", "_legendary", "_unique"]
 	var next_suffix_map := {
 		Enums.Rarity.COMMON: "_uncommon",
-		Enums.Rarity.UNCOMMON: "_rare",
+		Enums.Rarity.MAGIC: "_rare",
 		Enums.Rarity.RARE: "_elite",
-		Enums.Rarity.ELITE: "_legendary",
+		Enums.Rarity.MYTHIC: "_legendary",
 		Enums.Rarity.LEGENDARY: "_unique",
 	}
 
