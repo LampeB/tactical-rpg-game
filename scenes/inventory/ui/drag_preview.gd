@@ -10,6 +10,7 @@ var _anchor_cell: Vector2i = Vector2i.ZERO
 
 @onready var _icon: TextureRect = $Icon
 @onready var _shape_container: Control = $ShapeCells
+var _reach_container: Control = null
 
 
 @warning_ignore("shadowed_variable_base_class")
@@ -64,9 +65,17 @@ func set_valid(_is_valid: bool) -> void:
 	modulate.a = 0.8
 
 
+func set_reach_visible(show_reach: bool) -> void:
+	if _reach_container:
+		_reach_container.visible = show_reach
+
+
 func hide_preview() -> void:
 	visible = false
 	item_data = null
+	if _reach_container:
+		_reach_container.queue_free()
+		_reach_container = null
 
 
 func _process(_delta: float) -> void:
@@ -126,3 +135,52 @@ func _rebuild_shape() -> void:
 		panel.add_theme_stylebox_override("panel", style)
 
 		_shape_container.add_child(panel)
+
+	# Draw modifier reach preview if this is a modifier item
+	_build_reach_overlay(cells)
+
+
+func _build_reach_overlay(shape_cells: Array[Vector2i]) -> void:
+	## Draws faint star overlays around the item shape showing its modifier reach.
+	if _reach_container:
+		_reach_container.queue_free()
+		_reach_container = null
+
+	if not item_data or item_data.item_type != Enums.ItemType.MODIFIER:
+		return
+
+	var reach_pattern: Array[Vector2i] = item_data.get_reach_cells(current_rotation)
+	if reach_pattern.is_empty():
+		return
+
+	_reach_container = Control.new()
+	_reach_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_reach_container)
+
+	# Collect unique reach cells that are NOT part of the item shape
+	var reach_cells: Array[Vector2i] = []
+	var shape_set: Dictionary = {}
+	for sc in shape_cells:
+		shape_set[sc] = true
+	for sc in shape_cells:
+		for offset in reach_pattern:
+			var target: Vector2i = sc + offset
+			if not shape_set.has(target) and not reach_cells.has(target):
+				reach_cells.append(target)
+
+	# Draw faint stars on reach cells
+	@warning_ignore("integer_division")
+	var font_sz: int = maxi(cell_size / 2, 10)
+	for rc in reach_cells:
+		var label := Label.new()
+		label.text = "\u2605"
+		label.add_theme_font_size_override("font_size", font_sz)
+		label.add_theme_color_override("font_color", Color(1, 1, 1, 0.2))
+		label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.3))
+		label.add_theme_constant_override("outline_size", 1)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.position = Vector2(rc.x * cell_size, rc.y * cell_size)
+		label.size = Vector2(cell_size, cell_size)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_reach_container.add_child(label)
