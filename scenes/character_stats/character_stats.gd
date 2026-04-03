@@ -831,8 +831,7 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 	if placed:
 		_last_hovered_grid_pos = grid_pos
 		_last_hovered_stash_item = null
-		_grid_panel.highlight_modifier_connections(placed)
-		_grid_panel.highlight_item_connections(placed)
+		_grid_panel.show_hover_feedback(placed)
 		if _tooltips_enabled:
 			_hide_skills_section()
 			_item_tooltip.show_for_item(placed.item_data, placed, inv, get_global_mouse_position())
@@ -850,14 +849,14 @@ func _on_grid_cell_hovered(grid_pos: Vector2i) -> void:
 				return
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
-		_grid_panel.clear_highlights()
+		_grid_panel.clear_hover_feedback()
 		_grid_panel.clear_item_highlights()
 		_item_tooltip.hide_tooltip()
 		_show_skills_section()
 	else:
 		_last_hovered_grid_pos = null
 		_last_hovered_stash_item = null
-		_grid_panel.clear_highlights()
+		_grid_panel.clear_hover_feedback()
 		_grid_panel.clear_item_highlights()
 		_item_tooltip.hide_tooltip()
 		_show_skills_section()
@@ -869,7 +868,7 @@ func _on_hover_exited() -> void:
 		_last_hovered_stash_item = null
 		_item_tooltip.hide_tooltip()
 		_show_skills_section()
-		_grid_panel.clear_highlights()
+		_grid_panel.clear_hover_feedback()
 
 
 # === Stash Interaction ===
@@ -1121,7 +1120,6 @@ func _start_drag_from_grid(placed: GridInventory.PlacedItem, clicked_pos: Vector
 	inv.remove_item(placed)
 	print("[Drag] After remove: hand_used=%d hand_avail=%d items=%d" % [inv.get_used_hand_slots(), inv.get_available_hand_slots(), inv.get_all_placed_items().size()])
 	_grid_panel.refresh()
-	_grid_panel.set_items_greyed_out(true)
 	_refresh_left_panel()
 
 	var anchor: Vector2i = Vector2i(-1, -1)
@@ -1394,7 +1392,6 @@ func _end_drag() -> void:
 	_stash_panel.highlight_drop_target(false)
 	_stash_panel.clear_upgradeable_highlights()
 	_grid_panel.clear_placement_preview()
-	_grid_panel.set_items_greyed_out(false)
 	_hide_placement_hint()
 
 
