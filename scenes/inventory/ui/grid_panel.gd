@@ -130,17 +130,10 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 				_cells[target].set_state(_cells[target].CellState.INVALID_DROP)
 			_preview_modified_cells.append(target)
 
-	# Dragging a MODIFIER: glow on weapons, stars on all reach cells
+	# Dragging a MODIFIER: stars on reach cells (no glow — glow is for hover only)
 	if item_data.item_type == Enums.ItemType.MODIFIER and (can_place or is_swap):
 		var mod_shape: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
 		var reach_pattern: Array[Vector2i] = item_data.get_reach_cells(rotation)
-
-		# Glow on affected weapons
-		for tool_item in affected_tools:
-			for cell in tool_item.get_occupied_cells():
-				if _cells.has(cell):
-					_add_glow_at_cell(cell)
-					_preview_glowed_cells.append(cell)
 
 		# Collect all reach cells
 		var all_reach_cells: Array[Vector2i] = []
@@ -184,12 +177,7 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 	# Dragging a WEAPON (ACTIVE_TOOL only): glow on modifier ITEMS that would affect it
 	if not affecting_modifiers.is_empty() and (can_place or is_swap) and item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 		for mod in affecting_modifiers:
-			var mod_cells: Array[Vector2i] = mod.get_occupied_cells()
-			for cell in mod_cells:
-				if _cells.has(cell):
-					_add_glow_at_cell(cell)
-					if not _preview_glowed_cells.has(cell):
-						_preview_glowed_cells.append(cell)
+			_add_glow_for_item(mod.get_occupied_cells())
 
 
 func clear_placement_preview() -> void:
@@ -242,11 +230,7 @@ func show_hover_feedback(placed: GridInventory.PlacedItem) -> void:
 	# Weapon (ACTIVE_TOOL) hovered: glow on affecting modifiers
 	if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and not modifiers.is_empty():
 		for mod in modifiers:
-			# Glow on the modifier's cells
-			for cell in mod.get_occupied_cells():
-				if _cells.has(cell):
-					_add_glow_at_cell(cell)
-					_hover_reach_cells.append(cell)
+			_add_glow_for_item(mod.get_occupied_cells())
 
 	# Modifier hovered: show reach area with stars, yellow on weapon cells reached
 	if placed.item_data.item_type == Enums.ItemType.MODIFIER:
@@ -721,29 +705,81 @@ func _add_border_piece(tex: Texture2D, pos: Vector2, sz: Vector2, tint: Color, p
 # Internal — Stars & Reach
 # ---------------------------------------------------------------------------
 
-func _add_glow_at_cell(cell_pos: Vector2i) -> void:
-	## Creates an animated glow border on the overlay layer (visible above items).
-	if not _cells.has(cell_pos):
+func _add_glow_for_item(item_cells: Array[Vector2i]) -> void:
+	## Creates an animated glow border following the exact shape of an item on the overlay layer.
+	## Draws border segments only on outer edges (where no neighbor cell exists).
+	if item_cells.is_empty():
 		return
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color.TRANSPARENT
-	style.border_color = Color(1.0, 0.85, 0.2, 1.0)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(1)
 
-	var panel := PanelContainer.new()
-	panel.position = Vector2((cell_pos.x - _grid_origin.x) * cell_size, (cell_pos.y - _grid_origin.y) * cell_size)
-	panel.custom_minimum_size = Vector2(cell_size, cell_size)
-	panel.size = Vector2(cell_size, cell_size)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", style)
-	_overlay_layer.add_child(panel)
-	_glow_overlays.append(panel)
+	var cell_set: Dictionary = {}
+	for c in item_cells:
+		cell_set[c] = true
 
-	# Animate border color
-	var tween := panel.create_tween().set_loops()
-	tween.tween_property(style, "border_color", Color(1.0, 0.85, 0.2, 1.0), 0.5)
-	tween.tween_property(style, "border_color", Color(1.0, 0.55, 0.0, 1.0), 0.5)
+	var cs: int = cell_size
+	var bw: float = 3.0
+	var container := Control.new()
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlay_layer.add_child(container)
+	_glow_overlays.append(container)
+
+	# Shared animated color — all segments reference the same ColorRect array
+	var segments: Array[ColorRect] = []
+	var color_a := Color(1.0, 0.85, 0.2, 1.0)
+
+	for pos in item_cells:
+		var px: float = float((pos.x - _grid_origin.x) * cs)
+		var py: float = float((pos.y - _grid_origin.y) * cs)
+
+		# Top edge
+		if not cell_set.has(Vector2i(pos.x, pos.y - 1)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(px, py - bw)
+			seg.size = Vector2(cs, bw)
+			seg.color = color_a
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+			segments.append(seg)
+		# Bottom edge
+		if not cell_set.has(Vector2i(pos.x, pos.y + 1)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(px, py + cs)
+			seg.size = Vector2(cs, bw)
+			seg.color = color_a
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+			segments.append(seg)
+		# Left edge
+		if not cell_set.has(Vector2i(pos.x - 1, pos.y)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(px - bw, py)
+			seg.size = Vector2(bw, cs)
+			seg.color = color_a
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+			segments.append(seg)
+		# Right edge
+		if not cell_set.has(Vector2i(pos.x + 1, pos.y)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(px + cs, py)
+			seg.size = Vector2(bw, cs)
+			seg.color = color_a
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+			segments.append(seg)
+
+	# Animate all segments together
+	if not segments.is_empty():
+		var tween := container.create_tween().set_loops()
+		tween.tween_callback(func() -> void:
+			for seg in segments:
+				seg.color = Color(1.0, 0.85, 0.2, 1.0)
+		)
+		tween.tween_interval(0.5)
+		tween.tween_callback(func() -> void:
+			for seg in segments:
+				seg.color = Color(1.0, 0.55, 0.0, 1.0)
+		)
+		tween.tween_interval(0.5)
 
 
 func _clear_glow_overlays() -> void:
