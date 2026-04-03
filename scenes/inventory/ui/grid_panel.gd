@@ -2,6 +2,8 @@ extends Control
 ## Renders a character's inventory grid and handles mouse interaction.
 
 signal cell_clicked(grid_pos: Vector2i, button: int)
+signal cell_pressed(grid_pos: Vector2i, button: int)
+signal cell_released(grid_pos: Vector2i, button: int)
 signal cell_hovered(grid_pos: Vector2i)
 signal cell_exited()
 
@@ -123,7 +125,7 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 			var tool_cells: Array[Vector2i] = tool.get_occupied_cells()
 			for cell in tool_cells:
 				if _cells.has(cell):
-					_cells[cell]._background.color = Color(1.0, 0.0, 1.0, 0.8)  # Magenta highlights affected tools
+					_cells[cell]._background.modulate = Color(1.0, 0.0, 1.0, 0.8)  # Magenta highlights affected tools
 
 
 func clear_placement_preview() -> void:
@@ -722,34 +724,99 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(tex_rect)
 
-	# Draw outer-only border for the item shape with solid rarity background
+	# Draw solid rarity background + border per cell using ColorRect (responds to modulate)
 	var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
 	var bg_color: Color = slot_colors[0] if slot_colors.size() >= 1 else Color(0.3, 0.3, 0.3)
 	var border_color: Color = slot_colors[1] if slot_colors.size() >= 2 else Color(0.5, 0.5, 0.5)
 	bg_color.a = 1.0
 	border_color.a = 1.0
+	@warning_ignore("integer_division")
+	var bw: int = maxi(1, cell_size / 24)
 	for cell in cells:
-		var cell_panel: PanelContainer = PanelContainer.new()
-		cell_panel.position = Vector2((cell.x - min_pos.x) * cell_size, (cell.y - min_pos.y) * cell_size)
-		cell_panel.custom_minimum_size = Vector2(cell_size, cell_size)
-		cell_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-		# Only draw border on edges not shared with another cell of the same item
-		var style: StyleBoxFlat = StyleBoxFlat.new()
-		style.bg_color = bg_color
-		style.border_color = border_color
-		@warning_ignore("integer_division")
-		var bw: int = maxi(1, cell_size / 24)
-		style.border_width_left = bw if not cells.has(cell + Vector2i(-1, 0)) else 0
-		style.border_width_right = bw if not cells.has(cell + Vector2i(1, 0)) else 0
-		style.border_width_top = bw if not cells.has(cell + Vector2i(0, -1)) else 0
-		style.border_width_bottom = bw if not cells.has(cell + Vector2i(0, 1)) else 0
-		cell_panel.add_theme_stylebox_override("panel", style)
-
-		shape_outline.add_child(cell_panel)
+		var cx: float = float((cell.x - min_pos.x) * cell_size)
+		var cy: float = float((cell.y - min_pos.y) * cell_size)
+		var cs: float = float(cell_size)
+		# Border (full cell)
+		var border_rect := ColorRect.new()
+		border_rect.position = Vector2(cx, cy)
+		border_rect.size = Vector2(cs, cs)
+		border_rect.color = border_color
+		border_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shape_outline.add_child(border_rect)
+		# Background (inset by border width, skip edges shared with neighbor)
+		var left: float = float(bw) if not cells.has(cell + Vector2i(-1, 0)) else 0.0
+		var right: float = float(bw) if not cells.has(cell + Vector2i(1, 0)) else 0.0
+		var top: float = float(bw) if not cells.has(cell + Vector2i(0, -1)) else 0.0
+		var bottom: float = float(bw) if not cells.has(cell + Vector2i(0, 1)) else 0.0
+		var bg_rect := ColorRect.new()
+		bg_rect.position = Vector2(cx + left, cy + top)
+		bg_rect.size = Vector2(cs - left - right, cs - top - bottom)
+		bg_rect.color = bg_color
+		bg_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shape_outline.add_child(bg_rect)
 
 	_items_layer.add_child(container)
 	_item_visuals[placed] = container
+
+
+func set_items_greyed_out(greyed: bool) -> void:
+	## Dims ALL items at once by modulating the entire items layer.
+	_items_layer.modulate = Color(0.4, 0.4, 0.4, 0.55) if greyed else Color.WHITE
+
+
+func highlight_item_connections(placed: GridInventory.PlacedItem) -> void:
+	## Greys out all items and empty cells except the hovered item and its modifier connections.
+	if not _grid_inventory or not placed:
+		clear_item_highlights()
+		return
+
+	# Build set of items that should stay bright
+	var bright_items: Dictionary = {}  # PlacedItem → true
+	bright_items[placed] = true
+
+	if placed.item_data.is_modifiable():
+		var modifiers: Array = _grid_inventory.get_modifiers_affecting(placed)
+		for j in range(modifiers.size()):
+			bright_items[modifiers[j]] = true
+	elif placed.item_data.item_type == Enums.ItemType.MODIFIER:
+		var tools: Array = _grid_inventory.get_tools_affected_by(placed)
+		for j in range(tools.size()):
+			bright_items[tools[j]] = true
+
+	# Collect all cells occupied by bright items
+	var bright_cells: Dictionary = {}
+	for bright_item in bright_items:
+		var occupied: Array[Vector2i] = bright_item.get_occupied_cells()
+		for cell in occupied:
+			bright_cells[cell] = true
+
+	# Dim items
+	for placed_key in _item_visuals:
+		var container: Control = _item_visuals[placed_key]
+		if bright_items.has(placed_key):
+			container.modulate = Color.WHITE
+		else:
+			container.modulate = Color(0.4, 0.4, 0.4, 0.55)
+
+	# Dim empty cells (not occupied by bright items)
+	for pos in _cells:
+		var cell_node: Control = _cells[pos]
+		if bright_cells.has(pos):
+			cell_node.modulate = Color.WHITE
+		elif cell_node.cell_state == cell_node.CellState.OCCUPIED:
+			cell_node.modulate = Color(0.4, 0.4, 0.4, 0.55)
+		elif cell_node.cell_state == cell_node.CellState.EMPTY:
+			cell_node.modulate = Color(0.5, 0.5, 0.5, 0.4)
+		# Leave INACTIVE cells as-is (already dark)
+
+
+func clear_item_highlights() -> void:
+	## Restores all item visuals and cells to full brightness.
+	for placed_key in _item_visuals:
+		var container: Control = _item_visuals[placed_key]
+		container.modulate = Color.WHITE
+	for pos in _cells:
+		_cells[pos].modulate = Color.WHITE
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -763,10 +830,16 @@ func _gui_input(event: InputEvent) -> void:
 			_last_hovered_cell = Vector2i(-1, -1)
 			cell_exited.emit()
 
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventMouseButton:
 		var grid_pos: Vector2i = world_to_grid(event.global_position)
 		if _cells.has(grid_pos):
-			cell_clicked.emit(grid_pos, event.button_index)
+			if event.pressed:
+				cell_pressed.emit(grid_pos, event.button_index)
+			else:
+				cell_released.emit(grid_pos, event.button_index)
+			# Keep click signal for backward compatibility (press only)
+			if event.pressed:
+				cell_clicked.emit(grid_pos, event.button_index)
 
 
 func _on_mouse_exited() -> void:

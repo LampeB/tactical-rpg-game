@@ -105,6 +105,20 @@ func refresh(stash: Array, returnable_indices: Dictionary = {}) -> void:
 	_update_count_label(visible_count, stash.size())
 
 
+func highlight_displaced_item(stash_index: int) -> void:
+	## Highlights a specific stash slot to show it was just displaced from the inventory.
+	for slot in _slots:
+		if slot.index == stash_index:
+			slot.modulate = Color(1.0, 0.85, 0.3, 1.0)  # Gold highlight
+			break
+
+
+func clear_displaced_highlights() -> void:
+	## Removes displaced item highlights from all stash slots.
+	for slot in _slots:
+		slot.modulate = Color.WHITE
+
+
 func highlight_drop_target(highlighted: bool) -> void:
 	_drop_highlighted = highlighted
 	if highlighted:
