@@ -1366,15 +1366,35 @@ func _update_drag_preview() -> void:
 	# Update grid placement preview every frame based on mouse position (centered on cursor)
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if inv and _dragged_item:
-		var grid_pos: Vector2i = _grid_panel.world_to_grid(get_global_mouse_position()) - _drag_preview.get_center_cell_offset()
-		if grid_pos != _last_preview_grid_pos:
-			_last_preview_grid_pos = grid_pos
-			_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
-			var placeable: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
-			_drag_preview.set_valid(placeable)
-			if not placeable and _grid_panel.last_failure_reason != "":
-				_show_placement_hint(_grid_panel.last_failure_reason)
-			else:
+		var mouse_pos: Vector2 = get_global_mouse_position()
+		var grid_pos: Vector2i = _grid_panel.world_to_grid(mouse_pos) - _drag_preview.get_center_cell_offset()
+
+		# Check if the item would overlap at least one active cell
+		var over_active: bool = false
+		if _grid_panel.get_global_rect().has_point(mouse_pos) and _dragged_item.shape:
+			var shape_cells: Array[Vector2i] = _dragged_item.shape.get_rotated_cells(_drag_rotation)
+			for sc in shape_cells:
+				var target: Vector2i = grid_pos + sc
+				if inv.grid_template.is_cell_active(target):
+					over_active = true
+					break
+
+		_drag_preview.set_reach_visible(not over_active)
+
+		if over_active:
+			if grid_pos != _last_preview_grid_pos:
+				_last_preview_grid_pos = grid_pos
+				_grid_panel.show_placement_preview(_dragged_item, grid_pos, _drag_rotation)
+				var placeable: bool = inv.can_place(_dragged_item, grid_pos, _drag_rotation)
+				_drag_preview.set_valid(placeable)
+				if not placeable and _grid_panel.last_failure_reason != "":
+					_show_placement_hint(_grid_panel.last_failure_reason)
+				else:
+					_hide_placement_hint()
+		else:
+			if _last_preview_grid_pos != Vector2i(-999, -999):
+				_last_preview_grid_pos = Vector2i(-999, -999)
+				_grid_panel.clear_placement_preview()
 				_hide_placement_hint()
 
 	_grid_panel.highlight_upgradeable_items(_dragged_item)

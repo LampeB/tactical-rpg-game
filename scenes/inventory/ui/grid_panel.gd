@@ -19,6 +19,7 @@ var _grid_inventory: GridInventory
 var _cells: Dictionary = {}          ## Vector2i -> GridCell
 var _item_visuals: Dictionary = {}   ## PlacedItem -> Control (container)
 var _star_overlays: Array = []
+var _glow_overlays: Array = []  ## PanelContainers on overlay layer for visible glow
 var _hover_reach_cells: Array[Vector2i] = []
 var _preview_modified_cells: Array[Vector2i] = []
 var _preview_glowed_cells: Array[Vector2i] = []
@@ -138,7 +139,7 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 		for tool_item in affected_tools:
 			for cell in tool_item.get_occupied_cells():
 				if _cells.has(cell):
-					_cells[cell].set_glow(true)
+					_add_glow_at_cell(cell)
 					_preview_glowed_cells.append(cell)
 
 		# Collect all reach cells
@@ -180,32 +181,15 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 			else:
 				_add_star_at_cell(rc, Color(1, 1, 1, 0.15))
 
-	# Dragging a WEAPON (ACTIVE_TOOL only): glow on modifiers, stars on weapon cells reached
+	# Dragging a WEAPON (ACTIVE_TOOL only): glow on modifier ITEMS that would affect it
 	if not affecting_modifiers.is_empty() and (can_place or is_swap) and item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
-		var temp_weapon_cells: Array[Vector2i] = []
-		var weapon_shape: Array[Vector2i] = item_data.shape.get_rotated_cells(rotation)
-		for sc in weapon_shape:
-			temp_weapon_cells.append(grid_pos + sc)
 		for mod in affecting_modifiers:
-			# Glow on modifier
-			for cell in mod.get_occupied_cells():
-				if _cells.has(cell):
-					_cells[cell].set_glow(true)
-					_preview_glowed_cells.append(cell)
-			# Stars on weapon cells reached by this modifier
 			var mod_cells: Array[Vector2i] = mod.get_occupied_cells()
-			var mod_reach: Array[Vector2i] = mod.item_data.get_reach_cells(mod.rotation)
-			var reached_weapon_cells: Array[Vector2i] = []
-			for mc in mod_cells:
-				for offset in mod_reach:
-					var target: Vector2i = mc + offset
-					if temp_weapon_cells.has(target) and not reached_weapon_cells.has(target):
-						reached_weapon_cells.append(target)
-			for ri in range(reached_weapon_cells.size()):
-				if ri == 0:
-					_add_star_at_cell(reached_weapon_cells[ri], Color.YELLOW)
-				else:
-					_add_star_at_cell(reached_weapon_cells[ri], Color(1, 1, 1, 0.4))
+			for cell in mod_cells:
+				if _cells.has(cell):
+					_add_glow_at_cell(cell)
+					if not _preview_glowed_cells.has(cell):
+						_preview_glowed_cells.append(cell)
 
 
 func clear_placement_preview() -> void:
@@ -213,10 +197,8 @@ func clear_placement_preview() -> void:
 	for pos in _preview_modified_cells:
 		_restore_cell_state(pos)
 	_preview_modified_cells.clear()
-	for pos in _preview_glowed_cells:
-		if _cells.has(pos):
-			_cells[pos].set_glow(false)
 	_preview_glowed_cells.clear()
+	_clear_glow_overlays()
 	_clear_star_overlays()
 	_clear_hover_reach_cells()
 	last_failure_reason = ""
@@ -247,10 +229,7 @@ func show_hover_feedback(placed: GridInventory.PlacedItem) -> void:
 			if tool_item.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
 				bright_items[tool_item] = true
 
-	print("[Hover] item='%s' is_modifiable=%s is_modifier=%s modifiers=%d tools=%d" % [
-		placed.item_data.display_name, str(placed.item_data.is_modifiable()),
-		str(placed.item_data.item_type == Enums.ItemType.MODIFIER),
-		modifiers.size(), tools.size()])
+
 
 	# Grey out other items (never grey empty cells)
 	for placed_key in _item_visuals:
@@ -266,7 +245,7 @@ func show_hover_feedback(placed: GridInventory.PlacedItem) -> void:
 			# Glow on the modifier's cells
 			for cell in mod.get_occupied_cells():
 				if _cells.has(cell):
-					_cells[cell].set_glow(true)
+					_add_glow_at_cell(cell)
 					_hover_reach_cells.append(cell)
 
 	# Modifier hovered: show reach area with stars, yellow on weapon cells reached
@@ -319,9 +298,9 @@ func clear_hover_feedback() -> void:
 	# Clear glow and reach cells
 	for pos in _hover_reach_cells:
 		if _cells.has(pos):
-			_cells[pos].set_glow(false)
 			_restore_cell_state(pos)
 	_hover_reach_cells.clear()
+	_clear_glow_overlays()
 	_clear_star_overlays()
 
 
@@ -741,6 +720,38 @@ func _add_border_piece(tex: Texture2D, pos: Vector2, sz: Vector2, tint: Color, p
 # ---------------------------------------------------------------------------
 # Internal — Stars & Reach
 # ---------------------------------------------------------------------------
+
+func _add_glow_at_cell(cell_pos: Vector2i) -> void:
+	## Creates an animated glow border on the overlay layer (visible above items).
+	if not _cells.has(cell_pos):
+		return
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color.TRANSPARENT
+	style.border_color = Color(1.0, 0.85, 0.2, 1.0)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(1)
+
+	var panel := PanelContainer.new()
+	panel.position = Vector2((cell_pos.x - _grid_origin.x) * cell_size, (cell_pos.y - _grid_origin.y) * cell_size)
+	panel.custom_minimum_size = Vector2(cell_size, cell_size)
+	panel.size = Vector2(cell_size, cell_size)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", style)
+	_overlay_layer.add_child(panel)
+	_glow_overlays.append(panel)
+
+	# Animate border color
+	var tween := panel.create_tween().set_loops()
+	tween.tween_property(style, "border_color", Color(1.0, 0.85, 0.2, 1.0), 0.5)
+	tween.tween_property(style, "border_color", Color(1.0, 0.55, 0.0, 1.0), 0.5)
+
+
+func _clear_glow_overlays() -> void:
+	for glow in _glow_overlays:
+		if is_instance_valid(glow):
+			glow.queue_free()
+	_glow_overlays.clear()
+
 
 func _add_star_at_cell(cell_pos: Vector2i, color: Color) -> void:
 	if not _cells.has(cell_pos):
