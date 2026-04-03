@@ -133,6 +133,15 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| INV-1: Extract InventoryDragState class | 3377700f-d0fb-81cf-8cb0-c3a93fd385c2 |
+| INV-2: Consolidate input handling | 3377700f-d0fb-816f-b4e5-fcef85480665 |
+| INV-3: Add glow effect to grid cells | 3377700f-d0fb-8179-8daa-e690d5330501 |
+| INV-4: Rework star overlay system | 3377700f-d0fb-8150-8647-e78eee207ca5 |
+| INV-5: New hover feedback system | 3377700f-d0fb-81f3-bad7-e29ece75844b |
+| INV-6: Drag preview snap and dim | 3377700f-d0fb-81eb-a633-c3546bc51e79 |
+| INV-7: Drag-over modifier preview | 3377700f-d0fb-81d5-83e2-c4623b7d4fbb |
+| INV-8: Item displacement to stash | 3377700f-d0fb-81a2-9bcc-df35ebd5377c |
+| INV-9: Clean up debug logs and dead code | 3377700f-d0fb-8134-ad77-eecdbc016220 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
 | Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
