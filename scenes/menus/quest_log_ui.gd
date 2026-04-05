@@ -6,7 +6,6 @@ enum QuestTab { ACTIVE, COMPLETED, AVAILABLE }
 
 @onready var _bg: ColorRect = $BG
 @onready var _title_label: Label = $VBox/TopBar/TitleLabel
-@onready var _close_btn: Button = $VBox/TopBar/CloseButton
 @onready var _tab_active: Button = $VBox/TopBar/TabActive
 @onready var _tab_completed: Button = $VBox/TopBar/TabCompleted
 @onready var _tab_available: Button = $VBox/TopBar/TabAvailable
@@ -19,7 +18,9 @@ var _selected_quest: QuestData = null
 
 func _ready() -> void:
 	_bg.color = Color(0.08, 0.10, 0.16, 1.0)
-	_close_btn.pressed.connect(_on_close)
+	_tab_active.focus_mode = Control.FOCUS_NONE
+	_tab_completed.focus_mode = Control.FOCUS_NONE
+	_tab_available.focus_mode = Control.FOCUS_NONE
 	_tab_active.pressed.connect(func() -> void: _switch_tab(QuestTab.ACTIVE))
 	_tab_completed.pressed.connect(func() -> void: _switch_tab(QuestTab.COMPLETED))
 	_tab_available.pressed.connect(func() -> void: _switch_tab(QuestTab.AVAILABLE))
