@@ -13,7 +13,12 @@ extends Node3D
 
 const BATTLE_COOLDOWN_TIME: float = 0.0
 const MESSAGE_DISPLAY_TIME: float = 3.0
-const _PAUSE_SCENE := preload("res://scenes/menus/pause_menu.tscn")
+
+## Menu tab actions — must match game_menu.gd TAB_ACTIONS
+const _MENU_TAB_ACTIONS: Array[String] = [
+	"open_inventory", "open_skills", "open_passives", "open_stats",
+	"open_map", "open_quest_log", "open_glossary", "open_options",
+]
 const _PARTY_HUD_SCRIPT := preload("res://scenes/world/party_hud.gd")
 const _WaterBody := preload("res://scripts/terrain/water_body.gd")
 const _TerrainManager := preload("res://scripts/terrain/terrain_manager.gd")
@@ -34,7 +39,7 @@ var _terrain_node: HeightmapTerrain3D = null
 var _map_scene_root: Node3D = null
 var _message_timer: float = 0.0
 var _current_message: String = ""
-var _pause_menu_instance: Node = null
+var _game_menu_instance: Node = null
 var _party_hud: HBoxContainer = null
 var _terrain_grid: GridMap = null
 
@@ -265,7 +270,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("escape"):
+	if event.is_action_released("escape"):
 		if _handle_escape_override():
 			get_viewport().set_input_as_handled()
 			return
@@ -273,14 +278,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif _handle_extra_input(event):
 		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed:
-		# Check game menu shortcut keys
-		var _GameMenu = load("res://scenes/menus/game_menu.gd")
-		for tab_id in _GameMenu.TAB_KEYS:
-			if event.keycode == _GameMenu.TAB_KEYS[tab_id]:
+	else:
+		# Check game menu shortcut actions (all on release)
+		for tab_id in range(_MENU_TAB_ACTIONS.size()):
+			if event.is_action_released(_MENU_TAB_ACTIONS[tab_id]):
 				_save_current_position()
 				_open_game_menu(tab_id)
 				get_viewport().set_input_as_handled()
+				return
 				return
 
 
@@ -649,26 +654,26 @@ func _apply_battle_cooldown() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Pause Menu
+# Game Menu
 # ---------------------------------------------------------------------------
 
 func _open_game_menu(initial_tab: int = -1) -> void:
 	## Opens the unified game menu. Optionally opens a specific tab.
-	if _pause_menu_instance:
+	if _game_menu_instance:
 		return  # Already open
 	_save_current_position()
 	var menu_scene: PackedScene = load("res://scenes/menus/game_menu.tscn")
-	_pause_menu_instance = menu_scene.instantiate()
-	add_child(_pause_menu_instance)
-	_pause_menu_instance.closed.connect(_on_game_menu_closed)
+	_game_menu_instance = menu_scene.instantiate()
+	add_child(_game_menu_instance)
+	_game_menu_instance.closed.connect(_on_game_menu_closed)
 	if initial_tab >= 0:
-		_pause_menu_instance.open_tab(initial_tab)
+		_game_menu_instance.open_tab(initial_tab)
 	else:
-		_pause_menu_instance.open_tab(0)  # Default to Inventory
+		_game_menu_instance.open_tab(0)  # Default to Inventory
 
 
 func _on_game_menu_closed() -> void:
-	_pause_menu_instance = null
+	_game_menu_instance = null
 
 
 # ---------------------------------------------------------------------------

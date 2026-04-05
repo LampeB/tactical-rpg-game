@@ -1,273 +1,257 @@
-[gd_scene load_steps=7 format=3 uid="uid://c5eqpslot001"]
+[gd_scene format=3 uid="uid://c5eqpslot001"]
 
-[ext_resource type="Script" path="res://scenes/inventory/ui/equipment_slots_panel.gd" id="1"]
-
-[sub_resource type="StyleBoxFlat" id="style_empty"]
-bg_color = Color(0.3, 0.3, 0.3, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-[sub_resource type="StyleBoxFlat" id="style_filled"]
-bg_color = Color(0.2, 0.8, 0.3, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_left = 6
-corner_radius_bottom_right = 6
-
-[sub_resource type="StyleBoxFlat" id="style_necklace_empty"]
-bg_color = Color(0.3, 0.3, 0.3, 1)
-corner_radius_top_left = 19
-corner_radius_top_right = 19
-corner_radius_bottom_left = 19
-corner_radius_bottom_right = 19
-
-[sub_resource type="StyleBoxFlat" id="style_necklace_filled"]
-bg_color = Color(0.2, 0.8, 0.3, 1)
-corner_radius_top_left = 19
-corner_radius_top_right = 19
-corner_radius_bottom_left = 19
-corner_radius_bottom_right = 19
+[ext_resource type="Script" uid="uid://cgchtgnx6gm04" path="res://scenes/inventory/ui/equipment_slots_panel.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="style_panel"]
 bg_color = Color(0.15, 0.15, 0.2, 0.8)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
-corner_radius_bottom_left = 4
 corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
-[node name="EquipmentSlotsPanel" type="PanelContainer"]
-layout_mode = 3
-anchors_preset = 0
+[sub_resource type="StyleBoxFlat" id="style_empty"]
+bg_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="style_necklace_empty"]
+bg_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_top_left = 19
+corner_radius_top_right = 19
+corner_radius_bottom_right = 19
+corner_radius_bottom_left = 19
+
+[node name="EquipmentSlotsPanel" type="PanelContainer" unique_id=1136755202]
 theme_override_styles/panel = SubResource("style_panel")
 script = ExtResource("1")
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="VBoxContainer" parent="." unique_id=185729989]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="Title" type="Label" parent="VBox"]
+[node name="Title" type="Label" parent="VBox" unique_id=2102872464]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_font_sizes/font_size = 20
 text = "Equipment"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
-[node name="HSeparator" type="HSeparator" parent="VBox"]
+[node name="HSeparator" type="HSeparator" parent="VBox" unique_id=2119257578]
 layout_mode = 2
 
-[node name="Columns" type="HBoxContainer" parent="VBox"]
+[node name="Columns" type="HBoxContainer" parent="VBox" unique_id=1961591550]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12
 
-[node name="LeftColumn" type="VBoxContainer" parent="VBox/Columns"]
+[node name="LeftColumn" type="VBoxContainer" parent="VBox/Columns" unique_id=174107221]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="WeaponsSection" type="VBoxContainer" parent="VBox/Columns/LeftColumn"]
+[node name="WeaponsSection" type="VBoxContainer" parent="VBox/Columns/LeftColumn" unique_id=1481934881]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="WeaponsLabel" type="Label" parent="VBox/Columns/LeftColumn/WeaponsSection"]
+[node name="WeaponsLabel" type="Label" parent="VBox/Columns/LeftColumn/WeaponsSection" unique_id=1526969742]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
 text = "WEAPONS (Arms)"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
-[node name="HandSlots" type="HBoxContainer" parent="VBox/Columns/LeftColumn/WeaponsSection"]
+[node name="HandSlots" type="HBoxContainer" parent="VBox/Columns/LeftColumn/WeaponsSection" unique_id=1718450435]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 6
+alignment = 1
 
-[node name="ArmorSeparator" type="HSeparator" parent="VBox/Columns/LeftColumn"]
+[node name="ArmorSeparator" type="HSeparator" parent="VBox/Columns/LeftColumn" unique_id=110886156]
 layout_mode = 2
 
-[node name="ArmorSection" type="VBoxContainer" parent="VBox/Columns/LeftColumn"]
+[node name="ArmorSection" type="VBoxContainer" parent="VBox/Columns/LeftColumn" unique_id=635091785]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ArmorLabel" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection"]
+[node name="ArmorLabel" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection" unique_id=419264087]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
 text = "ARMOR"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
-[node name="HelmetBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection"]
+[node name="HelmetBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection" unique_id=1879436828]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox"]
+[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox" unique_id=875904075]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Helmet"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="HelmetCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox"]
+[node name="HelmetCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox" unique_id=603090749]
 layout_mode = 2
 
-[node name="HelmetSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox/HelmetCenter"]
+[node name="HelmetSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/HelmetBox/HelmetCenter" unique_id=284666550]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_empty")
 
-[node name="ChestGlovesRow" type="HBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection"]
+[node name="ChestGlovesRow" type="HBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection" unique_id=363744552]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 12
+alignment = 1
 
-[node name="ChestBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow"]
+[node name="ChestBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow" unique_id=1155647057]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox"]
+[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox" unique_id=2071142328]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Chest"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="ChestCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox"]
+[node name="ChestCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox" unique_id=145407649]
 layout_mode = 2
 
-[node name="ChestSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox/ChestCenter"]
+[node name="ChestSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox/ChestCenter" unique_id=411496306]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_empty")
 
-[node name="GlovesBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow"]
+[node name="GlovesBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow" unique_id=1361314961]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox"]
+[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox" unique_id=1714519311]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Gloves"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="GlovesCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox"]
+[node name="GlovesCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox" unique_id=127279337]
 layout_mode = 2
 
-[node name="GlovesSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox/GlovesCenter"]
+[node name="GlovesSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox/GlovesCenter" unique_id=1036161958]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_empty")
 
-[node name="LegsBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection"]
+[node name="LegsBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection" unique_id=1734679765]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox"]
+[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox" unique_id=1258033774]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Legs"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="LegsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox"]
+[node name="LegsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox" unique_id=1794286164]
 layout_mode = 2
 
-[node name="LegsSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox/LegsCenter"]
+[node name="LegsSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/LegsBox/LegsCenter" unique_id=51105991]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_empty")
 
-[node name="BootsBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection"]
+[node name="BootsBox" type="VBoxContainer" parent="VBox/Columns/LeftColumn/ArmorSection" unique_id=966716197]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox"]
+[node name="Label" type="Label" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox" unique_id=1985731214]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Boots"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="BootsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox"]
+[node name="BootsCenter" type="CenterContainer" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox" unique_id=1772890822]
 layout_mode = 2
 
-[node name="BootsSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox/BootsCenter"]
+[node name="BootsSlot" type="Panel" parent="VBox/Columns/LeftColumn/ArmorSection/BootsBox/BootsCenter" unique_id=230740139]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_empty")
 
-[node name="RightColumn" type="VBoxContainer" parent="VBox/Columns"]
+[node name="RightColumn" type="VBoxContainer" parent="VBox/Columns" unique_id=708868612]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="JewelrySection" type="VBoxContainer" parent="VBox/Columns/RightColumn"]
+[node name="JewelrySection" type="VBoxContainer" parent="VBox/Columns/RightColumn" unique_id=1408819390]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="JewelryLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="JewelryLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=47491585]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 14
 text = "JEWELRY"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 
-[node name="NecklaceBox" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="NecklaceBox" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=1160607035]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox"]
+[node name="Label" type="Label" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox" unique_id=1655962044]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 12
 text = "Necklace"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 
-[node name="NecklaceCenter" type="CenterContainer" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox"]
+[node name="NecklaceCenter" type="CenterContainer" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox" unique_id=2014252210]
 layout_mode = 2
 
-[node name="NecklaceSlot" type="Panel" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox/NecklaceCenter"]
+[node name="NecklaceSlot" type="Panel" parent="VBox/Columns/RightColumn/JewelrySection/NecklaceBox/NecklaceCenter" unique_id=69403309]
 custom_minimum_size = Vector2(38, 38)
 layout_mode = 2
 theme_override_styles/panel = SubResource("style_necklace_empty")
 
-[node name="RingSeparator" type="HSeparator" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="RingSeparator" type="HSeparator" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=929143486]
 layout_mode = 2
 
-[node name="RingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="RingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=874727167]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 12
 text = "Rings"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
-[node name="LeftRingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="LeftRingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=711036709]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 11
 text = "Left"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
-[node name="LeftRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="LeftRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=722243906]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1
 
-[node name="RightRingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="RightRingsLabel" type="Label" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=1768161797]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 11
 text = "Right"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 
-[node name="RightRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection"]
+[node name="RightRingSlots" type="VBoxContainer" parent="VBox/Columns/RightColumn/JewelrySection" unique_id=676539440]
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1

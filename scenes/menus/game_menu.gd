@@ -30,16 +30,16 @@ const TAB_NAMES: Dictionary = {
 	Tab.OPTIONS: "Options",
 }
 
-## Tab shortcut keys
-const TAB_KEYS: Dictionary = {
-	Tab.INVENTORY: KEY_I,
-	Tab.SKILLS: KEY_K,
-	Tab.PASSIVES: KEY_T,
-	Tab.STATS: KEY_C,
-	Tab.MAP: KEY_M,
-	Tab.QUESTS: KEY_Q,
-	Tab.GLOSSARY: KEY_G,
-	Tab.OPTIONS: KEY_O,
+## Tab shortcut actions (from project Input Map)
+const TAB_ACTIONS: Dictionary = {
+	Tab.INVENTORY: "open_inventory",
+	Tab.SKILLS: "open_skills",
+	Tab.PASSIVES: "open_passives",
+	Tab.STATS: "open_stats",
+	Tab.MAP: "open_map",
+	Tab.QUESTS: "open_quest_log",
+	Tab.GLOSSARY: "open_glossary",
+	Tab.OPTIONS: "open_options",
 }
 
 var _current_tab: int = -1
@@ -122,12 +122,14 @@ func _build_ui() -> void:
 		_sidebar.add_child(btn)
 		_tab_buttons[tab_id] = btn
 
-		# Add shortcut hint
-		var key_name: String = ""
-		if TAB_KEYS.has(tab_id):
-			key_name = OS.get_keycode_string(TAB_KEYS[tab_id])
-		if not key_name.is_empty():
-			btn.text = "  %s  [%s]" % [TAB_NAMES[tab_id], key_name]
+		# Add shortcut hint from input map
+		if TAB_ACTIONS.has(tab_id):
+			var action: String = TAB_ACTIONS[tab_id]
+			var events: Array = InputMap.action_get_events(action)
+			if not events.is_empty():
+				var key_event: InputEventKey = events[0] as InputEventKey
+				if key_event:
+					btn.text = "  %s  [%s]" % [TAB_NAMES[tab_id], OS.get_keycode_string(key_event.keycode)]
 
 	# Spacer to push "Return to Game" to bottom
 	var spacer := Control.new()
@@ -210,10 +212,10 @@ func _create_view(tab: int) -> Control:
 	var view: Control = null
 	match tab:
 		Tab.INVENTORY:
-			view = load("res://scenes/character_stats/character_stats.tscn").instantiate()
+			view = load("res://scenes/inventory/inventory_panel.tscn").instantiate()
 			_content_area.add_child(view)
 			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			view.setup_embedded(_current_character_id, view.EmbedMode.INVENTORY_ONLY)
+			view.setup_embedded(_current_character_id)
 		Tab.SKILLS:
 			view = load("res://scenes/character_skills/character_skills.tscn").instantiate()
 			_content_area.add_child(view)
@@ -227,10 +229,10 @@ func _create_view(tab: int) -> Control:
 			if view.has_method("setup_embedded"):
 				view.setup_embedded(_current_character_id)
 		Tab.STATS:
-			view = load("res://scenes/character_stats/character_stats.tscn").instantiate()
+			view = load("res://scenes/character_stats/stats_panel.tscn").instantiate()
 			_content_area.add_child(view)
 			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			view.setup_embedded(_current_character_id, view.EmbedMode.STATS_ONLY)
+			view.setup_embedded(_current_character_id)
 		Tab.MAP:
 			view = _create_placeholder("World Map", "Map coming soon...")
 		Tab.QUESTS:
@@ -422,16 +424,11 @@ func _select_character(char_id: String) -> void:
 		return
 	_current_character_id = char_id
 	_update_carousel_highlight()
-	# Refresh current view with new character — pass correct embed mode
+	# Refresh current view with new character
 	if _current_tab in CHARACTER_TABS and _views.has(_current_tab):
 		var view: Control = _views[_current_tab]
 		if view.has_method("setup_embedded"):
-			if _current_tab == Tab.INVENTORY and view.get("EmbedMode"):
-				view.setup_embedded(_current_character_id, view.EmbedMode.INVENTORY_ONLY)
-			elif _current_tab == Tab.STATS and view.get("EmbedMode"):
-				view.setup_embedded(_current_character_id, view.EmbedMode.STATS_ONLY)
-			else:
-				view.setup_embedded(_current_character_id)
+			view.setup_embedded(_current_character_id)
 
 
 func _create_options_view() -> Control:
@@ -503,23 +500,24 @@ func _on_option_pressed(option: String) -> void:
 # Input
 # ---------------------------------------------------------------------------
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed:
-		# ESC closes menu
-		if event.keycode == KEY_ESCAPE:
-			_close()
+func _shortcut_input(event: InputEvent) -> void:
+	if not event is InputEventKey or event.echo or event.pressed:
+		return
+	# All shortcuts trigger on key RELEASE
+
+	if event.keycode == KEY_ESCAPE:
+		_close()
+		get_viewport().set_input_as_handled()
+		return
+
+	for tab_id in TAB_ACTIONS:
+		if event.is_action(TAB_ACTIONS[tab_id]):
+			if _current_tab == tab_id:
+				_close()
+			else:
+				open_tab(tab_id)
 			get_viewport().set_input_as_handled()
 			return
-
-		# Tab shortcuts — same key toggles closed if already on that tab
-		for tab_id in TAB_KEYS:
-			if event.keycode == TAB_KEYS[tab_id]:
-				if _current_tab == tab_id:
-					_close()
-				else:
-					open_tab(tab_id)
-				get_viewport().set_input_as_handled()
-				return
 
 
 func _on_tab_pressed(tab_id: int) -> void:

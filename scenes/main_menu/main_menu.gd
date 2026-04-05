@@ -77,7 +77,7 @@ func _resolve_map_scene() -> String:
 
 
 func _on_inventory_pressed() -> void:
-	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
+	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")  # Dev tool — uses old character hub
 
 
 func _on_squad_pressed() -> void:
