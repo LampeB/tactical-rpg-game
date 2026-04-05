@@ -51,6 +51,7 @@ var _tab_buttons: Dictionary = {}  # Tab → Button
 var _sidebar: VBoxContainer
 var _content_area: Control
 var _carousel: HBoxContainer
+var _gold_label: Label
 var _bg: ColorRect
 
 
@@ -128,6 +129,22 @@ func _build_ui() -> void:
 		if not key_name.is_empty():
 			btn.text = "  %s  [%s]" % [TAB_NAMES[tab_id], key_name]
 
+	# Spacer to push "Return to Game" to bottom
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_sidebar.add_child(spacer)
+
+	# Return to Game button
+	var sep2 := HSeparator.new()
+	_sidebar.add_child(sep2)
+	var return_btn := Button.new()
+	return_btn.text = "  Return to Game  [Esc]"
+	return_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	return_btn.custom_minimum_size = Vector2(0, 36)
+	return_btn.add_theme_font_size_override("font_size", 16)
+	return_btn.pressed.connect(_close)
+	_sidebar.add_child(return_btn)
+
 	# === Right side: carousel + content ===
 	var right_vbox := VBoxContainer.new()
 	right_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -142,6 +159,16 @@ func _build_ui() -> void:
 	right_vbox.add_child(_carousel)
 
 	_build_carousel()
+
+	# Gold display (right-aligned, between carousel and content)
+	_gold_label = Label.new()
+	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_gold_label.add_theme_font_size_override("font_size", 18)
+	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	_gold_label.custom_minimum_size = Vector2(0, 24)
+	right_vbox.add_child(_gold_label)
+	_update_gold()
+	EventBus.gold_changed.connect(_on_gold_changed)
 
 	# Content area
 	_content_area = Control.new()
@@ -168,8 +195,10 @@ func open_tab(tab: int) -> void:
 		var btn: Button = _tab_buttons[tab_id]
 		btn.disabled = (tab_id == tab)
 
-	# Show/hide carousel
+	# Show/hide carousel and gold
 	_carousel.visible = tab in CHARACTER_TABS
+	_gold_label.visible = tab in [Tab.INVENTORY, Tab.PASSIVES]
+	_update_gold()
 
 	# Create or show view
 	if not _views.has(tab):
@@ -184,7 +213,7 @@ func _create_view(tab: int) -> Control:
 			view = load("res://scenes/character_stats/character_stats.tscn").instantiate()
 			_content_area.add_child(view)
 			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			view.setup_embedded(_current_character_id)
+			view.setup_embedded(_current_character_id, view.EmbedMode.INVENTORY_ONLY)
 		Tab.SKILLS:
 			view = load("res://scenes/character_skills/character_skills.tscn").instantiate()
 			_content_area.add_child(view)
@@ -198,7 +227,10 @@ func _create_view(tab: int) -> Control:
 			if view.has_method("setup_embedded"):
 				view.setup_embedded(_current_character_id)
 		Tab.STATS:
-			view = _create_placeholder("Detailed Stats", "Full character stats coming soon...")
+			view = load("res://scenes/character_stats/character_stats.tscn").instantiate()
+			_content_area.add_child(view)
+			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			view.setup_embedded(_current_character_id, view.EmbedMode.STATS_ONLY)
 		Tab.MAP:
 			view = _create_placeholder("World Map", "Map coming soon...")
 		Tab.QUESTS:
@@ -390,11 +422,16 @@ func _select_character(char_id: String) -> void:
 		return
 	_current_character_id = char_id
 	_update_carousel_highlight()
-	# Refresh current view with new character
+	# Refresh current view with new character — pass correct embed mode
 	if _current_tab in CHARACTER_TABS and _views.has(_current_tab):
 		var view: Control = _views[_current_tab]
 		if view.has_method("setup_embedded"):
-			view.setup_embedded(_current_character_id)
+			if _current_tab == Tab.INVENTORY and view.get("EmbedMode"):
+				view.setup_embedded(_current_character_id, view.EmbedMode.INVENTORY_ONLY)
+			elif _current_tab == Tab.STATS and view.get("EmbedMode"):
+				view.setup_embedded(_current_character_id, view.EmbedMode.STATS_ONLY)
+			else:
+				view.setup_embedded(_current_character_id)
 
 
 func _create_options_view() -> Control:
@@ -489,7 +526,18 @@ func _on_tab_pressed(tab_id: int) -> void:
 	open_tab(tab_id)
 
 
+func _update_gold() -> void:
+	if _gold_label:
+		_gold_label.text = "Gold: %d" % GameManager.gold
+
+
+func _on_gold_changed(_amount: int) -> void:
+	_update_gold()
+
+
 func _close() -> void:
 	get_tree().paused = false
+	if EventBus.gold_changed.is_connected(_on_gold_changed):
+		EventBus.gold_changed.disconnect(_on_gold_changed)
 	closed.emit()
 	queue_free()
