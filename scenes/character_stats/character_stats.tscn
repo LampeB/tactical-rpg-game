@@ -230,6 +230,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="DragLayer" type="CanvasLayer" parent="."]
-layer = 10
+layer = 110
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("4_drag")]
