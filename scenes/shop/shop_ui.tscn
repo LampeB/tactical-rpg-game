@@ -21,7 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.1, 0.14, 0.2, 1)
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,10 +30,11 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = -20.0
-theme_override_constants/separation = 12
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 30.0
 
 [node name="Title" type="Label" parent="VBox/TopBar"]
 layout_mode = 2
@@ -47,15 +48,18 @@ theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
 text = "0 g"
 
-[node name="Content" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 20
+[node name="Content" type="Control" parent="VBox"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+offset_bottom = -40.0
 
 [node name="MerchantSide" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
+layout_mode = 1
+anchor_right = 0.33
+anchor_bottom = 1.0
+offset_right = -6.0
 theme_override_constants/separation = 8
 
 [node name="MerchantLabel" type="Label" parent="VBox/Content/MerchantSide"]
@@ -101,9 +105,12 @@ theme_override_colors/font_color = Color(0.5, 1.0, 0.5, 1)
 text = "Total received: +0g"
 
 [node name="PlayerSide" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.2
+layout_mode = 1
+anchor_left = 0.33
+anchor_right = 0.7
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = -6.0
 theme_override_constants/separation = 8
 
 [node name="CharacterTabs" parent="VBox/Content/PlayerSide" instance=ExtResource("2")]
@@ -135,9 +142,11 @@ theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
 text = "Discard"
 
 [node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.8
+layout_mode = 1
+anchor_left = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
 theme_override_constants/separation = 6
 
 [node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6")]
@@ -152,7 +161,11 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
+layout_mode = 1
+anchor_right = 1.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -30.0
 
 [node name="Spacer" type="Control" parent="VBox/BottomBar"]
 layout_mode = 2
