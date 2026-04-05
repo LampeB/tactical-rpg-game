@@ -34,7 +34,7 @@ var _terrain_node: HeightmapTerrain3D = null
 var _map_scene_root: Node3D = null
 var _message_timer: float = 0.0
 var _current_message: String = ""
-var _pause_menu_instance: Control = null
+var _pause_menu_instance: Node = null
 var _party_hud: HBoxContainer = null
 var _terrain_grid: GridMap = null
 
@@ -269,18 +269,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _handle_escape_override():
 			get_viewport().set_input_as_handled()
 			return
-		_toggle_pause_menu()
+		_open_game_menu()
 		get_viewport().set_input_as_handled()
 	elif _handle_extra_input(event):
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("open_inventory"):
-		_save_current_position()
-		SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("open_quest_log"):
-		_save_current_position()
-		SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
-		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed:
+		# Check game menu shortcut keys
+		var _GameMenu = load("res://scenes/menus/game_menu.gd")
+		for tab_id in _GameMenu.TAB_KEYS:
+			if event.keycode == _GameMenu.TAB_KEYS[tab_id]:
+				_save_current_position()
+				_open_game_menu(tab_id)
+				get_viewport().set_input_as_handled()
+				return
 
 
 func receive_data(data: Dictionary) -> void:
@@ -651,51 +652,23 @@ func _apply_battle_cooldown() -> void:
 # Pause Menu
 # ---------------------------------------------------------------------------
 
-func _toggle_pause_menu() -> void:
+func _open_game_menu(initial_tab: int = -1) -> void:
+	## Opens the unified game menu. Optionally opens a specific tab.
 	if _pause_menu_instance:
-		_pause_menu_instance.queue_free()
-		_pause_menu_instance = null
-		return
+		return  # Already open
 	_save_current_position()
-	_pause_menu_instance = _PAUSE_SCENE.instantiate()
-	_ui.add_child(_pause_menu_instance)
-	_pause_menu_instance.resume_requested.connect(_toggle_pause_menu)
-	_pause_menu_instance.save_requested.connect(_open_save_screen)
-	_pause_menu_instance.load_requested.connect(_open_load_screen)
-	_pause_menu_instance.quest_log_requested.connect(_open_quest_log)
-	_pause_menu_instance.settings_requested.connect(_open_settings)
-	_pause_menu_instance.main_menu_requested.connect(_go_to_main_menu)
+	var menu_scene: PackedScene = load("res://scenes/menus/game_menu.tscn")
+	_pause_menu_instance = menu_scene.instantiate()
+	add_child(_pause_menu_instance)
+	_pause_menu_instance.closed.connect(_on_game_menu_closed)
+	if initial_tab >= 0:
+		_pause_menu_instance.open_tab(initial_tab)
+	else:
+		_pause_menu_instance.open_tab(0)  # Default to Inventory
 
 
-func _open_save_screen() -> void:
-	_pause_menu_instance.queue_free()
+func _on_game_menu_closed() -> void:
 	_pause_menu_instance = null
-	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "save"})
-
-
-func _open_load_screen() -> void:
-	_pause_menu_instance.queue_free()
-	_pause_menu_instance = null
-	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "load"})
-
-
-func _open_quest_log() -> void:
-	_pause_menu_instance.queue_free()
-	_pause_menu_instance = null
-	SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
-
-
-func _open_settings() -> void:
-	_pause_menu_instance.queue_free()
-	_pause_menu_instance = null
-	SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")
-
-
-func _go_to_main_menu() -> void:
-	_pause_menu_instance.queue_free()
-	_pause_menu_instance = null
-	SceneManager.clear_stack()
-	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
 
 
 # ---------------------------------------------------------------------------
