@@ -134,6 +134,8 @@ func _ready() -> void:
 	_discard_dialog.confirmed.connect(_on_discard_confirmed)
 	add_child(_discard_dialog)
 
+	EventBus.inventory_changed.connect(_on_inventory_changed_refresh_equipment)
+
 	if GameManager.party:
 		_character_tabs.setup(GameManager.party.squad, GameManager.party.roster)
 		_character_tabs.character_selected.connect(_on_character_selected)
@@ -263,10 +265,27 @@ func _on_back() -> void:
 
 var _embedded: bool = false
 
-func setup_embedded(character_id: String) -> void:
+enum EmbedMode { FULL, INVENTORY_ONLY, STATS_ONLY }
+var _embed_mode: int = EmbedMode.FULL
+
+
+func setup_embedded(character_id: String, mode: int = EmbedMode.FULL) -> void:
 	_embedded = true
+	_embed_mode = mode
 	$VBox/TopBar.visible = false
 	$VBox/CharacterTabs.visible = false
+	match mode:
+		EmbedMode.INVENTORY_ONLY:
+			# Replace left panel with compact stats + equipment slots
+			_replace_left_panel_with_compact_view()
+			# Hide skills section in right panel
+			_skills_header.visible = false
+			_skills_sep.visible = false
+			_skills_scroll.visible = false
+		EmbedMode.STATS_ONLY:
+			# Hide grid and stash — show only stats + skills
+			$VBox/Content/CenterPanel.visible = false
+			_stash_panel.visible = false
 	_on_character_selected(character_id)
 
 
@@ -282,9 +301,17 @@ func _on_character_selected(character_id: String) -> void:
 	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(character_id, tree)
 
-	_update_left_panel(char_data, inv, passive_bonuses)
-	_update_center_panel(inv)
-	_update_skills_panel(char_data, inv)
+	match _embed_mode:
+		EmbedMode.INVENTORY_ONLY:
+			_replace_left_panel_with_compact_view()
+			_update_center_panel(inv)
+		EmbedMode.STATS_ONLY:
+			_update_left_panel(char_data, inv, passive_bonuses)
+			_update_skills_panel(char_data, inv)
+		_:
+			_update_left_panel(char_data, inv, passive_bonuses)
+			_update_center_panel(inv)
+			_update_skills_panel(char_data, inv)
 	if GameManager.party:
 		_stash_panel.refresh(GameManager.party.stash)
 
@@ -1356,8 +1383,9 @@ func _refresh_left_panel() -> void:
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id)
 	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
 	var passive_bonuses: Dictionary = GameManager.party.get_passive_bonuses(_current_character_id, tree)
-	_update_left_panel(char_data, inv, passive_bonuses)
-	_update_skills_panel(char_data, inv)
+	if _embed_mode != EmbedMode.INVENTORY_ONLY:
+		_update_left_panel(char_data, inv, passive_bonuses)
+		_update_skills_panel(char_data, inv)
 	_update_element_bar(inv)
 
 
@@ -1408,6 +1436,121 @@ func _show_placement_hint(reason: String) -> void:
 func _hide_placement_hint() -> void:
 	if _placement_hint_label:
 		_placement_hint_label.text = ""
+
+
+var _equipment_panel: PanelContainer = null
+
+
+func _on_inventory_changed_refresh_equipment(_character_id: String) -> void:
+	if _equipment_panel and is_instance_valid(_equipment_panel) and _equipment_panel.has_method("refresh"):
+		_equipment_panel.refresh()
+
+
+func _replace_left_panel_with_compact_view() -> void:
+	## Replaces the full stats left panel with a compact summary + equipment slots.
+	var left_panel: PanelContainer = $VBox/Content/LeftPanel
+	# Clear existing content
+	for child in left_panel.get_children():
+		child.queue_free()
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	left_panel.add_child(vbox)
+
+	# Compact character header
+	var char_data: CharacterData = GameManager.party.roster.get(_current_character_id)
+	if char_data:
+		var name_lbl := Label.new()
+		name_lbl.text = char_data.display_name
+		name_lbl.add_theme_font_size_override("font_size", 18)
+		name_lbl.add_theme_color_override("font_color", Color(0.95, 0.9, 0.75))
+		vbox.add_child(name_lbl)
+
+		var class_lbl := Label.new()
+		class_lbl.text = char_data.character_class
+		class_lbl.add_theme_font_size_override("font_size", 13)
+		class_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+		vbox.add_child(class_lbl)
+
+	# HP/MP bars
+	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id)
+	if char_data and GameManager.party:
+		var hp_cur: int = GameManager.party.get_current_hp(_current_character_id)
+		var hp_max: int = char_data.max_hp
+		var mp_cur: int = GameManager.party.get_current_mp(_current_character_id)
+		var mp_max: int = char_data.max_mp
+
+		var hp_lbl := Label.new()
+		hp_lbl.text = "HP: %d / %d" % [hp_cur, hp_max]
+		hp_lbl.add_theme_font_size_override("font_size", 13)
+		vbox.add_child(hp_lbl)
+
+		var hp_bar := ProgressBar.new()
+		hp_bar.max_value = hp_max
+		hp_bar.value = hp_cur
+		hp_bar.custom_minimum_size = Vector2(0, 10)
+		hp_bar.show_percentage = false
+		vbox.add_child(hp_bar)
+
+		var mp_lbl := Label.new()
+		mp_lbl.text = "MP: %d / %d" % [mp_cur, mp_max]
+		mp_lbl.add_theme_font_size_override("font_size", 13)
+		vbox.add_child(mp_lbl)
+
+		var mp_bar := ProgressBar.new()
+		mp_bar.max_value = mp_max
+		mp_bar.value = mp_cur
+		mp_bar.custom_minimum_size = Vector2(0, 10)
+		mp_bar.show_percentage = false
+		vbox.add_child(mp_bar)
+
+	# Compact stat summary
+	if char_data and inv:
+		var sep := HSeparator.new()
+		vbox.add_child(sep)
+
+		var equip_stats: Dictionary = inv.get_computed_stats().get("stats", {})
+		var stats_to_show: Array = [
+			["ATK", Enums.Stat.PHYSICAL_ATTACK],
+			["DEF", Enums.Stat.PHYSICAL_DEFENSE],
+			["M.ATK", Enums.Stat.MAGICAL_ATTACK],
+			["M.DEF", Enums.Stat.MAGICAL_DEFENSE],
+			["SPD", Enums.Stat.SPEED],
+		]
+		for stat_info in stats_to_show:
+			var stat_name: String = stat_info[0]
+			var stat_id: int = stat_info[1]
+			var base_val: int = char_data.get_base_stat(stat_id)
+			var equip_bonus: int = int(equip_stats.get(stat_id, 0.0))
+			var total: int = base_val + equip_bonus
+			var row := HBoxContainer.new()
+			var lbl_name := Label.new()
+			lbl_name.text = stat_name
+			lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			lbl_name.add_theme_font_size_override("font_size", 13)
+			lbl_name.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+			row.add_child(lbl_name)
+			var lbl_val := Label.new()
+			lbl_val.text = str(total)
+			lbl_val.add_theme_font_size_override("font_size", 13)
+			lbl_val.add_theme_color_override("font_color", Color.WHITE if equip_bonus == 0 else Color(0.4, 1.0, 0.4))
+			row.add_child(lbl_val)
+			vbox.add_child(row)
+
+	# Equipment slots panel
+	var sep2 := HSeparator.new()
+	vbox.add_child(sep2)
+
+	var equip_title := Label.new()
+	equip_title.text = "Equipment"
+	equip_title.add_theme_font_size_override("font_size", 15)
+	equip_title.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
+	vbox.add_child(equip_title)
+
+	if inv:
+		_equipment_panel = load("res://scenes/inventory/ui/equipment_slots_panel.tscn").instantiate()
+		vbox.add_child(_equipment_panel)
+		_equipment_panel.setup(inv)
 
 
 func _on_gold_changed(_new_gold: int) -> void:
