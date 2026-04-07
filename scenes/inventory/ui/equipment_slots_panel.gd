@@ -1,17 +1,11 @@
 extends PanelContainer
-## Displays equipment slot indicators (hands, armor, jewelry).
+## Displays equipment slot indicators using Runewood slot sprites.
+## Layout: 2-column (Weapons + Armor on left, Jewelry + Rings on right).
 
-@onready var _hands_container: HBoxContainer = $VBox/Columns/LeftColumn/WeaponsSection/HandSlots
-@onready var _helmet_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/HelmetBox/HelmetCenter/HelmetSlot
-@onready var _chest_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/ChestBox/ChestCenter/ChestSlot
-@onready var _gloves_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/ChestGlovesRow/GlovesBox/GlovesCenter/GlovesSlot
-@onready var _legs_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/LegsBox/LegsCenter/LegsSlot
-@onready var _boots_indicator: Control = $VBox/Columns/LeftColumn/ArmorSection/BootsBox/BootsCenter/BootsSlot
-@onready var _necklace_indicator: Control = $VBox/Columns/RightColumn/JewelrySection/NecklaceBox/NecklaceCenter/NecklaceSlot
-@onready var _left_rings_container: VBoxContainer = $VBox/Columns/RightColumn/JewelrySection/LeftRingSlots
-@onready var _right_rings_container: VBoxContainer = $VBox/Columns/RightColumn/JewelrySection/RightRingSlots
+const _SlotTex := preload("res://assets/sprites/ui/theme/slot.png")
 
 var _current_inventory: GridInventory = null
+@onready var _root: VBoxContainer = $VBox
 
 
 func setup(inventory: GridInventory) -> void:
@@ -20,112 +14,151 @@ func setup(inventory: GridInventory) -> void:
 
 
 func refresh() -> void:
-	if not _current_inventory:
+	if not _current_inventory or not _root:
 		return
 
-	_update_hand_slots()
-	_update_armor_slots()
-	_update_jewelry_slots()
-
-
-func _update_hand_slots() -> void:
-	var available := _current_inventory.get_available_hand_slots()
-	var used := _current_inventory.get_used_hand_slots()
-
-	# Clear existing dots
-	for child in _hands_container.get_children():
+	# Clear previous content (keep title + separator)
+	for child in _root.get_children():
+		if child.name in ["Title", "HSeparator"]:
+			continue
 		child.queue_free()
 
-	# Create circular dots for all available slots
-	for i in range(available):
-		var dot_container := Control.new()
-		dot_container.custom_minimum_size = Vector2(24, 24)
+	var equipped_armor: Dictionary = _current_inventory.get_equipped_armor_slots()
+	var used_hands: int = _current_inventory.get_used_hand_slots()
+	var available_hands: int = _current_inventory.get_available_hand_slots()
 
-		var dot := Panel.new()
-		dot.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		# Make it circular using a StyleBoxFlat
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.8, 0.8, 0.8) if i < used else Color(0.3, 0.3, 0.3)
-		style.corner_radius_top_left = 12
-		style.corner_radius_top_right = 12
-		style.corner_radius_bottom_left = 12
-		style.corner_radius_bottom_right = 12
-		dot.add_theme_stylebox_override("panel", style)
+	# Two-column layout
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 12)
+	columns.alignment = BoxContainer.ALIGNMENT_CENTER
+	columns.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_root.add_child(columns)
 
-		dot_container.add_child(dot)
-		_hands_container.add_child(dot_container)
+	# === LEFT COLUMN: Weapons + Armor ===
+	var left_col := VBoxContainer.new()
+	left_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_col.add_theme_constant_override("separation", 8)
+	columns.add_child(left_col)
 
+	_add_section_label(left_col, "WEAPONS")
+	var weapons_row := HBoxContainer.new()
+	weapons_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	weapons_row.add_theme_constant_override("separation", 6)
+	for i in range(available_hands):
+		weapons_row.add_child(_make_slot_icon(i < used_hands, 36))
+	left_col.add_child(weapons_row)
 
-func _update_armor_slots() -> void:
-	var equipped_armor := _current_inventory.get_equipped_armor_slots()
+	left_col.add_child(HSeparator.new())
 
-	_set_slot_filled(_helmet_indicator, equipped_armor.has(Enums.EquipmentCategory.HELMET))
-	_set_slot_filled(_chest_indicator, equipped_armor.has(Enums.EquipmentCategory.CHESTPLATE))
-	_set_slot_filled(_gloves_indicator, equipped_armor.has(Enums.EquipmentCategory.GLOVES))
-	_set_slot_filled(_legs_indicator, equipped_armor.has(Enums.EquipmentCategory.LEGS))
-	_set_slot_filled(_boots_indicator, equipped_armor.has(Enums.EquipmentCategory.BOOTS))
+	_add_section_label(left_col, "ARMOR")
+	_add_slot_with_label(left_col, "Helmet", equipped_armor.has(Enums.EquipmentCategory.HELMET))
 
+	var chest_gloves_row := HBoxContainer.new()
+	chest_gloves_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	chest_gloves_row.add_theme_constant_override("separation", 16)
+	chest_gloves_row.add_child(_make_labeled_slot("Chest", equipped_armor.has(Enums.EquipmentCategory.CHESTPLATE)))
+	chest_gloves_row.add_child(_make_labeled_slot("Gloves", equipped_armor.has(Enums.EquipmentCategory.GLOVES)))
+	left_col.add_child(chest_gloves_row)
 
-func _update_jewelry_slots() -> void:
-	var equipped_armor := _current_inventory.get_equipped_armor_slots()
+	_add_slot_with_label(left_col, "Legs", equipped_armor.has(Enums.EquipmentCategory.LEGS))
+	_add_slot_with_label(left_col, "Boots", equipped_armor.has(Enums.EquipmentCategory.BOOTS))
 
-	# Necklace
-	_set_slot_filled(_necklace_indicator, equipped_armor.has(Enums.EquipmentCategory.NECKLACE))
+	# === RIGHT COLUMN: Jewelry + Rings ===
+	var right_col := VBoxContainer.new()
+	right_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_col.add_theme_constant_override("separation", 6)
+	columns.add_child(right_col)
 
-	# Rings - count how many are equipped
-	var ring_count := 0
-	for i in range(_current_inventory.placed_items.size()):
-		var placed: GridInventory.PlacedItem = _current_inventory.placed_items[i]
+	_add_section_label(right_col, "JEWELRY")
+	_add_slot_with_label(right_col, "Necklace", equipped_armor.has(Enums.EquipmentCategory.NECKLACE))
+
+	right_col.add_child(HSeparator.new())
+
+	# Count equipped rings
+	var ring_count: int = 0
+	for pi_idx in range(_current_inventory.placed_items.size()):
+		var placed: GridInventory.PlacedItem = _current_inventory.placed_items[pi_idx]
 		if placed.item_data.item_type == Enums.ItemType.PASSIVE_GEAR and placed.item_data.armor_slot == Enums.EquipmentCategory.RING:
 			ring_count += 1
 
-	# Clear existing ring slots
-	for child in _left_rings_container.get_children():
-		child.queue_free()
-	for child in _right_rings_container.get_children():
-		child.queue_free()
+	var rings_label := Label.new()
+	rings_label.text = "Rings"
+	rings_label.add_theme_font_size_override("font_size", 12)
+	rings_label.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	rings_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	right_col.add_child(rings_label)
 
-	# Create 5 ring slots per hand (left and right)
-	for hand in range(2):
-		var container: VBoxContainer = _left_rings_container if hand == 0 else _right_rings_container
-		var start_idx: int = hand * 5
+	var ring_columns := HBoxContainer.new()
+	ring_columns.alignment = BoxContainer.ALIGNMENT_CENTER
+	ring_columns.add_theme_constant_override("separation", 12)
+	right_col.add_child(ring_columns)
 
-		for i in range(5):
-			var ring_container := CenterContainer.new()
-			ring_container.custom_minimum_size = Vector2(0, 16)
+	# Left rings (5)
+	var left_rings := VBoxContainer.new()
+	left_rings.add_theme_constant_override("separation", 4)
+	left_rings.alignment = BoxContainer.ALIGNMENT_CENTER
+	var l_label := Label.new()
+	l_label.text = "Left"
+	l_label.add_theme_font_size_override("font_size", 11)
+	l_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+	l_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	left_rings.add_child(l_label)
+	for i in range(5):
+		left_rings.add_child(_make_slot_icon(i < ring_count, 22))
+	ring_columns.add_child(left_rings)
 
-			var ring_slot := Panel.new()
-			ring_slot.custom_minimum_size = Vector2(14, 14)
-			# Make it circular
-			var style := StyleBoxFlat.new()
-			# Color filled rings based on total count (first N rings are filled)
-			var global_idx: int = start_idx + i
-			style.bg_color = Color(0.8, 0.6, 0.2) if global_idx < ring_count else Color(0.3, 0.3, 0.3)
-			style.corner_radius_top_left = 7
-			style.corner_radius_top_right = 7
-			style.corner_radius_bottom_left = 7
-			style.corner_radius_bottom_right = 7
-			ring_slot.add_theme_stylebox_override("panel", style)
-
-			ring_container.add_child(ring_slot)
-			container.add_child(ring_container)
+	# Right rings (5)
+	var right_rings := VBoxContainer.new()
+	right_rings.add_theme_constant_override("separation", 4)
+	right_rings.alignment = BoxContainer.ALIGNMENT_CENTER
+	var r_label := Label.new()
+	r_label.text = "Right"
+	r_label.add_theme_font_size_override("font_size", 11)
+	r_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+	r_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	right_rings.add_child(r_label)
+	for i in range(5):
+		right_rings.add_child(_make_slot_icon((i + 5) < ring_count, 22))
+	ring_columns.add_child(right_rings)
 
 
-func _set_slot_filled(slot: Control, filled: bool) -> void:
-	if slot is Panel:
-		# Update the panel's background color
-		var style: StyleBoxFlat = slot.get_theme_stylebox("panel")
-		if style:
-			# Create new style to avoid modifying shared resource
-			var new_style := StyleBoxFlat.new()
-			new_style.bg_color = Color(0.2, 0.8, 0.3) if filled else Color(0.3, 0.3, 0.3)
+func _add_section_label(parent: VBoxContainer, text: String) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	parent.add_child(lbl)
 
-			# Necklace is circular (radius 19), armor slots are square (radius 6)
-			var radius: int = 19 if slot == _necklace_indicator else 6
-			new_style.corner_radius_top_left = radius
-			new_style.corner_radius_top_right = radius
-			new_style.corner_radius_bottom_left = radius
-			new_style.corner_radius_bottom_right = radius
-			slot.add_theme_stylebox_override("panel", new_style)
-	elif slot is ColorRect:
-		slot.color = Color(0.2, 0.8, 0.3) if filled else Color(0.3, 0.3, 0.3)
+
+func _add_slot_with_label(parent: VBoxContainer, slot_name: String, filled: bool) -> void:
+	parent.add_child(_make_labeled_slot(slot_name, filled))
+
+
+func _make_labeled_slot(slot_name: String, filled: bool) -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 2)
+	var lbl := Label.new()
+	lbl.text = slot_name
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(lbl)
+	var center := CenterContainer.new()
+	center.add_child(_make_slot_icon(filled, 36))
+	box.add_child(center)
+	return box
+
+
+func _make_slot_icon(filled: bool, icon_size: int = 28) -> TextureRect:
+	var tex_rect := TextureRect.new()
+	tex_rect.texture = _SlotTex
+	tex_rect.custom_minimum_size = Vector2(icon_size, icon_size)
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if filled:
+		tex_rect.modulate = Color(1.4, 1.2, 0.6, 1.0)
+	else:
+		tex_rect.modulate = Color(0.55, 0.5, 0.45, 0.7)
+	return tex_rect

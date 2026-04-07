@@ -134,30 +134,62 @@ func _build_compact_left_panel() -> void:
 		mp_bar.texture_progress = preload("res://assets/sprites/ui/bars/mp_fill.png")
 		vbox.add_child(mp_bar)
 
-	# Key stats
+	# Key stats — grouped by Offense / Defense
 	var inv: GridInventory = GameManager.party.grid_inventories.get(_current_character_id) if GameManager.party else null
 	if inv:
-		var sep := HSeparator.new()
-		vbox.add_child(sep)
+		vbox.add_child(HSeparator.new())
+		var entity: CombatEntity = CombatEntity.from_character(char_data, inv, {})
 		var equip_stats: Dictionary = inv.get_computed_stats().get("stats", {})
-		for stat_info in [["ATK", Enums.Stat.PHYSICAL_ATTACK], ["DEF", Enums.Stat.PHYSICAL_DEFENSE],
-				["M.ATK", Enums.Stat.MAGICAL_ATTACK], ["M.DEF", Enums.Stat.MAGICAL_DEFENSE], ["SPD", Enums.Stat.SPEED]]:
-			var base_val: int = char_data.get_base_stat(stat_info[1])
-			var equip_bonus: int = int(equip_stats.get(stat_info[1], 0.0))
-			var total: int = base_val + equip_bonus
-			var row := HBoxContainer.new()
-			var lbl_name := Label.new()
-			lbl_name.text = stat_info[0]
-			lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			lbl_name.add_theme_font_size_override("font_size", 13)
-			lbl_name.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-			row.add_child(lbl_name)
-			var lbl_val := Label.new()
-			lbl_val.text = str(total)
-			lbl_val.add_theme_font_size_override("font_size", 13)
-			lbl_val.add_theme_color_override("font_color", Color.WHITE if equip_bonus == 0 else Color(0.4, 1.0, 0.4))
-			row.add_child(lbl_val)
-			vbox.add_child(row)
+
+		# === OFFENSE ===
+		_add_section_header(vbox, "Offense")
+		for stat_info in [
+			["Phys. Attack", Enums.Stat.PHYSICAL_ATTACK],
+			["Mag. Attack", Enums.Stat.MAGICAL_ATTACK],
+			["Speed", Enums.Stat.SPEED],
+		]:
+			_add_stat_row(vbox, char_data, equip_stats, stat_info[0], stat_info[1])
+
+		var crit_rate: float = Constants.BASE_CRITICAL_RATE * 100.0 + equip_stats.get(Enums.Stat.CRITICAL_RATE, 0.0)
+		var crit_dmg: float = Constants.BASE_CRITICAL_DAMAGE * 100.0 + equip_stats.get(Enums.Stat.CRITICAL_DAMAGE, 0.0)
+		_add_pct_row(vbox, "Crit Rate", crit_rate, equip_stats.get(Enums.Stat.CRITICAL_RATE, 0.0) > 0)
+		_add_pct_row(vbox, "Crit Damage", crit_dmg, equip_stats.get(Enums.Stat.CRITICAL_DAMAGE, 0.0) > 0)
+
+		vbox.add_child(HSeparator.new())
+
+		# === DEFENSE ===
+		_add_section_header(vbox, "Defense")
+		_add_stat_row(vbox, char_data, equip_stats, "Phys. Defense", Enums.Stat.PHYSICAL_DEFENSE)
+		_add_stat_row(vbox, char_data, equip_stats, "Mag. Defense", Enums.Stat.MAGICAL_DEFENSE)
+
+		# Armor pools (refilled each turn)
+		var armor_row := HBoxContainer.new()
+		var armor_lbl := Label.new()
+		armor_lbl.text = "Phys. Armor"
+		armor_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		armor_lbl.add_theme_font_size_override("font_size", 13)
+		armor_lbl.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+		armor_row.add_child(armor_lbl)
+		var armor_val := Label.new()
+		armor_val.text = "%d / turn" % entity.base_armor
+		armor_val.add_theme_font_size_override("font_size", 13)
+		armor_val.add_theme_color_override("font_color", Color(0.85, 0.65, 0.4) if entity.base_armor > 0 else Color(0.5, 0.5, 0.5))
+		armor_row.add_child(armor_val)
+		vbox.add_child(armor_row)
+
+		var spirit_row := HBoxContainer.new()
+		var spirit_lbl := Label.new()
+		spirit_lbl.text = "Spirit Shield"
+		spirit_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		spirit_lbl.add_theme_font_size_override("font_size", 13)
+		spirit_lbl.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+		spirit_row.add_child(spirit_lbl)
+		var spirit_val := Label.new()
+		spirit_val.text = "%d / turn" % entity.base_spirit_shield
+		spirit_val.add_theme_font_size_override("font_size", 13)
+		spirit_val.add_theme_color_override("font_color", Color(0.55, 0.65, 0.95) if entity.base_spirit_shield > 0 else Color(0.5, 0.5, 0.5))
+		spirit_row.add_child(spirit_val)
+		vbox.add_child(spirit_row)
 
 	# Equipment slots
 	var sep2 := HSeparator.new()
@@ -171,6 +203,49 @@ func _build_compact_left_panel() -> void:
 		_equipment_panel = load("res://scenes/inventory/ui/equipment_slots_panel.tscn").instantiate()
 		vbox.add_child(_equipment_panel)
 		_equipment_panel.setup(inv)
+
+
+func _add_section_header(parent: VBoxContainer, text: String) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
+	parent.add_child(lbl)
+
+
+func _add_stat_row(parent: VBoxContainer, char_data: CharacterData, equip_stats: Dictionary, label_text: String, stat_id: int) -> void:
+	var base_val: int = char_data.get_base_stat(stat_id)
+	var equip_bonus: int = int(equip_stats.get(stat_id, 0.0))
+	var total: int = base_val + equip_bonus
+	var row := HBoxContainer.new()
+	var lbl_name := Label.new()
+	lbl_name.text = label_text
+	lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_name.add_theme_font_size_override("font_size", 13)
+	lbl_name.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	row.add_child(lbl_name)
+	var lbl_val := Label.new()
+	lbl_val.text = str(total)
+	lbl_val.add_theme_font_size_override("font_size", 13)
+	lbl_val.add_theme_color_override("font_color", Color(0.9, 0.85, 0.75) if equip_bonus == 0 else Color(0.4, 1.0, 0.4))
+	row.add_child(lbl_val)
+	parent.add_child(row)
+
+
+func _add_pct_row(parent: VBoxContainer, label_text: String, value: float, has_bonus: bool) -> void:
+	var row := HBoxContainer.new()
+	var lbl_name := Label.new()
+	lbl_name.text = label_text
+	lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl_name.add_theme_font_size_override("font_size", 13)
+	lbl_name.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	row.add_child(lbl_name)
+	var lbl_val := Label.new()
+	lbl_val.text = "%.0f%%" % value
+	lbl_val.add_theme_font_size_override("font_size", 13)
+	lbl_val.add_theme_color_override("font_color", Color(0.9, 0.85, 0.75) if not has_bonus else Color(0.9, 0.75, 0.3))
+	row.add_child(lbl_val)
+	parent.add_child(row)
 
 
 # ---------------------------------------------------------------------------
