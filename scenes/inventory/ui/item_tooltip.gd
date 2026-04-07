@@ -6,19 +6,22 @@ const FONT_SIZE := 12  ## Font size used for all dynamically-created labels in t
 ## When true, the tooltip stays in its layout position instead of floating.
 var embedded: bool = false
 
-## Track currently shown item to avoid redundant rebuilds (prevents flicker).
-var _current_item: ItemData = null
-var _current_placed: GridInventory.PlacedItem = null
+## When true, hide_tooltip() is ignored — tooltip stays locked on current item.
+var locked: bool = false
 
-@onready var _name_label: Label = $Margin/VBox/NameLabel
-@onready var _rarity_label: Label = $Margin/VBox/RarityLabel
-@onready var _type_label: Label = $Margin/VBox/TypeLabel
-@onready var _price_label: Label = $Margin/VBox/PriceLabel
-@onready var _stats_container: VBoxContainer = $Margin/VBox/StatsContainer
-@onready var _comparison_container: VBoxContainer = $Margin/VBox/ComparisonContainer
-@onready var _modifier_section: VBoxContainer = $Margin/VBox/ModifierSection
-@onready var _modifier_list: VBoxContainer = $Margin/VBox/ModifierSection/ModifierList
-@onready var _description_label: Label = $Margin/VBox/DescriptionLabel
+## Track currently shown item to avoid redundant rebuilds (prevents flicker).
+var _current_item = null
+var _current_placed = null
+
+@onready var _name_label: Label = $Scroll/Margin/VBox/NameLabel
+@onready var _rarity_label: Label = $Scroll/Margin/VBox/RarityLabel
+@onready var _type_label: Label = $Scroll/Margin/VBox/TypeLabel
+@onready var _price_label: Label = $Scroll/Margin/VBox/PriceLabel
+@onready var _stats_container: VBoxContainer = $Scroll/Margin/VBox/StatsContainer
+@onready var _comparison_container: VBoxContainer = $Scroll/Margin/VBox/ComparisonContainer
+@onready var _modifier_section: VBoxContainer = $Scroll/Margin/VBox/ModifierSection
+@onready var _modifier_list: VBoxContainer = $Scroll/Margin/VBox/ModifierSection/ModifierList
+@onready var _description_label: Label = $Scroll/Margin/VBox/DescriptionLabel
 
 
 func _ready() -> void:
@@ -38,6 +41,9 @@ func _ready() -> void:
 
 
 func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO, price: int = -1, price_label: String = "Value") -> void:
+	# When locked, don't replace the displayed item
+	if locked:
+		return
 	# Skip rebuild if already showing the same item (prevents flicker)
 	if _current_item == item and _current_placed == placed and visible:
 		return
@@ -217,6 +223,8 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 
 ## Show a tooltip for a purchasable backpack cell.
 func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) -> void:
+	if locked:
+		return
 	_name_label.text = "Unlock Cell"
 	_name_label.add_theme_color_override("font_color", Color(0.9, 0.75, 0.1))
 	_rarity_label.text = ""
@@ -237,6 +245,8 @@ func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) ->
 
 
 func hide_tooltip() -> void:
+	if locked:
+		return
 	_current_item = null
 	_current_placed = null
 	if embedded:

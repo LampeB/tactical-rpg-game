@@ -278,6 +278,12 @@ func _update_element_bar(inv: GridInventory) -> void:
 # ---------------------------------------------------------------------------
 
 func _input(event: InputEvent) -> void:
+	# CTRL hold locks the tooltip on the currently displayed item; release clears it
+	if event is InputEventKey and event.keycode == KEY_CTRL:
+		_item_tooltip.locked = event.pressed
+		if not event.pressed:
+			_clear_hover()
+
 	if _drag.is_dragging():
 		if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			if _drag.is_same_frame_release(Engine.get_process_frames()):

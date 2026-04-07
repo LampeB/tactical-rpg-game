@@ -286,6 +286,12 @@ func clear_hover_feedback() -> void:
 	_hover_reach_cells.clear()
 	_clear_glow_overlays()
 	_clear_star_overlays()
+	# Clear purchasable cell highlight
+	if _cells.has(_last_purchasable_cell):
+		var prev: Control = _cells[_last_purchasable_cell]
+		if prev.cell_state == prev.CellState.PURCHASABLE:
+			prev.set_state(prev.CellState.INACTIVE)
+	_last_purchasable_cell = Vector2i(-1, -1)
 
 
 ## Legacy methods — delegate to new system for backward compatibility
