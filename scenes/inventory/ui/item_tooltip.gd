@@ -33,6 +33,7 @@ func _ready() -> void:
 	style.content_margin_top = 8.0
 	style.content_margin_right = 8.0
 	style.content_margin_bottom = 8.0
+	style.modulate_color = Color(0.45, 0.4, 0.35, 1.0)
 	add_theme_stylebox_override("panel", style)
 
 

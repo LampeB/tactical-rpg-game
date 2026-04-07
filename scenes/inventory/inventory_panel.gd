@@ -49,6 +49,8 @@ func _ready() -> void:
 
 func setup_embedded(character_id: String) -> void:
 	_current_character_id = character_id
+	_item_tooltip.embedded = true
+	_item_tooltip.show_empty_state()
 	_refresh_all()
 
 

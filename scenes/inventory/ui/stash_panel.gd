@@ -46,13 +46,22 @@ var _filter_active: Dictionary = {
 
 
 func _ready() -> void:
+	# Swap normal/pressed styleboxes on filter buttons (selected = visually pressed)
+	_invert_button_styles(_tools_btn)
+	_invert_button_styles(_gear_btn)
+	_invert_button_styles(_mods_btn)
+	_invert_button_styles(_cons_btn)
+	_invert_button_styles(_mat_btn)
+	_invert_button_styles(_all_btn)
+
 	# Connect filter button signals
-	_tools_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.ACTIVE_TOOL))
-	_gear_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.PASSIVE_GEAR))
-	_mods_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.MODIFIER))
-	_cons_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.CONSUMABLE))
-	_mat_btn.toggled.connect(_on_filter_toggled.bind(Enums.ItemType.MATERIAL))
-	_all_btn.pressed.connect(_on_all_filters)
+	_tools_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.ACTIVE_TOOL))
+	_gear_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.PASSIVE_GEAR))
+	_mods_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.MODIFIER))
+	_cons_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.CONSUMABLE))
+	_mat_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.MATERIAL))
+	_all_btn.pressed.connect(_on_all_pressed)
+
 
 	# Connect sort button signals
 	_name_sort_btn.pressed.connect(_on_sort_pressed.bind(SortKey.NAME))
@@ -234,61 +243,44 @@ func _compare_by_key(a: ItemData, b: ItemData, key: SortKey) -> int:
 #  Filtering
 # ════════════════════════════════════════════════════════════════════════════
 
-func _on_filter_toggled(button_pressed: bool, item_type: Enums.ItemType) -> void:
-	if not button_pressed:
-		# Don't allow turning off the last active filter - just reactivate it
-		var active_count: int = 0
-		for type in _filter_active:
-			if _filter_active[type]:
-				active_count += 1
-		if active_count <= 1:
-			# Force this button back on (without triggering signal)
-			match item_type:
-				Enums.ItemType.ACTIVE_TOOL: _tools_btn.set_pressed_no_signal(true)
-				Enums.ItemType.PASSIVE_GEAR: _gear_btn.set_pressed_no_signal(true)
-				Enums.ItemType.MODIFIER: _mods_btn.set_pressed_no_signal(true)
-				Enums.ItemType.CONSUMABLE: _cons_btn.set_pressed_no_signal(true)
-				Enums.ItemType.MATERIAL: _mat_btn.set_pressed_no_signal(true)
-			return
-
-	# Turn off all filters except the clicked one
-	_filter_active[Enums.ItemType.ACTIVE_TOOL] = false
-	_filter_active[Enums.ItemType.PASSIVE_GEAR] = false
-	_filter_active[Enums.ItemType.MODIFIER] = false
-	_filter_active[Enums.ItemType.CONSUMABLE] = false
-	_filter_active[Enums.ItemType.MATERIAL] = false
-
-	# Turn on only the selected filter
-	_filter_active[item_type] = true
-
-	# Update all button states to match (without triggering signals)
-	_tools_btn.set_pressed_no_signal(item_type == Enums.ItemType.ACTIVE_TOOL)
-	_gear_btn.set_pressed_no_signal(item_type == Enums.ItemType.PASSIVE_GEAR)
-	_mods_btn.set_pressed_no_signal(item_type == Enums.ItemType.MODIFIER)
-	_cons_btn.set_pressed_no_signal(item_type == Enums.ItemType.CONSUMABLE)
-	_mat_btn.set_pressed_no_signal(item_type == Enums.ItemType.MATERIAL)
-
-	# Re-apply filters with cached data
+func _on_filter_pressed(item_type: Enums.ItemType) -> void:
+	# Solo this filter — activate it, deactivate all others
+	for type in _filter_active.keys():
+		_filter_active[type] = (type == item_type)
+	_sync_filter_buttons()
 	refresh(_cached_stash, _cached_returnable)
 
 
-func _on_all_filters() -> void:
-	# Enable all filters
-	_filter_active[Enums.ItemType.ACTIVE_TOOL] = true
-	_filter_active[Enums.ItemType.PASSIVE_GEAR] = true
-	_filter_active[Enums.ItemType.MODIFIER] = true
-	_filter_active[Enums.ItemType.CONSUMABLE] = true
-	_filter_active[Enums.ItemType.MATERIAL] = true
-
-	# Update button states (without triggering signals)
-	_tools_btn.set_pressed_no_signal(true)
-	_gear_btn.set_pressed_no_signal(true)
-	_mods_btn.set_pressed_no_signal(true)
-	_cons_btn.set_pressed_no_signal(true)
-	_mat_btn.set_pressed_no_signal(true)
-
-	# Re-apply filters
+func _on_all_pressed() -> void:
+	# Activate all filters
+	for type in _filter_active.keys():
+		_filter_active[type] = true
+	_sync_filter_buttons()
 	refresh(_cached_stash, _cached_returnable)
+
+
+func _sync_filter_buttons() -> void:
+	_tools_btn.set_pressed_no_signal(_filter_active[Enums.ItemType.ACTIVE_TOOL])
+	_gear_btn.set_pressed_no_signal(_filter_active[Enums.ItemType.PASSIVE_GEAR])
+	_mods_btn.set_pressed_no_signal(_filter_active[Enums.ItemType.MODIFIER])
+	_cons_btn.set_pressed_no_signal(_filter_active[Enums.ItemType.CONSUMABLE])
+	_mat_btn.set_pressed_no_signal(_filter_active[Enums.ItemType.MATERIAL])
+	var all_active: bool = true
+	for type in _filter_active:
+		if not _filter_active[type]:
+			all_active = false
+			break
+	_all_btn.set_pressed_no_signal(all_active)
+
+
+func _invert_button_styles(btn: Button) -> void:
+	## Swaps the normal and pressed styleboxes from the global theme.
+	var normal: StyleBox = btn.get_theme_stylebox("normal", "Button")
+	var pressed: StyleBox = btn.get_theme_stylebox("pressed", "Button")
+	if normal and pressed:
+		btn.add_theme_stylebox_override("normal", pressed)
+		btn.add_theme_stylebox_override("pressed", normal)
+		btn.add_theme_stylebox_override("hover", pressed)
 
 
 # ════════════════════════════════════════════════════════════════════════════
