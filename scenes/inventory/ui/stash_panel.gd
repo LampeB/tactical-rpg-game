@@ -54,12 +54,17 @@ func _ready() -> void:
 	_invert_button_styles(_mat_btn)
 	_invert_button_styles(_all_btn)
 
-	# Connect filter button signals
-	_tools_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.ACTIVE_TOOL))
-	_gear_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.PASSIVE_GEAR))
-	_mods_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.MODIFIER))
-	_cons_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.CONSUMABLE))
-	_mat_btn.pressed.connect(_on_filter_pressed.bind(Enums.ItemType.MATERIAL))
+	# Connect filter button signals (left-click solos via pressed, right-click toggles via gui_input)
+	_tools_btn.pressed.connect(_on_filter_solo.bind(Enums.ItemType.ACTIVE_TOOL))
+	_gear_btn.pressed.connect(_on_filter_solo.bind(Enums.ItemType.PASSIVE_GEAR))
+	_mods_btn.pressed.connect(_on_filter_solo.bind(Enums.ItemType.MODIFIER))
+	_cons_btn.pressed.connect(_on_filter_solo.bind(Enums.ItemType.CONSUMABLE))
+	_mat_btn.pressed.connect(_on_filter_solo.bind(Enums.ItemType.MATERIAL))
+	_tools_btn.gui_input.connect(_on_filter_input.bind(Enums.ItemType.ACTIVE_TOOL, _tools_btn))
+	_gear_btn.gui_input.connect(_on_filter_input.bind(Enums.ItemType.PASSIVE_GEAR, _gear_btn))
+	_mods_btn.gui_input.connect(_on_filter_input.bind(Enums.ItemType.MODIFIER, _mods_btn))
+	_cons_btn.gui_input.connect(_on_filter_input.bind(Enums.ItemType.CONSUMABLE, _cons_btn))
+	_mat_btn.gui_input.connect(_on_filter_input.bind(Enums.ItemType.MATERIAL, _mat_btn))
 	_all_btn.pressed.connect(_on_all_pressed)
 
 
@@ -243,12 +248,31 @@ func _compare_by_key(a: ItemData, b: ItemData, key: SortKey) -> int:
 #  Filtering
 # ════════════════════════════════════════════════════════════════════════════
 
-func _on_filter_pressed(item_type: Enums.ItemType) -> void:
-	# Solo this filter — activate it, deactivate all others
+func _on_filter_solo(item_type: Enums.ItemType) -> void:
+	# Left click: solo this filter
 	for type in _filter_active.keys():
 		_filter_active[type] = (type == item_type)
 	_sync_filter_buttons()
 	refresh(_cached_stash, _cached_returnable)
+
+
+func _on_filter_input(event: InputEvent, item_type: Enums.ItemType, btn: Button) -> void:
+	# Right click: toggle this filter independently
+	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
+		return
+	var new_state: bool = not _filter_active[item_type]
+	# Don't allow turning off the last active filter
+	if not new_state:
+		var active_count: int = 0
+		for type in _filter_active:
+			if _filter_active[type]:
+				active_count += 1
+		if active_count <= 1:
+			return
+	_filter_active[item_type] = new_state
+	_sync_filter_buttons()
+	refresh(_cached_stash, _cached_returnable)
+	btn.accept_event()
 
 
 func _on_all_pressed() -> void:
