@@ -220,10 +220,15 @@ func _compare_items(a: Dictionary, b: Dictionary) -> bool:
 	var item_b: ItemData = b.item
 	var result: int = _compare_by_key(item_a, item_b, _sort_primary)
 	if result == 0:
-		# Secondary tiebreaker
+		# Secondary tiebreakers
 		match _sort_primary:
 			SortKey.TYPE:
-				result = int(item_b.rarity) - int(item_a.rarity)
+				# Same item_type → group by sub-category (sword/staff/helmet/etc.)
+				result = int(item_a.category) - int(item_b.category)
+				if result == 0:
+					result = int(item_b.rarity) - int(item_a.rarity)
+				if result == 0:
+					result = item_a.display_name.naturalnocasecmp_to(item_b.display_name)
 			SortKey.RARITY:
 				result = item_a.display_name.naturalnocasecmp_to(item_b.display_name)
 			SortKey.NAME:
