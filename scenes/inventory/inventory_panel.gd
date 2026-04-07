@@ -102,22 +102,36 @@ func _build_compact_left_panel() -> void:
 		hp_lbl.text = "HP: %d / %d" % [hp_cur, hp_max]
 		hp_lbl.add_theme_font_size_override("font_size", 13)
 		vbox.add_child(hp_lbl)
-		var hp_bar := ProgressBar.new()
+		var hp_bar := TextureProgressBar.new()
 		hp_bar.max_value = hp_max
 		hp_bar.value = hp_cur
-		hp_bar.custom_minimum_size = Vector2(0, 10)
-		hp_bar.show_percentage = false
+		hp_bar.custom_minimum_size = Vector2(0, 14)
+		hp_bar.nine_patch_stretch = true
+		hp_bar.stretch_margin_left = 4
+		hp_bar.stretch_margin_top = 4
+		hp_bar.stretch_margin_right = 4
+		hp_bar.stretch_margin_bottom = 4
+		hp_bar.texture_under = preload("res://assets/sprites/ui/bars/hp_empty.png")
+		hp_bar.texture_over = preload("res://assets/sprites/ui/bars/hp_frame.png")
+		hp_bar.texture_progress = preload("res://assets/sprites/ui/bars/hp_fill.png")
 		vbox.add_child(hp_bar)
 
 		var mp_lbl := Label.new()
 		mp_lbl.text = "MP: %d / %d" % [mp_cur, mp_max]
 		mp_lbl.add_theme_font_size_override("font_size", 13)
 		vbox.add_child(mp_lbl)
-		var mp_bar := ProgressBar.new()
+		var mp_bar := TextureProgressBar.new()
 		mp_bar.max_value = mp_max
 		mp_bar.value = mp_cur
-		mp_bar.custom_minimum_size = Vector2(0, 10)
-		mp_bar.show_percentage = false
+		mp_bar.custom_minimum_size = Vector2(0, 12)
+		mp_bar.nine_patch_stretch = true
+		mp_bar.stretch_margin_left = 4
+		mp_bar.stretch_margin_top = 4
+		mp_bar.stretch_margin_right = 4
+		mp_bar.stretch_margin_bottom = 4
+		mp_bar.texture_under = preload("res://assets/sprites/ui/bars/mp_empty.png")
+		mp_bar.texture_over = preload("res://assets/sprites/ui/bars/mp_frame.png")
+		mp_bar.texture_progress = preload("res://assets/sprites/ui/bars/mp_fill.png")
 		vbox.add_child(mp_bar)
 
 	# Key stats

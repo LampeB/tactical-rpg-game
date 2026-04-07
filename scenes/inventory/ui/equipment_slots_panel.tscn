@@ -24,6 +24,8 @@ corner_radius_bottom_right = 19
 corner_radius_bottom_left = 19
 
 [node name="EquipmentSlotsPanel" type="PanelContainer" unique_id=1136755202]
+offset_right = 187.0
+offset_bottom = 382.0
 theme_override_styles/panel = SubResource("style_panel")
 script = ExtResource("1")
 

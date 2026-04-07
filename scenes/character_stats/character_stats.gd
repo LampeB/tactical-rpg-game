@@ -3,38 +3,43 @@ extends Control
 ## Shows character info, stat breakdown, inventory grid, skills panel, and stash.
 
 @onready var _bg: ColorRect = $BG
-@onready var _back_btn: Button = $VBox/TopBar/BackButton
+@onready var _back_btn: Button = $Window/VBox/TopBar/HBox/BackButton
 @warning_ignore("unused_private_class_variable")
-@onready var _title: Label = $VBox/TopBar/Title
-@onready var _gold_label: Label = $VBox/TopBar/Gold
-@onready var _character_tabs: HBoxContainer = $VBox/CharacterTabs
+@onready var _title: Label = $Window/VBox/TopBar/HBox/Title
+@onready var _gold_label: Label = $Window/VBox/TopBar/HBox/Gold
+@onready var _character_tabs: HBoxContainer = $Window/VBox/CharacterTabs
 
 # Left panel
-@onready var _char_name: Label = $VBox/Content/LeftPanel/VBox/CharHeader/CharName
-@onready var _class_level: Label = $VBox/Content/LeftPanel/VBox/CharHeader/ClassLevel
-@onready var _char_desc: Label = $VBox/Content/LeftPanel/VBox/CharHeader/CharDesc
-@onready var _hp_label: Label = $VBox/Content/LeftPanel/VBox/HPLabel
-@onready var _hp_bar: ProgressBar = $VBox/Content/LeftPanel/VBox/HPBar
-@onready var _mp_label: Label = $VBox/Content/LeftPanel/VBox/MPLabel
-@onready var _mp_bar: ProgressBar = $VBox/Content/LeftPanel/VBox/MPBar
-@onready var _stat_rows: VBoxContainer = $VBox/Content/LeftPanel/VBox/StatRows
-@onready var _advanced_stats_btn: Button = $VBox/Content/LeftPanel/VBox/AdvancedStatsBtn
+@onready var _portrait: TextureRect = $Window/VBox/Content/LeftPanel/Scroll/VBox/PortraitFrame/Portrait
+@onready var _char_name: Label = $Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader/CharName
+@onready var _class_level: Label = $Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader/ClassLevel
+@onready var _char_desc: Label = $Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader/CharDesc
+@onready var _hp_label: Label = $Window/VBox/Content/LeftPanel/Scroll/VBox/HPLabel
+@onready var _hp_bar: TextureProgressBar = $Window/VBox/Content/LeftPanel/Scroll/VBox/HPBar
+@onready var _mp_label: Label = $Window/VBox/Content/LeftPanel/Scroll/VBox/MPLabel
+@onready var _mp_bar: TextureProgressBar = $Window/VBox/Content/LeftPanel/Scroll/VBox/MPBar
+@onready var _stat_rows: VBoxContainer = $Window/VBox/Content/LeftPanel/Scroll/VBox/StatRows
+@onready var _advanced_stats_btn: Button = $Window/VBox/Content/LeftPanel/Scroll/VBox/AdvancedStatsBtn
+@onready var _combat_stats: VBoxContainer = $Window/VBox/Content/LeftPanel/Scroll/VBox/CombatStats
+@onready var _special_mechanics: VBoxContainer = $Window/VBox/Content/LeftPanel/Scroll/VBox/SpecialMechanics
 
 # Center panel
-@onready var _inventory_label: Label = $VBox/Content/CenterPanel/VBox/InventoryLabel
-@onready var _grid_panel: Control = $VBox/Content/CenterPanel/VBox/GridCentering/GridPanel
+@onready var _inventory_label: Label = $Window/VBox/Content/CenterPanel/VBox/InventoryLabel
+@onready var _grid_panel: Control = $Window/VBox/Content/CenterPanel/VBox/GridCentering/GridPanel
 
 # Center panel - element bar
-@onready var _element_bar: HBoxContainer = $VBox/Content/CenterPanel/VBox/ElementBar
+@onready var _element_bar: HBoxContainer = $Window/VBox/Content/CenterPanel/VBox/ElementBar
 
 # Right panel
-@onready var _skills_header: Label = $VBox/Content/RightPanel/VBox/TopSlot/SkillsHeader
-@onready var _skills_sep: HSeparator = $VBox/Content/RightPanel/VBox/TopSlot/HSeparator
-@onready var _skills_scroll: ScrollContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll
-@onready var _skills_list: VBoxContainer = $VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll/SkillsList
-@onready var _item_tooltip: PanelContainer = $VBox/Content/RightPanel/VBox/TopSlot/ItemTooltip
-@onready var _top_slot: Control = $VBox/Content/RightPanel/VBox/TopSlot
-@onready var _stash_panel: PanelContainer = $VBox/Content/RightPanel/VBox/StashPanel
+@onready var _skills_header: Label = $Window/VBox/Content/RightPanel/VBox/TopSlot/SkillsHeader
+@onready var _skills_sep: HSeparator = $Window/VBox/Content/RightPanel/VBox/TopSlot/HSeparator
+@onready var _skills_scroll: ScrollContainer = $Window/VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll
+@onready var _skills_list: VBoxContainer = $Window/VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll/SkillsList
+@onready var _item_tooltip: PanelContainer = $Window/VBox/Content/RightPanel/VBox/TopSlot/ItemTooltip
+@onready var _top_slot: Control = $Window/VBox/Content/RightPanel/VBox/TopSlot
+@onready var _element_rows: VBoxContainer = $Window/VBox/Content/RightPanel/VBox/ElementRows
+@onready var _passive_list: VBoxContainer = $Window/VBox/Content/RightPanel/VBox/PassiveScroll/PassiveList
+@onready var _stash_panel: PanelContainer = $Window/VBox/Content/RightPanel/VBox/StashPanel
 
 var _skill_tooltip: PanelContainer = null
 
@@ -108,7 +113,6 @@ const STAT_NAMES: Dictionary = {
 
 
 func _ready() -> void:
-	_bg.color = UIColors.BG_CHARACTER_STATS
 	_back_btn.pressed.connect(_on_back)
 	_advanced_stats_btn.pressed.connect(_on_advanced_stats_pressed)
 
@@ -152,7 +156,7 @@ func _ready() -> void:
 
 	# Tooltip is embedded in the right panel (no floating layer)
 	_item_tooltip.embedded = true
-	_item_tooltip.visible = false
+	_item_tooltip.show_empty_state()
 	_drag_preview.visible = false
 
 	# Skill tooltip — floating overlay positioned near cursor
@@ -272,8 +276,8 @@ var _embed_mode: int = EmbedMode.FULL
 func setup_embedded(character_id: String, mode: int = EmbedMode.FULL) -> void:
 	_embedded = true
 	_embed_mode = mode
-	$VBox/TopBar.visible = false
-	$VBox/CharacterTabs.visible = false
+	$Window/VBox/TopBar.visible = false
+	$Window/VBox/CharacterTabs.visible = false
 	match mode:
 		EmbedMode.INVENTORY_ONLY:
 			# Replace left panel with compact stats + equipment slots
@@ -284,7 +288,7 @@ func setup_embedded(character_id: String, mode: int = EmbedMode.FULL) -> void:
 			_skills_scroll.visible = false
 		EmbedMode.STATS_ONLY:
 			# Hide grid and stash — show only stats + skills
-			$VBox/Content/CenterPanel.visible = false
+			$Window/VBox/Content/CenterPanel.visible = false
 			_stash_panel.visible = false
 	_on_character_selected(character_id)
 
@@ -308,10 +312,14 @@ func _on_character_selected(character_id: String) -> void:
 		EmbedMode.STATS_ONLY:
 			_update_left_panel(char_data, inv, passive_bonuses)
 			_update_skills_panel(char_data, inv)
+			_update_element_display(inv)
+			_update_passive_display(passive_bonuses)
 		_:
 			_update_left_panel(char_data, inv, passive_bonuses)
 			_update_center_panel(inv)
 			_update_skills_panel(char_data, inv)
+			_update_element_display(inv)
+			_update_passive_display(passive_bonuses)
 	if GameManager.party:
 		_stash_panel.refresh(GameManager.party.stash)
 
@@ -323,6 +331,12 @@ func _update_left_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 	_cached_char_data = char_data
 	_cached_inv = inv
 	_cached_passive_bonuses = passive_bonuses
+
+	# Portrait
+	if char_data.portrait:
+		_portrait.texture = char_data.portrait
+	elif char_data.sprite:
+		_portrait.texture = char_data.sprite
 
 	# Character header
 	_char_name.text = char_data.display_name
@@ -354,6 +368,9 @@ func _update_left_panel(char_data: CharacterData, inv: GridInventory, passive_bo
 
 	# Stat table
 	_update_stat_table(char_data, inv, passive_bonuses)
+
+	# Combat stats & special mechanics
+	_update_combat_stats(char_data, inv, passive_bonuses)
 
 
 
@@ -476,6 +493,75 @@ func _on_advanced_stats_pressed() -> void:
 		_update_stat_table(_cached_char_data, _cached_inv, _cached_passive_bonuses)
 
 
+func _update_combat_stats(char_data: CharacterData, inv: GridInventory, passive_bonuses: Dictionary) -> void:
+	_clear_children(_combat_stats)
+	_clear_children(_special_mechanics)
+
+	var entity: CombatEntity = CombatEntity.from_character(char_data, inv, passive_bonuses)
+
+	# Physical/Magical power from weapons
+	var phys_power: int = entity.get_total_weapon_physical_power()
+	var mag_power: int = entity.get_total_weapon_magical_power()
+	if phys_power > 0:
+		_add_combat_row("Weapon Power", str(phys_power), Constants.COLOR_TEXT_IMPORTANT)
+	if mag_power > 0:
+		_add_combat_row("Magic Power", str(mag_power), Color(0.6, 0.7, 1.0))
+
+	# Armor / Spirit Shield
+	if entity.base_armor > 0:
+		_add_combat_row("Phys. Armor", str(entity.base_armor) + " / turn", Color(0.7, 0.6, 0.4))
+	if entity.base_spirit_shield > 0:
+		_add_combat_row("Spirit Shield", str(entity.base_spirit_shield) + " / turn", Color(0.5, 0.6, 0.9))
+
+	# Crit
+	var crit_rate: float = entity.get_effective_stat(Enums.Stat.CRITICAL_RATE)
+	var crit_dmg: float = entity.get_effective_stat(Enums.Stat.CRITICAL_DAMAGE)
+	_add_combat_row("Crit Rate", "%.0f%%" % crit_rate, Constants.COLOR_TEXT_EMPHASIS)
+	_add_combat_row("Crit Damage", "%.0f%%" % crit_dmg, Constants.COLOR_TEXT_EMPHASIS)
+
+	# Special mechanics from equipment
+	var lifesteal: float = entity.get_item_lifesteal_percent()
+	if lifesteal > 0.0:
+		_add_special_row("Lifesteal: %d%%" % int(lifesteal * 100), Color(0.4, 1.0, 0.4))
+	var on_kill_heal: float = entity.get_on_kill_heal_percent()
+	if on_kill_heal > 0.0:
+		_add_special_row("On Kill: Heal %d%% HP" % int(on_kill_heal * 100), Color(0.4, 1.0, 0.4))
+	if entity.has_force_aoe() or entity.has_innate_force_aoe():
+		_add_special_row("Attacks hit all enemies", Color(1.0, 0.7, 0.3))
+	var extra_hits: int = entity.get_extra_hit_count()
+	if extra_hits > 0:
+		_add_special_row("+%d extra hit(s)" % extra_hits, Color(1.0, 0.85, 0.2))
+
+	# Passive special effects summary
+	for effect_id in entity.passive_special_effects:
+		var desc: String = PassiveEffects.get_description(effect_id)
+		if not desc.is_empty():
+			_add_special_row(desc, Color(0.7, 0.85, 1.0))
+
+
+func _add_combat_row(stat_name: String, value_text: String, value_color: Color) -> void:
+	var row := HBoxContainer.new()
+	var name_lbl := Label.new()
+	name_lbl.text = stat_name
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	UIThemes.style_label(name_lbl, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_SECONDARY)
+	row.add_child(name_lbl)
+	var val_lbl := Label.new()
+	val_lbl.text = value_text
+	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	UIThemes.style_label(val_lbl, Constants.FONT_SIZE_SMALL, value_color)
+	row.add_child(val_lbl)
+	_combat_stats.add_child(row)
+
+
+func _add_special_row(text: String, color: Color) -> void:
+	var lbl := Label.new()
+	lbl.text = "• " + text
+	UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, color)
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_special_mechanics.add_child(lbl)
+
+
 # === Center Panel: Inventory Grid ===
 
 func _update_center_panel(inv: GridInventory) -> void:
@@ -521,6 +607,81 @@ func _update_skills_panel(char_data: CharacterData, inv: GridInventory) -> void:
 		for skill in unlocked:
 			if skill.id not in innate_ids:
 				_skills_list.add_child(_build_skill_row(skill, false))
+
+	if _skills_list.get_child_count() == 0:
+		var empty_lbl := Label.new()
+		empty_lbl.text = "No active skills"
+		UIThemes.style_label(empty_lbl, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_FADED)
+		_skills_list.add_child(empty_lbl)
+
+
+func _update_element_display(inv: GridInventory) -> void:
+	_clear_children(_element_rows)
+	var element_points: Dictionary = inv.get_element_points() if inv else {}
+
+	var elements: Array = [
+		[Enums.Element.FIRE, "Fire"],
+		[Enums.Element.WATER, "Water"],
+		[Enums.Element.AIR, "Air"],
+		[Enums.Element.EARTH, "Earth"],
+		[Enums.Element.PLANT, "Plant"],
+		[Enums.Element.LIGHT, "Light"],
+		[Enums.Element.DARK, "Dark"],
+	]
+
+	var has_any: bool = false
+	for elem_info in elements:
+		var elem: int = elem_info[0]
+		var elem_name: String = elem_info[1]
+		var pts: int = element_points.get(elem, 0)
+		if pts <= 0:
+			continue
+		has_any = true
+		var row := HBoxContainer.new()
+		var color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+
+		var name_lbl := Label.new()
+		name_lbl.text = elem_name
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UIThemes.style_label(name_lbl, Constants.FONT_SIZE_TINY, color)
+		row.add_child(name_lbl)
+
+		var val_lbl := Label.new()
+		val_lbl.text = str(pts)
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		UIThemes.style_label(val_lbl, Constants.FONT_SIZE_TINY, color)
+		row.add_child(val_lbl)
+
+		_element_rows.add_child(row)
+
+	if not has_any:
+		var empty_lbl := Label.new()
+		empty_lbl.text = "No element gems equipped"
+		UIThemes.style_label(empty_lbl, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
+		_element_rows.add_child(empty_lbl)
+
+
+func _update_passive_display(passive_bonuses: Dictionary) -> void:
+	_clear_children(_passive_list)
+	var effects: Array = passive_bonuses.get("special_effects", [])
+
+	if effects.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "No passive abilities unlocked"
+		UIThemes.style_label(empty_lbl, Constants.FONT_SIZE_TINY, Constants.COLOR_TEXT_FADED)
+		_passive_list.add_child(empty_lbl)
+		return
+
+	for i in range(effects.size()):
+		var effect_id: String = effects[i]
+		var desc: String = PassiveEffects.get_description(effect_id)
+		if desc.is_empty():
+			continue
+		var lbl := Label.new()
+		lbl.text = "• " + desc
+		UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, Color(0.7, 0.85, 1.0))
+		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_passive_list.add_child(lbl)
 
 
 func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:
@@ -752,7 +913,7 @@ func _show_skills_section() -> void:
 	_skills_header.visible = true
 	_skills_sep.visible = true
 	_skills_scroll.visible = true
-	_item_tooltip.visible = false
+	_item_tooltip.hide_tooltip()
 	if _skill_tooltip:
 		_skill_tooltip.visible = false
 
@@ -1448,7 +1609,7 @@ func _on_inventory_changed_refresh_equipment(_character_id: String) -> void:
 
 func _replace_left_panel_with_compact_view() -> void:
 	## Replaces the full stats left panel with a compact summary + equipment slots.
-	var left_panel: PanelContainer = $VBox/Content/LeftPanel
+	var left_panel: PanelContainer = $Window/VBox/Content/LeftPanel
 	# Clear existing content
 	for child in left_panel.get_children():
 		child.queue_free()
@@ -1485,11 +1646,18 @@ func _replace_left_panel_with_compact_view() -> void:
 		hp_lbl.add_theme_font_size_override("font_size", 13)
 		vbox.add_child(hp_lbl)
 
-		var hp_bar := ProgressBar.new()
+		var hp_bar := TextureProgressBar.new()
 		hp_bar.max_value = hp_max
 		hp_bar.value = hp_cur
-		hp_bar.custom_minimum_size = Vector2(0, 10)
-		hp_bar.show_percentage = false
+		hp_bar.custom_minimum_size = Vector2(0, 16)
+		hp_bar.nine_patch_stretch = true
+		hp_bar.stretch_margin_left = 6
+		hp_bar.stretch_margin_top = 6
+		hp_bar.stretch_margin_right = 6
+		hp_bar.stretch_margin_bottom = 6
+		hp_bar.texture_under = preload("res://assets/sprites/ui/bars/hp_empty.png")
+		hp_bar.texture_over = preload("res://assets/sprites/ui/bars/hp_frame.png")
+		hp_bar.texture_progress = preload("res://assets/sprites/ui/bars/hp_fill.png")
 		vbox.add_child(hp_bar)
 
 		var mp_lbl := Label.new()
@@ -1497,11 +1665,18 @@ func _replace_left_panel_with_compact_view() -> void:
 		mp_lbl.add_theme_font_size_override("font_size", 13)
 		vbox.add_child(mp_lbl)
 
-		var mp_bar := ProgressBar.new()
+		var mp_bar := TextureProgressBar.new()
 		mp_bar.max_value = mp_max
 		mp_bar.value = mp_cur
-		mp_bar.custom_minimum_size = Vector2(0, 10)
-		mp_bar.show_percentage = false
+		mp_bar.custom_minimum_size = Vector2(0, 14)
+		mp_bar.nine_patch_stretch = true
+		mp_bar.stretch_margin_left = 6
+		mp_bar.stretch_margin_top = 6
+		mp_bar.stretch_margin_right = 6
+		mp_bar.stretch_margin_bottom = 6
+		mp_bar.texture_under = preload("res://assets/sprites/ui/bars/mp_empty.png")
+		mp_bar.texture_over = preload("res://assets/sprites/ui/bars/mp_frame.png")
+		mp_bar.texture_progress = preload("res://assets/sprites/ui/bars/mp_fill.png")
 		vbox.add_child(mp_bar)
 
 	# Compact stat summary

@@ -50,9 +50,11 @@ var _tab_buttons: Dictionary = {}  # Tab → Button
 # UI references
 var _sidebar: VBoxContainer
 var _content_area: Control
-var _carousel: HBoxContainer
+var _carousel: HBoxContainer  # character_tabs instance
 var _gold_label: Label
 var _bg: ColorRect
+
+const _CharacterTabsScene := preload("res://scenes/inventory/ui/character_tabs.tscn")
 
 
 func _ready() -> void:
@@ -77,11 +79,32 @@ func _build_ui() -> void:
 	_bg.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_bg)
 
+	# Window frame — fixed 16:9 centered
+	var window := PanelContainer.new()
+	window.set_anchors_preset(Control.PRESET_CENTER)
+	window.custom_minimum_size = Vector2(1760, 960)
+	window.size = Vector2(1760, 960)
+	window.offset_left = -880.0
+	window.offset_top = -480.0
+	window.offset_right = 880.0
+	window.offset_bottom = 480.0
+	var window_style := StyleBoxTexture.new()
+	window_style.texture = preload("res://assets/sprites/ui/theme/panel.png")
+	window_style.texture_margin_left = 5.0
+	window_style.texture_margin_top = 5.0
+	window_style.texture_margin_right = 5.0
+	window_style.texture_margin_bottom = 5.0
+	window_style.content_margin_left = 12.0
+	window_style.content_margin_top = 12.0
+	window_style.content_margin_right = 12.0
+	window_style.content_margin_bottom = 12.0
+	window.add_theme_stylebox_override("panel", window_style)
+	add_child(window)
+
 	# Main layout: sidebar + content
 	var main_hbox := HBoxContainer.new()
-	main_hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	main_hbox.add_theme_constant_override("separation", 0)
-	add_child(main_hbox)
+	window.add_child(main_hbox)
 
 	# === Sidebar ===
 	var sidebar_panel := PanelContainer.new()
@@ -153,13 +176,9 @@ func _build_ui() -> void:
 	right_vbox.add_theme_constant_override("separation", 0)
 	main_hbox.add_child(right_vbox)
 
-	# Character carousel — shows all characters, selected one is bigger with glow
-	_carousel = HBoxContainer.new()
-	_carousel.custom_minimum_size = Vector2(0, 70)
-	_carousel.alignment = BoxContainer.ALIGNMENT_CENTER
-	_carousel.add_theme_constant_override("separation", 12)
+	# Character tabs — same component as blacksmith/shop/loot
+	_carousel = _CharacterTabsScene.instantiate()
 	right_vbox.add_child(_carousel)
-
 	_build_carousel()
 
 	# Gold display (right-aligned, between carousel and content)
@@ -320,110 +339,25 @@ func _create_glossary_placeholder() -> Control:
 # Character Carousel
 # ---------------------------------------------------------------------------
 
-var _char_cards: Dictionary = {}  # character_id → PanelContainer
-var _char_glow_tweens: Dictionary = {}  # character_id → Tween
-
-
 func _build_carousel() -> void:
-	## Builds character cards for all squad members.
-	for child in _carousel.get_children():
-		child.queue_free()
-	_char_cards.clear()
-	_char_glow_tweens.clear()
-
+	## Sets up the shared character_tabs component.
 	if not GameManager.party or GameManager.party.squad.is_empty():
 		return
-
-	for char_id in GameManager.party.squad:
-		var char_data: CharacterData = GameManager.party.roster.get(char_id)
-		if not char_data:
-			continue
-
-		var card := PanelContainer.new()
-		card.mouse_filter = Control.MOUSE_FILTER_STOP
-		card.gui_input.connect(_on_char_card_input.bind(char_id))
-
-		var card_vbox := VBoxContainer.new()
-		card_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-		card_vbox.add_theme_constant_override("separation", 2)
-		card_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(card_vbox)
-
-		var name_label := Label.new()
-		name_label.text = char_data.display_name
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card_vbox.add_child(name_label)
-
-		var class_label := Label.new()
-		class_label.text = char_data.character_class
-		class_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		class_label.add_theme_font_size_override("font_size", 12)
-		class_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-		class_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card_vbox.add_child(class_label)
-
-		_carousel.add_child(card)
-		_char_cards[char_id] = card
-
-	_update_carousel_highlight()
+	_carousel.setup(GameManager.party.squad, GameManager.party.roster)
+	_carousel.character_selected.connect(_on_carousel_character_selected)
+	if not _current_character_id.is_empty():
+		_carousel.select(_current_character_id)
 
 
-func _update_carousel_highlight() -> void:
-	## Updates card sizes and glow to reflect the selected character.
-	for char_id in _char_cards:
-		var card: PanelContainer = _char_cards[char_id]
-		var is_selected: bool = (char_id == _current_character_id)
-
-		# Size
-		if is_selected:
-			card.custom_minimum_size = Vector2(120, 60)
-		else:
-			card.custom_minimum_size = Vector2(90, 45)
-
-		# Style
-		var style := StyleBoxFlat.new()
-		if is_selected:
-			style.bg_color = Color(0.15, 0.15, 0.22, 1.0)
-			style.border_color = Color(1.0, 0.85, 0.2, 1.0)
-			style.set_border_width_all(2)
-		else:
-			style.bg_color = Color(0.1, 0.1, 0.14, 1.0)
-			style.border_color = Color(0.3, 0.3, 0.35, 1.0)
-			style.set_border_width_all(1)
-		style.set_corner_radius_all(4)
-		style.set_content_margin_all(6)
-		card.add_theme_stylebox_override("panel", style)
-
-		# Font sizes
-		var name_label: Label = card.get_child(0).get_child(0)
-		var class_label: Label = card.get_child(0).get_child(1)
-		name_label.add_theme_font_size_override("font_size", 16 if is_selected else 13)
-		name_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.75) if is_selected else Color(0.7, 0.7, 0.7))
-		class_label.visible = is_selected
-
-		# Glow animation on selected
-		if _char_glow_tweens.has(char_id) and _char_glow_tweens[char_id]:
-			_char_glow_tweens[char_id].kill()
-			_char_glow_tweens[char_id] = null
-
-		if is_selected:
-			var tween := card.create_tween().set_loops()
-			tween.tween_property(style, "border_color", Color(1.0, 0.85, 0.2, 1.0), 0.5)
-			tween.tween_property(style, "border_color", Color(1.0, 0.55, 0.0, 1.0), 0.5)
-			_char_glow_tweens[char_id] = tween
-
-
-func _on_char_card_input(event: InputEvent, char_id: String) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_select_character(char_id)
+func _on_carousel_character_selected(char_id: String) -> void:
+	_select_character(char_id)
 
 
 func _select_character(char_id: String) -> void:
 	if char_id == _current_character_id:
 		return
 	_current_character_id = char_id
-	_update_carousel_highlight()
+	_carousel.select(char_id)
 	# Refresh current view with new character
 	if _current_tab in CHARACTER_TABS and _views.has(_current_tab):
 		var view: Control = _views[_current_tab]

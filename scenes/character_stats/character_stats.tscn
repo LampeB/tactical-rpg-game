@@ -6,241 +6,381 @@
 [ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="4_drag"]
 [ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="5_tooltip"]
 [ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="6_stash"]
+[ext_resource type="Texture2D" uid="uid://mpxc0h376rsd" path="res://assets/sprites/ui/theme/panel.png" id="7_panel"]
+[ext_resource type="Texture2D" uid="uid://tig6lrd2wsrw" path="res://assets/sprites/ui/theme/panel_dark.png" id="8_panel_dark"]
+[ext_resource type="Texture2D" uid="uid://diikgy8pkfuc6" path="res://assets/sprites/ui/theme/panel_accent.png" id="9_panel_accent"]
+[ext_resource type="Texture2D" uid="uid://cjg5l5xsi670l" path="res://assets/sprites/ui/theme/portrait_frame.png" id="11_portrait"]
+[ext_resource type="Texture2D" uid="uid://d2uhpjr4n8tqq" path="res://assets/sprites/ui/theme/banner.png" id="12_banner"]
+[ext_resource type="Texture2D" uid="uid://bar_hp_fill01" path="res://assets/sprites/ui/bars/hp_fill.png" id="13_hp_fill"]
+[ext_resource type="Texture2D" uid="uid://bar_hp_empt01" path="res://assets/sprites/ui/bars/hp_empty.png" id="14_hp_empty"]
+[ext_resource type="Texture2D" uid="uid://bar_hp_fram01" path="res://assets/sprites/ui/bars/hp_frame.png" id="15_hp_frame"]
+[ext_resource type="Texture2D" uid="uid://bar_mp_fill01" path="res://assets/sprites/ui/bars/mp_fill.png" id="16_mp_fill"]
+[ext_resource type="Texture2D" uid="uid://bar_mp_empt01" path="res://assets/sprites/ui/bars/mp_empty.png" id="17_mp_empty"]
+[ext_resource type="Texture2D" uid="uid://bar_mp_fram01" path="res://assets/sprites/ui/bars/mp_frame.png" id="18_mp_frame"]
 
-[sub_resource type="StyleBoxFlat" id="style_left_panel"]
-bg_color = Color(0.12, 0.1, 0.08, 0.9)
-border_width_right = 2
-border_color = Color(0.8, 0.5, 0.3, 0.5)
+[sub_resource type="StyleBoxTexture" id="style_window"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+texture = ExtResource("7_panel")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
-[sub_resource type="StyleBoxFlat" id="style_center_panel"]
-bg_color = Color(0.15, 0.12, 0.1, 0.9)
-border_width_left = 2
-border_width_right = 2
-border_color = Color(0.6, 0.6, 0.6, 0.3)
+[sub_resource type="StyleBoxTexture" id="style_left_panel"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+texture = ExtResource("8_panel_dark")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
-[sub_resource type="StyleBoxFlat" id="style_right_panel"]
-bg_color = Color(0.08, 0.08, 0.12, 0.9)
-border_width_left = 2
-border_color = Color(0.3, 0.5, 0.8, 0.5)
+[sub_resource type="StyleBoxTexture" id="style_center_panel"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+texture = ExtResource("8_panel_dark")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
-[node name="CharacterStats" type="Control"]
+[sub_resource type="StyleBoxTexture" id="style_right_panel"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+texture = ExtResource("9_panel_accent")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxTexture" id="style_topbar"]
+content_margin_left = 12.0
+content_margin_top = 6.0
+content_margin_right = 12.0
+content_margin_bottom = 6.0
+texture = ExtResource("12_banner")
+texture_margin_left = 6.0
+texture_margin_top = 4.0
+texture_margin_right = 6.0
+texture_margin_bottom = 4.0
+
+[node name="CharacterStats" type="Control" unique_id=431178530]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="BG" type="ColorRect" parent="."]
+[node name="BG" type="ColorRect" parent="." unique_id=1028162929]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+color = Color(0.05, 0.05, 0.08, 0.85)
+
+[node name="Window" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -880.0
+offset_top = -480.0
+offset_right = 880.0
+offset_bottom = 480.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.12, 0.18, 1)
+theme_override_styles/panel = SubResource("style_window")
 
-[node name="VBox" type="Control" parent="."]
+[node name="VBox" type="Control" parent="Window" unique_id=444260191]
+layout_mode = 2
+
+[node name="TopBar" type="PanelContainer" parent="Window/VBox" unique_id=419489994]
 layout_mode = 1
-anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 5.0
-offset_right = -10.0
-offset_bottom = -5.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("style_topbar")
 
-[node name="TopBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 30.0
-grow_horizontal = 2
+[node name="HBox" type="HBoxContainer" parent="Window/VBox/TopBar"]
+layout_mode = 2
 
-[node name="BackButton" type="Button" parent="VBox/TopBar"]
+[node name="BackButton" type="Button" parent="Window/VBox/TopBar/HBox" unique_id=1936876231]
 layout_mode = 2
 text = "< Back"
 
-[node name="Title" type="Label" parent="VBox/TopBar"]
+[node name="Title" type="Label" parent="Window/VBox/TopBar/HBox" unique_id=338401100]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 text = "Character"
 horizontal_alignment = 1
 
-[node name="Gold" type="Label" parent="VBox/TopBar"]
+[node name="Gold" type="Label" parent="Window/VBox/TopBar/HBox" unique_id=103561512]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Gold: 181"
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+text = "Gold: 0"
 
-[node name="CharacterTabs" parent="VBox" instance=ExtResource("2_tabs")]
+[node name="CharacterTabs" parent="Window/VBox" unique_id=244643830 instance=ExtResource("2_tabs")]
 layout_mode = 1
 anchor_right = 1.0
-offset_top = 35.0
-offset_bottom = 65.0
+offset_top = 46.0
+offset_bottom = 76.0
 
-[node name="Content" type="Control" parent="VBox"]
+[node name="Content" type="Control" parent="Window/VBox" unique_id=1367058883]
 layout_mode = 1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 70.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_top = 82.0
 
-[node name="LeftPanel" type="PanelContainer" parent="VBox/Content"]
+[node name="LeftPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=2003998376]
 layout_mode = 1
-anchor_right = 0.25
+anchor_right = 0.28
 anchor_bottom = 1.0
 offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
 theme_override_styles/panel = SubResource("style_left_panel")
 
-[node name="VBox" type="VBoxContainer" parent="VBox/Content/LeftPanel"]
+[node name="Scroll" type="ScrollContainer" parent="Window/VBox/Content/LeftPanel"]
 layout_mode = 2
-theme_override_constants/separation = 6
+horizontal_scroll_mode = 0
 
-[node name="CharHeader" type="VBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
+[node name="VBox" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll" unique_id=267067553]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="PortraitFrame" type="NinePatchRect" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 120)
+texture = ExtResource("11_portrait")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Portrait" type="TextureRect" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CharHeader" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1526585790]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="CharName" type="Label" parent="VBox/Content/LeftPanel/VBox/CharHeader"]
+[node name="CharName" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=154196784]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_font_sizes/font_size = 22
 text = "Kael"
 
-[node name="ClassLevel" type="Label" parent="VBox/Content/LeftPanel/VBox/CharHeader"]
+[node name="ClassLevel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=1176554054]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_colors/font_color = Color(0.75, 0.68, 0.58, 1)
 theme_override_font_sizes/font_size = 14
-text = "- class name - level XXX"
+text = "Warrior  —  Level 1"
 
-[node name="CharDesc" type="Label" parent="VBox/Content/LeftPanel/VBox/CharHeader"]
+[node name="CharDesc" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=1307696741]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 14
-text = "A nimble rogue who strikes fast and often."
+theme_override_colors/font_color = Color(0.6, 0.55, 0.48, 1)
+theme_override_font_sizes/font_size = 13
+text = "A seasoned warrior with balanced stats."
 autowrap_mode = 2
 
-[node name="HPLabel" type="Label" parent="VBox/Content/LeftPanel/VBox"]
+[node name="VitalsSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+
+[node name="HPLabel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1226551526]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "HP: 90 / 90"
 
-[node name="HPBar" type="ProgressBar" parent="VBox/Content/LeftPanel/VBox"]
-custom_minimum_size = Vector2(0, 14)
+[node name="HPBar" type="TextureProgressBar" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1689670767]
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
-show_percentage = false
+nine_patch_stretch = true
+stretch_margin_left = 6
+stretch_margin_top = 6
+stretch_margin_right = 6
+stretch_margin_bottom = 6
+texture_under = ExtResource("14_hp_empty")
+texture_over = ExtResource("15_hp_frame")
+texture_progress = ExtResource("13_hp_fill")
 
-[node name="MPLabel" type="Label" parent="VBox/Content/LeftPanel/VBox"]
+[node name="MPLabel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=2030662267]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "MP: 26 / 30"
 
-[node name="MPBar" type="ProgressBar" parent="VBox/Content/LeftPanel/VBox"]
-custom_minimum_size = Vector2(0, 14)
+[node name="MPBar" type="TextureProgressBar" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1876936093]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
-show_percentage = false
+nine_patch_stretch = true
+stretch_margin_left = 6
+stretch_margin_top = 6
+stretch_margin_right = 6
+stretch_margin_bottom = 6
+texture_under = ExtResource("17_mp_empty")
+texture_over = ExtResource("18_mp_frame")
+texture_progress = ExtResource("16_mp_fill")
 
-[node name="HSeparator1" type="HSeparator" parent="VBox/Content/LeftPanel/VBox"]
+[node name="StatsSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
 layout_mode = 2
 
-[node name="StatRows" type="VBoxContainer" parent="VBox/Content/LeftPanel/VBox"]
+[node name="StatRows" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1392470829]
 layout_mode = 2
-size_flags_vertical = 3
 theme_override_constants/separation = 3
 
-[node name="AdvancedStatsBtn" type="Button" parent="VBox/Content/LeftPanel/VBox"]
+[node name="AdvancedStatsBtn" type="Button" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1292874684]
 layout_mode = 2
 text = "Advanced Stats"
 
-[node name="CenterPanel" type="PanelContainer" parent="VBox/Content"]
+[node name="CombatSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+
+[node name="CombatStatsHeader" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+text = "Combat"
+
+[node name="CombatStats" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="SpecialMechanics" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="CenterPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=1254802211]
 layout_mode = 1
-anchor_left = 0.25
-anchor_right = 0.65
+anchor_left = 0.28
+anchor_right = 0.62
 anchor_bottom = 1.0
 offset_left = 4.0
 offset_right = -4.0
-grow_horizontal = 2
-grow_vertical = 2
 theme_override_styles/panel = SubResource("style_center_panel")
 
-[node name="VBox" type="VBoxContainer" parent="VBox/Content/CenterPanel"]
+[node name="VBox" type="VBoxContainer" parent="Window/VBox/Content/CenterPanel" unique_id=1772668398]
 layout_mode = 2
 
-[node name="InventoryLabel" type="Label" parent="VBox/Content/CenterPanel/VBox"]
+[node name="InventoryLabel" type="Label" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=1576857238]
 layout_mode = 2
 theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 text = "Inventory"
 horizontal_alignment = 1
 
-[node name="ElementBar" type="HBoxContainer" parent="VBox/Content/CenterPanel/VBox"]
+[node name="ElementBar" type="HBoxContainer" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=1404927054]
 layout_mode = 2
 theme_override_constants/separation = 2
 alignment = 1
 
-[node name="GridCentering" type="CenterContainer" parent="VBox/Content/CenterPanel/VBox"]
+[node name="GridCentering" type="CenterContainer" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=2104351029]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GridPanel" parent="VBox/Content/CenterPanel/VBox/GridCentering" instance=ExtResource("3_grid")]
+[node name="GridPanel" parent="Window/VBox/Content/CenterPanel/VBox/GridCentering" unique_id=1649482720 instance=ExtResource("3_grid")]
 layout_mode = 2
 
-[node name="RightPanel" type="PanelContainer" parent="VBox/Content"]
+[node name="RightPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=591403696]
 layout_mode = 1
-anchor_left = 0.65
+anchor_left = 0.62
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
-grow_horizontal = 2
-grow_vertical = 2
 theme_override_styles/panel = SubResource("style_right_panel")
 
-[node name="VBox" type="VBoxContainer" parent="VBox/Content/RightPanel"]
+[node name="VBox" type="VBoxContainer" parent="Window/VBox/Content/RightPanel" unique_id=361860331]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="TopSlot" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox"]
+[node name="TopSlot" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1596738573]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
-[node name="SkillsHeader" type="Label" parent="VBox/Content/RightPanel/VBox/TopSlot"]
+[node name="SkillsHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=1583336109]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
 theme_override_font_sizes/font_size = 17
 text = "Active Skills"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel/VBox/TopSlot"]
+[node name="HSeparator" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=608524402]
 layout_mode = 2
 
-[node name="SkillsScroll" type="ScrollContainer" parent="VBox/Content/RightPanel/VBox/TopSlot"]
+[node name="SkillsScroll" type="ScrollContainer" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=829297601]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="SkillsList" type="VBoxContainer" parent="VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll"]
+[node name="SkillsList" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox/TopSlot/SkillsScroll" unique_id=287291696]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="ItemTooltip" parent="VBox/Content/RightPanel/VBox/TopSlot" instance=ExtResource("5_tooltip")]
+[node name="ItemTooltip" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=1379029608 instance=ExtResource("5_tooltip")]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="HSeparator2" type="HSeparator" parent="VBox/Content/RightPanel/VBox"]
+[node name="ElementSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
 layout_mode = 2
 
-[node name="StashPanel" parent="VBox/Content/RightPanel/VBox" instance=ExtResource("6_stash")]
+[node name="ElementHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+text = "Element Points"
+
+[node name="ElementRows" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PassiveSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+
+[node name="PassiveHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+text = "Passive Abilities"
+
+[node name="PassiveScroll" type="ScrollContainer" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PassiveList" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox/PassiveScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="HSeparator2" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1291282664]
+layout_mode = 2
+
+[node name="StashPanel" parent="Window/VBox/Content/RightPanel/VBox" unique_id=286218055 instance=ExtResource("6_stash")]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DragLayer" type="CanvasLayer" parent="."]
+[node name="DragLayer" type="CanvasLayer" parent="." unique_id=1266779583]
 layer = 110
 
-[node name="DragPreview" parent="DragLayer" instance=ExtResource("4_drag")]
+[node name="DragPreview" parent="DragLayer" unique_id=1326877881 instance=ExtResource("4_drag")]

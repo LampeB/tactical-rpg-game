@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/grid_templates/grid_rogue.tres" id="2"]
 [ext_resource type="Resource" path="res://data/backpack_tiers/rogue.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/rogue_vex.png" id="4"]
 
 [resource]
 script = ExtResource("1")
@@ -10,6 +11,7 @@ id = "rogue"
 display_name = "Vex"
 character_class = "Rogue"
 description = "A nimble rogue who strikes fast and often. Wide 7x4 grid favors lightweight gear."
+portrait = ExtResource("4")
 max_hp = 90
 max_mp = 30
 speed = 16
