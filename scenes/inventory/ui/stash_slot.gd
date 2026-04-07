@@ -44,14 +44,6 @@ func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 		_use_button.pressed.connect(_on_use_button_pressed)
 		$HBox.add_child(_use_button)
 
-	# Discard button (always present)
-	var discard_btn := Button.new()
-	discard_btn.text = "X"
-	discard_btn.tooltip_text = "Discard"
-	discard_btn.custom_minimum_size = Vector2(32, 0)
-	discard_btn.add_theme_color_override("font_color", Constants.COLOR_DAMAGE)
-	discard_btn.pressed.connect(_on_discard_pressed)
-	$HBox.add_child(discard_btn)
 
 
 func _gui_input(event: InputEvent) -> void:
