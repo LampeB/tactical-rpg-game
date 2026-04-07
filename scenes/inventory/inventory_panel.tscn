@@ -87,6 +87,7 @@ theme_override_constants/separation = 6
 [node name="ItemTooltip" parent="Content/RightPanel/VBox" instance=ExtResource("4_tooltip")]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
 
 [node name="HSeparator" type="HSeparator" parent="Content/RightPanel/VBox"]
 layout_mode = 2
@@ -94,6 +95,7 @@ layout_mode = 2
 [node name="StashPanel" parent="Content/RightPanel/VBox" instance=ExtResource("5_stash")]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 2.5
 
 [node name="DragLayer" type="CanvasLayer" parent="."]
 layer = 110

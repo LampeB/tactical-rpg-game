@@ -9,61 +9,66 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_script")
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Scroll" type="ScrollContainer" parent="."]
 layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 6
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Scroll/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="NameLabel" type="Label" parent="Margin/VBox"]
+[node name="NameLabel" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 
-[node name="RarityLabel" type="Label" parent="Margin/VBox"]
+[node name="RarityLabel" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 
-[node name="TypeLabel" type="Label" parent="Margin/VBox"]
+[node name="TypeLabel" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 
-[node name="PriceLabel" type="Label" parent="Margin/VBox"]
+[node name="PriceLabel" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 visible = false
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(1, 0.84, 0, 1)
 
-[node name="HSeparator" type="HSeparator" parent="Margin/VBox"]
+[node name="HSeparator" type="HSeparator" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 
-[node name="StatsContainer" type="VBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 1
-
-[node name="ComparisonContainer" type="VBoxContainer" parent="Margin/VBox"]
+[node name="StatsContainer" type="VBoxContainer" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 1
 
-[node name="ModifierSection" type="VBoxContainer" parent="Margin/VBox"]
+[node name="ComparisonContainer" type="VBoxContainer" parent="Scroll/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="ModifierSection" type="VBoxContainer" parent="Scroll/Margin/VBox"]
 visible = false
 layout_mode = 2
 
-[node name="ModifierHeader" type="Label" parent="Margin/VBox/ModifierSection"]
+[node name="ModifierHeader" type="Label" parent="Scroll/Margin/VBox/ModifierSection"]
 layout_mode = 2
 text = "Modifier Bonuses:"
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
 
-[node name="ModifierList" type="VBoxContainer" parent="Margin/VBox/ModifierSection"]
+[node name="ModifierList" type="VBoxContainer" parent="Scroll/Margin/VBox/ModifierSection"]
 layout_mode = 2
 theme_override_constants/separation = 1
 
-[node name="DescriptionLabel" type="Label" parent="Margin/VBox"]
+[node name="DescriptionLabel" type="Label" parent="Scroll/Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
