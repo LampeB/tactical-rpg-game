@@ -5,9 +5,9 @@ var _entity: CombatEntity
 
 @onready var _portrait: TextureRect = $MarginContainer/HBox/PortraitContainer/Portrait
 @onready var _name_label: Label = $MarginContainer/HBox/VBox/NameLabel
-@onready var _hp_bar: ProgressBar = $MarginContainer/HBox/VBox/HPContainer/HPBar
+@onready var _hp_bar: TextureProgressBar = $MarginContainer/HBox/VBox/HPContainer/HPBar
 @onready var _hp_label: Label = $MarginContainer/HBox/VBox/HPContainer/HPBar/HPLabel
-@onready var _mp_bar: ProgressBar = $MarginContainer/HBox/VBox/MPContainer/MPBar
+@onready var _mp_bar: TextureProgressBar = $MarginContainer/HBox/VBox/MPContainer/MPBar
 @onready var _mp_label: Label = $MarginContainer/HBox/VBox/MPContainer/MPBar/MPLabel
 @onready var _mp_container: HBoxContainer = $MarginContainer/HBox/VBox/MPContainer
 @onready var _block_container: HBoxContainer = $MarginContainer/HBox/VBox/BlockContainer
@@ -39,21 +39,20 @@ func refresh() -> void:
 	_hp_bar.value = _entity.current_hp
 	_hp_label.text = "%d/%d" % [_entity.current_hp, _entity.max_hp]
 
-	# Color HP bar based on percentage
+	# Color HP bar fill based on percentage
 	var hp_pct: float = float(_entity.current_hp) / float(_entity.max_hp) if _entity.max_hp > 0 else 0.0
 	if hp_pct > 0.5:
-		_hp_bar.modulate = Constants.COLOR_HP_HIGH
+		_hp_bar.tint_progress = Constants.COLOR_HP_HIGH
 	elif hp_pct > 0.25:
-		_hp_bar.modulate = Constants.COLOR_HP_MID
+		_hp_bar.tint_progress = Constants.COLOR_HP_MID
 	else:
-		_hp_bar.modulate = Constants.COLOR_HP_LOW
+		_hp_bar.tint_progress = Constants.COLOR_HP_LOW
 
 	# MP bar
 	if _entity.is_player:
 		_mp_bar.max_value = _entity.max_mp
 		_mp_bar.value = _entity.current_mp
 		_mp_label.text = "%d/%d" % [_entity.current_mp, _entity.max_mp]
-		_mp_bar.modulate = Constants.COLOR_MP
 
 	# Armor / Spirit Shield
 	var has_armor: bool = _entity.physical_armor > 0 or _entity.base_armor > 0

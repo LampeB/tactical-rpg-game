@@ -21,7 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.1, 0.14, 0.2, 1)
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,21 +33,27 @@ offset_bottom = -20.0
 theme_override_constants/separation = 12
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 30.0
 
 [node name="TitleLabel" type="Label" parent="VBox/TopBar"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Forge"
 
-[node name="Content" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 20
+[node name="Content" type="Control" parent="VBox"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+offset_bottom = -40.0
 
 [node name="LeftHalf" type="HBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 1
+anchor_left = 0.0
+anchor_right = 0.4
+anchor_bottom = 1.0
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.0
 theme_override_constants/separation = 0
@@ -78,9 +84,10 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
 [node name="PlayerSide" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.2
+layout_mode = 1
+anchor_left = 0.4
+anchor_right = 0.7
+anchor_bottom = 1.0
 theme_override_constants/separation = 8
 
 [node name="CharacterTabs" parent="VBox/Content/PlayerSide" instance=ExtResource("2")]
@@ -92,9 +99,10 @@ layout_mode = 2
 [node name="PlayerGridPanel" parent="VBox/Content/PlayerSide/GridCentering" instance=ExtResource("3")]
 
 [node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
+layout_mode = 1
+anchor_left = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
 theme_override_constants/separation = 6
 
 [node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6")]
@@ -109,7 +117,11 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
+layout_mode = 1
+anchor_right = 1.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -30.0
 
 [node name="Spacer" type="Control" parent="VBox/BottomBar"]
 layout_mode = 2

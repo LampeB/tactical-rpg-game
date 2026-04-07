@@ -6,6 +6,10 @@ const FONT_SIZE := 12  ## Font size used for all dynamically-created labels in t
 ## When true, the tooltip stays in its layout position instead of floating.
 var embedded: bool = false
 
+## Track currently shown item to avoid redundant rebuilds (prevents flicker).
+var _current_item: ItemData = null
+var _current_placed: GridInventory.PlacedItem = null
+
 @onready var _name_label: Label = $Margin/VBox/NameLabel
 @onready var _rarity_label: Label = $Margin/VBox/RarityLabel
 @onready var _type_label: Label = $Margin/VBox/TypeLabel
@@ -18,16 +22,27 @@ var embedded: bool = false
 
 
 func _ready() -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.10, 0.16, 0.82)
-	style.corner_radius_top_left    = 4
-	style.corner_radius_top_right   = 4
-	style.corner_radius_bottom_left = 4
-	style.corner_radius_bottom_right = 4
+	var tex: Texture2D = preload("res://assets/sprites/ui/theme/tooltip.png")
+	var style := StyleBoxTexture.new()
+	style.texture = tex
+	style.texture_margin_left = 5.0
+	style.texture_margin_top = 5.0
+	style.texture_margin_right = 5.0
+	style.texture_margin_bottom = 5.0
+	style.content_margin_left = 8.0
+	style.content_margin_top = 8.0
+	style.content_margin_right = 8.0
+	style.content_margin_bottom = 8.0
 	add_theme_stylebox_override("panel", style)
 
 
 func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid_inv: GridInventory = null, screen_pos: Vector2 = Vector2.ZERO, price: int = -1, price_label: String = "Value") -> void:
+	# Skip rebuild if already showing the same item (prevents flicker)
+	if _current_item == item and _current_placed == placed and visible:
+		return
+	_current_item = item
+	_current_placed = placed
+
 	# Name with rarity color
 	_name_label.text = item.display_name
 	var rarity_color: Color = Constants.get_rarity_color(item.rarity)
@@ -221,6 +236,8 @@ func show_for_cell_purchase(cost: int, can_afford: bool, screen_pos: Vector2) ->
 
 
 func hide_tooltip() -> void:
+	_current_item = null
+	_current_placed = null
 	if embedded:
 		show_empty_state()
 		return

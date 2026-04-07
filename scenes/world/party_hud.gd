@@ -94,13 +94,20 @@ func _create_card(char_id: String, char_data: CharacterData, tree: PassiveTreeDa
 	var current_hp: int = GameManager.party.get_current_hp(char_id)
 	var max_hp: int = GameManager.party.get_max_hp(char_id, tree)
 
-	var hp_bar := ProgressBar.new()
+	var hp_bar := TextureProgressBar.new()
 	hp_bar.name = "HPBar"
-	hp_bar.custom_minimum_size = Vector2(0, BAR_HEIGHT)
+	hp_bar.custom_minimum_size = Vector2(0, 14)
 	hp_bar.max_value = max_hp
 	hp_bar.value = current_hp
-	hp_bar.show_percentage = false
-	_apply_hp_bar_style(hp_bar, current_hp, max_hp)
+	hp_bar.nine_patch_stretch = true
+	hp_bar.stretch_margin_left = 4
+	hp_bar.stretch_margin_top = 4
+	hp_bar.stretch_margin_right = 4
+	hp_bar.stretch_margin_bottom = 4
+	hp_bar.texture_under = preload("res://assets/sprites/ui/bars/hp_empty.png")
+	hp_bar.texture_over = preload("res://assets/sprites/ui/bars/hp_frame.png")
+	hp_bar.texture_progress = preload("res://assets/sprites/ui/bars/hp_fill.png")
+	_apply_hp_bar_tint(hp_bar, current_hp, max_hp)
 	vbox.add_child(hp_bar)
 
 	var hp_label := Label.new()
@@ -114,13 +121,19 @@ func _create_card(char_id: String, char_data: CharacterData, tree: PassiveTreeDa
 	var current_mp: int = GameManager.party.get_current_mp(char_id)
 	var max_mp: int = GameManager.party.get_max_mp(char_id, tree)
 
-	var mp_bar := ProgressBar.new()
+	var mp_bar := TextureProgressBar.new()
 	mp_bar.name = "MPBar"
-	mp_bar.custom_minimum_size = Vector2(0, BAR_HEIGHT)
+	mp_bar.custom_minimum_size = Vector2(0, 12)
 	mp_bar.max_value = max_mp
 	mp_bar.value = current_mp
-	mp_bar.show_percentage = false
-	_apply_mp_bar_style(mp_bar)
+	mp_bar.nine_patch_stretch = true
+	mp_bar.stretch_margin_left = 4
+	mp_bar.stretch_margin_top = 4
+	mp_bar.stretch_margin_right = 4
+	mp_bar.stretch_margin_bottom = 4
+	mp_bar.texture_under = preload("res://assets/sprites/ui/bars/mp_empty.png")
+	mp_bar.texture_over = preload("res://assets/sprites/ui/bars/mp_frame.png")
+	mp_bar.texture_progress = preload("res://assets/sprites/ui/bars/mp_fill.png")
 	vbox.add_child(mp_bar)
 
 	var mp_label := Label.new()
@@ -151,11 +164,11 @@ func _on_vitals_changed(character_id: String) -> void:
 	var current_mp: int = GameManager.party.get_current_mp(character_id)
 	var max_mp: int = GameManager.party.get_max_mp(character_id, tree)
 
-	var hp_bar: ProgressBar = card.find_child("HPBar", true, false)
+	var hp_bar: TextureProgressBar = card.find_child("HPBar", true, false) as TextureProgressBar
 	if hp_bar:
 		hp_bar.max_value = max_hp
 		hp_bar.value = current_hp
-		_apply_hp_bar_style(hp_bar, current_hp, max_hp)
+		_apply_hp_bar_tint(hp_bar, current_hp, max_hp)
 
 	var hp_label: Label = card.find_child("HPLabel", true, false)
 	if hp_label:
@@ -166,7 +179,7 @@ func _on_vitals_changed(character_id: String) -> void:
 			hp_label.text = "%d/%d" % [current_hp, max_hp]
 			hp_label.remove_theme_color_override("font_color")
 
-	var mp_bar: ProgressBar = card.find_child("MPBar", true, false)
+	var mp_bar: TextureProgressBar = card.find_child("MPBar", true, false) as TextureProgressBar
 	if mp_bar:
 		mp_bar.max_value = max_mp
 		mp_bar.value = current_mp
@@ -176,29 +189,13 @@ func _on_vitals_changed(character_id: String) -> void:
 		mp_label.text = "%d/%d" % [current_mp, max_mp]
 
 
-func _apply_hp_bar_style(bar: ProgressBar, current_hp: int, max_hp: int) -> void:
-	var fill := StyleBoxFlat.new()
+func _apply_hp_bar_tint(bar: TextureProgressBar, current_hp: int, max_hp: int) -> void:
 	var ratio: float = float(current_hp) / float(maxi(max_hp, 1))
 	if current_hp <= 0:
-		fill.bg_color = Constants.COLOR_DEAD
+		bar.tint_progress = Constants.COLOR_DEAD
 	elif ratio < 0.3:
-		fill.bg_color = Constants.COLOR_HP_LOW
+		bar.tint_progress = Constants.COLOR_HP_LOW
 	elif ratio < 0.6:
-		fill.bg_color = Constants.COLOR_HP_MID
+		bar.tint_progress = Constants.COLOR_HP_MID
 	else:
-		fill.bg_color = Constants.COLOR_HP_HIGH
-	bar.add_theme_stylebox_override("fill", fill)
-
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.15, 0.15, 0.15, 1.0)
-	bar.add_theme_stylebox_override("background", bg)
-
-
-func _apply_mp_bar_style(bar: ProgressBar) -> void:
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Constants.COLOR_MP
-	bar.add_theme_stylebox_override("fill", fill)
-
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.15, 0.15, 0.15, 1.0)
-	bar.add_theme_stylebox_override("background", bg)
+		bar.tint_progress = Constants.COLOR_HP_HIGH

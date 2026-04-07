@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/grid_templates/grid_mage.tres" id="2"]
 [ext_resource type="Resource" path="res://data/backpack_tiers/mage.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/mage_lyra.png" id="4"]
 
 [resource]
 script = ExtResource("1")
@@ -10,6 +11,7 @@ id = "mage"
 display_name = "Lyra"
 character_class = "Mage"
 description = "A gifted mage who channels elemental forces. Compact 5x5 grid but devastating special attacks."
+portrait = ExtResource("4")
 max_hp = 80
 max_mp = 50
 speed = 8

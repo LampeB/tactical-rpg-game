@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1"]
 [ext_resource type="Resource" path="res://data/grid_templates/grid_warrior.tres" id="2"]
 [ext_resource type="Resource" path="res://data/backpack_tiers/warrior.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/warrior_kael.png" id="4"]
 
 [resource]
 script = ExtResource("1")
@@ -10,6 +11,7 @@ id = "warrior"
 display_name = "Kael"
 character_class = "Warrior"
 description = "A seasoned warrior with balanced stats and a sturdy 6x6 inventory grid."
+portrait = ExtResource("4")
 max_hp = 120
 max_mp = 20
 speed = 10

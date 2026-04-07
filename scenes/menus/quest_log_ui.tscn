@@ -17,7 +17,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,8 +28,9 @@ offset_right = -40.0
 offset_bottom = -20.0
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 50)
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 50.0
 
 [node name="TabActive" type="Button" parent="VBox/TopBar"]
 layout_mode = 2
@@ -49,14 +50,17 @@ size_flags_horizontal = 6
 text = "Quest Log"
 horizontal_alignment = 2
 
-[node name="Content" type="HSplitContainer" parent="VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-split_offset = 300
+[node name="Content" type="Control" parent="VBox"]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 56.0
 
 [node name="LeftPanel" type="PanelContainer" parent="VBox/Content"]
-layout_mode = 2
-custom_minimum_size = Vector2(280, 0)
+layout_mode = 1
+anchor_right = 0.3
+anchor_bottom = 1.0
+offset_right = -6.0
 
 [node name="QuestScroll" type="ScrollContainer" parent="VBox/Content/LeftPanel"]
 layout_mode = 2
@@ -66,8 +70,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="RightPanel" type="PanelContainer" parent="VBox/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 1
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
 
 [node name="DetailScroll" type="ScrollContainer" parent="VBox/Content/RightPanel"]
 layout_mode = 2
