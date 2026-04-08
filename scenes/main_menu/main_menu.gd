@@ -4,12 +4,9 @@ extends Control
 
 
 func _ready() -> void:
-	$Background.color = UIColors.BG_MAIN_MENU
 	$VBoxContainer/ContinueButton.pressed.connect(_on_continue_pressed)
 	$VBoxContainer/LoadGameButton.pressed.connect(_on_load_game_pressed)
 	$VBoxContainer/NewGameButton.pressed.connect(_on_new_game_pressed)
-	$VBoxContainer/InventoryButton.pressed.connect(_on_inventory_pressed)
-	$VBoxContainer/SquadButton.pressed.connect(_on_squad_pressed)
 	$VBoxContainer/TreeEditorButton.pressed.connect(_on_tree_editor_pressed)
 	$VBoxContainer/ItemEditorButton.pressed.connect(_on_item_editor_pressed)
 	$VBoxContainer/NpcEditorButton.pressed.connect(_on_npc_editor_pressed)
@@ -21,11 +18,14 @@ func _ready() -> void:
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 	_confirm_dialog.confirmed.connect(_start_new_game)
 
-	var title: Label = $VBoxContainer/Title
-	UIThemes.set_font_size(title, Constants.FONT_SIZE_MENU_TITLE)
-
 	_update_button_states()
 	AudioManager.play_music("main_menu")
+
+
+func _notification(what: int) -> void:
+	# Refresh button visibility when returning from settings (debug mode may have changed)
+	if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
+		_update_button_states()
 
 
 func _update_button_states() -> void:
@@ -33,8 +33,16 @@ func _update_button_states() -> void:
 	var has_save := SaveManager.has_any_save()
 	$VBoxContainer/ContinueButton.visible = has_game or has_save
 	$VBoxContainer/LoadGameButton.visible = has_save
-	$VBoxContainer/InventoryButton.disabled = not has_game
-	$VBoxContainer/SquadButton.disabled = not has_game
+
+	# Developer/editor buttons are only visible when debug mode is enabled in settings
+	var debug: bool = DisplayManager.debug_mode
+	$VBoxContainer/TreeEditorButton.visible = debug
+	$VBoxContainer/ItemEditorButton.visible = debug
+	$VBoxContainer/NpcEditorButton.visible = debug
+	$VBoxContainer/BackpackEditorButton.visible = debug
+	$VBoxContainer/MapEditorButton.visible = debug
+	$VBoxContainer/TweaksEditorButton.visible = debug
+	$VBoxContainer/DebugSpacer.visible = debug
 
 
 func _on_continue_pressed() -> void:
@@ -74,14 +82,6 @@ func _resolve_map_scene() -> String:
 	if target_map:
 		return "res://scenes/world/local_map.tscn"
 	return "res://scenes/world/overworld.tscn"  # fallback
-
-
-func _on_inventory_pressed() -> void:
-	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")  # Dev tool — uses old character hub
-
-
-func _on_squad_pressed() -> void:
-	SceneManager.push_scene("res://scenes/squad/squad.tscn")
 
 
 func _on_tree_editor_pressed() -> void:

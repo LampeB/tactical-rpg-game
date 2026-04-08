@@ -150,6 +150,14 @@ func _build_display_tab() -> void:
 	cb_row.add_child(cb_btn)
 	_display_settings.add_child(cb_row)
 
+	# Debug mode row (shows developer menus in main menu)
+	var debug_row := _create_setting_row("Debug Mode")
+	var debug_btn := CheckButton.new()
+	debug_btn.button_pressed = DisplayManager.debug_mode
+	debug_btn.toggled.connect(_on_debug_mode_toggled)
+	debug_row.add_child(debug_btn)
+	_display_settings.add_child(debug_row)
+
 	_update_resolution_enabled()
 
 
@@ -222,6 +230,10 @@ func _on_language_changed(idx: int, locales: Array) -> void:
 
 func _on_colorblind_toggled(enabled: bool) -> void:
 	DisplayManager.set_colorblind_mode(enabled)
+
+
+func _on_debug_mode_toggled(enabled: bool) -> void:
+	DisplayManager.set_debug_mode(enabled)
 
 
 # ─── Audio Tab ───────────────────────────────────────────────────────────────
