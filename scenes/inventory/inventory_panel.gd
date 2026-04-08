@@ -257,20 +257,47 @@ func _add_pct_row(parent: VBoxContainer, label_text: String, value: float, has_b
 func _update_element_bar(inv: GridInventory) -> void:
 	for child in _element_bar.get_children():
 		child.queue_free()
-	if not inv:
-		return
-	var element_points: Dictionary = inv.get_element_points()
-	for element_id in element_points:
-		var points: int = element_points[element_id]
-		if points <= 0:
-			continue
+	_element_bar.add_theme_constant_override("separation", 6)
+	var element_points: Dictionary = inv.get_element_points() if inv else {}
+
+	# Show all 7 elements in Enums.Element order
+	for element_id in range(7):
+		var points: int = element_points.get(element_id, 0)
+		var has_points: bool = points > 0
 		var elem_name: String = Constants.ELEMENT_NAMES.get(element_id, "?")
-		var elem_color: Color = Constants.ELEMENT_COLORS.get(element_id, Color.WHITE)
-		var lbl := Label.new()
-		lbl.text = "%s: %d" % [elem_name, points]
-		lbl.add_theme_font_size_override("font_size", 12)
-		lbl.add_theme_color_override("font_color", elem_color)
-		_element_bar.add_child(lbl)
+		var icon_tex: Texture2D
+		if has_points:
+			icon_tex = Constants.ELEMENT_ICONS.get(element_id, null)
+		else:
+			icon_tex = Constants.ELEMENT_ICONS_FADED.get(element_id, null)
+
+		var slot := Control.new()
+		slot.custom_minimum_size = Vector2(36, 36)
+		slot.tooltip_text = "%s: %d" % [elem_name, points]
+
+		if icon_tex:
+			var icon := TextureRect.new()
+			icon.texture = icon_tex
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+			slot.add_child(icon)
+
+		# Number overlay — centered
+		var num := Label.new()
+		num.text = str(points)
+		num.add_theme_font_size_override("font_size", 14)
+		num.add_theme_color_override("font_color", Color.WHITE)
+		num.add_theme_color_override("font_outline_color", Color.BLACK)
+		num.add_theme_constant_override("outline_size", 4)
+		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		num.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		num.set_anchors_preset(Control.PRESET_FULL_RECT)
+		if not has_points:
+			num.modulate = Color(1, 1, 1, 0.5)
+		slot.add_child(num)
+
+		_element_bar.add_child(slot)
 
 
 # ---------------------------------------------------------------------------

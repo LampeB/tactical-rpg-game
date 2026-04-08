@@ -128,6 +128,26 @@ const ELEMENT_COLORS := {
 	Enums.Element.DARK: Color(0.5, 0.2, 0.7),
 }
 
+const ELEMENT_ICONS := {
+	Enums.Element.FIRE: preload("res://assets/sprites/ui/icons/elements/fireElement.png"),
+	Enums.Element.WATER: preload("res://assets/sprites/ui/icons/elements/waterElement.png"),
+	Enums.Element.AIR: preload("res://assets/sprites/ui/icons/elements/airElement.png"),
+	Enums.Element.EARTH: preload("res://assets/sprites/ui/icons/elements/earthElement.png"),
+	Enums.Element.PLANT: preload("res://assets/sprites/ui/icons/elements/plantElement.png"),
+	Enums.Element.LIGHT: preload("res://assets/sprites/ui/icons/elements/lightElement.png"),
+	Enums.Element.DARK: preload("res://assets/sprites/ui/icons/elements/darkElement.png"),
+}
+
+const ELEMENT_ICONS_FADED := {
+	Enums.Element.FIRE: preload("res://assets/sprites/ui/icons/elements/fireElement_faded.png"),
+	Enums.Element.WATER: preload("res://assets/sprites/ui/icons/elements/waterElement_faded.png"),
+	Enums.Element.AIR: preload("res://assets/sprites/ui/icons/elements/airElement_faded.png"),
+	Enums.Element.EARTH: preload("res://assets/sprites/ui/icons/elements/earthElement_faded.png"),
+	Enums.Element.PLANT: preload("res://assets/sprites/ui/icons/elements/plantElement_faded.png"),
+	Enums.Element.LIGHT: preload("res://assets/sprites/ui/icons/elements/lightElement_faded.png"),
+	Enums.Element.DARK: preload("res://assets/sprites/ui/icons/elements/darkElement_faded.png"),
+}
+
 const ELEMENT_NAMES := {
 	Enums.Element.FIRE: "Fire",
 	Enums.Element.WATER: "Water",
