@@ -32,6 +32,9 @@ var _selected_unlocked: bool = false
 var _cached_char_data: CharacterData = null
 var _cached_element_points: Dictionary = {}
 
+# Fold state
+var _locked_collapsed: bool = true
+
 
 func _ready() -> void:
 	_style_panels()
@@ -236,12 +239,13 @@ func _update_skill_list(char_data: CharacterData, element_points: Dictionary) ->
 			var row: PanelContainer = _build_skill_row(entry.skill, true, false, entry)
 			_skill_list.add_child(row)
 
-	# --- Locked Section ---
+	# --- Locked Section (foldable) ---
 	if not filtered_locked.is_empty():
-		_add_section_header("Locked Skills")
-		for entry in filtered_locked:
-			var row: PanelContainer = _build_skill_row(entry.skill, false, false, entry)
-			_skill_list.add_child(row)
+		_add_foldable_header("Locked Skills", filtered_locked.size(), _locked_collapsed)
+		if not _locked_collapsed:
+			for entry in filtered_locked:
+				var row: PanelContainer = _build_skill_row(entry.skill, false, false, entry)
+				_skill_list.add_child(row)
 
 
 func _apply_filter(entries: Array[ElementSkillEntry]) -> Array[ElementSkillEntry]:
@@ -278,6 +282,26 @@ func _add_section_header(text: String) -> void:
 	label.text = text
 	UIThemes.style_label(label, Constants.FONT_SIZE_DETAIL, Constants.COLOR_TEXT_HEADER)
 	_skill_list.add_child(label)
+
+
+func _add_foldable_header(text: String, count: int, collapsed: bool) -> void:
+	var button := Button.new()
+	button.flat = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	var arrow: String = "▶" if collapsed else "▼"
+	button.text = "%s  %s  (%d)" % [arrow, text, count]
+	UIThemes.style_button(button, Constants.FONT_SIZE_DETAIL, Constants.COLOR_TEXT_HEADER)
+	button.add_theme_color_override("font_hover_color", Constants.COLOR_TEXT_EMPHASIS)
+	button.pressed.connect(_on_locked_header_pressed)
+	_skill_list.add_child(button)
+
+
+func _on_locked_header_pressed() -> void:
+	_locked_collapsed = not _locked_collapsed
+	if _cached_char_data:
+		_update_skill_list(_cached_char_data, _cached_element_points)
 
 
 func _build_skill_row(skill: SkillData, is_unlocked: bool, is_innate: bool, entry: ElementSkillEntry) -> PanelContainer:
