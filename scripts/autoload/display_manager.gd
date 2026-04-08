@@ -25,6 +25,7 @@ var shadow_quality: int = 2         ## 0=Off, 1=Low, 2=Medium, 3=High
 var ui_scale: int = 100             ## 75, 100, 125, 150
 var font_scale: int = 100           ## 80, 100, 120, 140
 var colorblind_mode: bool = false    ## Use colorblind-safe rarity palette
+var debug_mode: bool = false         ## Show developer/debug menus (editors in main menu, etc.)
 
 const UI_SCALE_OPTIONS := [75, 100, 125, 150]
 const FONT_SCALE_OPTIONS := [80, 100, 120, 140]
@@ -67,6 +68,7 @@ func load_settings() -> void:
 	ui_scale = int(data.get("ui_scale", 100))
 	font_scale = int(data.get("font_scale", 100))
 	colorblind_mode = bool(data.get("colorblind_mode", false))
+	debug_mode = bool(data.get("debug_mode", false))
 	_apply_current()
 
 
@@ -81,6 +83,7 @@ func save_settings() -> void:
 		"ui_scale": ui_scale,
 		"font_scale": font_scale,
 		"colorblind_mode": colorblind_mode,
+		"debug_mode": debug_mode,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if not file:
@@ -130,6 +133,11 @@ func set_ui_scale(scale_percent: int) -> void:
 func set_colorblind_mode(enabled: bool) -> void:
 	colorblind_mode = enabled
 	Constants.colorblind_palette = enabled
+	save_settings()
+
+
+func set_debug_mode(enabled: bool) -> void:
+	debug_mode = enabled
 	save_settings()
 
 
