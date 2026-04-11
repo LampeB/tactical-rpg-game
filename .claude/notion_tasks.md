@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 303 -->
-<\!-- Last updated: 2026-04-01 -->
+<\!-- Total tasks: 304 -->
+<\!-- Last updated: 2026-04-08 (main menu rework) -->
 
 ## Prerequisites
 
@@ -143,7 +143,6 @@
 | INV-8: Item displacement to stash | 3377700f-d0fb-81a2-9bcc-df35ebd5377c |
 | INV-9: Clean up debug logs and dead code | 3377700f-d0fb-8134-ad77-eecdbc016220 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
 ### Done
@@ -158,6 +157,7 @@
 | Auto-fill ingredients in crafting recipes | 3187700f-d0fb-81df-bb9d-f87b59bec21c |
 | Highlight matching inventory/stash items when hovering a recipe ingredient | 3187700f-d0fb-814c-b7b4-c76366ceb13c |
 | Quick indicator showing if player can craft a recipe (has all ingredients) | 3187700f-d0fb-810f-bea5-f407af15a305 |
+| Redo main menu (hide debug tools in non-debug builds, hide Continue when no save exists) | 31e7700f-d0fb-818d-93c4-fbf423683d32 |
 | Scale inventory grid UI to support 25x25 backpack sizes | 3197700f-d0fb-81d7-ab44-f163e6492f40 |
 | Add a way to throw away / discard items (from stash and inventory) | 3147700f-d0fb-815a-bdd9-e2e7a8b905ef |
 | Add stash button to loot screen | 3157700f-d0fb-8144-8b98-dce78dd6206c |
@@ -189,6 +189,7 @@
 | Fix: Dialogue typewriter timer not stopped on ESC close (no fix needed — child node freed with scene) | 31e7700f-d0fb-81af-a03a-e0fb18a9d030 |
 | Fix: Empty squad crash risk in character hub (no fix needed — all access paths guarded) | 31e7700f-d0fb-8126-910c-f31a784b563e |
 | Fix: Shop purchase tracking uses object references instead of item IDs (no fix needed — object refs correct for session-local buy-back) | 31e7700f-d0fb-81dc-9d04-e4b01724e57f |
+| Foldable Locked Skills section + element icons in inventory bar | 33c7700f-d0fb-812a-a4f4-f60d5ba5b237 |
 | Perf: Shop per-frame highlight checks during drag (moved to one-time call on drag start) | 31e7700f-d0fb-810a-bcf7-fe5be67bfc9c |
 | Refactor: Shop drag start duplication (4 identical _start_drag_from_* methods) | 31e7700f-d0fb-8109-be01-ed664bdeaaed |
 
