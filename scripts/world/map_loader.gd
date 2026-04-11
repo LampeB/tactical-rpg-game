@@ -155,6 +155,32 @@ static func _spawn_npc(elem: MapElement, parent: Node3D) -> void:
 	parent.add_child(marker)
 
 
+static func spawn_scene_encounters(scene_root: Node3D, enemy_parent: Node3D) -> void:
+	## Reads Enemy_* markers from a generator's Encounters/ node and spawns
+	## roaming enemies from their metadata. Called for scene-based maps.
+	_ensure_scenes_loaded()
+	var encounters_node: Node3D = scene_root.find_child("Encounters", false, false) as Node3D
+	if not encounters_node:
+		return
+	for i in range(encounters_node.get_child_count()):
+		var marker: Node3D = encounters_node.get_child(i) as Node3D
+		if not marker:
+			continue
+		if not marker.has_meta("encounter_path"):
+			continue  # Battle area marker or other non-enemy node
+		var enc_path: String = marker.get_meta("encounter_path")
+		if enc_path.is_empty() or not ResourceLoader.exists(enc_path):
+			continue
+		var enemy: Node3D = _roaming_enemy_scene.instantiate()
+		enemy.position = marker.position
+		var enc_data: EncounterData = load(enc_path) as EncounterData
+		if enc_data:
+			enemy.encounter_data = enc_data
+		enemy.enemy_color = marker.get_meta("enemy_color", Color(0.5, 0.3, 0.3, 1.0))
+		enemy.patrol_distance = marker.get_meta("patrol_distance", 5.0)
+		enemy_parent.add_child(enemy)
+
+
 static func _spawn_enemy(elem: MapElement, parent: Node3D) -> void:
 	var enemy: Node3D = _roaming_enemy_scene.instantiate()
 	enemy.position = elem.position

@@ -46,6 +46,14 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 @export_range(1, 6) var path_count: int = 2
 @export_range(1.0, 6.0) var path_width: float = 3.0
 
+# ─── Inspector: Encounters ──────────────────────────────────────────────────
+@export_group("Encounters")
+@export_range(0, 15) var enemy_count: int = 5
+@export_range(3.0, 15.0) var enemy_min_spacing: float = 8.0
+@export_range(2.0, 8.0) var enemy_patrol_distance: float = 5.0
+## Encounter .tres paths to pick from. If empty, uses forest defaults.
+@export var encounter_pool: Array[String] = []
+
 # ─── Inspector: Actions ─────────────────────────────────────────────────────
 @export_group("Actions")
 @export var generate_all: bool = false:
@@ -68,6 +76,10 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 	set(_value):
 		if Engine.is_editor_hint():
 			_regenerate_props()
+@export var regenerate_encounters: bool = false:
+	set(_value):
+		if Engine.is_editor_hint():
+			_regenerate_encounters()
 @export var clear_all: bool = false:
 	set(_value):
 		if Engine.is_editor_hint():
@@ -96,6 +108,7 @@ func _generate_all() -> void:
 	_generate_trees()
 	_generate_undergrowth()
 	_generate_props()
+	_generate_encounters()
 	_ensure_hand_placed()
 	print("[ForestClearingGenerator] Generation complete.")
 
@@ -128,6 +141,13 @@ func _regenerate_props() -> void:
 	_generate_props()
 
 
+func _regenerate_encounters() -> void:
+	_rng.seed = gen_seed + 400
+	_compute_layout()
+	_remove_layer("Encounters")
+	_generate_encounters()
+
+
 func _clear_all() -> void:
 	var children_to_remove: Array[Node] = []
 	for i in range(get_child_count()):
@@ -142,14 +162,20 @@ func _clear_all() -> void:
 
 
 func _remove_layer(layer_name: String) -> void:
-	var node: Node = find_child(layer_name, false, false)
-	if node:
-		remove_child(node)
-		node.queue_free()
+	# Search direct children by name (find_child with owned=false skips owned nodes)
+	for i in range(get_child_count()):
+		var child: Node = get_child(i)
+		if child.name == layer_name:
+			remove_child(child)
+			child.queue_free()
+			return
 
 
 func _ensure_hand_placed() -> void:
-	if not find_child("HandPlaced", false, false):
+	for i in range(get_child_count()):
+		if get_child(i).name == "HandPlaced":
+			return
+	if true:
 		var hp := Node3D.new()
 		hp.name = "HandPlaced"
 		_add_owned(hp, self)
@@ -612,8 +638,171 @@ func _generate_props() -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Step 6: Encounters & Battle Areas
+# ═══════════════════════════════════════════════════════════════════════════
+
+const _DEFAULT_FOREST_ENCOUNTERS: Array[String] = [
+	"res://data/encounters/encounter_wolves.tres",
+	"res://data/encounters/encounter_wolves.tres",
+	"res://data/encounters/encounter_spiders.tres",
+	"res://data/encounters/encounter_spiders.tres",
+	"res://data/encounters/encounter_forest_elemental.tres",
+	"res://data/encounters/encounter_bats.tres",
+	"res://data/encounters/encounter_slimes.tres",
+]
+
+const _ENEMY_COLORS: Array[Color] = [
+	Color(0.6, 0.4, 0.2, 1.0),  # brown (wolves)
+	Color(0.6, 0.4, 0.2, 1.0),
+	Color(0.3, 0.3, 0.3, 1.0),  # dark grey (spiders)
+	Color(0.3, 0.3, 0.3, 1.0),
+	Color(0.2, 0.8, 0.3, 1.0),  # green (elemental)
+	Color(0.4, 0.3, 0.5, 1.0),  # purple (bats)
+	Color(0.3, 0.7, 0.3, 1.0),  # green (slimes)
+]
+
+
+func _generate_encounters() -> void:
+	var parent := Node3D.new()
+	parent.name = "Encounters"
+	_add_owned(parent, self)
+
+	if enemy_count == 0:
+		print("[ForestClearingGenerator] No enemies requested.")
+		return
+
+	var enc_rng := RandomNumberGenerator.new()
+	enc_rng.seed = gen_seed + 400
+
+	var pool: Array[String] = []
+	if encounter_pool.is_empty():
+		pool.assign(_DEFAULT_FOREST_ENCOUNTERS)
+	else:
+		pool.assign(encounter_pool)
+
+	var w: float = (map_width - 1) * terrain_scale.x
+	var d: float = (map_depth - 1) * terrain_scale.z
+	var bounds := Rect2(6, 6, w - 12, d - 12)
+
+	# Use Poisson disk for enemy spacing
+	var candidates: PackedVector2Array = PoissonDisk.sample_2d(bounds, enemy_min_spacing, enc_rng)
+
+	# Filter candidates: prefer the transition zone (not deep forest, not dead center)
+	var valid: Array[Vector2] = []
+	for i in range(candidates.size()):
+		var pos: Vector2 = candidates[i]
+		var mask: float = _get_clearing_mask(pos.x, pos.y)
+		var path_m: float = _get_path_mask(pos.x, pos.y)
+		var pond_m: float = _get_pond_mask(pos.x, pos.y)
+		# Skip paths, pond, and the very center of the clearing
+		if path_m > 0.4 or pond_m > 0.3:
+			continue
+		if mask < 0.15:
+			continue  # Too deep in clearing center
+		valid.append(pos)
+
+	# Shuffle and pick up to enemy_count
+	for i in range(valid.size()):
+		var j: int = enc_rng.randi_range(i, valid.size() - 1)
+		var tmp: Vector2 = valid[i]
+		valid[i] = valid[j]
+		valid[j] = tmp
+
+	var placed: int = 0
+	for i in range(mini(enemy_count, valid.size())):
+		var pos: Vector2 = valid[i]
+		var enc_idx: int = enc_rng.randi_range(0, pool.size() - 1)
+		var enc_path: String = pool[enc_idx]
+		if not ResourceLoader.exists(enc_path):
+			continue
+
+		var color: Color = Color(0.5, 0.3, 0.3, 1.0)
+		if enc_idx < _ENEMY_COLORS.size():
+			color = _ENEMY_COLORS[enc_idx]
+
+		# Create a marker node with metadata (base_map reads these at runtime)
+		var marker := Node3D.new()
+		marker.name = "Enemy_%d" % placed
+		var h: float = _sample_terrain_height(pos.x, pos.y)
+		marker.position = Vector3(pos.x, h * terrain_scale.y, pos.y)
+		marker.set_meta("encounter_path", enc_path)
+		marker.set_meta("enemy_color", color)
+		marker.set_meta("patrol_distance", enemy_patrol_distance)
+
+		# Editor gizmo: colored sphere + label
+		if Engine.is_editor_hint():
+			_build_enemy_gizmo(marker, enc_path, color, enemy_patrol_distance)
+
+		_add_owned(marker, parent)
+		placed += 1
+
+	# Battle area at clearing center
+	var ba_marker := Node3D.new()
+	ba_marker.name = "BattleArea_Clearing"
+	var center_h: float = _sample_terrain_height(_center.x, _center.y)
+	ba_marker.position = Vector3(_center.x, center_h * terrain_scale.y, _center.y)
+	ba_marker.set_meta("battle_area_name", "Forest Clearing")
+
+	# Editor gizmo: red translucent disc
+	if Engine.is_editor_hint():
+		_build_battle_area_gizmo(ba_marker)
+
+	_add_owned(ba_marker, parent)
+
+	print("[ForestClearingGenerator] Placed %d enemies + 1 battle area." % placed)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════
+
+func _build_enemy_gizmo(marker: Node3D, enc_path: String, color: Color, _patrol_dist: float) -> void:
+	# Simple colored box (cheap, no CSG boolean overhead)
+	var mesh_inst := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(0.6, 1.4, 0.6)
+	mesh_inst.mesh = box
+	mesh_inst.position.y = 0.7
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(color.r, color.g, color.b, 0.8)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_inst.material_override = mat
+	marker.add_child(mesh_inst)
+
+	# Label
+	var label := Label3D.new()
+	label.text = enc_path.get_file().trim_suffix(".tres").trim_prefix("encounter_")
+	label.position.y = 2.0
+	label.font_size = 32
+	label.modulate = color
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	marker.add_child(label)
+
+
+func _build_battle_area_gizmo(marker: Node3D) -> void:
+	var mesh_inst := MeshInstance3D.new()
+	var disc := CylinderMesh.new()
+	disc.top_radius = 7.0
+	disc.bottom_radius = 7.0
+	disc.height = 0.1
+	disc.radial_segments = 24
+	mesh_inst.mesh = disc
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(1.0, 0.2, 0.2, 0.15)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_inst.material_override = mat
+	marker.add_child(mesh_inst)
+
+	var label := Label3D.new()
+	label.text = "BATTLE AREA"
+	label.position.y = 1.5
+	label.font_size = 40
+	label.modulate = Color(1.0, 0.3, 0.3)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	marker.add_child(label)
+
 
 func _sample_terrain_height(world_x: float, world_z: float) -> float:
 	## Sample height from the heightmap data in vertex space.
