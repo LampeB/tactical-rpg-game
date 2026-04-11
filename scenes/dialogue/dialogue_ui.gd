@@ -201,6 +201,9 @@ func _on_choice_selected(choice: DialogueChoice) -> void:
 	elif choice.action == "resurrect_party":
 		_do_resurrect_party()
 		return
+	elif choice.action == "respawn_enemies":
+		_do_respawn_enemies()
+		return
 	elif choice.action == "unlock_backpack_tier":
 		_do_unlock_backpack_tier()
 	elif choice.action.begins_with("give_item:"):
@@ -455,6 +458,24 @@ func _on_upgrade_cancelled() -> void:
 		_show_conversation(greeting)
 	else:
 		_end_dialogue()
+
+
+# === Hunter actions ===
+
+func _do_respawn_enemies() -> void:
+	var cleared: int = 0
+	var keys_to_remove: Array[String] = []
+	for flag_key: String in GameManager.story_flags.keys():
+		if flag_key.begins_with("defeated_enemy_"):
+			keys_to_remove.append(flag_key)
+	for key in keys_to_remove:
+		GameManager.story_flags.erase(key)
+		cleared += 1
+	DebugLogger.log_info("Hunter respawned enemies — cleared %d flags" % cleared, "Dialogue")
+	if cleared > 0:
+		_show_feedback_line("The beasts stir once more. %d creatures will roam the wilds again when you return." % cleared)
+	else:
+		_show_feedback_line("The wilds are already teeming. There is nothing to drive out.")
 
 
 func _show_feedback_line(text: String) -> void:
