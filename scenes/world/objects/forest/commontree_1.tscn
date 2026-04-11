@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dy0hwy4i7mhbj"]
+
+[ext_resource type="PackedScene" uid="uid://t1qcmur3fq20" path="res://assets/3D/nature/CommonTree_1.gltf" id="model"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ixosm"]
+height = 3.1762695
+radius = 0.5048828
+
+[node name="CommonTree_1" type="StaticBody3D" unique_id=345981833]
+collision_mask = 0
+
+[node name="Model" parent="." unique_id=1247080887 instance=ExtResource("model")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1838555711]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0009185076, 1.4118652, 0.034597903)
+shape = SubResource("CylinderShape3D_ixosm")

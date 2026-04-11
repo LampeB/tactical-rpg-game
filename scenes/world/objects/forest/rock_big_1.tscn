@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://cotc3up8khv55"]
+
+[ext_resource type="PackedScene" uid="uid://dfgdslymm8hg4" path="res://assets/3D/nature/Rock_Big_1.gltf" id="model"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ad34c"]
+radius = 1.769043
+height = 4.9785156
+
+[node name="Rock_Big_1" type="StaticBody3D" unique_id=236918671]
+collision_mask = 0
+
+[node name="Model" parent="." unique_id=1382657767 instance=ExtResource("model")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1266733897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76129866, 1.3307495, 0.58665705)
+shape = SubResource("CapsuleShape3D_ad34c")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CollisionShape3D" unique_id=981646795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.065215, 0.29933476, -0.8688899)
+shape = SubResource("CapsuleShape3D_ad34c")

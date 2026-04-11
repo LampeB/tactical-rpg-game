@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://cm6iesvinnvbw"]
+
+[ext_resource type="PackedScene" uid="uid://v2rfi5xaaapa" path="res://assets/3D/nature/Rock_Medium_3.gltf" id="model"]
+
+[sub_resource type="CylinderShape3D" id="1"]
+height = 1.9859375
+radius = 1.4907227
+
+[node name="Rock_Medium_3" type="StaticBody3D" unique_id=1452402614]
+collision_mask = 0
+
+[node name="Model" parent="." unique_id=1418812927 instance=ExtResource("model")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=262203424]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9929687, 0.72115827)
+shape = SubResource("1")
