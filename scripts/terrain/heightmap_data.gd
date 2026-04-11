@@ -59,6 +59,7 @@ const CHUNK_SIZE := 16  ## Vertices per chunk edge (actual quads = CHUNK_SIZE - 
 ## True when this heightmap represents an overworld map (island shape, no roads,
 ## tiny decorative props). Used by TerrainManager to select the correct prop registry.
 @export var is_overworld: bool = false
+@export var skip_auto_props: bool = false  ## When true, _rebuild_props() is skipped (generator manages props)
 ## Per-vertex island index (overworld only). 0 = ocean, 1 = first island, 2 = second, etc.
 ## Empty for non-overworld maps. Size = width × height when populated.
 @export var island_indices: PackedByteArray = PackedByteArray()

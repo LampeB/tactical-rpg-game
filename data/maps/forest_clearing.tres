@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="MapData" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="MapData" load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/map_data.gd" id="script_map_data"]
 [ext_resource type="Script" path="res://scripts/resources/map_connection.gd" id="script_conn"]
 [ext_resource type="Script" path="res://scripts/resources/map_element.gd" id="script_elem"]
+[ext_resource type="Script" path="res://scripts/resources/decoration_zone_data.gd" id="script_deco_zone"]
 
 [sub_resource type="Resource" id="conn_to_overworld"]
 script = ExtResource("script_conn")
@@ -66,14 +67,127 @@ element_type = 2
 position = Vector3(32, 0, 28)
 resource_id = "forest_clearing_chest"
 
+[sub_resource type="Resource" id="campfire_1"]
+script = ExtResource("script_elem")
+element_type = 4
+position = Vector3(15, 0, 20)
+resource_id = "res://scenes/world/objects/campfire.tscn"
+
+[sub_resource type="Resource" id="deco_border_top"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Top Dense Trees"
+rect = Rect2(2, 35, 36, 3)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/commontree_1.tscn", "res://scenes/world/objects/forest/commontree_2.tscn", "res://scenes/world/objects/forest/pine_1.tscn", "res://scenes/world/objects/forest/pine_2.tscn", "res://scenes/world/objects/forest/giantpine_1.tscn", "res://scenes/world/objects/forest/birch_1.tscn"])
+count = 25
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="deco_border_bottom"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Bottom Dense Trees"
+rect = Rect2(2, 2, 36, 3)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/commontree_3.tscn", "res://scenes/world/objects/forest/pine_3.tscn", "res://scenes/world/objects/forest/giantpine_2.tscn", "res://scenes/world/objects/forest/birch_2.tscn", "res://scenes/world/objects/forest/deadtree_1.tscn"])
+count = 25
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="deco_border_left"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Left Dense Trees"
+rect = Rect2(2, 5, 3, 30)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/commontree_1.tscn", "res://scenes/world/objects/forest/pine_1.tscn", "res://scenes/world/objects/forest/pine_2.tscn", "res://scenes/world/objects/forest/twistedtree_1.tscn"])
+count = 20
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="deco_border_right"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Right Dense Trees"
+rect = Rect2(35, 5, 3, 30)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/commontree_2.tscn", "res://scenes/world/objects/forest/pine_3.tscn", "res://scenes/world/objects/forest/giantpine_1.tscn", "res://scenes/world/objects/forest/deadtree_2.tscn"])
+count = 20
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="deco_border_undergrowth"]
+script = ExtResource("script_deco_zone")
+zone_name = "Border Undergrowth"
+rect = Rect2(2, 2, 36, 36)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/bush_common.tscn", "res://scenes/world/objects/forest/bush_large.tscn", "res://scenes/world/objects/forest/fern_1.tscn", "res://scenes/world/objects/forest/fern_2.tscn", "res://scenes/world/objects/forest/grass_common_tall.tscn", "res://scenes/world/objects/forest/grass_wispy_tall.tscn"])
+count = 40
+min_spacing = 2.0
+
+[sub_resource type="Resource" id="deco_transition_trees"]
+script = ExtResource("script_deco_zone")
+zone_name = "Transition Ring Trees"
+rect = Rect2(5, 5, 30, 30)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/commontree_1.tscn", "res://scenes/world/objects/forest/birch_3.tscn", "res://scenes/world/objects/forest/pine_1.tscn", "res://scenes/world/objects/forest/twistedtree_2.tscn"])
+count = 15
+min_spacing = 5.0
+
+[sub_resource type="Resource" id="deco_clearing_grass"]
+script = ExtResource("script_deco_zone")
+zone_name = "Clearing Grass & Ground Cover"
+rect = Rect2(8, 8, 24, 24)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/grass_common_short.tscn", "res://scenes/world/objects/forest/grass_common_short.tscn", "res://scenes/world/objects/forest/grass_wide_short.tscn", "res://scenes/world/objects/forest/grass_wispy_short.tscn", "res://scenes/world/objects/forest/clover_1.tscn", "res://scenes/world/objects/forest/clover_2.tscn", "res://scenes/world/objects/forest/pebble_round_1.tscn", "res://scenes/world/objects/forest/pebble_square_1.tscn"])
+count = 50
+min_spacing = 1.5
+
+[sub_resource type="Resource" id="deco_clearing_flowers"]
+script = ExtResource("script_deco_zone")
+zone_name = "Clearing Wildflowers"
+rect = Rect2(10, 10, 20, 20)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/flower_1_group.tscn", "res://scenes/world/objects/forest/flower_2_group.tscn", "res://scenes/world/objects/forest/flower_3_group.tscn", "res://scenes/world/objects/forest/flower_4_group.tscn", "res://scenes/world/objects/forest/flower_1_single.tscn", "res://scenes/world/objects/forest/flower_2_single.tscn"])
+count = 25
+min_spacing = 2.0
+
+[sub_resource type="Resource" id="deco_clearing_mushrooms"]
+script = ExtResource("script_deco_zone")
+zone_name = "Clearing Mushroom Clusters"
+rect = Rect2(8, 8, 24, 24)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/mushroom_common.tscn", "res://scenes/world/objects/forest/mushroom_redcap.tscn", "res://scenes/world/objects/forest/mushroom_laetiporus.tscn", "res://scenes/world/objects/forest/mushroom_oyster.tscn"])
+count = 12
+min_spacing = 3.0
+
+[sub_resource type="Resource" id="deco_clearing_rocks"]
+script = ExtResource("script_deco_zone")
+zone_name = "Clearing Scattered Rocks"
+rect = Rect2(8, 8, 24, 24)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/rock_medium_1.tscn", "res://scenes/world/objects/forest/rock_medium_2.tscn", "res://scenes/world/objects/forest/rock_medium_3.tscn", "res://scenes/world/objects/forest/rock_big_1.tscn", "res://scenes/world/objects/forest/pebble_round_2.tscn", "res://scenes/world/objects/forest/pebble_square_2.tscn"])
+count = 10
+min_spacing = 4.0
+
+[sub_resource type="Resource" id="deco_clearing_plants"]
+script = ExtResource("script_deco_zone")
+zone_name = "Clearing Plants & Ferns"
+rect = Rect2(8, 8, 24, 24)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/plant_1.tscn", "res://scenes/world/objects/forest/plant_2.tscn", "res://scenes/world/objects/forest/plant_3.tscn", "res://scenes/world/objects/forest/plant_1_big.tscn", "res://scenes/world/objects/forest/plant_2_big.tscn", "res://scenes/world/objects/forest/fern_1.tscn", "res://scenes/world/objects/forest/fern_2.tscn"])
+count = 20
+min_spacing = 2.5
+
+[sub_resource type="Resource" id="deco_pond_flora"]
+script = ExtResource("script_deco_zone")
+zone_name = "Pond Edge Flora"
+rect = Rect2(26, 28, 10, 10)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/fern_1.tscn", "res://scenes/world/objects/forest/fern_2.tscn", "res://scenes/world/objects/forest/flower_1_group.tscn", "res://scenes/world/objects/forest/flower_3_group.tscn", "res://scenes/world/objects/forest/grass_wide_tall.tscn", "res://scenes/world/objects/forest/bush_common_flowers.tscn", "res://scenes/world/objects/forest/bush_large_flowers.tscn"])
+count = 18
+min_spacing = 1.5
+
+[sub_resource type="Resource" id="deco_path_edges"]
+script = ExtResource("script_deco_zone")
+zone_name = "Path Edge Bushes"
+rect = Rect2(3, 18, 10, 4)
+decoration_scenes = Array[String](["res://scenes/world/objects/forest/bush_long_1.tscn", "res://scenes/world/objects/forest/bush_long_2.tscn", "res://scenes/world/objects/forest/bush_common.tscn", "res://scenes/world/objects/forest/grass_wheat.tscn"])
+count = 8
+min_spacing = 2.0
+
 [resource]
 script = ExtResource("script_map_data")
 id = "forest_clearing"
 display_name = "Forest Clearing"
+map_scene_path = "res://scenes/maps/forest_clearing.tscn"
 grid_width = 40
 grid_height = 40
 terrain_cells = PackedInt32Array(6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 0, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 6, 6, 1, 6, 6, 1, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 0, 6, 6, 0, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 4, 1, 6, 4, 1, 6, 4, 1, 6, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 1, 4, 1, 1, 4, 1, 1, 4, 1, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 6, 1, 4, 6, 1, 4, 6, 1, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 6, 6, 1, 6, 6, 1, 6, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 0, 6, 6, 0, 6, 6, 6, 3, 3, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 6, 6, 0, 6, 6, 0, 6, 6, 6, 6, 3, 3, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 3, 3, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
 terrain_heights = PackedInt32Array(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
-player_spawn = Vector3(4, 0, 20)
-elements = Array[ExtResource("script_elem")]([SubResource("enemy_wolves"), SubResource("enemy_wolves_2"), SubResource("enemy_spiders"), SubResource("enemy_spiders_2"), SubResource("enemy_elemental"), SubResource("chest_1")])
+player_spawn = Vector3(32, 0, 32)
+elements = Array[ExtResource("script_elem")]([SubResource("enemy_wolves"), SubResource("enemy_wolves_2"), SubResource("enemy_spiders"), SubResource("enemy_spiders_2"), SubResource("enemy_elemental"), SubResource("chest_1"), SubResource("campfire_1")])
 connections = Array[ExtResource("script_conn")]([SubResource("conn_to_overworld"), SubResource("conn_to_town")])
+decoration_zones = Array[ExtResource("script_deco_zone")]([SubResource("deco_border_top"), SubResource("deco_border_bottom"), SubResource("deco_border_left"), SubResource("deco_border_right"), SubResource("deco_border_undergrowth"), SubResource("deco_transition_trees"), SubResource("deco_clearing_grass"), SubResource("deco_clearing_flowers"), SubResource("deco_clearing_mushrooms"), SubResource("deco_clearing_rocks"), SubResource("deco_clearing_plants"), SubResource("deco_pond_flora"), SubResource("deco_path_edges")])
+decoration_seed = 7731

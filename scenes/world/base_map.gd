@@ -168,6 +168,10 @@ func _ready() -> void:
 	if _map_data:
 		GameManager.current_location_name = _map_data.display_name if not _map_data.display_name.is_empty() else map_id.capitalize()
 
+		# Auto-enable heightmap terrain when MapData has a scene path
+		if not use_heightmap_terrain and _map_data and not _map_data.map_scene_path.is_empty():
+			use_heightmap_terrain = true
+
 		if use_heightmap_terrain:
 			_tlog_write("Building heightmap terrain...")
 			await _build_heightmap_terrain()

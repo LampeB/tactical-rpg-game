@@ -305,6 +305,8 @@ func _rebuild_water() -> void:
 
 
 func _rebuild_props() -> void:
+	if heightmap_data and heightmap_data.skip_auto_props:
+		return
 	if _prop_parent:
 		for child in _prop_parent.get_children():
 			child.queue_free()

@@ -236,6 +236,7 @@
 | NPC wandering patrol system (random movement within radius) | 3217700f-d0fb-8128-98dd-dd676430ec81 |
 | Sun and global light sources (DirectionalLight3D, day/night feel) | 31c7700f-d0fb-813c-9c09-ea2db648611b |
 | Fix NPC/enemy ground positioning (auto-grounding + terrain offset) | 31c7700f-d0fb-81a9-8a92-eb792748e73e |
+| Hunter NPC with enemy respawn dialogue action | 33f7700f-d0fb-81e6-923e-def6acd035d4 |
 | FF6-style overworld with WASD movement and camera follow | 3147700f-d0fb-8199-84ab-fd7b81806a26 |
 | In-game skill tree editor | 3147700f-d0fb-81e3-9f0b-d127387d464f |
 | Lake location debug heal (full HP/MP) | 3147700f-d0fb-81a7-acd5-d6fc7fbd5cb6 |
@@ -356,6 +357,8 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Forest map generator: @tool script with Poisson disk tree placement | 33f7700f-d0fb-8173-bf20-d96a8ad5be1d |
+| Poisson disk sampling utility for prop placement | 33f7700f-d0fb-8104-9d49-f0548c2b0a43 |
 
 ### Done
 | Name | Notion ID |

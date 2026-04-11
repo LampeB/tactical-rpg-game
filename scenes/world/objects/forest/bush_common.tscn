@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/3D/nature/Bush_Common.gltf" id="model"]
+
+[sub_resource type="SphereShape3D" id="1"]
+radius = 0.5
+
+[node name="Bush_Common" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="Model" parent="." instance=ExtResource("model")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.4, 0)
+shape = SubResource("1")
