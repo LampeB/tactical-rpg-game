@@ -187,7 +187,11 @@ func _ready() -> void:
 		chests_node.name = "Chests"
 		add_child(chests_node)
 		var is_scene_based: bool = use_heightmap_terrain and _terrain_node != null
-		if not is_scene_based:
+		if is_scene_based and _map_scene_root:
+			# Scene-based: spawn enemies from generator markers + elements for NPCs/chests
+			MapLoader.spawn_scene_encounters(_map_scene_root, enemies_node)
+			MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
+		elif not is_scene_based:
 			MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
 		_connection_markers = Node3D.new()
 		_connection_markers.name = "ConnectionMarkers"
@@ -255,6 +259,12 @@ func _ready() -> void:
 	add_child(occlusion)
 
 	_enable_enemy_detection()
+
+
+func _enter_tree() -> void:
+	# Re-attach cached map scene root when restored from stash (push/pop)
+	if _map_scene_root and is_instance_valid(_map_scene_root) and _map_scene_root.get_parent() != self:
+		add_child(_map_scene_root)
 
 
 func _exit_tree() -> void:
