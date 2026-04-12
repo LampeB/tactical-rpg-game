@@ -91,7 +91,7 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 var _heightmap: Resource = null  # HeightmapData
 var _center: Vector2 = Vector2.ZERO
 var _half_size: Vector2 = Vector2.ZERO
-var _path_lines: Array = []  # Array of {from: Vector2, to: Vector2}
+var _path_polylines: Array = []  # Array of PackedVector2Array (curved path waypoints)
 var _pond_center: Vector2 = Vector2.ZERO
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -193,25 +193,25 @@ func _compute_layout() -> void:
 	_center = Vector2(w * 0.5, d * 0.5)
 	_half_size = Vector2(w * 0.5, d * 0.5)
 
-	# Compute path lines from connection edge positions to center
-	_path_lines.clear()
+	# Build curved path polylines from connection edges to center
+	_path_polylines.clear()
+	var path_rng := RandomNumberGenerator.new()
+	path_rng.seed = gen_seed + 500
 	var conn_count: int = connections.size()
 	if conn_count == 0:
-		# No connections defined — create 2 default paths evenly spaced
 		conn_count = 2
 	for i in range(conn_count):
 		var edge: Vector2
 		if i < connections.size() and connections[i].position != Vector3.ZERO:
-			# Use existing connection position if set
 			edge = Vector2(connections[i].position.x, connections[i].position.z)
 		else:
-			# Auto-place evenly around the map edge
 			var angle: float = (float(i) / conn_count) * TAU + PI * 0.5
 			edge = Vector2(
 				_center.x + cos(angle) * _half_size.x,
 				_center.y + sin(angle) * _half_size.y
 			)
-		_path_lines.append({"from": edge, "to": _center})
+		var polyline: PackedVector2Array = _build_curved_path(edge, _center, path_rng)
+		_path_polylines.append(polyline)
 
 	# Pond position
 	var pond_rng := RandomNumberGenerator.new()
@@ -234,21 +234,21 @@ func _get_clearing_mask(world_x: float, world_z: float) -> float:
 
 func _get_path_mask(world_x: float, world_z: float) -> float:
 	## Returns 1.0 on a path, 0.0 far from paths.
+	## Checks distance to nearest segment of each curved polyline.
 	## Fades out near the clearing center so paths don't dominate the clearing.
 	var best: float = 0.0
 	var p := Vector2(world_x, world_z)
-	for i in range(_path_lines.size()):
-		var line: Dictionary = _path_lines[i]
-		var from: Vector2 = line["from"]
-		var to: Vector2 = line["to"]
-		var closest: Vector2 = _closest_point_on_segment(p, from, to)
-		var d: float = p.distance_to(closest)
-		var mask: float = 1.0 - smoothstep(0.0, path_width, d)
-		if mask > best:
-			best = mask
+	for pi in range(_path_polylines.size()):
+		var poly: PackedVector2Array = _path_polylines[pi]
+		for si in range(poly.size() - 1):
+			var closest: Vector2 = _closest_point_on_segment(p, poly[si], poly[si + 1])
+			var d: float = p.distance_to(closest)
+			var mask: float = 1.0 - smoothstep(0.0, path_width, d)
+			if mask > best:
+				best = mask
 	# Fade path influence inside the clearing so it stays grassy
 	var clearing: float = 1.0 - _get_clearing_mask(world_x, world_z)
-	best *= (1.0 - clearing * clearing)  # Quadratic fade: paths vanish at center
+	best *= (1.0 - clearing * clearing)
 	return best
 
 
@@ -260,6 +260,38 @@ func _get_pond_mask(world_x: float, world_z: float) -> float:
 	var dz: float = (world_z - _pond_center.y) / (pond_size.y * 0.5)
 	var dist: float = sqrt(dx * dx + dz * dz)
 	return 1.0 - smoothstep(0.8, 1.5, dist)
+
+
+func _build_curved_path(from: Vector2, to: Vector2, rng: RandomNumberGenerator) -> PackedVector2Array:
+	## Builds a curved polyline from `from` to `to` with natural-looking bends.
+	## Uses perpendicular noise offsets at evenly-spaced waypoints.
+	var points := PackedVector2Array()
+	var total_dist: float = from.distance_to(to)
+	var segment_length: float = 4.0  # Waypoint every ~4 world units
+	var num_segments: int = maxi(3, int(total_dist / segment_length))
+	var direction: Vector2 = (to - from).normalized()
+	var perpendicular := Vector2(-direction.y, direction.x)
+
+	# Curve amplitude scales with distance but caps for natural look
+	var amplitude: float = minf(total_dist * 0.12, 8.0)
+
+	points.append(from)
+	for i in range(1, num_segments):
+		var t: float = float(i) / num_segments
+		var base: Vector2 = from.lerp(to, t)
+		# Noise offset perpendicular to path — stronger in middle, zero at endpoints
+		var envelope: float = sin(t * PI)  # 0 at edges, 1 at midpoint
+		var offset: float = rng.randf_range(-amplitude, amplitude) * envelope
+		var point: Vector2 = base + perpendicular * offset
+		points.append(point)
+	points.append(to)
+
+	# Smooth pass: average each interior point with its neighbours
+	for _pass in range(2):
+		for i in range(1, points.size() - 1):
+			points[i] = (points[i - 1] + points[i] * 2.0 + points[i + 1]) * 0.25
+
+	return points
 
 
 static func _closest_point_on_segment(p: Vector2, a: Vector2, b: Vector2) -> Vector2:
