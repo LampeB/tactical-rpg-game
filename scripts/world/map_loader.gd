@@ -383,15 +383,25 @@ static func build_battle_background(map_data: MapData, battle_area: BattleAreaDa
 
 static func find_nearest_battle_area(map_data: MapData, fight_pos: Vector3) -> BattleAreaData:
 	## Returns the battle area closest to the fight position, or null if none exist.
-	if map_data.battle_areas.is_empty():
-		return null
+	## Checks MapData.battle_areas + GameManager.scene_battle_areas (from generator).
 	var best: BattleAreaData = null
 	var best_dist: float = INF
+
+	# Check MapData battle areas
 	for area in map_data.battle_areas:
 		var dist: float = fight_pos.distance_squared_to(area.position)
 		if dist < best_dist:
 			best_dist = dist
 			best = area
+
+	# Check scene-based battle areas (stored by base_map on load)
+	for i in range(GameManager.scene_battle_areas.size()):
+		var ba: BattleAreaData = GameManager.scene_battle_areas[i]
+		var dist: float = fight_pos.distance_squared_to(ba.position)
+		if dist < best_dist:
+			best_dist = dist
+			best = ba
+
 	return best
 
 
@@ -598,6 +608,15 @@ static func _create_battle_splatmap_material(data: HeightmapData) -> ShaderMater
 		if layer.normal_texture:
 			mat.set_shader_parameter("normal_" + suffix, layer.normal_texture)
 		mat.set_shader_parameter("uv_scale_" + suffix, layer.uv_scale)
+
+	# Set splatmap2/3 to black (all zeros) so layers 4-11 have zero weight.
+	# Without this, unbound samplers return white (1,1,1,1) which overwhelms
+	# the layer 0-3 weights during normalization.
+	var black_img := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	black_img.fill(Color(0, 0, 0, 0))
+	var black_tex := ImageTexture.create_from_image(black_img)
+	mat.set_shader_parameter("splatmap2_tex", black_tex)
+	mat.set_shader_parameter("splatmap3_tex", black_tex)
 
 	return mat
 

@@ -14,6 +14,7 @@ var current_heightmap_data: Resource = null  ## Transient HeightmapData for batt
 ## Cache of instantiated map scene roots (Node3D) — reparented instead of re-instantiated.
 var cached_map_nodes: Dictionary = {}  # map_scene_path → Node3D
 
+var scene_battle_areas: Array = []  ## BattleAreaData from generator scenes (transient)
 var preloaded_battle_bg: Node3D = null
 var preloaded_battle_arena_center: Vector3 = Vector3.ZERO
 var preloaded_battle_arena_rotation: float = 0.0

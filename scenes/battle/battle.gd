@@ -76,6 +76,20 @@ var _fight_position: Vector3 = Vector3.ZERO
 var _map_id: String = ""
 var _arena_center: Vector3 = Vector3.ZERO  ## World position of the battle arena on the map
 var _arena_rotation_y: float = 0.0  ## Y-axis rotation of the battle arena
+var _borrowed_map_scene: Node3D = null  ## Cached map scene borrowed for battle background
+var _borrowed_map_scene_path: String = ""  ## Path key to return it to GameManager cache
+
+
+func _exit_tree() -> void:
+	_return_borrowed_scene()
+
+
+func _return_borrowed_scene() -> void:
+	if _borrowed_map_scene and is_instance_valid(_borrowed_map_scene):
+		if _borrowed_map_scene.get_parent():
+			_borrowed_map_scene.get_parent().remove_child(_borrowed_map_scene)
+		GameManager.cached_map_nodes[_borrowed_map_scene_path] = _borrowed_map_scene
+		_borrowed_map_scene = null
 
 # Camera positions
 var _cam_home_pos: Vector3 = Vector3.ZERO  ## Behind-party camera position (home)
@@ -226,22 +240,33 @@ func _sync_viewport_size() -> void:
 				if battle_area:
 					_arena_center = battle_area.position
 					_arena_rotation_y = battle_area.rotation_y
+				else:
+					_arena_center = _fight_position
+					_arena_rotation_y = 0.0
 
-				# Use heightmap terrain background if available, otherwise legacy GridMap
+				# Ground arena center to terrain height
 				var heightmap_data: Resource = GameManager.current_heightmap_data
 				if heightmap_data and heightmap_data is HeightmapData:
 					var hdata: HeightmapData = heightmap_data as HeightmapData
-					# Fall back to fight position if no battle area defined
-					if not battle_area:
-						_arena_center = _fight_position
-						_arena_rotation_y = 0.0
-					# Ground arena center to terrain height
 					var tscale: Vector3 = hdata.terrain_scale
 					var gx: int = clampi(roundi(_arena_center.x / tscale.x), 0, hdata.width - 1)
 					var gz: int = clampi(roundi(_arena_center.z / tscale.z), 0, hdata.height - 1)
 					_arena_center.y = hdata.get_height_at(gx, gz) * tscale.y
+
+				# Use the actual cached map scene as battle background (exact same terrain + props)
+				var cached_scene: Node3D = null
+				if not map_data.map_scene_path.is_empty():
+					cached_scene = GameManager.cached_map_nodes.get(map_data.map_scene_path, null) as Node3D
+				if cached_scene and is_instance_valid(cached_scene):
+					if cached_scene.get_parent():
+						cached_scene.get_parent().remove_child(cached_scene)
+					_battle_world.add_child(cached_scene)
+					_borrowed_map_scene = cached_scene
+					_borrowed_map_scene_path = map_data.map_scene_path
+					DebugLogger.log_info("Using actual map scene as battle background", "BattleView")
+				elif heightmap_data and heightmap_data is HeightmapData:
 					var bg: Node3D = MapLoader.build_heightmap_battle_background(
-						hdata, _arena_center, _arena_rotation_y
+						heightmap_data as HeightmapData, _arena_center, _arena_rotation_y
 					)
 					_battle_world.add_child(bg)
 					DebugLogger.log_info("Built heightmap battle background at y=%.1f" % _arena_center.y, "BattleView")

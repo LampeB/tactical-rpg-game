@@ -190,6 +190,7 @@ func _ready() -> void:
 		if is_scene_based and _map_scene_root:
 			# Scene-based: spawn enemies from generator markers + elements for NPCs/chests
 			MapLoader.spawn_scene_encounters(_map_scene_root, enemies_node)
+			_collect_scene_battle_areas(_map_scene_root)
 			MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
 		elif not is_scene_based:
 			MapLoader.spawn_elements(_map_data, self, _location_markers, enemies_node, chests_node)
@@ -259,6 +260,27 @@ func _ready() -> void:
 	add_child(occlusion)
 
 	_enable_enemy_detection()
+
+
+func _collect_scene_battle_areas(scene_root: Node3D) -> void:
+	## Reads BattleArea markers from the generator's Encounters/ node and stores
+	## them in GameManager so the battle scene can find them.
+	GameManager.scene_battle_areas.clear()
+	var encounters: Node3D = null
+	for i in range(scene_root.get_child_count()):
+		if scene_root.get_child(i).name == "Encounters":
+			encounters = scene_root.get_child(i) as Node3D
+			break
+	if not encounters:
+		return
+	for i in range(encounters.get_child_count()):
+		var marker: Node3D = encounters.get_child(i) as Node3D
+		if not marker or not marker.has_meta("battle_area_name"):
+			continue
+		var ba := BattleAreaData.new()
+		ba.area_name = marker.get_meta("battle_area_name")
+		ba.position = marker.position
+		GameManager.scene_battle_areas.append(ba)
 
 
 func _enter_tree() -> void:

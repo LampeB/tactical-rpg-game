@@ -48,7 +48,7 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 
 # ─── Inspector: Encounters ──────────────────────────────────────────────────
 @export_group("Encounters")
-@export_range(0, 15) var enemy_count: int = 5
+@export_range(0, 50) var enemy_count: int = 5
 @export_range(3.0, 15.0) var enemy_min_spacing: float = 8.0
 @export_range(2.0, 8.0) var enemy_patrol_distance: float = 5.0
 ## Encounter .tres paths to pick from. If empty, uses forest defaults.
@@ -222,6 +222,7 @@ func _get_clearing_mask(world_x: float, world_z: float) -> float:
 
 func _get_path_mask(world_x: float, world_z: float) -> float:
 	## Returns 1.0 on a path, 0.0 far from paths.
+	## Fades out near the clearing center so paths don't dominate the clearing.
 	var best: float = 0.0
 	var p := Vector2(world_x, world_z)
 	for i in range(_path_lines.size()):
@@ -233,6 +234,9 @@ func _get_path_mask(world_x: float, world_z: float) -> float:
 		var mask: float = 1.0 - smoothstep(0.0, path_width, d)
 		if mask > best:
 			best = mask
+	# Fade path influence inside the clearing so it stays grassy
+	var clearing: float = 1.0 - _get_clearing_mask(world_x, world_z)
+	best *= (1.0 - clearing * clearing)  # Quadratic fade: paths vanish at center
 	return best
 
 

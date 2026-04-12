@@ -201,6 +201,6 @@ terrain_heights = PackedInt32Array(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
 player_spawn = Vector3(32, 0, 32)
 elements = Array[ExtResource("script_elem")]([SubResource("chest_1"), SubResource("campfire_1")])
 connections = Array[ExtResource("script_conn")]([SubResource("conn_to_overworld"), SubResource("conn_to_town")])
-battle_areas = Array[ExtResource("script_battle_area")]([SubResource("battle_area_clearing"), SubResource("battle_area_east")])
+battle_areas = Array[ExtResource("script_battle_area")]([])
 decoration_zones = Array[ExtResource("script_deco_zone")]([SubResource("deco_border_top"), SubResource("deco_border_bottom"), SubResource("deco_border_left"), SubResource("deco_border_right"), SubResource("deco_border_undergrowth"), SubResource("deco_transition_trees"), SubResource("deco_clearing_grass"), SubResource("deco_clearing_flowers"), SubResource("deco_clearing_mushrooms"), SubResource("deco_clearing_rocks"), SubResource("deco_clearing_plants"), SubResource("deco_pond_flora"), SubResource("deco_path_edges")])
 decoration_seed = 7731
