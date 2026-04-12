@@ -197,6 +197,9 @@ func _ready() -> void:
 		_connection_markers = Node3D.new()
 		_connection_markers.name = "ConnectionMarkers"
 		add_child(_connection_markers)
+		# Sync connection positions from generator scene markers if available
+		if is_scene_based and _map_scene_root:
+			_sync_scene_connection_positions(_map_scene_root)
 		MapLoader.spawn_connections(_map_data, _connection_markers)
 		_tlog_write("Spawned %d connections" % _map_data.connections.size())
 
@@ -260,6 +263,24 @@ func _ready() -> void:
 	add_child(occlusion)
 
 	_enable_enemy_detection()
+
+
+func _sync_scene_connection_positions(scene_root: Node3D) -> void:
+	## Updates MapData connection positions from generator's Connections/ markers.
+	var conn_node: Node3D = null
+	for i in range(scene_root.get_child_count()):
+		if scene_root.get_child(i).name == "Connections":
+			conn_node = scene_root.get_child(i) as Node3D
+			break
+	if not conn_node or not _map_data:
+		return
+	for i in range(conn_node.get_child_count()):
+		var marker: Node3D = conn_node.get_child(i) as Node3D
+		if not marker or not marker.has_meta("connection_index"):
+			continue
+		var idx: int = marker.get_meta("connection_index")
+		if idx >= 0 and idx < _map_data.connections.size():
+			_map_data.connections[idx].position = marker.position
 
 
 func _collect_scene_battle_areas(scene_root: Node3D) -> void:

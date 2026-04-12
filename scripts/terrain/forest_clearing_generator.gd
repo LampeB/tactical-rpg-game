@@ -41,9 +41,10 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 @export_range(0.0, 3.0) var undergrowth_density: float = 1.0
 @export_range(2.0, 8.0) var tree_min_spacing: float = 3.5
 
-# ─── Inspector: Paths ───────────────────────────────────────────────────────
-@export_group("Paths")
-@export_range(1, 6) var path_count: int = 2
+# ─── Inspector: Connections & Paths ─────────────────────────────────────────
+@export_group("Connections")
+## MapConnection resources to place at map edges. Paths are carved from each to the center.
+@export var connections: Array[MapConnection] = []
 @export_range(1.0, 6.0) var path_width: float = 3.0
 
 # ─── Inspector: Encounters ──────────────────────────────────────────────────
@@ -109,6 +110,7 @@ func _generate_all() -> void:
 	_generate_undergrowth()
 	_generate_props()
 	_generate_encounters()
+	_generate_connections()
 	_ensure_hand_placed()
 	print("[ForestClearingGenerator] Generation complete.")
 
@@ -191,14 +193,24 @@ func _compute_layout() -> void:
 	_center = Vector2(w * 0.5, d * 0.5)
 	_half_size = Vector2(w * 0.5, d * 0.5)
 
-	# Compute path lines from edge to center
+	# Compute path lines from connection edge positions to center
 	_path_lines.clear()
-	for i in range(path_count):
-		var angle: float = (float(i) / path_count) * TAU + PI * 0.5  # Start from top
-		var edge := Vector2(
-			_center.x + cos(angle) * _half_size.x,
-			_center.y + sin(angle) * _half_size.y
-		)
+	var conn_count: int = connections.size()
+	if conn_count == 0:
+		# No connections defined — create 2 default paths evenly spaced
+		conn_count = 2
+	for i in range(conn_count):
+		var edge: Vector2
+		if i < connections.size() and connections[i].position != Vector3.ZERO:
+			# Use existing connection position if set
+			edge = Vector2(connections[i].position.x, connections[i].position.z)
+		else:
+			# Auto-place evenly around the map edge
+			var angle: float = (float(i) / conn_count) * TAU + PI * 0.5
+			edge = Vector2(
+				_center.x + cos(angle) * _half_size.x,
+				_center.y + sin(angle) * _half_size.y
+			)
 		_path_lines.append({"from": edge, "to": _center})
 
 	# Pond position
@@ -757,8 +769,106 @@ func _generate_encounters() -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Step 7: Connection Markers
+# ═══════════════════════════════════════════════════════════════════════════
+
+func _generate_connections() -> void:
+	if connections.is_empty():
+		print("[ForestClearingGenerator] No connections defined.")
+		return
+
+	_remove_layer("Connections")
+	var parent := Node3D.new()
+	parent.name = "Connections"
+	_add_owned(parent, self)
+
+	var w: float = (map_width - 1) * terrain_scale.x
+	var d: float = (map_depth - 1) * terrain_scale.z
+	var conn_count: int = connections.size()
+
+	for i in range(conn_count):
+		var conn: MapConnection = connections[i]
+
+		# Determine edge position
+		var edge_pos: Vector3
+		if conn.position != Vector3.ZERO:
+			edge_pos = conn.position
+		else:
+			# Auto-place evenly around map edge
+			var angle: float = (float(i) / conn_count) * TAU + PI * 0.5
+			edge_pos = Vector3(
+				_center.x + cos(angle) * _half_size.x,
+				0,
+				_center.y + sin(angle) * _half_size.y
+			)
+			# Clamp to map bounds with margin
+			edge_pos.x = clampf(edge_pos.x, 3.0, w - 3.0)
+			edge_pos.z = clampf(edge_pos.z, 3.0, d - 3.0)
+
+		# Ground to terrain height
+		var h: float = _sample_terrain_height(edge_pos.x, edge_pos.z)
+		edge_pos.y = h * terrain_scale.y
+
+		# Update the connection resource position so MapLoader uses the right spot
+		conn.position = edge_pos
+
+		# Create marker node with metadata for runtime spawning
+		var marker := Node3D.new()
+		marker.name = "Connection_%s" % conn.connection_id
+		marker.position = edge_pos
+		marker.set_meta("connection_index", i)
+
+		# Editor gizmo
+		if Engine.is_editor_hint():
+			_build_connection_gizmo(marker, conn)
+
+		_add_owned(marker, parent)
+
+	print("[ForestClearingGenerator] Placed %d connections." % conn_count)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════
+
+func _build_connection_gizmo(marker: Node3D, conn: MapConnection) -> void:
+	# Blue pillar (matching ConnectionMarker style)
+	var mesh_inst := MeshInstance3D.new()
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = 0.3
+	cylinder.bottom_radius = 0.3
+	cylinder.height = 3.0
+	mesh_inst.mesh = cylinder
+	mesh_inst.position.y = 1.5
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.2, 0.5, 1.0, 0.7)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.emission_enabled = true
+	mat.emission = Color(0.2, 0.5, 1.0)
+	mat.emission_energy_multiplier = 0.5
+	mesh_inst.material_override = mat
+	marker.add_child(mesh_inst)
+
+	# Name label
+	var label := Label3D.new()
+	label.text = conn.display_name if not conn.display_name.is_empty() else conn.connection_id
+	label.position.y = 3.5
+	label.font_size = 40
+	label.modulate = Color(0.5, 0.8, 1.0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	marker.add_child(label)
+
+	# Target label
+	var target_label := Label3D.new()
+	target_label.text = "-> %s" % conn.target_map_id
+	target_label.position.y = 3.0
+	target_label.font_size = 24
+	target_label.modulate = Color(0.4, 0.6, 0.8)
+	target_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	target_label.no_depth_test = true
+	marker.add_child(target_label)
+
 
 func _build_enemy_gizmo(marker: Node3D, enc_path: String, color: Color, _patrol_dist: float) -> void:
 	# Simple colored box (cheap, no CSG boolean overhead)
