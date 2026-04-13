@@ -43,9 +43,15 @@ const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 
 # ─── Inspector: Connections & Paths ─────────────────────────────────────────
 @export_group("Connections")
-## MapConnection resources to place at map edges. Paths are carved from each to the center.
+## MapConnection resources to place at map edges. Paths are carved from each to its target.
 @export var connections: Array[MapConnection] = []
-@export_range(1.0, 6.0) var path_width: float = 3.0
+## Target point for each connection's path (index matches connections array).
+## Vector3.ZERO = go to map center. Set XZ to create branching paths.
+@export var path_targets: Array[Vector3] = []
+## Extra path segments between any two points (for branches, shortcuts, loops).
+## Each entry is a pair: [from: Vector3, to: Vector3] flattened as [x1,z1, x2,z2].
+@export var extra_paths: Array[Vector4] = []
+@export_range(1.0, 12.0) var path_width: float = 5.0
 
 # ─── Inspector: Encounters ──────────────────────────────────────────────────
 @export_group("Encounters")
@@ -92,6 +98,7 @@ var _heightmap: Resource = null  # HeightmapData
 var _center: Vector2 = Vector2.ZERO
 var _half_size: Vector2 = Vector2.ZERO
 var _path_polylines: Array = []  # Array of PackedVector2Array (curved path waypoints)
+var _path_junctions: PackedVector2Array = PackedVector2Array()  # Points where paths meet
 var _pond_center: Vector2 = Vector2.ZERO
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -193,7 +200,7 @@ func _compute_layout() -> void:
 	_center = Vector2(w * 0.5, d * 0.5)
 	_half_size = Vector2(w * 0.5, d * 0.5)
 
-	# Build curved path polylines from connection edges to center
+	# Build curved path polylines from connection edges to their targets
 	_path_polylines.clear()
 	var path_rng := RandomNumberGenerator.new()
 	path_rng.seed = gen_seed + 500
@@ -210,8 +217,38 @@ func _compute_layout() -> void:
 				_center.x + cos(angle) * _half_size.x,
 				_center.y + sin(angle) * _half_size.y
 			)
-		var polyline: PackedVector2Array = _build_curved_path(edge, _center, path_rng)
+		# Determine target: custom path_target or default to center
+		var target: Vector2 = _center
+		if i < path_targets.size() and path_targets[i] != Vector3.ZERO:
+			target = Vector2(path_targets[i].x, path_targets[i].z)
+		var polyline: PackedVector2Array = _build_curved_path(edge, target, path_rng)
 		_path_polylines.append(polyline)
+
+	# Extra path segments (branches, shortcuts)
+	for i in range(extra_paths.size()):
+		var ep: Vector4 = extra_paths[i]
+		var from := Vector2(ep.x, ep.y)
+		var to := Vector2(ep.z, ep.w)
+		var polyline: PackedVector2Array = _build_curved_path(from, to, path_rng)
+		_path_polylines.append(polyline)
+
+	# Collect junction points (endpoints where paths converge)
+	_path_junctions.clear()
+	var endpoint_counts: Dictionary = {}
+	for pi in range(_path_polylines.size()):
+		var poly: PackedVector2Array = _path_polylines[pi]
+		if poly.size() < 2:
+			continue
+		var last: Vector2 = poly[poly.size() - 1]
+		# Round to 1 decimal to group nearby endpoints
+		var key := Vector2i(roundi(last.x), roundi(last.y))
+		endpoint_counts[key] = endpoint_counts.get(key, 0) + 1
+		var first: Vector2 = poly[0]
+		var fkey := Vector2i(roundi(first.x), roundi(first.y))
+		endpoint_counts[fkey] = endpoint_counts.get(fkey, 0) + 1
+	for key in endpoint_counts:
+		if endpoint_counts[key] >= 2:
+			_path_junctions.append(Vector2(key.x, key.y))
 
 	# Pond position
 	var pond_rng := RandomNumberGenerator.new()
@@ -246,9 +283,6 @@ func _get_path_mask(world_x: float, world_z: float) -> float:
 			var mask: float = 1.0 - smoothstep(0.0, path_width, d)
 			if mask > best:
 				best = mask
-	# Fade path influence inside the clearing so it stays grassy
-	var clearing: float = 1.0 - _get_clearing_mask(world_x, world_z)
-	best *= (1.0 - clearing * clearing)
 	return best
 
 
@@ -273,7 +307,7 @@ func _build_curved_path(from: Vector2, to: Vector2, rng: RandomNumberGenerator) 
 	var perpendicular := Vector2(-direction.y, direction.x)
 
 	# Curve amplitude scales with distance but caps for natural look
-	var amplitude: float = minf(total_dist * 0.12, 8.0)
+	var amplitude: float = minf(total_dist * 0.15, 12.0)
 
 	points.append(from)
 	for i in range(1, num_segments):
@@ -340,8 +374,15 @@ func _generate_heightmap() -> void:
 			var n: float = noise.get_noise_2d(float(x), float(z))
 			h += n * terrain_roughness * mask
 
-			# Flatten paths
-			h = lerpf(h, 0.0, path_m * 0.8)
+			# Flatten paths + junctions
+			var flatten_m: float = path_m
+			for ji in range(_path_junctions.size()):
+				var jpt: Vector2 = _path_junctions[ji]
+				var jdx: float = (wx - jpt.x) / (path_width * 1.5)
+				var jdz: float = (wz - jpt.y) / (path_width * 1.5)
+				var jflat: float = 1.0 - smoothstep(0.0, 1.0, sqrt(jdx * jdx + jdz * jdz))
+				flatten_m = maxf(flatten_m, jflat)
+			h = lerpf(h, 0.0, flatten_m * 0.8)
 
 			# Depress pond area
 			if enable_pond:
@@ -365,6 +406,14 @@ func _generate_heightmap() -> void:
 
 			# Layer 0 = Grass (clearing), Layer 1 = ForestFloor (canopy),
 			# Layer 2 = Dirt (paths), Layer 3 = Mud (pond edge)
+			# Add dirt circles at path junctions where paths converge
+			for ji in range(_path_junctions.size()):
+				var jpt: Vector2 = _path_junctions[ji]
+				var jdx: float = (wx - jpt.x) / (path_width * 1.5)
+				var jdz: float = (wz - jpt.y) / (path_width * 1.5)
+				var jdirt: float = 1.0 - smoothstep(0.0, 1.0, sqrt(jdx * jdx + jdz * jdz))
+				path_m = maxf(path_m, jdirt)
+
 			var grass: float = (1.0 - mask) * (1.0 - path_m) * (1.0 - pond_m)
 			var forest: float = mask * (1.0 - path_m) * (1.0 - pond_m * 0.5)
 			var dirt: float = path_m
