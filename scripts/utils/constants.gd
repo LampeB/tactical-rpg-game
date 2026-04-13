@@ -68,7 +68,7 @@ const CAMERA_DEFAULT_PITCH := -45.0		## Degrees (isometric-ish default)
 const CAMERA_DEFAULT_YAW := 0.0
 const CAMERA_SMOOTH_WEIGHT := 10.0
 const CAMERA_PITCH_MIN := -80.0			## Prevent flipping under ground
-const CAMERA_PITCH_MAX := 10.0
+const CAMERA_PITCH_MAX := -15.0			## Prevent camera from going through terrain
 
 # === 3D CHARACTER COLORS ===
 const CHARACTER_CLASS_COLORS := {

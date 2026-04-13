@@ -29,7 +29,7 @@ var debug_mode: bool = false         ## Show developer/debug menus (editors in m
 
 const UI_SCALE_OPTIONS := [75, 100, 125, 150]
 const FONT_SCALE_OPTIONS := [80, 100, 120, 140]
-const SHADOW_ATLAS_SIZES := [512, 1024, 2048, 4096]
+const SHADOW_ATLAS_SIZES := [1024, 2048, 4096, 8192]
 
 
 func _ready() -> void:
