@@ -3,6 +3,7 @@ extends PanelContainer
 ## Defend/Flee show a Confirm/Cancel step; Attack/Skills/Items go directly to targeting.
 
 signal action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData)
+signal category_selected(action_type: int)  ## Emitted when a top-level button is clicked (before sub-menu)
 
 var _current_entity: CombatEntity
 var _skill_buttons: Array = []
@@ -154,6 +155,7 @@ func show_disabled() -> void:
 # === Main Actions ===
 
 func _on_attack() -> void:
+	category_selected.emit(Enums.CombatAction.ATTACK)
 	_skill_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_list_scroll.visible = false
@@ -165,10 +167,12 @@ func _on_attack() -> void:
 
 
 func _on_defend() -> void:
+	category_selected.emit(Enums.CombatAction.DEFEND)
 	_show_confirm("Defend this turn?", Enums.CombatAction.DEFEND, null, Enums.TargetType.SELF)
 
 
 func _on_flee() -> void:
+	category_selected.emit(Enums.CombatAction.FLEE)
 	_flee_dialog.popup_centered()
 
 
@@ -177,6 +181,7 @@ func _on_flee_confirmed() -> void:
 
 
 func _on_skills_open() -> void:
+	category_selected.emit(Enums.CombatAction.SKILL)
 	# Toggle skills list (close if already open, open if closed)
 	if _skill_list_scroll.visible:
 		_skill_list_scroll.visible = false
@@ -192,6 +197,7 @@ func _on_skills_open() -> void:
 
 
 func _on_items_open() -> void:
+	category_selected.emit(Enums.CombatAction.ITEM)
 	# Toggle items list (close if already open, open if closed)
 	if _item_list_scroll.visible:
 		_item_list_scroll.visible = false

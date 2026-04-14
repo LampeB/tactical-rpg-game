@@ -9,6 +9,9 @@ const BattleSpriteScene: PackedScene = preload("res://scenes/battle/ui/battle_sp
 const DamagePopupScene: PackedScene = preload("res://scenes/battle/ui/damage_popup.tscn")
 
 const LootGeneratorScript = preload("res://scripts/systems/loot/loot_generator.gd")
+const _BattleCameraPreset := preload("res://scripts/resources/battle_camera_preset.gd")
+const _BattleCameraConfig := preload("res://scripts/resources/battle_camera_config.gd")
+const _DEFAULT_CAMERA_CONFIG := "res://data/battle/default_camera_config.tres"
 
 const ACTION_DELAY: float = 0.6  ## Seconds between actions for readability
 const BATTLE_START_DELAY: float = 0.5  ## Delay before first turn
@@ -78,6 +81,7 @@ var _arena_center: Vector3 = Vector3.ZERO  ## World position of the battle arena
 var _arena_rotation_y: float = 0.0  ## Y-axis rotation of the battle arena
 var _borrowed_map_scene: Node3D = null  ## Cached map scene borrowed for battle background
 var _borrowed_map_scene_path: String = ""  ## Path key to return it to GameManager cache
+var _cam_config: Resource = null  # BattleCameraConfig  ## Camera angle presets
 
 
 func _exit_tree() -> void:
@@ -108,6 +112,7 @@ func _ready() -> void:
 	_bg.color = UIColors.BG_BATTLE
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
+	_action_menu.category_selected.connect(_on_category_selected)
 	_target_prompt.visible = false
 	_log_toggle.toggled.connect(_on_log_toggle)
 	_battle_log.visible = false
@@ -275,20 +280,33 @@ func _sync_viewport_size() -> void:
 					_battle_world.add_child(bg)
 					DebugLogger.log_info("Built battle background from area: %s" % battle_area.area_name, "BattleView")
 
+	# Load camera config
+	if ResourceLoader.exists(_DEFAULT_CAMERA_CONFIG):
+		_cam_config = load(_DEFAULT_CAMERA_CONFIG)
+		if _cam_config:
+			print("[Battle] Camera config loaded: attack=%s" % str(_cam_config.attack.position_offset if _cam_config.attack else "null"))
+		else:
+			print("[Battle] WARNING: Camera config not found at %s" % _DEFAULT_CAMERA_CONFIG)
+
 	# Position camera: start at default center view, then orbit behind party
 	var default_offset := Vector3(0, 3.5, 8)
 	var rotated_default := default_offset.rotated(Vector3.UP, _arena_rotation_y)
 	_battle_camera.position = _arena_center + rotated_default
 	var default_look := _arena_center + Vector3(0, 0.5, 0)
 	_battle_camera.look_at(default_look)
-	_battle_camera.fov = 40.0
 
-	# Compute behind-party camera position:
-	# Behind the right shoulder of the rightmost player (positive Z), further out and elevated
-	var behind_offset := Vector3(-7.0, 4.0, 2.2)
-	_cam_home_pos = _arena_center + behind_offset.rotated(Vector3.UP, _arena_rotation_y)
-	var look_ahead_offset := Vector3(2.0, 0.6, -0.3)
-	_cam_home_look = _arena_center + look_ahead_offset.rotated(Vector3.UP, _arena_rotation_y)
+	# Set home position from config (or hardcoded fallback)
+	var home_preset: Resource = _cam_config.home if _cam_config and _cam_config.home else null
+	if home_preset:
+		_cam_home_pos = _arena_center + home_preset.position_offset.rotated(Vector3.UP, _arena_rotation_y)
+		_cam_home_look = _arena_center + home_preset.look_offset.rotated(Vector3.UP, _arena_rotation_y)
+		_battle_camera.fov = home_preset.fov
+	else:
+		var behind_offset := Vector3(-7.0, 4.0, 2.2)
+		_cam_home_pos = _arena_center + behind_offset.rotated(Vector3.UP, _arena_rotation_y)
+		var look_ahead_offset := Vector3(2.0, 0.6, -0.3)
+		_cam_home_look = _arena_center + look_ahead_offset.rotated(Vector3.UP, _arena_rotation_y)
+		_battle_camera.fov = 40.0
 	DebugLogger.log_info("Battle camera at %s, home=%s, fov=%.0f" % [str(_battle_camera.position), str(_cam_home_pos), _battle_camera.fov], "BattleView")
 
 	# Read current day/night state for lighting
@@ -456,24 +474,57 @@ func _set_camera_pose(pos: Vector3, look: Vector3) -> void:
 
 func _reset_camera(duration: float = 0.3) -> void:
 	## Return camera to the behind-party home position.
+	var home_preset: Resource = _cam_config.home if _cam_config and _cam_config.home else null
+	if home_preset:
+		_cam_home_pos = _arena_center + home_preset.position_offset.rotated(Vector3.UP, _arena_rotation_y)
+		_cam_home_look = _arena_center + home_preset.look_offset.rotated(Vector3.UP, _arena_rotation_y)
+		_battle_camera.fov = home_preset.fov
 	if _cam_home_pos != Vector3.ZERO:
 		_move_camera_to(_cam_home_pos, _cam_home_look, duration)
 
 
 func _move_camera_behind_entity(entity: CombatEntity, duration: float = 0.6) -> void:
-	## Move the camera behind a specific player character, over their right shoulder.
-	var slot_index: int = _entity_slots.get(entity, 0)
-	var slot_offset: Vector3 = PLAYER_POSITIONS[slot_index % PLAYER_POSITIONS.size()]
+	## Move the camera behind a specific player character using the player_turn preset.
+	var preset: Resource = _cam_config.player_turn if _cam_config and _cam_config.player_turn else null
+	if preset:
+		_apply_camera_preset(preset, entity)
+	else:
+		# Hardcoded fallback
+		var slot_index: int = _entity_slots.get(entity, 0)
+		var slot_offset: Vector3 = PLAYER_POSITIONS[slot_index % PLAYER_POSITIONS.size()]
+		var cam_pos: Vector3 = _arena_center + (slot_offset + Vector3(-3.5, 2.5, 1.5)).rotated(Vector3.UP, _arena_rotation_y)
+		var look_pos: Vector3 = _arena_center + Vector3(3.0, 0.5, 0.0).rotated(Vector3.UP, _arena_rotation_y)
+		_move_camera_to(cam_pos, look_pos, duration)
 
-	# Camera offset: behind (-X) and to the right (+Z) of the character, elevated
-	var cam_offset := Vector3(-3.5, 2.5, 1.5)
-	var cam_pos: Vector3 = _arena_center + (slot_offset + cam_offset).rotated(Vector3.UP, _arena_rotation_y)
 
-	# Look toward the enemy side, slightly above ground
-	var look_offset := Vector3(3.0, 0.5, 0.0)
-	var look_pos: Vector3 = _arena_center + look_offset.rotated(Vector3.UP, _arena_rotation_y)
+func _apply_camera_preset(preset: Resource, entity: CombatEntity = null) -> void:
+	## Tween camera to a preset relative to the active entity's position.
+	## Falls back to arena center if no entity is provided.
+	if not preset:
+		print("[Battle] _apply_camera_preset: preset is null!")
+		return
+	print("[Battle] Applying preset '%s' offset=%s entity=%s" % [
+		preset.preset_name, preset.position_offset, str(entity != null)])
+	var anchor: Vector3 = _get_entity_anchor(entity)
+	var cam_pos: Vector3 = anchor + preset.position_offset.rotated(Vector3.UP, _arena_rotation_y)
+	var look_pos: Vector3 = anchor + preset.look_offset.rotated(Vector3.UP, _arena_rotation_y)
+	if preset.fov > 0:
+		_battle_camera.fov = preset.fov
+	if preset.transition_type == 1:
+		_orbit_camera_to(cam_pos, look_pos, preset.transition_duration)
+	else:
+		_move_camera_to(cam_pos, look_pos, preset.transition_duration)
 
-	_move_camera_to(cam_pos, look_pos, duration)
+
+func _get_entity_anchor(entity: CombatEntity = null) -> Vector3:
+	## Returns the world position anchor for a combat entity (arena center + slot offset).
+	## Falls back to arena center if entity is null or not found.
+	if entity:
+		var slot_index: int = _entity_slots.get(entity, -1)
+		if slot_index >= 0:
+			var slot_offset: Vector3 = PLAYER_POSITIONS[slot_index % PLAYER_POSITIONS.size()]
+			return _arena_center + slot_offset.rotated(Vector3.UP, _arena_rotation_y)
+	return _arena_center
 
 
 func _walk_players_in(players: Array, duration: float) -> void:
@@ -665,6 +716,8 @@ func _on_combat_finished(victory: bool) -> void:
 	if victory:
 		_state = BattleState.VICTORY
 		_title.text = "Victory!"
+		if _cam_config and _cam_config.victory:
+			_apply_camera_preset(_cam_config.victory)
 		DebugLogger.log_info("State -> VICTORY! Gold earned: %d (bonus: %d)" % [_combat_manager.gold_earned, _encounter_data.bonus_gold], "Battle")
 		GameManager.add_gold(_combat_manager.gold_earned)
 		var defeated_ids: Array = []
@@ -696,6 +749,8 @@ func _on_combat_finished(victory: bool) -> void:
 	else:
 		_state = BattleState.DEFEAT
 		_title.text = "Defeat..."
+		if _cam_config and _cam_config.defeat:
+			_apply_camera_preset(_cam_config.defeat)
 		DebugLogger.log_info("State -> DEFEAT", "Battle")
 		EventBus.combat_ended.emit(false, [])
 		await get_tree().create_timer(DEFEAT_DELAY).timeout
@@ -746,6 +801,24 @@ func _on_status_ticked(entity: CombatEntity, damage: int, status_name: String) -
 
 
 # === Player Input ===
+
+func _on_category_selected(action_type: int) -> void:
+	## Called immediately when a top-level action button is clicked (before sub-menu).
+	## Moves the camera to the action-specific angle.
+	var active_entity: CombatEntity = _combat_manager.current_entity if _combat_manager else null
+	if _cam_config:
+		match action_type:
+			Enums.CombatAction.ATTACK:
+				_apply_camera_preset(_cam_config.attack, active_entity)
+			Enums.CombatAction.SKILL:
+				_apply_camera_preset(_cam_config.skill, active_entity)
+			Enums.CombatAction.ITEM:
+				_apply_camera_preset(_cam_config.item, active_entity)
+			Enums.CombatAction.DEFEND:
+				_apply_camera_preset(_cam_config.defend, active_entity)
+			Enums.CombatAction.FLEE:
+				_apply_camera_preset(_cam_config.flee, active_entity)
+
 
 func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
 	# If already selecting a target, cancel that first then handle the new action

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BattleFormation" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/battle_formation.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+formation_name = "Standard Row"
+player_positions = Array[Vector3]([Vector3(-3, 0, 0), Vector3(-4, 0, 1), Vector3(-3.5, 0, -1), Vector3(-5, 0, 0.5)])
+enemy_positions = Array[Vector3]([Vector3(3, 0, 0), Vector3(4, 0, 1), Vector3(3.5, 0, -1), Vector3(5, 0, 0.5)])
