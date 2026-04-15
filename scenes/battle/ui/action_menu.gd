@@ -44,6 +44,10 @@ var _back_btn: Button = null
 
 
 func _ready() -> void:
+	# Remove background
+	var empty_style := StyleBoxEmpty.new()
+	add_theme_stylebox_override("panel", empty_style)
+
 	_attack_btn.pressed.connect(_on_attack)
 	_defend_btn.pressed.connect(_on_defend)
 	_skills_btn.pressed.connect(_on_skills_open)
@@ -60,12 +64,13 @@ func _ready() -> void:
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 
-	# Back button — added dynamically to HBox so it's always available
+	# Back button — first child of MainButtons so it's always on top
 	_back_btn = Button.new()
 	_back_btn.text = "Back"
 	_back_btn.visible = false
 	_back_btn.pressed.connect(_on_back)
-	$HBox.add_child(_back_btn)
+	_main_buttons.add_child(_back_btn)
+	_main_buttons.move_child(_back_btn, 0)
 
 	# Cap all sub-panels to MainButtons height after layout completes
 	_cap_panel_heights.call_deferred()
@@ -91,7 +96,7 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 	_skills_btn.disabled = false
 	_items_btn.disabled = false
 	_flee_btn.disabled = false
-	_main_buttons.visible = true
+	_show_action_buttons(true)
 	_hide_all_sub()
 	_flee_btn.disabled = not can_flee
 
@@ -118,13 +123,13 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 func hide_menu() -> void:
 	visible = false
 	_hide_all_sub()
-	_main_buttons.visible = true
+	_show_action_buttons(true)
 
 
 func show_disabled() -> void:
 	## Show menu with all buttons greyed out — used during enemy turns and animations.
 	_hide_all_sub()
-	_main_buttons.visible = true
+	_show_action_buttons(true)
 	_attack_btn.disabled = true
 	_defend_btn.disabled = true
 	_skills_btn.disabled = true
@@ -138,7 +143,7 @@ func show_disabled() -> void:
 func _on_attack() -> void:
 	category_selected.emit(Enums.CombatAction.ATTACK)
 	_hide_all_sub()
-	_main_buttons.visible = false
+	_show_action_buttons(false)
 	_build_attack_details()
 	_attack_details.modulate = Color.WHITE
 	_back_btn.visible = true
@@ -148,15 +153,19 @@ func _on_attack() -> void:
 func _on_defend() -> void:
 	category_selected.emit(Enums.CombatAction.DEFEND)
 	_hide_all_sub()
-	_main_buttons.visible = false
-	_show_confirm("Defend this turn?", Enums.CombatAction.DEFEND, null, Enums.TargetType.SELF)
+	_show_action_buttons(false)
+	_show_inline_confirm("Defend this turn?", func() -> void:
+		action_chosen.emit(Enums.CombatAction.DEFEND, null, Enums.TargetType.SELF, null)
+	)
 
 
 func _on_flee() -> void:
 	category_selected.emit(Enums.CombatAction.FLEE)
 	_hide_all_sub()
-	_main_buttons.visible = false
-	_show_confirm("Attempt to flee?", Enums.CombatAction.FLEE, null, Enums.TargetType.SELF)
+	_show_action_buttons(false)
+	_show_inline_confirm("Attempt to flee?", func() -> void:
+		action_chosen.emit(Enums.CombatAction.FLEE, null, Enums.TargetType.SELF, null)
+	)
 
 
 func _on_flee_confirmed() -> void:
@@ -166,7 +175,7 @@ func _on_flee_confirmed() -> void:
 func _on_skills_open() -> void:
 	category_selected.emit(Enums.CombatAction.SKILL)
 	_hide_all_sub()
-	_main_buttons.visible = false
+	_show_action_buttons(false)
 	_skill_list_scroll.visible = true
 	_back_btn.visible = true
 	_build_skill_list()
@@ -175,7 +184,7 @@ func _on_skills_open() -> void:
 func _on_items_open() -> void:
 	category_selected.emit(Enums.CombatAction.ITEM)
 	_hide_all_sub()
-	_main_buttons.visible = false
+	_show_action_buttons(false)
 	_item_list_scroll.visible = true
 	_back_btn.visible = true
 	_build_item_list()
@@ -190,11 +199,61 @@ func _hide_all_sub() -> void:
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 	_back_btn.visible = false
+	_clear_inline_confirm()
+
+
+func _show_action_buttons(show: bool) -> void:
+	_attack_btn.visible = show
+	_defend_btn.visible = show
+	_skills_btn.visible = show
+	_items_btn.visible = show
+	_flee_btn.visible = show
 
 
 func _on_back() -> void:
 	_hide_all_sub()
-	_main_buttons.visible = true
+	_clear_inline_confirm()
+	_show_action_buttons(true)
+
+
+var _inline_confirm_nodes: Array[Node] = []
+
+func _show_inline_confirm(text: String, on_confirm: Callable) -> void:
+	_clear_inline_confirm()
+	var panel := PanelContainer.new()
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.1, 0.1, 0.12, 0.85)
+	panel_style.corner_radius_top_left = 4
+	panel_style.corner_radius_top_right = 4
+	panel_style.corner_radius_bottom_left = 4
+	panel_style.corner_radius_bottom_right = 4
+	panel_style.content_margin_left = 8
+	panel_style.content_margin_right = 8
+	panel_style.content_margin_top = 6
+	panel_style.content_margin_bottom = 6
+	panel.add_theme_stylebox_override("panel", panel_style)
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	panel.add_child(label)
+	_main_buttons.add_child(panel)
+	_inline_confirm_nodes.append(panel)
+
+	var confirm_btn := Button.new()
+	confirm_btn.text = "Confirm"
+	confirm_btn.pressed.connect(on_confirm)
+	_main_buttons.add_child(confirm_btn)
+	_inline_confirm_nodes.append(confirm_btn)
+
+	_back_btn.visible = true
+
+
+func _clear_inline_confirm() -> void:
+	for node in _inline_confirm_nodes:
+		if is_instance_valid(node):
+			node.queue_free()
+	_inline_confirm_nodes.clear()
 
 
 func _on_skill_selected(skill: SkillData) -> void:

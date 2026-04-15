@@ -1,104 +1,129 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene format=3 uid="uid://dv7kgwn1samn8"]
 
-[ext_resource type="Script" path="res://scenes/battle/battle.gd" id="1"]
+[ext_resource type="Script" uid="uid://cjvqt43g07pru" path="res://scenes/battle/battle.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://c5turnordr01" path="res://scenes/battle/ui/turn_order_bar.tscn" id="2_turn"]
 [ext_resource type="PackedScene" uid="uid://c5actmenu001" path="res://scenes/battle/ui/action_menu.tscn" id="4_action"]
 [ext_resource type="PackedScene" uid="uid://c5btllog0001" path="res://scenes/battle/ui/battle_log.tscn" id="5_log"]
-[ext_resource type="PackedScene" uid="uid://c5dmgpopup01" path="res://scenes/battle/ui/damage_popup.tscn" id="6_popup"]
 
-[node name="Battle" type="Control"]
+[sub_resource type="StyleBoxEmpty" id="empty_panel_style"]
+
+[node name="Battle" type="Control" unique_id=1068262418]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=174692775]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0.12, 0.08, 0.15, 1)
 
-[node name="MainLayout" type="Control" parent="."]
+[node name="MainLayout" type="Control" parent="." unique_id=512914896]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="TopBar" type="PanelContainer" parent="MainLayout"]
+[node name="TopBar" type="PanelContainer" parent="MainLayout" unique_id=1222242028]
+visible = false
 layout_mode = 1
+anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 60.0
+grow_horizontal = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MainLayout/TopBar"]
+[node name="MarginContainer" type="MarginContainer" parent="MainLayout/TopBar" unique_id=1072892058]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="HBox" type="HBoxContainer" parent="MainLayout/TopBar/MarginContainer"]
+[node name="HBox" type="HBoxContainer" parent="MainLayout/TopBar/MarginContainer" unique_id=1451276683]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="MainLayout/TopBar/MarginContainer/HBox"]
+[node name="Title" type="Label" parent="MainLayout/TopBar/MarginContainer/HBox" unique_id=923616020]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "Battle"
 
-[node name="RoundLabel" type="Label" parent="MainLayout/TopBar/MarginContainer/HBox"]
+[node name="RoundLabel" type="Label" parent="MainLayout/TopBar/MarginContainer/HBox" unique_id=49164360]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 22
 text = "Round 1"
 
-[node name="TurnOrderSection" type="MarginContainer" parent="MainLayout"]
-layout_mode = 1
-anchor_right = 1.0
-offset_top = 60.0
-offset_bottom = 110.0
+[node name="TurnOrderSection" type="MarginContainer" parent="MainLayout" unique_id=245423757]
+top_level = true
+layout_direction = 1
+layout_mode = 0
+offset_right = 258.0
+offset_bottom = 810.0
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 8
 
-[node name="TurnOrderBar" parent="MainLayout/TurnOrderSection" instance=ExtResource("2_turn")]
-layout_mode = 2
+[node name="TurnOrderBar" parent="MainLayout/TurnOrderSection" unique_id=867030535 instance=ExtResource("2_turn")]
+layout_direction = 2
+turn_layout = 1
+active_border_color = Color(0.896284, 0.9219077, 0.380805, 0.8)
+base_slot_size = Vector2(100, 100)
+shrink_per_step = 0.08
+visible_turns = 7
 
-[node name="BattleField" type="MarginContainer" parent="MainLayout"]
+[node name="BattleField" type="MarginContainer" parent="MainLayout" unique_id=612220399]
 layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 110.0
+offset_top = 3.0
 offset_bottom = -220.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="FieldLayout" type="Control" parent="MainLayout/BattleField"]
+[node name="FieldLayout" type="Control" parent="MainLayout/BattleField" unique_id=995828471]
 layout_mode = 2
 
-[node name="BattleViewport" type="SubViewportContainer" parent="MainLayout/BattleField/FieldLayout"]
+[node name="BattleViewport" type="SubViewportContainer" parent="MainLayout/BattleField/FieldLayout" unique_id=1526473563]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -14.0
+offset_top = -17.0
+offset_right = 14.0
+offset_bottom = 234.0
+grow_horizontal = 2
+grow_vertical = 2
 stretch = true
 
-[node name="SubViewport" type="SubViewport" parent="MainLayout/BattleField/FieldLayout/BattleViewport"]
+[node name="SubViewport" type="SubViewport" parent="MainLayout/BattleField/FieldLayout/BattleViewport" unique_id=1785062100]
 transparent_bg = true
 handle_input_locally = false
 physics_object_picking = true
-size = Vector2i(1888, 400)
+size = Vector2i(1916, 1076)
 render_target_update_mode = 4
 
-[node name="BattleWorld" type="Node3D" parent="MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport"]
+[node name="BattleWorld" type="Node3D" parent="MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport" unique_id=645924618]
 
-[node name="BattleCamera" type="Camera3D" parent="MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld"]
+[node name="BattleCamera" type="Camera3D" parent="MainLayout/BattleField/FieldLayout/BattleViewport/SubViewport/BattleWorld" unique_id=1019027430]
 
-[node name="EnemyPortraits" type="VBoxContainer" parent="MainLayout/BattleField/FieldLayout"]
+[node name="EnemyPortraits" type="VBoxContainer" parent="MainLayout/BattleField/FieldLayout" unique_id=295696572]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -107,93 +132,96 @@ anchor_right = 1.0
 anchor_bottom = 0.5
 offset_left = -80.0
 offset_top = -150.0
-offset_right = 0.0
 offset_bottom = 150.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_constants/separation = 12
 
-[node name="EnemyList" type="VBoxContainer" parent="MainLayout/BattleField/FieldLayout/EnemyPortraits"]
+[node name="EnemyList" type="VBoxContainer" parent="MainLayout/BattleField/FieldLayout/EnemyPortraits" unique_id=1087065520]
 layout_mode = 2
 size_flags_vertical = 6
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="PartyCards" type="HBoxContainer" parent="MainLayout/BattleField/FieldLayout"]
+[node name="PartyCards" type="HBoxContainer" parent="MainLayout/BattleField/FieldLayout" unique_id=1502567457]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -120.0
-offset_right = 400.0
-offset_bottom = 0.0
+offset_left = 158.0
+offset_top = 113.0
+offset_right = 958.0
+offset_bottom = 233.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="PartyList" type="HBoxContainer" parent="MainLayout/BattleField/FieldLayout/PartyCards"]
+[node name="PartyList" type="HBoxContainer" parent="MainLayout/BattleField/FieldLayout/PartyCards" unique_id=1065209683]
 layout_mode = 2
 size_flags_horizontal = 6
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="BottomSection" type="PanelContainer" parent="MainLayout"]
+[node name="BottomSection" type="PanelContainer" parent="MainLayout" unique_id=204945080]
 layout_mode = 1
-anchor_right = 1.0
+anchors_preset = 12
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -220.0
+offset_top = -267.0
+offset_right = -981.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("empty_panel_style")
 
-[node name="MarginContainer" type="MarginContainer" parent="MainLayout/BottomSection"]
+[node name="MarginContainer" type="MarginContainer" parent="MainLayout/BottomSection" unique_id=1858088959]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 12
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer" unique_id=1318043432]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TargetPrompt" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox"]
+[node name="TargetPrompt" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox" unique_id=1573607887]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="Label" type="Label" parent="MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt"]
+[node name="Label" type="Label" parent="MainLayout/BottomSection/MarginContainer/VBox/TargetPrompt" unique_id=2031632609]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
 theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 22
 text = "Select a target..."
 
-[node name="BottomRow" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox"]
+[node name="BottomRow" type="HBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox" unique_id=1150009243]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ActionMenu" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow" instance=ExtResource("4_action")]
-layout_mode = 2
+[node name="ActionMenu" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow" unique_id=604805577 instance=ExtResource("4_action")]
 
-[node name="Spacer" type="Control" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow"]
+[node name="Spacer" type="Control" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow" unique_id=251459741]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LogSection" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow"]
+[node name="LogSection" type="VBoxContainer" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow" unique_id=333057360]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="LogToggle" type="Button" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection"]
+[node name="LogToggle" type="Button" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection" unique_id=1245842782]
 layout_mode = 2
-text = "⚡ Battle Log"
 toggle_mode = true
+text = "⚡ Battle Log"
 
-[node name="BattleLog" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection" instance=ExtResource("5_log")]
+[node name="BattleLog" parent="MainLayout/BottomSection/MarginContainer/VBox/BottomRow/LogSection" unique_id=1324153670 instance=ExtResource("5_log")]
 visible = false
-layout_mode = 2
 
-[node name="PopupLayer" type="CanvasLayer" parent="."]
+[node name="PopupLayer" type="CanvasLayer" parent="." unique_id=931817933]
 layer = 10
