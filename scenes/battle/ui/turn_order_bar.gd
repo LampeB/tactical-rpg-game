@@ -1,93 +1,125 @@
-extends PanelContainer
-## Displays the next 10 turns in the turn order with visual indicators.
+extends Control
+## Displays upcoming turns in the turn order with portrait icons.
+## Configurable: layout, colors, sizes, visible count — all via inspector.
 
-const ACTIVE_BG_COLOR: Color = Color(1.0, 0.84, 0.0, 0.3)
-const ACTIVE_BORDER_COLOR: Color = Color(1.0, 0.84, 0.0, 0.8)
-const PLAYER_BG_COLOR: Color = Color(0.2, 0.4, 0.6, 0.4)
-const PLAYER_BORDER_COLOR: Color = Color(0.4, 0.7, 1.0, 0.6)
-const ENEMY_BG_COLOR: Color = Color(0.6, 0.2, 0.2, 0.4)
-const ENEMY_BORDER_COLOR: Color = Color(1.0, 0.4, 0.4, 0.6)
+## Layout
+@export_enum("Horizontal", "Vertical") var turn_layout: int = 0
 
-@onready var _turn_list: HBoxContainer = $MarginContainer/VBox/TurnList
+## Colors
+@export_group("Colors")
+@export var active_border_color: Color = Color(1.0, 0.84, 0.0, 0.9)
+@export var player_border_color: Color = Color(0.4, 0.7, 1.0, 0.7)
+@export var enemy_border_color: Color = Color(1.0, 0.4, 0.4, 0.7)
 
-var _turn_slots: Array = []
+## Sizes
+@export_group("Sizes")
+@export var base_slot_size: Vector2 = Vector2(64, 64)
+@export_range(0.01, 0.2) var shrink_per_step: float = 0.1  ## Each slot is this fraction smaller than the previous
+@export_range(0.2, 1.0) var min_scale: float = 0.3  ## Slots never shrink below this fraction
+@export_range(1, 20) var visible_turns: int = 10
+
+var _container: BoxContainer = null
+var _fallback_cache: Dictionary = {}  # entity_name → ImageTexture
+
+
+func _ready() -> void:
+	_build_container()
+
+
+func _build_container() -> void:
+	if _container:
+		_container.queue_free()
+		_container = null
 
 
 func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
-	# Clear existing turn slots
-	for child in _turn_list.get_children():
+	# Clear old slots
+	for child in get_children():
 		child.queue_free()
-	_turn_slots.clear()
 
-	# Create visual slot for each upcoming turn
-	for i in range(turn_order.size()):
+	var count: int = mini(turn_order.size(), visible_turns)
+	var offset: float = 0.0
+	var gap: float = 4.0
+
+	for i in range(count):
 		var entity: CombatEntity = turn_order[i]
-		var is_current: bool = (entity == current_entity)  # Check if this is the active entity
+		var is_current: bool = (entity == current_entity)
 
-		# Create turn slot container with size based on position
+		var scale_factor: float = maxf(1.0 - i * shrink_per_step, min_scale)
+		var slot_size: Vector2 = base_slot_size * scale_factor
+
+		# Slot panel
 		var slot: PanelContainer = PanelContainer.new()
-		var base_width: float = 80.0
-		var base_height: float = 60.0
-		if i == 0:
-			# First slot: 50% bigger (both width and height)
-			slot.custom_minimum_size = Vector2(base_width * 1.5, base_height * 1.5)
-		elif i == 1:
-			# Second slot: 25% bigger (both width and height)
-			slot.custom_minimum_size = Vector2(base_width * 1.25, base_height * 1.25)
-		else:
-			# Rest: normal size
-			slot.custom_minimum_size = Vector2(base_width, base_height)
+		slot.size = slot_size
 
-		# Create background style
+		# Position manually
+		if turn_layout == 1:
+			# Vertical: stack downward, align left
+			slot.position = Vector2(0, offset)
+			offset += slot_size.y + gap
+		else:
+			# Horizontal: stack rightward, align bottom
+			slot.position = Vector2(offset, base_slot_size.y - slot_size.y)
+			offset += slot_size.x + gap
+
+		# Border style
 		var style: StyleBoxFlat = StyleBoxFlat.new()
+		style.bg_color = Color(0, 0, 0, 0.5)
+		var bw: int = 3 if is_current else 2
 		if is_current:
-			style.bg_color = ACTIVE_BG_COLOR
-			style.border_color = ACTIVE_BORDER_COLOR
+			style.border_color = active_border_color
 		elif entity.is_player:
-			style.bg_color = PLAYER_BG_COLOR
-			style.border_color = PLAYER_BORDER_COLOR
+			style.border_color = player_border_color
 		else:
-			style.bg_color = ENEMY_BG_COLOR
-			style.border_color = ENEMY_BORDER_COLOR
-
-		style.border_width_left = 2
-		style.border_width_top = 2
-		style.border_width_right = 2
-		style.border_width_bottom = 2
+			style.border_color = enemy_border_color
+		style.border_width_left = bw
+		style.border_width_top = bw
+		style.border_width_right = bw
+		style.border_width_bottom = bw
 		style.corner_radius_top_left = 4
 		style.corner_radius_top_right = 4
 		style.corner_radius_bottom_left = 4
 		style.corner_radius_bottom_right = 4
-
 		slot.add_theme_stylebox_override("panel", style)
 
-		# Create content
-		var vbox: VBoxContainer = VBoxContainer.new()
-		vbox.add_theme_constant_override("separation", 2)
-		slot.add_child(vbox)
+		# Portrait
+		var tex_rect: TextureRect = TextureRect.new()
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 
-		# Turn number
-		var number_label: Label = Label.new()
-		number_label.text = str(i + 1)
-		UIThemes.set_font_size(number_label, Constants.FONT_SIZE_SMALL)
-		number_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
-		number_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		vbox.add_child(number_label)
+		var portrait: Texture2D = _get_portrait(entity)
+		tex_rect.texture = portrait
+		slot.add_child(tex_rect)
 
-		# Entity name
-		var name_label: Label = Label.new()
-		name_label.text = entity.entity_name
-		UIThemes.set_font_size(name_label, Constants.FONT_SIZE_DETAIL)
-		if is_current:
-			name_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1))
-		elif entity.is_player:
-			name_label.add_theme_color_override("font_color", Color(0.6, 0.85, 1.0, 1))
-		else:
-			name_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.6, 1))
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		name_label.custom_minimum_size = Vector2(76, 0)
-		vbox.add_child(name_label)
+		add_child(slot)
 
-		_turn_list.add_child(slot)
-		_turn_slots.append(slot)
+
+func _get_portrait(entity: CombatEntity) -> Texture2D:
+	# Player: use character_data.portrait if available
+	if entity.is_player and entity.character_data and entity.character_data.portrait:
+		return entity.character_data.portrait
+	# Fallback: generate a black square with the entity name
+	return _get_fallback_portrait(entity.entity_name)
+
+
+func _get_fallback_portrait(entity_name: String) -> Texture2D:
+	if _fallback_cache.has(entity_name):
+		return _fallback_cache[entity_name]
+
+	# Create a 64x64 image with black background and white text
+	var size: int = 64
+	var img: Image = Image.create(size, size, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.1, 0.1, 0.1, 1.0))
+
+	# Draw a colored bar at the top for visual distinction
+	var hash_val: int = entity_name.hash()
+	var hue: float = absf(float(hash_val % 360)) / 360.0
+	var bar_color: Color = Color.from_hsv(hue, 0.6, 0.8)
+	for x in range(size):
+		for y in range(4):
+			img.set_pixel(x, y, bar_color)
+
+	var tex: ImageTexture = ImageTexture.create_from_image(img)
+	_fallback_cache[entity_name] = tex
+	return tex

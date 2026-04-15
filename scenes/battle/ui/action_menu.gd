@@ -15,7 +15,7 @@ var _confirm_skill: SkillData = null
 var _confirm_target_type: int = -1
 
 # Flee dialog
-var _flee_dialog: ConfirmationDialog = null
+var _back_btn: Button = null
 
 @onready var _main_buttons: VBoxContainer = $HBox/MainButtons
 @onready var _attack_btn: Button = $HBox/MainButtons/AttackButton
@@ -55,19 +55,17 @@ func _ready() -> void:
 	_item_list_scroll.visible = false
 	_skill_details.visible = false
 	_item_details.visible = false
-	# AttackDetails stays visible=true so it always reserves layout space;
-	# use modulate to show/hide it without causing size shifts.
 	_attack_details.visible = true
 	_attack_details.modulate = Color.TRANSPARENT
 	_target_prompt.visible = false
 	_confirm_bar.visible = false
 
-	# Create flee dialog
-	_flee_dialog = ConfirmationDialog.new()
-	_flee_dialog.title = "Flee Battle"
-	_flee_dialog.dialog_text = "Attempt to flee from this battle?"
-	_flee_dialog.confirmed.connect(_on_flee_confirmed)
-	add_child(_flee_dialog)
+	# Back button — added dynamically to HBox so it's always available
+	_back_btn = Button.new()
+	_back_btn.text = "Back"
+	_back_btn.visible = false
+	_back_btn.pressed.connect(_on_back)
+	$HBox.add_child(_back_btn)
 
 	# Cap all sub-panels to MainButtons height after layout completes
 	_cap_panel_heights.call_deferred()
@@ -94,13 +92,7 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 	_items_btn.disabled = false
 	_flee_btn.disabled = false
 	_main_buttons.visible = true
-	_skill_list_scroll.visible = false
-	_item_list_scroll.visible = false
-	_skill_details.visible = false
-	_item_details.visible = false
-	_attack_details.modulate = Color.TRANSPARENT
-	_target_prompt.visible = false
-	_confirm_bar.visible = false
+	_hide_all_sub()
 	_flee_btn.disabled = not can_flee
 
 	# Disable skills button if no skills available
@@ -125,24 +117,13 @@ func show_for_entity(entity: CombatEntity, can_flee: bool = true) -> void:
 
 func hide_menu() -> void:
 	visible = false
-	_skill_list_scroll.visible = false
-	_item_list_scroll.visible = false
-	_skill_details.visible = false
-	_item_details.visible = false
-	_attack_details.modulate = Color.TRANSPARENT
-	_target_prompt.visible = false
-	_confirm_bar.visible = false
+	_hide_all_sub()
+	_main_buttons.visible = true
 
 
 func show_disabled() -> void:
 	## Show menu with all buttons greyed out — used during enemy turns and animations.
-	_skill_list_scroll.visible = false
-	_item_list_scroll.visible = false
-	_skill_details.visible = false
-	_item_details.visible = false
-	_attack_details.modulate = Color.TRANSPARENT
-	_target_prompt.visible = false
-	_confirm_bar.visible = false
+	_hide_all_sub()
 	_main_buttons.visible = true
 	_attack_btn.disabled = true
 	_defend_btn.disabled = true
@@ -156,24 +137,26 @@ func show_disabled() -> void:
 
 func _on_attack() -> void:
 	category_selected.emit(Enums.CombatAction.ATTACK)
-	_skill_list_scroll.visible = false
-	_skill_details.visible = false
-	_item_list_scroll.visible = false
-	_item_details.visible = false
-	_confirm_bar.visible = false
+	_hide_all_sub()
+	_main_buttons.visible = false
 	_build_attack_details()
 	_attack_details.modulate = Color.WHITE
+	_back_btn.visible = true
 	action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 
 
 func _on_defend() -> void:
 	category_selected.emit(Enums.CombatAction.DEFEND)
+	_hide_all_sub()
+	_main_buttons.visible = false
 	_show_confirm("Defend this turn?", Enums.CombatAction.DEFEND, null, Enums.TargetType.SELF)
 
 
 func _on_flee() -> void:
 	category_selected.emit(Enums.CombatAction.FLEE)
-	_flee_dialog.popup_centered()
+	_hide_all_sub()
+	_main_buttons.visible = false
+	_show_confirm("Attempt to flee?", Enums.CombatAction.FLEE, null, Enums.TargetType.SELF)
 
 
 func _on_flee_confirmed() -> void:
@@ -182,34 +165,36 @@ func _on_flee_confirmed() -> void:
 
 func _on_skills_open() -> void:
 	category_selected.emit(Enums.CombatAction.SKILL)
-	# Toggle skills list (close if already open, open if closed)
-	if _skill_list_scroll.visible:
-		_skill_list_scroll.visible = false
-		_skill_details.visible = false
-	else:
-		_item_list_scroll.visible = false
-		_item_details.visible = false
-		_attack_details.modulate = Color.TRANSPARENT
-		_target_prompt.visible = false
-		_confirm_bar.visible = false
-		_skill_list_scroll.visible = true
-		_build_skill_list()
+	_hide_all_sub()
+	_main_buttons.visible = false
+	_skill_list_scroll.visible = true
+	_back_btn.visible = true
+	_build_skill_list()
 
 
 func _on_items_open() -> void:
 	category_selected.emit(Enums.CombatAction.ITEM)
-	# Toggle items list (close if already open, open if closed)
-	if _item_list_scroll.visible:
-		_item_list_scroll.visible = false
-		_item_details.visible = false
-	else:
-		_skill_list_scroll.visible = false
-		_skill_details.visible = false
-		_attack_details.modulate = Color.TRANSPARENT
-		_target_prompt.visible = false
-		_confirm_bar.visible = false
-		_item_list_scroll.visible = true
-		_build_item_list()
+	_hide_all_sub()
+	_main_buttons.visible = false
+	_item_list_scroll.visible = true
+	_back_btn.visible = true
+	_build_item_list()
+
+
+func _hide_all_sub() -> void:
+	_skill_list_scroll.visible = false
+	_skill_details.visible = false
+	_item_list_scroll.visible = false
+	_item_details.visible = false
+	_attack_details.modulate = Color.TRANSPARENT
+	_target_prompt.visible = false
+	_confirm_bar.visible = false
+	_back_btn.visible = false
+
+
+func _on_back() -> void:
+	_hide_all_sub()
+	_main_buttons.visible = true
 
 
 func _on_skill_selected(skill: SkillData) -> void:
@@ -253,13 +238,7 @@ func _on_confirm() -> void:
 
 func _on_cancel() -> void:
 	_clear_confirm()
-	_confirm_bar.visible = false
-	_skill_list_scroll.visible = false
-	_skill_details.visible = false
-	_item_list_scroll.visible = false
-	_item_details.visible = false
-	_attack_details.modulate = Color.TRANSPARENT
-	_target_prompt.visible = false
+	_on_back()
 
 
 func _clear_confirm() -> void:
