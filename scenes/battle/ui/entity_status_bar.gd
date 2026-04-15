@@ -1,6 +1,9 @@
 extends PanelContainer
 ## Displays HP/MP bars and status icons for a single combat entity.
 
+signal entity_hovered(entity: CombatEntity)
+signal entity_unhovered(entity: CombatEntity)
+
 var _entity: CombatEntity
 
 @onready var _portrait: TextureRect = $MarginContainer/HBox/PortraitContainer/Portrait
@@ -20,6 +23,8 @@ func setup(entity: CombatEntity) -> void:
 	_entity = entity
 	_name_label.text = entity.entity_name
 	_mp_container.visible = entity.is_player
+	mouse_entered.connect(func() -> void: entity_hovered.emit(_entity))
+	mouse_exited.connect(func() -> void: entity_unhovered.emit(_entity))
 
 	# Load portrait
 	if entity.is_player and entity.character_data:

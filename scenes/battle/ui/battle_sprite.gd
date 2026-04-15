@@ -48,6 +48,11 @@ func setup(entity: CombatEntity) -> void:
 
 	add_child(_model)
 
+	# Remove floating name label (not needed in battle — turn order shows portraits)
+	var name_label: Node = _model.find_child("NameLabel", false, false)
+	if name_label:
+		name_label.queue_free()
+
 	# Face units toward opponents along the X axis.
 	# Models face +Z by default; rotate to face ±X for side-view layout.
 	if entity.is_player:
@@ -124,16 +129,57 @@ func _build_click_area() -> void:
 	_click_area.input_ray_pickable = true
 	add_child(_click_area)
 
+	# Fit a capsule to the model's actual height
 	var col_shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(1.0, 2.0, 1.0)
-	col_shape.shape = box
-	col_shape.position = Vector3(0, 1.0, 0)
+	var capsule := CapsuleShape3D.new()
+	var model_height: float = _get_model_height()
+	capsule.height = model_height
+	capsule.radius = model_height * 0.15  # Proportional width (~30% of height as diameter)
+	col_shape.shape = capsule
+	col_shape.position = Vector3(0, model_height * 0.5, 0)
 	_click_area.add_child(col_shape)
 
 	_click_area.input_event.connect(_on_area_input_event)
 	_click_area.mouse_entered.connect(_on_area_mouse_entered)
 	_click_area.mouse_exited.connect(_on_area_mouse_exited)
+
+	# Debug: visualize hitbox
+	if DisplayManager.debug_mode:
+		_add_debug_hitbox_visual()
+
+
+func _get_model_height() -> float:
+	## Returns the model's height by scanning Y extents of all body meshes.
+	if not _model:
+		return 1.6
+	var y_values := PackedFloat32Array()
+	_collect_y_extents(_model, Transform3D.IDENTITY, y_values)
+	if y_values.is_empty():
+		return 1.6
+	var min_y: float = y_values[0]
+	var max_y: float = y_values[0]
+	for i in range(1, y_values.size()):
+		if y_values[i] < min_y:
+			min_y = y_values[i]
+		if y_values[i] > max_y:
+			max_y = y_values[i]
+	return maxf(max_y - min_y, 0.5)
+
+
+func _collect_y_extents(node: Node, parent_xform: Transform3D, y_values: PackedFloat32Array) -> void:
+	if node.name in ["WeaponAttach", "WeaponAttachment", "Weapon", "NameLabel"]:
+		return
+	var xform: Transform3D = parent_xform
+	if node is Node3D:
+		xform = parent_xform * (node as Node3D).transform
+	if node is MeshInstance3D:
+		var mi: MeshInstance3D = node as MeshInstance3D
+		if mi.mesh:
+			var aabb: AABB = mi.mesh.get_aabb()
+			y_values.append((xform * Vector3(0, aabb.position.y, 0)).y)
+			y_values.append((xform * Vector3(0, aabb.position.y + aabb.size.y, 0)).y)
+	for i in range(node.get_child_count()):
+		_collect_y_extents(node.get_child(i), xform, y_values)
 
 
 func _on_area_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
@@ -149,6 +195,56 @@ func _on_area_mouse_entered() -> void:
 func _on_area_mouse_exited() -> void:
 	if _entity:
 		mouse_exited_sprite.emit(_entity)
+
+
+func _add_debug_hitbox_visual() -> void:
+	## Adds a translucent wireframe mesh showing the hitbox shape.
+	if not _click_area:
+		return
+	for i in range(_click_area.get_child_count()):
+		var col: CollisionShape3D = _click_area.get_child(i) as CollisionShape3D
+		if not col or not col.shape:
+			continue
+		var debug_mesh := MeshInstance3D.new()
+		debug_mesh.name = "DebugHitbox"
+		if col.shape is ConvexPolygonShape3D:
+			var convex: ConvexPolygonShape3D = col.shape as ConvexPolygonShape3D
+			var array_mesh := ArrayMesh.new()
+			var points: PackedVector3Array = convex.points
+			# Build wireframe from convex hull points
+			var st := SurfaceTool.new()
+			st.begin(Mesh.PRIMITIVE_LINES)
+			for pi in range(points.size()):
+				for pj in range(pi + 1, points.size()):
+					if points[pi].distance_to(points[pj]) < 2.0:
+						st.add_vertex(points[pi])
+						st.add_vertex(points[pj])
+			array_mesh = st.commit()
+			debug_mesh.mesh = array_mesh
+		elif col.shape is CapsuleShape3D:
+			var capsule: CapsuleShape3D = col.shape as CapsuleShape3D
+			var caps_mesh := CapsuleMesh.new()
+			caps_mesh.radius = capsule.radius
+			caps_mesh.height = capsule.height
+			debug_mesh.mesh = caps_mesh
+			debug_mesh.position = col.position
+		else:
+			continue
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0, 1, 0, 0.3)
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.no_depth_test = true
+		debug_mesh.material_override = mat
+		_click_area.add_child(debug_mesh)
+
+
+func set_outline(active: bool) -> void:
+	## Highlight the model with a glow effect.
+	if active:
+		_set_emission(Color(1.0, 0.84, 0.0), 0.3)
+	else:
+		_set_emission(Color.BLACK, 0.0)
 
 
 # === Material Helpers ===

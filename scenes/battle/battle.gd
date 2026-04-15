@@ -113,6 +113,8 @@ func _ready() -> void:
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_action_menu.category_selected.connect(_on_category_selected)
+	_turn_order_bar.entity_hovered.connect(_on_entity_bar_mouse_entered)
+	_turn_order_bar.entity_unhovered.connect(_on_entity_bar_mouse_exited)
 	_target_prompt.visible = false
 	_log_toggle.toggled.connect(_on_log_toggle)
 	_battle_log.visible = false
@@ -920,15 +922,34 @@ func _on_sprite_clicked(entity: CombatEntity) -> void:
 
 
 func _on_entity_bar_mouse_entered(entity: CombatEntity) -> void:
-	if _state != BattleState.TARGET_SELECT:
-		return
-	_update_target_highlights(entity)
+	_highlight_entity_all(entity, true)
+	if _state == BattleState.TARGET_SELECT:
+		_update_target_highlights(entity)
 
 
 func _on_entity_bar_mouse_exited(_entity: CombatEntity) -> void:
-	if _state != BattleState.TARGET_SELECT:
+	_highlight_entity_all(_entity, false)
+	if _state == BattleState.TARGET_SELECT:
+		_clear_target_highlights()
+
+
+func _highlight_entity_all(entity: CombatEntity, active: bool) -> void:
+	## Highlight/unhighlight an entity across all 3 components: card, model, turn order.
+	if not entity:
 		return
-	_clear_target_highlights()
+	# Status bar (card)
+	var bar: PanelContainer = _entity_bars.get(entity)
+	if bar:
+		if active:
+			bar.set_highlight(bar.HighlightType.PRIMARY)
+		else:
+			bar.set_highlight(bar.HighlightType.NONE)
+	# 3D model (sprite)
+	var sprite: Node3D = _entity_sprites.get(entity)
+	if sprite and sprite.has_method("set_outline"):
+		sprite.set_outline(active)
+	# Turn order portraits
+	_turn_order_bar.highlight_entity(entity, active)
 
 
 func _get_targets_for_hover(hovered_entity: CombatEntity) -> Array:

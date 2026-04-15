@@ -2,6 +2,9 @@ extends Control
 ## Displays upcoming turns in the turn order with portrait icons.
 ## Configurable: layout, colors, sizes, visible count — all via inspector.
 
+signal entity_hovered(entity: CombatEntity)
+signal entity_unhovered(entity: CombatEntity)
+
 ## Layout
 @export_enum("Horizontal", "Vertical") var turn_layout: int = 0
 
@@ -20,6 +23,7 @@ extends Control
 
 var _container: BoxContainer = null
 var _fallback_cache: Dictionary = {}  # entity_name → ImageTexture
+var _slot_entities: Dictionary = {}  # PanelContainer → CombatEntity
 
 
 func _ready() -> void:
@@ -36,6 +40,7 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 	# Clear old slots
 	for child in get_children():
 		child.queue_free()
+	_slot_entities.clear()
 
 	var count: int = mini(turn_order.size(), visible_turns)
 	var offset: float = 0.0
@@ -91,8 +96,32 @@ func refresh(turn_order: Array, current_entity: CombatEntity) -> void:
 		var portrait: Texture2D = _get_portrait(entity)
 		tex_rect.texture = portrait
 		slot.add_child(tex_rect)
-
+		slot.mouse_entered.connect(_on_slot_hover.bind(entity))
+		slot.mouse_exited.connect(_on_slot_unhover.bind(entity))
+		_slot_entities[slot] = entity
 		add_child(slot)
+
+
+func highlight_entity(entity: CombatEntity, active: bool) -> void:
+	## Highlight or unhighlight all slots belonging to the given entity.
+	for slot in _slot_entities:
+		if _slot_entities[slot] == entity:
+			if active:
+				slot.self_modulate = Color(1.5, 1.3, 0.5, 1.0)
+				slot.z_index = 1
+				slot.scale = Vector2(1.15, 1.15)
+			else:
+				slot.self_modulate = Color.WHITE
+				slot.z_index = 0
+				slot.scale = Vector2.ONE
+
+
+func _on_slot_hover(entity: CombatEntity) -> void:
+	entity_hovered.emit(entity)
+
+
+func _on_slot_unhover(entity: CombatEntity) -> void:
+	entity_unhovered.emit(entity)
 
 
 func _get_portrait(entity: CombatEntity) -> Texture2D:
