@@ -836,8 +836,7 @@ func _on_category_selected(action_type: int) -> void:
 func _on_weapon_attack_chosen(weapon: ItemData) -> void:
 	## Player chose to attack with a specific weapon.
 	_pending_weapon = weapon
-	_pending_multi_strike.clear()
-	action_chosen_internal(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
+	_on_action_chosen(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 
 
 
