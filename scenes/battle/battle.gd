@@ -70,6 +70,8 @@ var _pending_action_type: int = -1
 var _pending_skill: SkillData = null
 var _pending_target_type: int = -1
 var _pending_item: ItemData = null
+var _pending_weapon: ItemData = null  ## Single weapon for attack (null = all weapons)
+var _pending_multi_strike: Array = []  ## Weapons for multi-strike (empty = normal attack)
 
 # Battle log file recording
 var _log_lines: Array[String] = []
@@ -122,6 +124,8 @@ func _ready() -> void:
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)
 	_action_menu.category_selected.connect(_on_category_selected)
+	_action_menu.weapon_attack_chosen.connect(_on_weapon_attack_chosen)
+	_action_menu.multi_strike_chosen.connect(_on_multi_strike_chosen)
 	_turn_order_bar.entity_hovered.connect(_on_entity_bar_mouse_entered)
 	_turn_order_bar.entity_unhovered.connect(_on_entity_bar_mouse_exited)
 	_target_prompt.visible = false
@@ -831,6 +835,24 @@ func _on_category_selected(action_type: int) -> void:
 				_apply_camera_preset(_cam_config.flee, active_entity)
 
 
+func _on_weapon_attack_chosen(weapon: ItemData) -> void:
+	## Player chose to attack with a specific weapon.
+	_pending_weapon = weapon
+	_pending_multi_strike.clear()
+	action_chosen_internal(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
+
+
+func _on_multi_strike_chosen(weapons: Array) -> void:
+	## Player chose to attack with all weapons (multi-strike).
+	_pending_weapon = null
+	_pending_multi_strike.assign(weapons)
+	action_chosen_internal(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
+
+
+func action_chosen_internal(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
+	_on_action_chosen(action_type, skill, target_type, item)
+
+
 func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData) -> void:
 	# If already selecting a target, cancel that first then handle the new action
 	if _state == BattleState.TARGET_SELECT:
@@ -1024,7 +1046,9 @@ func _set_entity_highlight(entity: CombatEntity, highlight_type: int, sprite_act
 		sprite.set_highlight(sprite_active)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	if _state == BattleState.INIT or _state == BattleState.ANIMATING:
+		return
 	var is_back: bool = event.is_action_pressed("escape") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT)
 	if not is_back:
 		return
@@ -1083,23 +1107,43 @@ func _execute_player_action(targets: Array) -> void:
 	match _pending_action_type:
 		Enums.CombatAction.ATTACK:
 			if not targets.is_empty():
-				result = _combat_manager.execute_attack(source, targets[0])
-				_spawn_damage_popup(targets[0], result)
-				# Spawn popups for AoE splash targets
-				var splash_results: Array = result.get("splash_results", [])
-				for s_r in splash_results:
-					var splash_popup_result: Dictionary = {"actual_damage": s_r.damage, "is_crit": s_r.is_crit}
-					_spawn_damage_popup(s_r.target, splash_popup_result)
-				# VFX + SFX: default slash for basic attacks
-				_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
-				if result.get("is_crit", false):
-					AudioManager.play_sfx("critical_hit")
-				elif result.get("actual_damage", 0) > 0:
-					AudioManager.play_sfx("slash")
+				if not _pending_multi_strike.is_empty():
+					# Multi-strike: hit once per weapon
+					for wi in range(_pending_multi_strike.size()):
+						var weapon: ItemData = _pending_multi_strike[wi]
+						result = _combat_manager.execute_attack(source, targets[0], weapon)
+						_spawn_damage_popup(targets[0], result)
+						_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
+						if result.get("is_crit", false):
+							AudioManager.play_sfx("critical_hit")
+						elif result.get("actual_damage", 0) > 0:
+							AudioManager.play_sfx("slash")
+						else:
+							AudioManager.play_sfx("miss_dodge")
+						await _play_target_reactions(targets, result)
+						# Short pause between strikes
+						if wi < _pending_multi_strike.size() - 1 and not targets[0].is_dead:
+							await get_tree().create_timer(0.3).timeout
+						if targets[0].is_dead:
+							break
 				else:
-					AudioManager.play_sfx("miss_dodge")
-				# Step 3: Play target reaction
-				await _play_target_reactions(targets, result)
+					# Single weapon or default attack
+					result = _combat_manager.execute_attack(source, targets[0], _pending_weapon)
+					_spawn_damage_popup(targets[0], result)
+					var splash_results: Array = result.get("splash_results", [])
+					for s_r in splash_results:
+						var splash_popup_result: Dictionary = {"actual_damage": s_r.damage, "is_crit": s_r.is_crit}
+						_spawn_damage_popup(s_r.target, splash_popup_result)
+					_spawn_vfx_on_targets(targets, Enums.SkillVFX.SLASH, Color.WHITE, result.get("is_crit", false))
+					if result.get("is_crit", false):
+						AudioManager.play_sfx("critical_hit")
+					elif result.get("actual_damage", 0) > 0:
+						AudioManager.play_sfx("slash")
+					else:
+						AudioManager.play_sfx("miss_dodge")
+					await _play_target_reactions(targets, result)
+				_pending_weapon = null
+				_pending_multi_strike.clear()
 
 		Enums.CombatAction.SKILL:
 			if _pending_skill:

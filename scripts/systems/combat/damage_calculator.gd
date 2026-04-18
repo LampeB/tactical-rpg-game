@@ -10,18 +10,27 @@ static func calculate_damage(
 	target: CombatEntity,
 	physical_scaling: float,
 	magical_scaling: float,
+	weapon: ItemData = null,
 ) -> Dictionary:
 	## Returns {"amount": int, "is_crit": bool, "defended": bool, "damage_type": Enums.DamageType,
 	##          "phys_amount": int, "mag_amount": int}
+	## If weapon is specified, uses only that weapon's power instead of all weapons.
 
-	# Physical component
-	var phys_power: float = float(source.get_total_weapon_physical_power())
+	# Physical component — single weapon or all weapons
+	var phys_power: float
+	var mag_power: float
+	if weapon:
+		phys_power = float(weapon.base_power)
+		mag_power = float(weapon.magical_power)
+	else:
+		phys_power = float(source.get_total_weapon_physical_power())
+		mag_power = float(source.get_total_weapon_magical_power())
+
 	var phys_stat: float = source.get_effective_stat(Enums.Stat.PHYSICAL_ATTACK)
 	var passive_phys_scaling: float = source.get_effective_stat(Enums.Stat.PHYSICAL_SCALING) / 100.0
 	var phys_raw: float = (phys_power + phys_stat) * maxf(physical_scaling + passive_phys_scaling, 0.0)
 
 	# Magical component
-	var mag_power: float = float(source.get_total_weapon_magical_power())
 	var mag_stat: float = source.get_effective_stat(Enums.Stat.MAGICAL_ATTACK)
 	var passive_mag_scaling: float = source.get_effective_stat(Enums.Stat.MAGICAL_SCALING) / 100.0
 	var mag_raw: float = (mag_power + mag_stat) * maxf(magical_scaling + passive_mag_scaling, 0.0)
@@ -73,10 +82,11 @@ static func calculate_damage(
 		"damage_type": dmg_type, "phys_amount": phys_amount, "mag_amount": mag_amount}
 
 
-static func calculate_basic_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
+static func calculate_basic_attack(source: CombatEntity, target: CombatEntity, weapon: ItemData = null) -> Dictionary:
 	## Basic attack: 1.0/1.0 scaling for players, type-based for enemies.
+	## If weapon is specified, uses only that weapon's power instead of all weapons summed.
 	if source.is_player:
-		return calculate_damage(source, target, 1.0, 1.0)
+		return calculate_damage(source, target, 1.0, 1.0, weapon)
 	elif source.enemy_data:
 		# Enemies use single damage type for basic attacks
 		if source.enemy_data.damage_type == Enums.DamageType.MAGICAL:

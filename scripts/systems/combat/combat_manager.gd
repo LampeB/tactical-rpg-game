@@ -163,7 +163,7 @@ func advance_turn() -> void:
 		return
 
 
-func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
+func execute_attack(source: CombatEntity, target: CombatEntity, weapon: ItemData = null) -> Dictionary:
 	log_message.emit("[ACTION] %s → Attack → %s (target HP:%d/%d, defending:%s)" % [source.entity_name, target.entity_name, target.current_hp, target.max_hp, str(target.is_defending)], Color(0.6, 0.6, 0.6))
 
 	_increment_turn_time(source)
@@ -193,7 +193,7 @@ func execute_attack(source: CombatEntity, target: CombatEntity) -> Dictionary:
 			return dodge_result
 
 	# Calculate and apply primary damage
-	var result: Dictionary = DamageCalculator.calculate_basic_attack(source, target)
+	var result: Dictionary = DamageCalculator.calculate_basic_attack(source, target, weapon)
 
 	# Execute threshold — bonus damage to low-HP targets
 	if source.has_passive_effect(PassiveEffects.EXECUTE_THRESHOLD):

@@ -308,6 +308,19 @@ func get_primary_tool_modifier_state() -> ToolModifierState:
 	return null
 
 
+func get_equipped_weapons() -> Array:
+	## Returns all equipped ACTIVE_TOOL ItemData.
+	var weapons: Array = []
+	if not grid_inventory:
+		return weapons
+	var placed_items: Array = grid_inventory.get_all_placed_items()
+	for i in range(placed_items.size()):
+		var placed: GridInventory.PlacedItem = placed_items[i]
+		if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
+			weapons.append(placed.item_data)
+	return weapons
+
+
 func get_total_weapon_physical_power() -> int:
 	## Sums base_power from ALL equipped active tools.
 	if not is_player or not grid_inventory:
