@@ -200,6 +200,9 @@ func has_passive_effect(effect_id: String) -> bool:
 	return PassiveEffects.has_effect(passive_special_effects, effect_id)
 
 
+const _MULTI_STRIKE_NAMES: Array[String] = ["", "", "Dual Strike", "Triple Strike", "Quadruple Strike"]
+const _MULTI_STRIKE_DESCS: Array[String] = ["", "", "Strike with both weapons.", "Strike with all three weapons.", "Strike with all four weapons."]
+
 func get_available_skills() -> Array:
 	var skills: Array = []
 	if is_player and character_data:
@@ -212,11 +215,32 @@ func get_available_skills() -> Array:
 		for elem_skill in unlocked:
 			if elem_skill not in skills:
 				skills.append(elem_skill)
+		# 3. Multi-strike skill (auto-generated if 2+ weapons equipped)
+		var weapons: Array = get_equipped_weapons()
+		if weapons.size() >= 2:
+			var ms := _create_multi_strike_skill(weapons.size())
+			skills.insert(0, ms)  # Put at top of list
 	elif not is_player and enemy_data:
 		for enemy_skill in enemy_data.skills:
 			if enemy_skill is SkillData:
 				skills.append(enemy_skill)
 	return skills
+
+
+func _create_multi_strike_skill(weapon_count: int) -> SkillData:
+	var idx: int = mini(weapon_count, 4)
+	var skill := SkillData.new()
+	skill.id = "multi_strike_%d" % idx
+	skill.display_name = _MULTI_STRIKE_NAMES[idx]
+	skill.description = _MULTI_STRIKE_DESCS[idx]
+	skill.mp_cost = 0
+	skill.target_type = Enums.TargetType.SINGLE_ENEMY
+	skill.usage = Enums.SkillUsage.COMBAT
+	skill.physical_scaling = 0.8
+	skill.magical_scaling = 0.8
+	# Store weapon count as metadata for battle.gd to read
+	skill.set_meta("multi_strike_count", weapon_count)
+	return skill
 
 
 func has_force_aoe() -> bool:

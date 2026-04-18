@@ -5,7 +5,6 @@ extends PanelContainer
 signal action_chosen(action_type: int, skill: SkillData, target_type: int, item: ItemData)
 signal category_selected(action_type: int)  ## Emitted when a top-level button is clicked (before sub-menu)
 signal weapon_attack_chosen(weapon: ItemData)  ## Single weapon attack
-signal multi_strike_chosen(weapons: Array)  ## Multi-weapon strike
 
 var _current_entity: CombatEntity
 var _skill_buttons: Array = []
@@ -157,7 +156,7 @@ func _on_attack() -> void:
 		_back_btn.visible = true
 		action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
 	else:
-		# Multiple weapons — show weapon selection list
+		# Multiple weapons — show weapon selection list (pick one)
 		_build_weapon_list(weapons)
 		_skill_list_scroll.visible = true
 		_back_btn.visible = true
@@ -505,19 +504,6 @@ func _build_weapon_list(weapons: Array) -> void:
 			btn.queue_free()
 	_weapon_buttons.clear()
 
-	# Multi-strike option at the top
-	var strike_name: String = _MULTI_STRIKE_NAMES[mini(weapons.size(), 4)]
-	var multi_btn := Button.new()
-	multi_btn.text = "%s (all %d weapons)" % [strike_name, weapons.size()]
-	multi_btn.pressed.connect(_on_multi_strike.bind(weapons))
-	_skill_list.add_child(multi_btn)
-	_weapon_buttons.append(multi_btn)
-
-	# Separator
-	var sep := HSeparator.new()
-	_skill_list.add_child(sep)
-	_weapon_buttons.append(sep)
-
 	# Individual weapon buttons
 	for i in range(weapons.size()):
 		var weapon: ItemData = weapons[i]
@@ -539,5 +525,3 @@ func _on_weapon_selected(weapon: ItemData) -> void:
 	weapon_attack_chosen.emit(weapon)
 
 
-func _on_multi_strike(weapons: Array) -> void:
-	multi_strike_chosen.emit(weapons)
