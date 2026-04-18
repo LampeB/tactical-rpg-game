@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1")
-formation_name = "Standard Row"
-player_positions = Array[Vector3]([Vector3(-3, 0, 0), Vector3(-4, 0, 1), Vector3(-3.5, 0, -1), Vector3(-5, 0, 0.5)])
-enemy_positions = Array[Vector3]([Vector3(3, 0, 0), Vector3(4, 0, 1), Vector3(3.5, 0, -1), Vector3(5, 0, 0.5)])
+formation_name = "Line Formation"
+player_positions = Array[Vector3]([Vector3(-4, 0, -3), Vector3(-4, 0, -1), Vector3(-4, 0, 1), Vector3(-4, 0, 3)])
+enemy_positions = Array[Vector3]([Vector3(3, 0, -3), Vector3(3, 0, -1), Vector3(3, 0, 1), Vector3(3, 0, 3)])

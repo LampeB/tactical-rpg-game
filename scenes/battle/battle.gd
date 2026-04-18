@@ -18,14 +18,15 @@ const BATTLE_START_DELAY: float = 0.5  ## Delay before first turn
 const VICTORY_DELAY: float = 1.5  ## Pause before victory screen
 const DEFEAT_DELAY: float = 2.0  ## Pause before defeat screen
 
-# Battle positions in 3D world space
-const PLAYER_POSITIONS: Array[Vector3] = [
+# Battle positions — loaded from formation resource, with hardcoded fallback
+const _DEFAULT_FORMATION := "res://data/battle/default_formation.tres"
+var PLAYER_POSITIONS: Array[Vector3] = [
 	Vector3(-3.0, 0, 0.0),
 	Vector3(-4.0, 0, 1.0),
 	Vector3(-3.5, 0, -1.0),
 	Vector3(-5.0, 0, 0.5),
 ]
-const ENEMY_POSITIONS: Array[Vector3] = [
+var ENEMY_POSITIONS: Array[Vector3] = [
 	Vector3(3.0, 0, 0.0),
 	Vector3(4.0, 0, 1.0),
 	Vector3(3.5, 0, -1.0),
@@ -109,6 +110,14 @@ func _clear_pending_action() -> void:
 
 
 func _ready() -> void:
+	# Load formation
+	if ResourceLoader.exists(_DEFAULT_FORMATION):
+		var formation: Resource = load(_DEFAULT_FORMATION)
+		if formation and not formation.player_positions.is_empty():
+			PLAYER_POSITIONS.assign(formation.player_positions)
+		if formation and not formation.enemy_positions.is_empty():
+			ENEMY_POSITIONS.assign(formation.enemy_positions)
+
 	_bg.color = UIColors.BG_BATTLE
 	_action_menu.hide_menu()
 	_action_menu.action_chosen.connect(_on_action_chosen)

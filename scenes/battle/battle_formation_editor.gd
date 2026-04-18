@@ -97,19 +97,11 @@ func _build_arena() -> void:
 
 
 func _rebuild_markers() -> void:
-	# Clear old markers
-	for m in _player_markers:
-		if is_instance_valid(m):
-			m.queue_free()
-	for m in _enemy_markers:
-		if is_instance_valid(m):
-			m.queue_free()
 	_player_markers.clear()
 	_enemy_markers.clear()
 
 	var scene_root: Node = get_tree().edited_scene_root if Engine.is_editor_hint() else self
 
-	# Default positions
 	var default_player: Array[Vector3] = [
 		Vector3(-3.0, 0, 0.0), Vector3(-4.0, 0, 1.0),
 		Vector3(-3.5, 0, -1.0), Vector3(-5.0, 0, 0.5),
@@ -120,18 +112,33 @@ func _rebuild_markers() -> void:
 	]
 
 	for i in range(player_count):
-		var pos: Vector3 = default_player[i] if i < default_player.size() else Vector3(-3.0 - i, 0, 0)
-		var marker: Node3D = _create_marker("Player_%d" % i, pos, Color(0.2, 0.5, 0.9), "P%d" % i)
-		add_child(marker)
-		marker.owner = scene_root
-		_player_markers.append(marker)
+		var marker_name: String = "Player_%d" % i
+		var existing: Node3D = get_node_or_null(marker_name) as Node3D
+		if existing:
+			# Reuse saved node, add visuals if missing
+			if existing.get_child_count() == 0:
+				_add_marker_visuals(existing, Color(0.2, 0.5, 0.9), "P%d" % i)
+			_player_markers.append(existing)
+		else:
+			var pos: Vector3 = default_player[i] if i < default_player.size() else Vector3(-3.0 - i, 0, 0)
+			var marker: Node3D = _create_marker(marker_name, pos, Color(0.2, 0.5, 0.9), "P%d" % i)
+			add_child(marker)
+			marker.owner = scene_root
+			_player_markers.append(marker)
 
 	for i in range(enemy_count):
-		var pos: Vector3 = default_enemy[i] if i < default_enemy.size() else Vector3(3.0 + i, 0, 0)
-		var marker: Node3D = _create_marker("Enemy_%d" % i, pos, Color(0.9, 0.2, 0.2), "E%d" % i)
-		add_child(marker)
-		marker.owner = scene_root
-		_enemy_markers.append(marker)
+		var marker_name: String = "Enemy_%d" % i
+		var existing: Node3D = get_node_or_null(marker_name) as Node3D
+		if existing:
+			if existing.get_child_count() == 0:
+				_add_marker_visuals(existing, Color(0.9, 0.2, 0.2), "E%d" % i)
+			_enemy_markers.append(existing)
+		else:
+			var pos: Vector3 = default_enemy[i] if i < default_enemy.size() else Vector3(3.0 + i, 0, 0)
+			var marker: Node3D = _create_marker(marker_name, pos, Color(0.9, 0.2, 0.2), "E%d" % i)
+			add_child(marker)
+			marker.owner = scene_root
+			_enemy_markers.append(marker)
 
 	_load_formation()
 
@@ -140,20 +147,23 @@ func _create_marker(marker_name: String, pos: Vector3, color: Color, label_text:
 	var root := Node3D.new()
 	root.name = marker_name
 	root.position = pos
+	_add_marker_visuals(root, color, label_text)
+	return root
 
-	# Body
+
+func _add_marker_visuals(root: Node3D, color: Color, label_text: String) -> void:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+
 	var body := MeshInstance3D.new()
 	var capsule := CapsuleMesh.new()
 	capsule.radius = 0.25
 	capsule.height = 1.6
 	body.mesh = capsule
 	body.position.y = 0.8
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
 	body.material_override = mat
 	root.add_child(body)
 
-	# Head
 	var head := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.2
@@ -163,7 +173,6 @@ func _create_marker(marker_name: String, pos: Vector3, color: Color, label_text:
 	head.material_override = mat
 	root.add_child(head)
 
-	# Label
 	var label := Label3D.new()
 	label.text = label_text
 	label.position.y = 2.2
@@ -172,8 +181,6 @@ func _create_marker(marker_name: String, pos: Vector3, color: Color, label_text:
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
 	root.add_child(label)
-
-	return root
 
 
 func _load_formation() -> void:
