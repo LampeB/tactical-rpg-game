@@ -149,17 +149,10 @@ func _on_attack() -> void:
 
 	var weapons: Array = _current_entity.get_equipped_weapons() if _current_entity else []
 
-	if weapons.size() <= 1:
-		# Single or no weapon — go straight to targeting
-		_build_attack_details()
-		_attack_details.modulate = Color.WHITE
-		_back_btn.visible = true
-		action_chosen.emit(Enums.CombatAction.ATTACK, null, Enums.TargetType.SINGLE_ENEMY, null)
-	else:
-		# Multiple weapons — show weapon selection list (pick one)
-		_build_weapon_list(weapons)
-		_skill_list_scroll.visible = true
-		_back_btn.visible = true
+	# Always show weapon list (even with 1 weapon)
+	_build_weapon_list(weapons)
+	_skill_list_scroll.visible = true
+	_back_btn.visible = true
 
 
 func _on_defend() -> void:
@@ -228,9 +221,37 @@ func _show_action_buttons(show: bool) -> void:
 
 
 func _on_back() -> void:
+	_reset_all_button_pressed()
 	_hide_all_sub()
 	_clear_inline_confirm()
 	_show_action_buttons(true)
+
+
+func show_selection_info(selected_name: String) -> void:
+	## Keeps the selected weapon/skill button in its pressed state.
+	## Resets all others to default.
+	_reset_all_button_pressed()
+	for btn in _weapon_buttons:
+		if btn is Button and btn.text == selected_name:
+			btn.toggle_mode = true
+			btn.set_pressed_no_signal(true)
+	for btn in _skill_buttons:
+		if btn is Button:
+			# Match exact name or name followed by " (" for MP cost suffix
+			if btn.text == selected_name or btn.text.begins_with(selected_name + " ("):
+				btn.toggle_mode = true
+				btn.set_pressed_no_signal(true)
+
+
+func _reset_all_button_pressed() -> void:
+	for btn in _weapon_buttons:
+		if btn is Button:
+			btn.toggle_mode = false
+			btn.set_pressed_no_signal(false)
+	for btn in _skill_buttons:
+		if btn is Button:
+			btn.toggle_mode = false
+			btn.set_pressed_no_signal(false)
 
 
 func go_back() -> void:
@@ -498,24 +519,17 @@ func _build_attack_details() -> void:
 const _MULTI_STRIKE_NAMES: Array[String] = ["", "", "Dual Strike", "Triple Strike", "Quadruple Strike"]
 
 func _build_weapon_list(weapons: Array) -> void:
-	# Clear old weapon buttons
-	for btn in _weapon_buttons:
-		if is_instance_valid(btn):
-			btn.queue_free()
+	# Clear everything from the shared skill list container
+	for child in _skill_list.get_children():
+		child.queue_free()
+	_skill_buttons.clear()
 	_weapon_buttons.clear()
 
 	# Individual weapon buttons
 	for i in range(weapons.size()):
 		var weapon: ItemData = weapons[i]
 		var btn := Button.new()
-		var power_text: String = ""
-		if weapon.base_power > 0:
-			power_text += "Phys:%d" % weapon.base_power
-		if weapon.magical_power > 0:
-			if not power_text.is_empty():
-				power_text += " "
-			power_text += "Mag:%d" % weapon.magical_power
-		btn.text = "%s (%s)" % [weapon.display_name, power_text]
+		btn.text = weapon.display_name
 		btn.pressed.connect(_on_weapon_selected.bind(weapon))
 		_skill_list.add_child(btn)
 		_weapon_buttons.append(btn)
@@ -523,5 +537,3 @@ func _build_weapon_list(weapons: Array) -> void:
 
 func _on_weapon_selected(weapon: ItemData) -> void:
 	weapon_attack_chosen.emit(weapon)
-
-

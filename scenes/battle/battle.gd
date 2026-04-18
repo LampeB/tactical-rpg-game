@@ -895,6 +895,12 @@ func _on_action_chosen(action_type: int, skill: SkillData, target_type: int, ite
 func _enter_target_selection() -> void:
 	_state = BattleState.TARGET_SELECT
 
+	# Show what was selected (weapon or skill name)
+	if _pending_weapon:
+		_action_menu.show_selection_info(_pending_weapon.display_name)
+	elif _pending_skill:
+		_action_menu.show_selection_info(_pending_skill.display_name)
+
 	match _pending_target_type:
 		Enums.TargetType.SINGLE_ENEMY:
 			DebugLogger.log_info("State -> TARGET_SELECT (single enemy)", "Battle")
