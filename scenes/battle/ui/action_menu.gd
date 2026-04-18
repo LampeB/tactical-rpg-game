@@ -216,6 +216,14 @@ func _on_back() -> void:
 	_show_action_buttons(true)
 
 
+func go_back() -> void:
+	## Called externally (e.g. right-click) to trigger the back action.
+	## Only does something if we're in a sub-menu.
+	if not _back_btn.visible:
+		return
+	_on_back()
+
+
 var _inline_confirm_nodes: Array[Node] = []
 
 func _show_inline_confirm(text: String, on_confirm: Callable) -> void:

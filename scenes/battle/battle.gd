@@ -1025,11 +1025,16 @@ func _set_entity_highlight(entity: CombatEntity, highlight_type: int, sprite_act
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	var is_back: bool = event.is_action_pressed("escape") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT)
+	if not is_back:
+		return
 	if _state == BattleState.TARGET_SELECT:
-		if event.is_action_pressed("escape") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
-			DebugLogger.log_info("Target selection cancelled by player", "Battle")
-			_cancel_target_selection()
-			get_viewport().set_input_as_handled()
+		DebugLogger.log_info("Target selection cancelled by player", "Battle")
+		_cancel_target_selection()
+		get_viewport().set_input_as_handled()
+	elif _state == BattleState.PLAYER_ACTION:
+		_action_menu.go_back()
+		get_viewport().set_input_as_handled()
 
 
 func _exit_target_selection() -> void:
