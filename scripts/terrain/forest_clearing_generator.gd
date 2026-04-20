@@ -16,6 +16,7 @@ const _TEX_BASE := "res://assets/terrain_textures/"
 const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 const _ENVIRONMENT_SCENE := "res://scenes/shared/environment_3d.tscn"
 const _WIND_SHADER := "res://shaders/foliage_wind.gdshader"
+const _MapParticleEmitter := preload("res://scripts/terrain/map_particle_emitter.gd")
 
 # ─── Inspector: Map Size ────────────────────────────────────────────────────
 @export_group("Map Size")
@@ -121,6 +122,7 @@ func _generate_all() -> void:
 	_generate_encounters()
 	_generate_connections()
 	_generate_environment()
+	_generate_particles()
 	_ensure_hand_placed()
 	print("[ForestClearingGenerator] Generation complete.")
 
@@ -990,6 +992,61 @@ func _apply_wind_recursive(node: Node, shader: Shader, strength: float, speed: f
 			mi.mesh = mesh_copy
 	for i in range(node.get_child_count()):
 		_apply_wind_recursive(node.get_child(i), shader, strength, speed, mesh_height)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Step 9: Ambient Particles
+# ═══════════════════════════════════════════════════════════════════════════
+
+func _generate_particles() -> void:
+	_remove_layer("Particles")
+	var parent := Node3D.new()
+	parent.name = "Particles"
+	_add_owned(parent, self)
+
+	# Campfire embers at center
+	var campfire_h: float = _sample_terrain_height(_center.x, _center.y)
+	var campfire_emitter: Node3D = _MapParticleEmitter.new()
+	campfire_emitter.name = "CampfireEmbers"
+	campfire_emitter.position = Vector3(_center.x, campfire_h * terrain_scale.y + 0.5, _center.y)
+	campfire_emitter.set("preset", _MapParticleEmitter.ParticlePreset.CAMPFIRE)
+	_add_owned(campfire_emitter, parent)
+
+	# Fireflies near pond
+	if enable_pond:
+		var pond_h: float = _sample_terrain_height(_pond_center.x, _pond_center.y)
+		var firefly_emitter: Node3D = _MapParticleEmitter.new()
+		firefly_emitter.name = "PondFireflies"
+		firefly_emitter.position = Vector3(_pond_center.x, pond_h * terrain_scale.y + 1.0, _pond_center.y)
+		firefly_emitter.set("preset", _MapParticleEmitter.ParticlePreset.FIREFLIES)
+		_add_owned(firefly_emitter, parent)
+
+	# Dust motes in the clearing
+	var dust_emitter: Node3D = _MapParticleEmitter.new()
+	dust_emitter.name = "ClearingDust"
+	var clearing_h: float = _sample_terrain_height(_center.x, _center.y)
+	dust_emitter.position = Vector3(_center.x, clearing_h * terrain_scale.y + 2.0, _center.y)
+	dust_emitter.set("preset", _MapParticleEmitter.ParticlePreset.DUST_MOTES)
+	_add_owned(dust_emitter, parent)
+
+	# Leaves falling across the forest canopy (4 wide emitters scaled to cover large areas)
+	var leaf_rng := RandomNumberGenerator.new()
+	leaf_rng.seed = gen_seed + 600
+	for i in range(4):
+		var angle: float = (float(i) / 4.0) * TAU + PI * 0.25
+		var dist: float = minf(_half_size.x, _half_size.y) * 0.7
+		var lx: float = _center.x + cos(angle) * dist
+		var lz: float = _center.y + sin(angle) * dist
+		var lh: float = _sample_terrain_height(lx, lz)
+		var leaf_emitter: Node3D = _MapParticleEmitter.new()
+		leaf_emitter.name = "Leaves_%d" % i
+		leaf_emitter.position = Vector3(lx, lh * terrain_scale.y + 7.5, lz)
+		# Scale the emitter to cover a wide area (emission box is small, scale stretches it)
+		leaf_emitter.scale = Vector3(75, 15, 255)
+		leaf_emitter.set("preset", _MapParticleEmitter.ParticlePreset.LEAVES_FALLING)
+		_add_owned(leaf_emitter, parent)
+
+	print("[ForestClearingGenerator] Placed %d particle emitters." % parent.get_child_count())
 
 
 # ═══════════════════════════════════════════════════════════════════════════
