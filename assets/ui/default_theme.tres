@@ -1,47 +1,23 @@
-[gd_resource type="Theme" load_steps=22 format=3 uid="uid://cqcderhsuybjh"]
+[gd_resource type="Theme" format=3 uid="uid://cqcderhsuybjh"]
 
-[ext_resource type="Texture2D" uid="uid://mpxc0h376rsd" path="res://assets/sprites/ui/theme/panel.png" id="tex_panel"]
-[ext_resource type="Texture2D" uid="uid://tig6lrd2wsrw" path="res://assets/sprites/ui/theme/panel_dark.png" id="tex_panel_dark"]
 [ext_resource type="Texture2D" uid="uid://csii1216d5m6e" path="res://assets/sprites/ui/theme/button_normal.png" id="tex_btn_normal"]
 [ext_resource type="Texture2D" uid="uid://bhfvjrr64ohdl" path="res://assets/sprites/ui/theme/button_pressed.png" id="tex_btn_pressed"]
 [ext_resource type="Texture2D" uid="uid://b5k0t3232q4sv" path="res://assets/sprites/ui/theme/input_field.png" id="tex_input"]
-[ext_resource type="Texture2D" uid="uid://lsvrositn3s3" path="res://assets/sprites/ui/theme/tooltip.png" id="tex_tooltip"]
+[ext_resource type="Texture2D" uid="uid://mpxc0h376rsd" path="res://assets/sprites/ui/theme/panel.png" id="tex_panel"]
+[ext_resource type="Texture2D" uid="uid://tig6lrd2wsrw" path="res://assets/sprites/ui/theme/panel_dark.png" id="tex_panel_dark"]
 [ext_resource type="Texture2D" uid="uid://b2hyslpkju8r5" path="res://assets/sprites/ui/theme/tab_bg.png" id="tex_tab"]
-[ext_resource type="Texture2D" uid="uid://d181crdwekn47" path="res://assets/sprites/ui/theme/slider_handle.png" id="tex_slider"]
+[ext_resource type="Texture2D" uid="uid://lsvrositn3s3" path="res://assets/sprites/ui/theme/tooltip.png" id="tex_tooltip"]
 
-[sub_resource type="StyleBoxTexture" id="btn_normal"]
-content_margin_left = 12.0
+[sub_resource type="StyleBoxTexture" id="popup_bg"]
+content_margin_left = 8.0
 content_margin_top = 8.0
-content_margin_right = 12.0
+content_margin_right = 8.0
 content_margin_bottom = 8.0
-texture = ExtResource("tex_btn_normal")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxTexture" id="btn_hover"]
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-texture = ExtResource("tex_btn_normal")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-modulate_color = Color(1.2, 1.15, 1.1, 1)
-
-[sub_resource type="StyleBoxTexture" id="btn_pressed"]
-content_margin_left = 12.0
-content_margin_top = 8.0
-content_margin_right = 12.0
-content_margin_bottom = 8.0
-texture = ExtResource("tex_btn_pressed")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
+texture = ExtResource("tex_tooltip")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
 [sub_resource type="StyleBoxTexture" id="btn_disabled"]
 content_margin_left = 12.0
@@ -67,84 +43,39 @@ texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 modulate_color = Color(1.3, 1.2, 0.9, 1)
 
-[sub_resource type="StyleBoxTexture" id="panel_bg"]
-content_margin_left = 8.0
+[sub_resource type="StyleBoxTexture" id="btn_hover"]
+content_margin_left = 12.0
 content_margin_top = 8.0
-content_margin_right = 8.0
+content_margin_right = 12.0
 content_margin_bottom = 8.0
-texture = ExtResource("tex_panel")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxTexture" id="panel_dark_bg"]
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-texture = ExtResource("tex_panel_dark")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxTexture" id="popup_bg"]
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-texture = ExtResource("tex_tooltip")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
-
-[sub_resource type="StyleBoxTexture" id="tab_selected"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-texture = ExtResource("tex_tab")
+texture = ExtResource("tex_btn_normal")
 texture_margin_left = 4.0
-texture_margin_top = 3.0
+texture_margin_top = 4.0
 texture_margin_right = 4.0
-texture_margin_bottom = 3.0
+texture_margin_bottom = 4.0
+modulate_color = Color(1.2, 1.15, 1.1, 1)
 
-[sub_resource type="StyleBoxTexture" id="tab_unselected"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-texture = ExtResource("tex_tab")
-texture_margin_left = 4.0
-texture_margin_top = 3.0
-texture_margin_right = 4.0
-texture_margin_bottom = 3.0
-modulate_color = Color(0.6, 0.55, 0.5, 0.7)
-
-[sub_resource type="StyleBoxTexture" id="input_normal"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-texture = ExtResource("tex_input")
+[sub_resource type="StyleBoxTexture" id="btn_normal"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+texture = ExtResource("tex_btn_normal")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
 
-[sub_resource type="StyleBoxTexture" id="input_focus"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-texture = ExtResource("tex_input")
+[sub_resource type="StyleBoxTexture" id="btn_pressed"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+texture = ExtResource("tex_btn_pressed")
 texture_margin_left = 4.0
 texture_margin_top = 4.0
 texture_margin_right = 4.0
 texture_margin_bottom = 4.0
-modulate_color = Color(1.2, 1.15, 1.0, 1)
 
 [sub_resource type="StyleBoxFlat" id="scroll_grabber"]
 bg_color = Color(0.45, 0.35, 0.25, 0.8)
@@ -175,11 +106,50 @@ color = Color(0.4, 0.32, 0.24, 0.5)
 grow_begin = 0.0
 grow_end = 0.0
 
-[sub_resource type="StyleBoxLine" id="sep_v"]
-color = Color(0.4, 0.32, 0.24, 0.5)
-grow_begin = 0.0
-grow_end = 0.0
-vertical = true
+[sub_resource type="StyleBoxTexture" id="input_focus"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+texture = ExtResource("tex_input")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+modulate_color = Color(1.2, 1.15, 1, 1)
+
+[sub_resource type="StyleBoxTexture" id="input_normal"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+texture = ExtResource("tex_input")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="panel_dark_bg"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+texture = ExtResource("tex_panel_dark")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxTexture" id="panel_bg"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+texture = ExtResource("tex_panel")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
 [sub_resource type="StyleBoxFlat" id="popup_item_hover"]
 bg_color = Color(0.45, 0.35, 0.25, 0.5)
@@ -187,6 +157,35 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxTexture" id="tab_selected"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+texture = ExtResource("tex_tab")
+texture_margin_left = 4.0
+texture_margin_top = 3.0
+texture_margin_right = 4.0
+texture_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxTexture" id="tab_unselected"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+texture = ExtResource("tex_tab")
+texture_margin_left = 4.0
+texture_margin_top = 3.0
+texture_margin_right = 4.0
+texture_margin_bottom = 3.0
+modulate_color = Color(0.6, 0.55, 0.5, 0.7)
+
+[sub_resource type="StyleBoxLine" id="sep_v"]
+color = Color(0.4, 0.32, 0.24, 0.5)
+grow_begin = 0.0
+grow_end = 0.0
+vertical = true
 
 [resource]
 AcceptDialog/styles/panel = SubResource("popup_bg")

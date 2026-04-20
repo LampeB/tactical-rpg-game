@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://390rcxysezbks"]
-
-[ext_resource type="PackedScene" uid="uid://itk4jgvgljde" path="res://assets/models/Nature/grass_0/grass_0.glb" id="grass"]
-
-[node name="GrassTuft" type="Node3D"]
-
-[node name="Model" parent="." instance=ExtResource("grass")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)

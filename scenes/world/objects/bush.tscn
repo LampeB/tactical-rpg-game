@@ -1,16 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://geu7fro7rr9kb"]
+[gd_scene format=3 uid="uid://besfaiwdtdarw"]
 
 [ext_resource type="PackedScene" uid="uid://bn2vliw7xqm7l" path="res://assets/models/Nature/bush_1/bush_1.glb" id="bush"]
 
 [sub_resource type="SphereShape3D" id="1"]
 radius = 0.8
 
-[node name="Bush" type="StaticBody3D"]
+[node name="Bush" type="StaticBody3D" unique_id=1692800989]
 collision_mask = 0
 
-[node name="Model" parent="." instance=ExtResource("bush")]
+[node name="Model" parent="." unique_id=383459837 instance=ExtResource("bush")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.45, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1822119109]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 shape = SubResource("1")

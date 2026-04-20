@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://svpvlzqdtpby3"]
-
-[ext_resource type="PackedScene" uid="uid://cuuv5e40sqm1q" path="res://assets/models/Nature/flower_rose/flower_rose.glb" id="flower"]
-
-[node name="FlowerRed" type="Node3D"]
-
-[node name="Model" parent="." instance=ExtResource("flower")]
-transform = Transform3D(2.0, 0, 0, 0, 2.0, 0, 0, 0, 2.0, 0, 0, 0)

@@ -1,23 +1,23 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://crbstl661qmmx"]
 
 [ext_resource type="PackedScene" uid="uid://7sjp4igc33e3" path="res://assets/models/Furniture and props/prop_lamppost/prop_lamppost.glb" id="lamp"]
 
 [sub_resource type="CylinderShape3D" id="1"]
-radius = 0.3
 height = 6.2
+radius = 0.3
 
-[node name="Lamppost" type="StaticBody3D"]
+[node name="Lamppost" type="StaticBody3D" unique_id=74210428]
 collision_mask = 0
 
-[node name="Model" parent="." instance=ExtResource("lamp")]
+[node name="Model" parent="." unique_id=87467470 instance=ExtResource("lamp")]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 3.1, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=96215524]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)
 shape = SubResource("1")
 
-[node name="Light" type="OmniLight3D" parent="."]
-position = Vector3(0, 5.8, 0)
-light_color = Color(1.0, 0.9, 0.7, 1.0)
+[node name="Light" type="OmniLight3D" parent="." unique_id=1860805535]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.8, 0)
+light_color = Color(1, 0.9, 0.7, 1)
 light_energy = 1.5
 omni_range = 8.0
 omni_attenuation = 1.5

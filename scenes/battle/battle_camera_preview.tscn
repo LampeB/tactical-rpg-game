@@ -51,11 +51,12 @@ flee = SubResource("Resource_e4wb0")
 
 [node name="BattleCameraPreview" type="Node3D" unique_id=1404887859]
 script = ExtResource("1")
-active_preset = 8
+active_preset = 2
+fov = 39.995
 camera_config = SubResource("Resource_cmmjm")
 
 [node name="CameraGizmo" type="Node3D" parent="." unique_id=2124533554]
-transform = Transform3D(0.18457294, -0.9202672, 0.34501955, 0, 0.35105097, 0.936355, -0.9828181, -0.17282589, 0.064794555, 1.8385181, 6.5485687, 1.5)
+transform = Transform3D(-0.0088497745, 0.23622018, -0.9716577, 0, 0.97169554, 0.23622946, 0.99995935, 0.00209058, -0.008599301, -1.2266233, 2.4363122, 0.40716398)
 
 [node name="LookTarget" type="Node3D" parent="." unique_id=169859957]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.39020252, 0.5, 1.0814471)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.542679, 1.033679, 0.4582231)
