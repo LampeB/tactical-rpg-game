@@ -38,6 +38,19 @@ const _MapParticleEmitter := preload("res://scripts/terrain/map_particle_emitter
 @export_range(0.0, 1.0) var pond_offset: float = 0.3
 @export var pond_size: Vector2 = Vector2(8, 6)
 
+# ─── Inspector: River ───────────────────────────────────────────────────────
+@export_group("River")
+@export var enable_river: bool = false
+@export_range(1.0, 6.0) var river_width: float = 2.5
+@export_range(0.5, 3.0) var river_water_width: float = 1.0  ## Multiplier for the water surface width relative to carving
+@export_range(0.05, 0.3) var river_carve_depth: float = 0.14
+@export_range(-2.0, 2.0) var river_water_y_offset: float = 0.0  ## Vertical offset for water surface
+@export var use_custom_river_points: bool = false:
+	set(value):
+		use_custom_river_points = value
+		if Engine.is_editor_hint() and is_inside_tree():
+			_toggle_river_gizmos()
+
 # ─── Inspector: Vegetation ──────────────────────────────────────────────────
 @export_group("Vegetation")
 @export_range(0.0, 3.0) var tree_density: float = 1.0
@@ -102,6 +115,8 @@ var _center: Vector2 = Vector2.ZERO
 var _half_size: Vector2 = Vector2.ZERO
 var _path_polylines: Array = []  # Array of PackedVector2Array (curved path waypoints)
 var _path_junctions: PackedVector2Array = PackedVector2Array()  # Points where paths meet
+var _river_polyline: PackedVector2Array = PackedVector2Array()  # River centerline (for crossing detection)
+var _river_crossings: PackedVector2Array = PackedVector2Array()  # Points where paths cross the river
 var _pond_center: Vector2 = Vector2.ZERO
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
@@ -115,6 +130,7 @@ func _generate_all() -> void:
 	_rng.seed = gen_seed
 	_compute_layout()
 	_generate_heightmap()
+	_generate_river()
 	_generate_water()
 	_generate_trees()
 	_generate_undergrowth()
@@ -166,7 +182,7 @@ func _clear_all() -> void:
 	var children_to_remove: Array[Node] = []
 	for i in range(get_child_count()):
 		var child: Node = get_child(i)
-		if child.name == "HandPlaced":
+		if child.name == "HandPlaced" or child.name == "RiverStart" or child.name == "RiverEnd":
 			continue
 		children_to_remove.append(child)
 	for child in children_to_remove:
@@ -518,6 +534,325 @@ func _generate_water() -> void:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Step 2b: River
+# ═══════════════════════════════════════════════════════════════════════════
+
+func _create_river_gizmo(gizmo_name: String, pos: Vector3, color: Color) -> Node3D:
+	var g := Node3D.new()
+	g.name = gizmo_name
+	g.position = pos
+	add_child(g)
+	var scene_root: Node = get_tree().edited_scene_root if Engine.is_editor_hint() else self
+	g.owner = scene_root
+	_add_gizmo_visuals(g, color)
+	return g
+
+
+func _add_gizmo_visuals(g: Node3D, color: Color) -> void:
+	var sm := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 2.0
+	sphere.height = 4.0
+	sm.mesh = sphere
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sm.material_override = mat
+	g.add_child(sm)
+
+	var lbl := Label3D.new()
+	lbl.text = g.name.to_upper().replace("_", " ")
+	lbl.position.y = 3.0
+	lbl.font_size = 32
+	lbl.modulate = Color(color.r, color.g, color.b, 1.0)
+	lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	lbl.no_depth_test = true
+	g.add_child(lbl)
+
+
+func _toggle_river_gizmos() -> void:
+	if use_custom_river_points:
+		# Gizmos created on next Generate All
+		pass
+	else:
+		var start_node: Node = get_node_or_null("RiverStart")
+		if start_node:
+			start_node.queue_free()
+		var end_node: Node = get_node_or_null("RiverEnd")
+		if end_node:
+			end_node.queue_free()
+
+
+func _generate_river() -> void:
+	if not enable_river or not _heightmap:
+		return
+
+	var w: float = (map_width - 1) * terrain_scale.x
+	var d: float = (map_depth - 1) * terrain_scale.z
+	var river_rng := RandomNumberGenerator.new()
+	river_rng.seed = gen_seed + 700
+
+	# Determine start/end positions
+	var start: Vector3
+	var end: Vector3
+	var start_gizmo: Node3D = get_node_or_null("RiverStart") as Node3D
+	var end_gizmo: Node3D = get_node_or_null("RiverEnd") as Node3D
+
+	if use_custom_river_points:
+		# Create or reuse gizmos
+		if not start_gizmo:
+			start_gizmo = _create_river_gizmo("RiverStart", Vector3(2, 0, d * 0.5), Color(0, 0.5, 1, 0.7))
+		elif start_gizmo.get_child_count() == 0 and Engine.is_editor_hint():
+			# Saved node with no visuals — add them
+			_add_gizmo_visuals(start_gizmo, Color(0, 0.5, 1, 0.7))
+		if not end_gizmo:
+			end_gizmo = _create_river_gizmo("RiverEnd", Vector3(w - 2, 0, d * 0.5), Color(1, 0.3, 0, 0.7))
+		elif end_gizmo.get_child_count() == 0 and Engine.is_editor_hint():
+			_add_gizmo_visuals(end_gizmo, Color(1, 0.3, 0, 0.7))
+		start = start_gizmo.position
+		end = end_gizmo.position
+	else:
+		start = Vector3(2.0, 0, river_rng.randf_range(d * 0.3, d * 0.7))
+		end = Vector3(w - 2.0, 0, river_rng.randf_range(d * 0.3, d * 0.7))
+
+	# Build curved polyline for the river (dense — 1 point per unit for precise carving)
+	var raw_polyline: PackedVector2Array = _build_curved_path(
+		Vector2(start.x, start.z), Vector2(end.x, end.z), river_rng)
+	# Subdivide to get ~1 point per world unit
+	var polyline := PackedVector2Array()
+	for i in range(raw_polyline.size() - 1):
+		var a: Vector2 = raw_polyline[i]
+		var b: Vector2 = raw_polyline[i + 1]
+		var seg_len: float = a.distance_to(b)
+		var steps: int = maxi(1, ceili(seg_len))
+		for s in range(steps):
+			var st: float = float(s) / steps
+			polyline.append(a.lerp(b, st))
+	polyline.append(raw_polyline[raw_polyline.size() - 1])
+
+	# Convert to 3D RiverPath with terrain heights and carving
+	var rp := RiverPath.new()
+	rp.id = "forest_river"
+	_river_polyline = polyline  # Store for crossing detection
+
+	var points := PackedVector3Array()
+	var widths := PackedFloat32Array()
+	points.resize(polyline.size())
+	widths.resize(polyline.size())
+
+	# Pre-sample terrain heights BEFORE carving (so later points don't read carved values)
+	var original_heights := PackedFloat32Array()
+	original_heights.resize(polyline.size())
+	for i in range(polyline.size()):
+		original_heights[i] = _sample_terrain_height(polyline[i].x, polyline[i].y)
+
+	for i in range(polyline.size()):
+		var px: float = polyline[i].x
+		var pz: float = polyline[i].y
+		var h: float = original_heights[i]
+
+		# Carve terrain along river channel
+		var vx: int = clampi(roundi(px / terrain_scale.x), 0, map_width - 1)
+		var vz: int = clampi(roundi(pz / terrain_scale.z), 0, map_depth - 1)
+		# Taper width: narrower at edges, wider in the middle
+		var t: float = float(i) / maxf(polyline.size() - 1, 1)
+		var taper: float = sin(t * PI)
+		var half_w: float = river_width * (0.6 + 0.4 * taper)
+		widths[i] = half_w * river_water_width
+
+		# Carve terrain — same width as water mesh
+		var carve_radius: int = ceili(half_w * 1.1 / terrain_scale.x) + 1
+		for dz in range(-carve_radius, carve_radius + 1):
+			for dx in range(-carve_radius, carve_radius + 1):
+				var nx: int = vx + dx
+				var nz: int = vz + dz
+				if nx < 0 or nx >= map_width or nz < 0 or nz >= map_depth:
+					continue
+				var dist: float = sqrt(float(dx * dx + dz * dz)) * terrain_scale.x
+				if dist > half_w * 1.1:
+					continue
+				var old_h: float = _heightmap.get_height_at(nx, nz)
+				var blend: float = 1.0 - smoothstep(half_w * 0.7, half_w * 1.1, dist)
+				var target_h: float = h - river_carve_depth
+				var new_h: float = lerpf(old_h, target_h, blend)
+				_heightmap.set_height_at(nx, nz, maxf(new_h, target_h))
+				# Paint mud on banks (just outside water edge)
+				if dist > half_w * 0.5 and dist < half_w * 2.0:
+					var mud_blend: float = 1.0 - smoothstep(half_w, half_w * 2.0, dist)
+					var cur: Color = _heightmap.get_splatmap_weights(nx, nz)
+					cur.a = maxf(cur.a, mud_blend * 0.7)
+					var total: float = cur.r + cur.g + cur.b + cur.a
+					if total > 0.001:
+						cur.r /= total; cur.g /= total; cur.b /= total; cur.a /= total
+					_heightmap.set_splatmap_weights(nx, nz, cur)
+
+		points[i] = Vector3(px, (h - river_carve_depth) * terrain_scale.y + river_water_y_offset, pz)
+
+	rp.points = points
+	rp.widths = widths
+	_heightmap.rivers.clear()
+	_heightmap.rivers.append(rp)
+	_heightmap.build_river_mask(ceili(river_width / terrain_scale.x) + 2)
+
+	# Force terrain rebuild to show carved river + river mesh
+	var terrain: Node = null
+	for i in range(get_child_count()):
+		if get_child(i).name == "HeightmapTerrain3D":
+			terrain = get_child(i)
+			break
+	# Rebuild terrain to apply carved heights + build river mesh
+	if terrain:
+		terrain.call("_rebuild")
+
+	# Create river mesh as a visible child
+	_remove_layer("River")
+	var river_parent := Node3D.new()
+	river_parent.name = "River"
+	_add_owned(river_parent, self)
+
+	var river_body: MeshInstance3D = RiverBody.new()
+	river_body.name = "RiverMesh"
+	river_parent.add_child(river_body)
+	river_body.setup(rp)
+	if Engine.is_editor_hint():
+		river_body.owner = get_tree().edited_scene_root
+
+	# Invisible walls along river banks (prevents player from walking into water)
+	_build_river_walls(points, widths, river_parent)
+	print("[ForestClearingGenerator] River walls: %d shapes" % (river_parent.get_node_or_null("RiverWalls").get_child_count() if river_parent.get_node_or_null("RiverWalls") else 0))
+
+	# Detect where paths cross the river and place bridge markers
+	_detect_river_crossings()
+	_place_bridge_markers(river_parent, points, widths)
+
+	print("[ForestClearingGenerator] River generated with %d points, %d crossings." % [
+		points.size(), _river_crossings.size()])
+
+
+func _detect_river_crossings() -> void:
+	_river_crossings.clear()
+	if _river_polyline.is_empty() or _path_polylines.is_empty():
+		return
+	# Check each path segment against each river segment
+	for pi in range(_path_polylines.size()):
+		var path: PackedVector2Array = _path_polylines[pi]
+		for si in range(path.size() - 1):
+			var a: Vector2 = path[si]
+			var b: Vector2 = path[si + 1]
+			for ri in range(_river_polyline.size() - 1):
+				var c: Vector2 = _river_polyline[ri]
+				var d: Vector2 = _river_polyline[ri + 1]
+				var crossing: Variant = _segment_intersection(a, b, c, d)
+				if crossing is Vector2:
+					# Check if this crossing is near an existing one (avoid duplicates)
+					var is_dup: bool = false
+					for existing in _river_crossings:
+						if existing.distance_to(crossing) < 5.0:
+							is_dup = true
+							break
+					if not is_dup:
+						_river_crossings.append(crossing)
+						print("[ForestClearingGenerator] River crossing at (%.1f, %.1f)" % [crossing.x, crossing.y])
+
+
+static func _segment_intersection(a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Variant:
+	## Returns intersection point of segments AB and CD, or null if they don't cross.
+	var ab: Vector2 = b - a
+	var cd: Vector2 = d - c
+	var denom: float = ab.x * cd.y - ab.y * cd.x
+	if absf(denom) < 0.0001:
+		return null  # Parallel
+	var ac: Vector2 = c - a
+	var t: float = (ac.x * cd.y - ac.y * cd.x) / denom
+	var u: float = (ac.x * ab.y - ac.y * ab.x) / denom
+	if t >= 0.0 and t <= 1.0 and u >= 0.0 and u <= 1.0:
+		return a + ab * t
+	return null
+
+
+func _place_bridge_markers(river_parent: Node3D, points: PackedVector3Array, widths: PackedFloat32Array) -> void:
+	for ci in range(_river_crossings.size()):
+		var crossing: Vector2 = _river_crossings[ci]
+		var h: float = _sample_terrain_height(crossing.x, crossing.y)
+
+		# Find the river width at this crossing point
+		var bridge_width: float = river_width
+		var min_dist: float = INF
+		for i in range(points.size()):
+			var d: float = Vector2(points[i].x, points[i].z).distance_to(crossing)
+			if d < min_dist:
+				min_dist = d
+				bridge_width = widths[i] if i < widths.size() else river_width
+
+		# Find path direction at crossing for bridge rotation
+		var bridge_rot: float = 0.0
+		for pi in range(_path_polylines.size()):
+			var path: PackedVector2Array = _path_polylines[pi]
+			for si in range(path.size() - 1):
+				var seg_mid: Vector2 = (path[si] + path[si + 1]) * 0.5
+				if seg_mid.distance_to(crossing) < 5.0:
+					var dir: Vector2 = (path[si + 1] - path[si]).normalized()
+					bridge_rot = atan2(dir.x, dir.y)
+					break
+
+		# Create bridge marker
+		var marker := Node3D.new()
+		marker.name = "Bridge_%d" % ci
+		marker.position = Vector3(crossing.x, h * terrain_scale.y, crossing.y)
+		marker.rotation.y = bridge_rot
+		marker.set_meta("bridge_width", bridge_width * 2.0 + 1.0)
+		marker.set_meta("bridge_length", path_width + 1.0)
+
+		# Editor gizmo
+		if Engine.is_editor_hint():
+			var mesh_inst := MeshInstance3D.new()
+			var box := BoxMesh.new()
+			box.size = Vector3(path_width + 1.0, 0.3, bridge_width * 2.0 + 1.0)
+			mesh_inst.mesh = box
+			mesh_inst.position.y = 0.2
+			var mat := StandardMaterial3D.new()
+			mat.albedo_color = Color(0.6, 0.4, 0.2, 0.7)
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mesh_inst.material_override = mat
+			marker.add_child(mesh_inst)
+
+			var lbl := Label3D.new()
+			lbl.text = "BRIDGE"
+			lbl.position.y = 1.5
+			lbl.font_size = 28
+			lbl.modulate = Color(0.8, 0.6, 0.3)
+			lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			lbl.no_depth_test = true
+			marker.add_child(lbl)
+
+		_add_owned(marker, river_parent)
+
+
+func _build_river_walls(points: PackedVector3Array, widths: PackedFloat32Array, parent: Node3D) -> void:
+	# One StaticBody3D with cylinder colliders matching the carved circles
+	var wall := StaticBody3D.new()
+	wall.name = "RiverWalls"
+	wall.collision_layer = 1
+	wall.collision_mask = 0
+	_add_owned(wall, parent)
+
+	# Place cylinders every few points
+	var step: int = maxi(1, points.size() / 60)
+	for i in range(0, points.size(), step):
+		var p: Vector3 = points[i]
+		var half_w: float = widths[i] if i < widths.size() else 2.0
+
+		var col := CollisionShape3D.new()
+		var cyl := CylinderShape3D.new()
+		cyl.radius = half_w + 0.3
+		cyl.height = 4.0
+		col.shape = cyl
+		col.position = Vector3(p.x, p.y + 0.3, p.z)
+		wall.add_child(col)
+		col.owner = get_tree().edited_scene_root if Engine.is_editor_hint() else self
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Step 3: Trees
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -562,10 +897,12 @@ func _generate_trees() -> void:
 		var path_m: float = _get_path_mask(pos.x, pos.y)
 		var pond_m: float = _get_pond_mask(pos.x, pos.y)
 
-		# Reject: in clearing center, on paths, or in pond
+		# Reject: in clearing center, on paths, in pond, or in river
 		if path_m > 0.3:
 			continue
 		if pond_m > 0.3:
+			continue
+		if _is_in_river(pos.x, pos.y):
 			continue
 		# Accept with probability based on clearing mask and density
 		var accept_chance: float = mask * tree_density
@@ -648,7 +985,7 @@ func _generate_undergrowth() -> void:
 		var path_m: float = _get_path_mask(px, pz)
 		var pond_m: float = _get_pond_mask(px, pz)
 
-		if path_m > 0.5 or pond_m > 0.6:
+		if path_m > 0.5 or pond_m > 0.6 or _is_in_river(px, pz):
 			continue
 
 		# Pick prop
@@ -797,7 +1134,7 @@ func _generate_encounters() -> void:
 		var path_m: float = _get_path_mask(pos.x, pos.y)
 		var pond_m: float = _get_pond_mask(pos.x, pos.y)
 		# Skip paths, pond, and the very center of the clearing
-		if path_m > 0.4 or pond_m > 0.3:
+		if path_m > 0.4 or pond_m > 0.3 or _is_in_river(pos.x, pos.y):
 			continue
 		if mask < 0.15:
 			continue  # Too deep in clearing center
@@ -1138,6 +1475,14 @@ func _build_battle_area_gizmo(marker: Node3D) -> void:
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
 	marker.add_child(label)
+
+
+func _is_in_river(world_x: float, world_z: float) -> bool:
+	if not _heightmap or not enable_river:
+		return false
+	var vx: int = roundi(world_x / terrain_scale.x)
+	var vz: int = roundi(world_z / terrain_scale.z)
+	return _heightmap.is_river_at(vx, vz)
 
 
 func _sample_terrain_height(world_x: float, world_z: float) -> float:

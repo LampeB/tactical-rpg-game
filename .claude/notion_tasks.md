@@ -50,7 +50,9 @@
 | Name | Notion ID |
 |---|---|
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
+| Dynamic enemy respawning system | 3477700f-d0fb-81a7-bc85-c28fa6540caa |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
+| Patrol path system for roaming enemies | 3477700f-d0fb-8104-8ba9-d793b9ed73c9 |
 
 ### Done
 | Name | Notion ID |
@@ -207,6 +209,9 @@
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
 | Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
+| Fog profiles per biome (BiomeFogProfile resource) | 3477700f-d0fb-8117-af69-d4cbe9419154 |
+| Modular quest/event trigger system for maps | 3477700f-d0fb-8164-98fb-c6d84fa1396f |
+| Weather system (rain, snow, wind intensity) | 3477700f-d0fb-81a3-a6ec-e1a3cd8b6207 |
 | Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
 | Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 
@@ -357,13 +362,20 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Forest map generator: @tool script with Poisson disk tree placement | 33f7700f-d0fb-8173-bf20-d96a8ad5be1d |
-| Poisson disk sampling utility for prop placement | 33f7700f-d0fb-8104-9d49-f0548c2b0a43 |
+| Biome-aware generation system (generalize forest generator) | 3477700f-d0fb-8116-bc02-d46a2df6e9ec |
+| Building generator from modular pieces | 3477700f-d0fb-814e-857d-fd99e88f2491 |
+| Cave/indoor map generation system | 3477700f-d0fb-819f-b26e-fb4f61a2b7e2 |
+| Generator uses PropScatter for MultiMesh vegetation | 3477700f-d0fb-813c-ad3a-cb3a4c327eab |
+| Map encounter editor (place and edit encounters on map) | 3477700f-d0fb-8128-a5ef-e69f30660157 |
+| Scalable map generator: MultiMesh vegetation + chunk streaming | 3477700f-d0fb-8195-aafa-c8d52f25b7c7 |
+| Vegetation density mask for per-vertex prop density control | 3477700f-d0fb-81f4-a05f-fba254810bcd |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Allow placing map elements at different heights (terrain elevation, ups and downs) | 3217700f-d0fb-8179-bd37-f9a05f13c380 |
+| Forest map generator: @tool script with Poisson disk tree placement | 33f7700f-d0fb-8173-bf20-d96a8ad5be1d |
+| Poisson disk sampling utility for prop placement | 33f7700f-d0fb-8104-9d49-f0548c2b0a43 |
 | Map-to-map transitions (ConnectionMarker, editor tool, save/load) | 31d7700f-d0fb-814c-8757-e57a39153512 |
 | MapData, MapElement, MapConnection resource scripts | 3147700f-d0fb-8141-ac6e-ee067a9e7bc3 |
 | MapDatabase autoload | 3147700f-d0fb-81ab-a6f4-ea9947b348ff |
