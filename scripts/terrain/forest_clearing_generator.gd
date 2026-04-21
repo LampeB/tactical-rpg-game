@@ -15,7 +15,6 @@ const _PropRegistry := preload("res://scripts/terrain/prop_registry.gd")
 const _TEX_BASE := "res://assets/terrain_textures/"
 const _FOREST_SCENES := "res://scenes/world/objects/forest/"
 const _ENVIRONMENT_SCENE := "res://scenes/shared/environment_3d.tscn"
-const _WIND_SHADER := "res://shaders/foliage_wind.gdshader"
 const _MapParticleEmitter := preload("res://scripts/terrain/map_particle_emitter.gd")
 
 # ─── Inspector: Map Size ────────────────────────────────────────────────────
@@ -121,6 +120,14 @@ var _pond_center: Vector2 = Vector2.ZERO
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 
+func _sh(wx: float, wz: float) -> float:
+	return MapGenUtils.sample_terrain_height(_heightmap, wx, wz, terrain_scale)
+
+func _ao(node: Node, parent: Node) -> void:
+	var sr: Node = get_tree().edited_scene_root if Engine.is_editor_hint() else self
+	MapGenUtils.add_owned(node, parent, sr)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Generation entry points
 # ═══════════════════════════════════════════════════════════════════════════
@@ -208,7 +215,7 @@ func _ensure_hand_placed() -> void:
 	if true:
 		var hp := Node3D.new()
 		hp.name = "HandPlaced"
-		_add_owned(hp, self)
+		_ao(hp, self)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -315,38 +322,6 @@ func _get_pond_mask(world_x: float, world_z: float) -> float:
 	var dz: float = (world_z - _pond_center.y) / (pond_size.y * 0.5)
 	var dist: float = sqrt(dx * dx + dz * dz)
 	return 1.0 - smoothstep(0.8, 1.5, dist)
-
-
-func _build_curved_path(from: Vector2, to: Vector2, rng: RandomNumberGenerator) -> PackedVector2Array:
-	## Builds a curved polyline from `from` to `to` with natural-looking bends.
-	## Uses perpendicular noise offsets at evenly-spaced waypoints.
-	var points := PackedVector2Array()
-	var total_dist: float = from.distance_to(to)
-	var segment_length: float = 4.0  # Waypoint every ~4 world units
-	var num_segments: int = maxi(3, int(total_dist / segment_length))
-	var direction: Vector2 = (to - from).normalized()
-	var perpendicular := Vector2(-direction.y, direction.x)
-
-	# Curve amplitude scales with distance but caps for natural look
-	var amplitude: float = minf(total_dist * 0.15, 12.0)
-
-	points.append(from)
-	for i in range(1, num_segments):
-		var t: float = float(i) / num_segments
-		var base: Vector2 = from.lerp(to, t)
-		# Noise offset perpendicular to path — stronger in middle, zero at endpoints
-		var envelope: float = sin(t * PI)  # 0 at edges, 1 at midpoint
-		var offset: float = rng.randf_range(-amplitude, amplitude) * envelope
-		var point: Vector2 = base + perpendicular * offset
-		points.append(point)
-	points.append(to)
-
-	# Smooth pass: average each interior point with its neighbours
-	for _pass in range(2):
-		for i in range(1, points.size() - 1):
-			points[i] = (points[i - 1] + points[i] * 2.0 + points[i + 1]) * 0.25
-
-	return points
 
 
 static func _closest_point_on_segment(p: Vector2, a: Vector2, b: Vector2) -> Vector2:
@@ -458,7 +433,7 @@ func _generate_heightmap() -> void:
 	var terrain: Node3D = HeightmapTerrain3D.new()
 	terrain.name = "HeightmapTerrain3D"
 	terrain.set("heightmap_data", data)
-	_add_owned(terrain, self)
+	_ao(terrain, self)
 	terrain.call("_rebuild")
 
 
@@ -520,7 +495,7 @@ func _generate_water() -> void:
 
 	var water_parent := Node3D.new()
 	water_parent.name = "Water"
-	_add_owned(water_parent, self)
+	_ao(water_parent, self)
 
 	var water: MeshInstance3D = _WaterBody.new()
 	water.name = "Pond"
@@ -530,7 +505,7 @@ func _generate_water() -> void:
 	water.set("shallow_color", Color(0.25, 0.55, 0.65, 0.5))
 	water.set("deep_color", Color(0.08, 0.2, 0.35, 0.8))
 	water.position = Vector3(_pond_center.x, 0, _pond_center.y)
-	_add_owned(water, water_parent)
+	_ao(water, water_parent)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -544,30 +519,8 @@ func _create_river_gizmo(gizmo_name: String, pos: Vector3, color: Color) -> Node
 	add_child(g)
 	var scene_root: Node = get_tree().edited_scene_root if Engine.is_editor_hint() else self
 	g.owner = scene_root
-	_add_gizmo_visuals(g, color)
+	EditorGizmoBuilder.build_river_point_gizmo(g, color)
 	return g
-
-
-func _add_gizmo_visuals(g: Node3D, color: Color) -> void:
-	var sm := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 2.0
-	sphere.height = 4.0
-	sm.mesh = sphere
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	sm.material_override = mat
-	g.add_child(sm)
-
-	var lbl := Label3D.new()
-	lbl.text = g.name.to_upper().replace("_", " ")
-	lbl.position.y = 3.0
-	lbl.font_size = 32
-	lbl.modulate = Color(color.r, color.g, color.b, 1.0)
-	lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	lbl.no_depth_test = true
-	g.add_child(lbl)
 
 
 func _toggle_river_gizmos() -> void:
@@ -604,11 +557,11 @@ func _generate_river() -> void:
 			start_gizmo = _create_river_gizmo("RiverStart", Vector3(2, 0, d * 0.5), Color(0, 0.5, 1, 0.7))
 		elif start_gizmo.get_child_count() == 0 and Engine.is_editor_hint():
 			# Saved node with no visuals — add them
-			_add_gizmo_visuals(start_gizmo, Color(0, 0.5, 1, 0.7))
+			EditorGizmoBuilder.build_river_point_gizmo(start_gizmo, Color(0, 0.5, 1, 0.7))
 		if not end_gizmo:
 			end_gizmo = _create_river_gizmo("RiverEnd", Vector3(w - 2, 0, d * 0.5), Color(1, 0.3, 0, 0.7))
 		elif end_gizmo.get_child_count() == 0 and Engine.is_editor_hint():
-			_add_gizmo_visuals(end_gizmo, Color(1, 0.3, 0, 0.7))
+			EditorGizmoBuilder.build_river_point_gizmo(end_gizmo, Color(1, 0.3, 0, 0.7))
 		start = start_gizmo.position
 		end = end_gizmo.position
 	else:
@@ -644,7 +597,7 @@ func _generate_river() -> void:
 	var original_heights := PackedFloat32Array()
 	original_heights.resize(polyline.size())
 	for i in range(polyline.size()):
-		original_heights[i] = _sample_terrain_height(polyline[i].x, polyline[i].y)
+		original_heights[i] = _sh(polyline[i].x, polyline[i].y)
 
 	for i in range(polyline.size()):
 		var px: float = polyline[i].x
@@ -708,7 +661,7 @@ func _generate_river() -> void:
 	_remove_layer("River")
 	var river_parent := Node3D.new()
 	river_parent.name = "River"
-	_add_owned(river_parent, self)
+	_ao(river_parent, self)
 
 	var river_body: MeshInstance3D = RiverBody.new()
 	river_body.name = "RiverMesh"
@@ -773,7 +726,7 @@ static func _segment_intersection(a: Vector2, b: Vector2, c: Vector2, d: Vector2
 func _place_bridge_markers(river_parent: Node3D, points: PackedVector3Array, widths: PackedFloat32Array) -> void:
 	for ci in range(_river_crossings.size()):
 		var crossing: Vector2 = _river_crossings[ci]
-		var h: float = _sample_terrain_height(crossing.x, crossing.y)
+		var h: float = _sh(crossing.x, crossing.y)
 
 		# Find the river width at this crossing point
 		var bridge_width: float = river_width
@@ -825,7 +778,7 @@ func _place_bridge_markers(river_parent: Node3D, points: PackedVector3Array, wid
 			lbl.no_depth_test = true
 			marker.add_child(lbl)
 
-		_add_owned(marker, river_parent)
+		_ao(marker, river_parent)
 
 
 func _build_river_walls(points: PackedVector3Array, widths: PackedFloat32Array, parent: Node3D) -> void:
@@ -834,7 +787,7 @@ func _build_river_walls(points: PackedVector3Array, widths: PackedFloat32Array, 
 	wall.name = "RiverWalls"
 	wall.collision_layer = 1
 	wall.collision_mask = 0
-	_add_owned(wall, parent)
+	_ao(wall, parent)
 
 	# Place cylinders every few points
 	var step: int = maxi(1, points.size() / 60)
@@ -873,7 +826,7 @@ const _TREE_POOL: Array[Dictionary] = [
 func _generate_trees() -> void:
 	var tree_parent := Node3D.new()
 	tree_parent.name = "Trees"
-	_add_owned(tree_parent, self)
+	_ao(tree_parent, self)
 
 	var w: float = (map_width - 1) * terrain_scale.x
 	var d: float = (map_depth - 1) * terrain_scale.z
@@ -912,7 +865,7 @@ func _generate_trees() -> void:
 			continue
 
 		# Pick tree type
-		var tree_def: Dictionary = _pick_weighted(tree_rng, _TREE_POOL, weight_total)
+		var tree_def: Dictionary = MapGenUtils.pick_weighted(tree_rng, _TREE_POOL, weight_total)
 		var scene_path: String = _FOREST_SCENES + tree_def["file"]
 		if not ResourceLoader.exists(scene_path):
 			continue
@@ -927,10 +880,10 @@ func _generate_trees() -> void:
 		tree.rotation.y = tree_rng.randf() * TAU
 
 		# Position with terrain height
-		var h: float = _sample_terrain_height(pos.x, pos.y)
+		var h: float = _sh(pos.x, pos.y)
 		tree.position = Vector3(pos.x, h * terrain_scale.y, pos.y)
 
-		_add_owned(tree, tree_parent)
+		_ao(tree, tree_parent)
 		placed += 1
 
 	print("[ForestClearingGenerator] Placed %d trees from %d candidates." % [placed, candidates.size()])
@@ -964,7 +917,7 @@ const _UNDERGROWTH_POOL: Array[Dictionary] = [
 func _generate_undergrowth() -> void:
 	var parent := Node3D.new()
 	parent.name = "Undergrowth"
-	_add_owned(parent, self)
+	_ao(parent, self)
 
 	var w: float = (map_width - 1) * terrain_scale.x
 	var d: float = (map_depth - 1) * terrain_scale.z
@@ -989,7 +942,7 @@ func _generate_undergrowth() -> void:
 			continue
 
 		# Pick prop
-		var def: Dictionary = _pick_weighted(ug_rng, _UNDERGROWTH_POOL, weight_total)
+		var def: Dictionary = MapGenUtils.pick_weighted(ug_rng, _UNDERGROWTH_POOL, weight_total)
 		var zone: String = def["zone"] as String
 
 		# Zone filtering
@@ -1010,9 +963,9 @@ func _generate_undergrowth() -> void:
 		obj.scale = Vector3(s, s, s)
 		obj.rotation.y = ug_rng.randf() * TAU
 
-		var h: float = _sample_terrain_height(px, pz)
+		var h: float = _sh(px, pz)
 		obj.position = Vector3(px, h * terrain_scale.y, pz)
-		_add_owned(obj, parent)
+		_ao(obj, parent)
 		placed += 1
 
 	print("[ForestClearingGenerator] Placed %d undergrowth items." % placed)
@@ -1025,7 +978,7 @@ func _generate_undergrowth() -> void:
 func _generate_props() -> void:
 	var parent := Node3D.new()
 	parent.name = "Props"
-	_add_owned(parent, self)
+	_ao(parent, self)
 
 	var prop_rng := RandomNumberGenerator.new()
 	prop_rng.seed = gen_seed + 300
@@ -1036,9 +989,9 @@ func _generate_props() -> void:
 		var campfire_scene: PackedScene = load(campfire_path)
 		if campfire_scene:
 			var fire: Node3D = campfire_scene.instantiate()
-			var h: float = _sample_terrain_height(_center.x, _center.y)
+			var h: float = _sh(_center.x, _center.y)
 			fire.position = Vector3(_center.x, h * terrain_scale.y, _center.y)
-			_add_owned(fire, parent)
+			_ao(fire, parent)
 
 	# Rock clusters around the clearing
 	var rock_files: Array[String] = [
@@ -1069,9 +1022,9 @@ func _generate_props() -> void:
 			var s: float = prop_rng.randf_range(0.6, 1.5)
 			rock.scale = Vector3(s, s, s)
 			rock.rotation.y = prop_rng.randf() * TAU
-			var h: float = _sample_terrain_height(rx, rz)
+			var h: float = _sh(rx, rz)
 			rock.position = Vector3(rx, h * terrain_scale.y, rz)
-			_add_owned(rock, parent)
+			_ao(rock, parent)
 
 	print("[ForestClearingGenerator] Props placed.")
 
@@ -1104,7 +1057,7 @@ const _ENEMY_COLORS: Array[Color] = [
 func _generate_encounters() -> void:
 	var parent := Node3D.new()
 	parent.name = "Encounters"
-	_add_owned(parent, self)
+	_ao(parent, self)
 
 	if enemy_count == 0:
 		print("[ForestClearingGenerator] No enemies requested.")
@@ -1162,7 +1115,7 @@ func _generate_encounters() -> void:
 		# Create a marker node with metadata (base_map reads these at runtime)
 		var marker := Node3D.new()
 		marker.name = "Enemy_%d" % placed
-		var h: float = _sample_terrain_height(pos.x, pos.y)
+		var h: float = _sh(pos.x, pos.y)
 		marker.position = Vector3(pos.x, h * terrain_scale.y, pos.y)
 		marker.set_meta("encounter_path", enc_path)
 		marker.set_meta("enemy_color", color)
@@ -1170,23 +1123,23 @@ func _generate_encounters() -> void:
 
 		# Editor gizmo: colored sphere + label
 		if Engine.is_editor_hint():
-			_build_enemy_gizmo(marker, enc_path, color, enemy_patrol_distance)
+			EditorGizmoBuilder.build_enemy_gizmo(marker, enc_path, color, enemy_patrol_distance)
 
-		_add_owned(marker, parent)
+		_ao(marker, parent)
 		placed += 1
 
 	# Battle area at clearing center
 	var ba_marker := Node3D.new()
 	ba_marker.name = "BattleArea_Clearing"
-	var center_h: float = _sample_terrain_height(_center.x, _center.y)
+	var center_h: float = _sh(_center.x, _center.y)
 	ba_marker.position = Vector3(_center.x, center_h * terrain_scale.y, _center.y)
 	ba_marker.set_meta("battle_area_name", "Forest Clearing")
 
 	# Editor gizmo: red translucent disc
 	if Engine.is_editor_hint():
-		_build_battle_area_gizmo(ba_marker)
+		EditorGizmoBuilder.build_battle_area_gizmo(ba_marker)
 
-	_add_owned(ba_marker, parent)
+	_ao(ba_marker, parent)
 
 	print("[ForestClearingGenerator] Placed %d enemies + 1 battle area." % placed)
 
@@ -1203,7 +1156,7 @@ func _generate_connections() -> void:
 	_remove_layer("Connections")
 	var parent := Node3D.new()
 	parent.name = "Connections"
-	_add_owned(parent, self)
+	_ao(parent, self)
 
 	var w: float = (map_width - 1) * terrain_scale.x
 	var d: float = (map_depth - 1) * terrain_scale.z
@@ -1229,7 +1182,7 @@ func _generate_connections() -> void:
 			edge_pos.z = clampf(edge_pos.z, 3.0, d - 3.0)
 
 		# Ground to terrain height
-		var h: float = _sample_terrain_height(edge_pos.x, edge_pos.z)
+		var h: float = _sh(edge_pos.x, edge_pos.z)
 		edge_pos.y = h * terrain_scale.y
 
 		# Update the connection resource position so MapLoader uses the right spot
@@ -1243,9 +1196,9 @@ func _generate_connections() -> void:
 
 		# Editor gizmo
 		if Engine.is_editor_hint():
-			_build_connection_gizmo(marker, conn)
+			EditorGizmoBuilder.build_connection_gizmo(marker, conn)
 
-		_add_owned(marker, parent)
+		_ao(marker, parent)
 
 	print("[ForestClearingGenerator] Placed %d connections." % conn_count)
 
@@ -1262,7 +1215,7 @@ func _generate_environment() -> void:
 		var env_scene: PackedScene = load(_ENVIRONMENT_SCENE)
 		if env_scene:
 			var env: Node3D = env_scene.instantiate()
-			_add_owned(env, self)
+			_ao(env, self)
 
 			# Add forest fog to the environment
 			var world_env: WorldEnvironment = env.find_child("WorldEnvironment", false, false) as WorldEnvironment
@@ -1281,90 +1234,40 @@ func _generate_environment() -> void:
 			print("[ForestClearingGenerator] Added environment (light + sky + SSAO + fog).")
 
 	# Apply wind shader to vegetation
-	_apply_wind_to_layer("Undergrowth", 0.25, 1.5, 0.5)
-	_apply_wind_to_layer("Trees", 0.12, 0.8, 10.0)  # High mesh_height = only tips sway
+	WindApplicator.apply_to_layer(self, "Undergrowth", 0.25, 1.5, 0.5)
+	WindApplicator.apply_to_layer(self, "Trees", 0.12, 0.8, 10.0)  # High mesh_height = only tips sway
 
-
-func _apply_wind_to_layer(layer_name: String, strength: float, speed: float, mesh_height: float) -> void:
-	## Applies foliage_wind shader to all MeshInstance3D nodes in the named layer.
-	var layer: Node = null
-	for i in range(get_child_count()):
-		if get_child(i).name == layer_name:
-			layer = get_child(i)
-			break
-	if not layer:
-		return
-	if not ResourceLoader.exists(_WIND_SHADER):
-		return
-	var shader: Shader = load(_WIND_SHADER)
-	if not shader:
-		return
-
-	var count: int = 0
-	for i in range(layer.get_child_count()):
-		_apply_wind_recursive(layer.get_child(i), shader, strength, speed, mesh_height)
-		count += 1
-	print("[ForestClearingGenerator] Applied wind to %d items in %s." % [count, layer_name])
-
-
-func _apply_wind_recursive(node: Node, shader: Shader, strength: float, speed: float, mesh_height: float) -> void:
-	if node is MeshInstance3D:
-		var mi: MeshInstance3D = node as MeshInstance3D
-		if mi.mesh:
-			var mesh_copy: Mesh = mi.mesh.duplicate()
-			for si in range(mesh_copy.get_surface_count()):
-				var orig_mat: Material = mesh_copy.surface_get_material(si)
-				var wind_mat := ShaderMaterial.new()
-				wind_mat.shader = shader
-				if orig_mat is StandardMaterial3D:
-					var std: StandardMaterial3D = orig_mat as StandardMaterial3D
-					if std.albedo_texture:
-						wind_mat.set_shader_parameter("base_texture", std.albedo_texture)
-					if std.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR:
-						wind_mat.set_shader_parameter("alpha_scissor", std.alpha_scissor_threshold)
-				wind_mat.set_shader_parameter("wind_strength", strength)
-				wind_mat.set_shader_parameter("wind_speed", speed)
-				wind_mat.set_shader_parameter("mesh_height", mesh_height)
-				mesh_copy.surface_set_material(si, wind_mat)
-			mi.mesh = mesh_copy
-	for i in range(node.get_child_count()):
-		_apply_wind_recursive(node.get_child(i), shader, strength, speed, mesh_height)
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# Step 9: Ambient Particles
-# ═══════════════════════════════════════════════════════════════════════════
 
 func _generate_particles() -> void:
 	_remove_layer("Particles")
 	var parent := Node3D.new()
 	parent.name = "Particles"
-	_add_owned(parent, self)
+	_ao(parent, self)
 
 	# Campfire embers at center
-	var campfire_h: float = _sample_terrain_height(_center.x, _center.y)
+	var campfire_h: float = _sh(_center.x, _center.y)
 	var campfire_emitter: Node3D = _MapParticleEmitter.new()
 	campfire_emitter.name = "CampfireEmbers"
 	campfire_emitter.position = Vector3(_center.x, campfire_h * terrain_scale.y + 0.5, _center.y)
 	campfire_emitter.set("preset", _MapParticleEmitter.ParticlePreset.CAMPFIRE)
-	_add_owned(campfire_emitter, parent)
+	_ao(campfire_emitter, parent)
 
 	# Fireflies near pond
 	if enable_pond:
-		var pond_h: float = _sample_terrain_height(_pond_center.x, _pond_center.y)
+		var pond_h: float = _sh(_pond_center.x, _pond_center.y)
 		var firefly_emitter: Node3D = _MapParticleEmitter.new()
 		firefly_emitter.name = "PondFireflies"
 		firefly_emitter.position = Vector3(_pond_center.x, pond_h * terrain_scale.y + 1.0, _pond_center.y)
 		firefly_emitter.set("preset", _MapParticleEmitter.ParticlePreset.FIREFLIES)
-		_add_owned(firefly_emitter, parent)
+		_ao(firefly_emitter, parent)
 
 	# Dust motes in the clearing
 	var dust_emitter: Node3D = _MapParticleEmitter.new()
 	dust_emitter.name = "ClearingDust"
-	var clearing_h: float = _sample_terrain_height(_center.x, _center.y)
+	var clearing_h: float = _sh(_center.x, _center.y)
 	dust_emitter.position = Vector3(_center.x, clearing_h * terrain_scale.y + 2.0, _center.y)
 	dust_emitter.set("preset", _MapParticleEmitter.ParticlePreset.DUST_MOTES)
-	_add_owned(dust_emitter, parent)
+	_ao(dust_emitter, parent)
 
 	# Leaves falling across the forest canopy (4 wide emitters scaled to cover large areas)
 	var leaf_rng := RandomNumberGenerator.new()
@@ -1374,14 +1277,14 @@ func _generate_particles() -> void:
 		var dist: float = minf(_half_size.x, _half_size.y) * 0.7
 		var lx: float = _center.x + cos(angle) * dist
 		var lz: float = _center.y + sin(angle) * dist
-		var lh: float = _sample_terrain_height(lx, lz)
+		var lh: float = _sh(lx, lz)
 		var leaf_emitter: Node3D = _MapParticleEmitter.new()
 		leaf_emitter.name = "Leaves_%d" % i
 		leaf_emitter.position = Vector3(lx, lh * terrain_scale.y + 7.5, lz)
 		# Scale the emitter to cover a wide area (emission box is small, scale stretches it)
 		leaf_emitter.scale = Vector3(75, 15, 255)
 		leaf_emitter.set("preset", _MapParticleEmitter.ParticlePreset.LEAVES_FALLING)
-		_add_owned(leaf_emitter, parent)
+		_ao(leaf_emitter, parent)
 
 	print("[ForestClearingGenerator] Placed %d particle emitters." % parent.get_child_count())
 
@@ -1389,93 +1292,6 @@ func _generate_particles() -> void:
 # ═══════════════════════════════════════════════════════════════════════════
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════
-
-func _build_connection_gizmo(marker: Node3D, conn: MapConnection) -> void:
-	# Blue pillar (matching ConnectionMarker style)
-	var mesh_inst := MeshInstance3D.new()
-	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = 0.3
-	cylinder.bottom_radius = 0.3
-	cylinder.height = 3.0
-	mesh_inst.mesh = cylinder
-	mesh_inst.position.y = 1.5
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.2, 0.5, 1.0, 0.7)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.emission_enabled = true
-	mat.emission = Color(0.2, 0.5, 1.0)
-	mat.emission_energy_multiplier = 0.5
-	mesh_inst.material_override = mat
-	marker.add_child(mesh_inst)
-
-	# Name label
-	var label := Label3D.new()
-	label.text = conn.display_name if not conn.display_name.is_empty() else conn.connection_id
-	label.position.y = 3.5
-	label.font_size = 40
-	label.modulate = Color(0.5, 0.8, 1.0)
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	marker.add_child(label)
-
-	# Target label
-	var target_label := Label3D.new()
-	target_label.text = "-> %s" % conn.target_map_id
-	target_label.position.y = 3.0
-	target_label.font_size = 24
-	target_label.modulate = Color(0.4, 0.6, 0.8)
-	target_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	target_label.no_depth_test = true
-	marker.add_child(target_label)
-
-
-func _build_enemy_gizmo(marker: Node3D, enc_path: String, color: Color, _patrol_dist: float) -> void:
-	# Simple colored box (cheap, no CSG boolean overhead)
-	var mesh_inst := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(0.6, 1.4, 0.6)
-	mesh_inst.mesh = box
-	mesh_inst.position.y = 0.7
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(color.r, color.g, color.b, 0.8)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mesh_inst.material_override = mat
-	marker.add_child(mesh_inst)
-
-	# Label
-	var label := Label3D.new()
-	label.text = enc_path.get_file().trim_suffix(".tres").trim_prefix("encounter_")
-	label.position.y = 2.0
-	label.font_size = 32
-	label.modulate = color
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	marker.add_child(label)
-
-
-func _build_battle_area_gizmo(marker: Node3D) -> void:
-	var mesh_inst := MeshInstance3D.new()
-	var disc := CylinderMesh.new()
-	disc.top_radius = 7.0
-	disc.bottom_radius = 7.0
-	disc.height = 0.1
-	disc.radial_segments = 24
-	mesh_inst.mesh = disc
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(1.0, 0.2, 0.2, 0.15)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mesh_inst.material_override = mat
-	marker.add_child(mesh_inst)
-
-	var label := Label3D.new()
-	label.text = "BATTLE AREA"
-	label.position.y = 1.5
-	label.font_size = 40
-	label.modulate = Color(1.0, 0.3, 0.3)
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	marker.add_child(label)
-
 
 func _is_in_river(world_x: float, world_z: float) -> bool:
 	if not _heightmap or not enable_river:
@@ -1485,48 +1301,3 @@ func _is_in_river(world_x: float, world_z: float) -> bool:
 	return _heightmap.is_river_at(vx, vz)
 
 
-func _sample_terrain_height(world_x: float, world_z: float) -> float:
-	## Sample height from the heightmap data in vertex space.
-	if not _heightmap:
-		return 0.0
-	var vx: float = world_x / terrain_scale.x
-	var vz: float = world_z / terrain_scale.z
-	var ix: int = int(vx)
-	var iz: int = int(vz)
-	var fx: float = vx - ix
-	var fz: float = vz - iz
-	# Bilinear interpolation
-	var h00: float = _heightmap.get_height_at(ix, iz)
-	var h10: float = _heightmap.get_height_at(ix + 1, iz)
-	var h01: float = _heightmap.get_height_at(ix, iz + 1)
-	var h11: float = _heightmap.get_height_at(ix + 1, iz + 1)
-	var h0: float = lerpf(h00, h10, fx)
-	var h1: float = lerpf(h01, h11, fx)
-	return lerpf(h0, h1, fz)
-
-
-func _pick_weighted(rng: RandomNumberGenerator, pool: Array[Dictionary], total_weight: int) -> Dictionary:
-	var roll: int = rng.randi_range(0, total_weight - 1)
-	var cumulative: int = 0
-	for i in range(pool.size()):
-		var entry: Dictionary = pool[i]
-		cumulative += entry["weight"] as int
-		if roll < cumulative:
-			return entry
-	return pool[pool.size() - 1]
-
-
-func _add_owned(node: Node, parent_node: Node) -> void:
-	## Adds a node as a child and sets owner so it saves with the .tscn.
-	parent_node.add_child(node)
-	var scene_root: Node = get_tree().edited_scene_root if Engine.is_editor_hint() else self
-	node.owner = scene_root
-	# Also set owner for all descendants (instantiated scenes)
-	for child in node.get_children():
-		_set_owner_recursive(child, scene_root)
-
-
-func _set_owner_recursive(node: Node, scene_root: Node) -> void:
-	node.owner = scene_root
-	for child in node.get_children():
-		_set_owner_recursive(child, scene_root)
