@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/resources/loot_table.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/loot_entry.gd" id="2"]
 [ext_resource type="Resource" path="res://data/items/consumables/potion_common.tres" id="3_potion"]
-[ext_resource type="Resource" path="res://data/items/weapons/sword_iron.tres" id="4_sword"]
+[ext_resource type="Resource" path="res://data/items/weapons/sword_common.tres" id="4_sword"]
 
 [sub_resource type="Resource" id="entry_potion_1"]
 script = ExtResource("2")

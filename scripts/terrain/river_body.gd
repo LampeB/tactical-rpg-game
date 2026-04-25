@@ -1,3 +1,4 @@
+@tool
 class_name RiverBody
 extends MeshInstance3D
 ## Builds a quad-strip water mesh along a RiverPath polyline.

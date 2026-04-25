@@ -249,7 +249,7 @@ func _compute_layout() -> void:
 		var target: Vector2 = _center
 		if i < path_targets.size() and path_targets[i] != Vector3.ZERO:
 			target = Vector2(path_targets[i].x, path_targets[i].z)
-		var polyline: PackedVector2Array = _build_curved_path(edge, target, path_rng)
+		var polyline: PackedVector2Array = MapGenUtils.build_curved_path(edge, target, path_rng)
 		_path_polylines.append(polyline)
 
 	# Extra path segments (branches, shortcuts)
@@ -257,7 +257,7 @@ func _compute_layout() -> void:
 		var ep: Vector4 = extra_paths[i]
 		var from := Vector2(ep.x, ep.y)
 		var to := Vector2(ep.z, ep.w)
-		var polyline: PackedVector2Array = _build_curved_path(from, to, path_rng)
+		var polyline: PackedVector2Array = MapGenUtils.build_curved_path(from, to, path_rng)
 		_path_polylines.append(polyline)
 
 	# Collect junction points (endpoints where paths converge)
@@ -569,7 +569,7 @@ func _generate_river() -> void:
 		end = Vector3(w - 2.0, 0, river_rng.randf_range(d * 0.3, d * 0.7))
 
 	# Build curved polyline for the river (dense — 1 point per unit for precise carving)
-	var raw_polyline: PackedVector2Array = _build_curved_path(
+	var raw_polyline: PackedVector2Array = MapGenUtils.build_curved_path(
 		Vector2(start.x, start.z), Vector2(end.x, end.z), river_rng)
 	# Subdivide to get ~1 point per world unit
 	var polyline := PackedVector2Array()
@@ -1123,7 +1123,7 @@ func _generate_encounters() -> void:
 
 		# Editor gizmo: colored sphere + label
 		if Engine.is_editor_hint():
-			EditorGizmoBuilder.build_enemy_gizmo(marker, enc_path, color, enemy_patrol_distance)
+			EditorGizmoBuilder.build_enemy_gizmo(marker, enc_path, color)
 
 		_ao(marker, parent)
 		placed += 1

@@ -5,7 +5,10 @@
 # Debug logs (generated at runtime)
 debug_log.txt
 battle_log.txt
-tools/map_transition_log.txt
+tools/*_log.txt
+
+# Generated tool caches
+tools/wall_grid.bin
 
 # OS generated files
 .DS_Store

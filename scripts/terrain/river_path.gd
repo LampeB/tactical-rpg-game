@@ -1,3 +1,4 @@
+@tool
 class_name RiverPath
 extends Resource
 ## Stores a single river's path as a polyline with per-point width.
