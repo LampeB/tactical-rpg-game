@@ -2,8 +2,10 @@
 .godot/
 *.translation
 
-# Debug log (generated at runtime)
+# Debug logs (generated at runtime)
 debug_log.txt
+battle_log.txt
+tools/map_transition_log.txt
 
 # OS generated files
 .DS_Store
@@ -12,6 +14,7 @@ Thumbs.db
 # Vendor asset packs (large third-party downloads)
 temp_sprites/
 assets/3D/
+assets/import/
 
 # MCP config (contains API keys)
 .mcp.json
