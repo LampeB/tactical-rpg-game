@@ -55,6 +55,7 @@ const _MapParticleEmitter := preload("res://scripts/terrain/map_particle_emitter
 @export_range(0.0, 3.0) var tree_density: float = 1.0
 @export_range(0.0, 3.0) var undergrowth_density: float = 1.0
 @export_range(2.0, 8.0) var tree_min_spacing: float = 3.5
+@export_range(0.25, 4.0) var prop_scale_multiplier: float = 1.0  ## Multiplies trees/undergrowth/rocks scale
 
 # ─── Inspector: Connections & Paths ─────────────────────────────────────────
 @export_group("Connections")
@@ -875,7 +876,7 @@ func _generate_trees() -> void:
 			continue
 
 		var tree: Node3D = scene.instantiate()
-		var s: float = tree_rng.randf_range(tree_def["min_s"] as float, tree_def["max_s"] as float)
+		var s: float = tree_rng.randf_range(tree_def["min_s"] as float, tree_def["max_s"] as float) * prop_scale_multiplier
 		tree.scale = Vector3(s, s, s)
 		tree.rotation.y = tree_rng.randf() * TAU
 
@@ -959,7 +960,7 @@ func _generate_undergrowth() -> void:
 			continue
 
 		var obj: Node3D = scene.instantiate()
-		var s: float = ug_rng.randf_range(def["min_s"] as float, def["max_s"] as float)
+		var s: float = ug_rng.randf_range(def["min_s"] as float, def["max_s"] as float) * prop_scale_multiplier
 		obj.scale = Vector3(s, s, s)
 		obj.rotation.y = ug_rng.randf() * TAU
 
@@ -1019,7 +1020,7 @@ func _generate_props() -> void:
 			if not rock_scene:
 				continue
 			var rock: Node3D = rock_scene.instantiate()
-			var s: float = prop_rng.randf_range(0.6, 1.5)
+			var s: float = prop_rng.randf_range(0.6, 1.5) * prop_scale_multiplier
 			rock.scale = Vector3(s, s, s)
 			rock.rotation.y = prop_rng.randf() * TAU
 			var h: float = _sh(rx, rz)

@@ -10,6 +10,10 @@ tools/*_log.txt
 # Generated tool caches
 tools/wall_grid.bin
 
+# Local test scenes (often bloated by Generate All; never commit)
+scenes/maps/*_test.tscn
+scenes/maps/*_ortho_test.tscn
+
 # OS generated files
 .DS_Store
 Thumbs.db

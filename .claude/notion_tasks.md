@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 304 -->
-<\!-- Last updated: 2026-04-08 (main menu rework) -->
+<\!-- Total tasks: 324 (Todo: 32, Done: 242, OnHold: 8, Canceled: 42) -->
+<\!-- Last updated: 2026-04-27 (tactics-hub pivot: cancelled 15 obsolete exploration tasks, added 10 hub/mission tasks) -->
 
 ## Prerequisites
 
@@ -11,11 +11,15 @@
 |---|---|
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
+| MissionDatabase autoload (scans data/missions/) | 34f7700f-d0fb-8109-9fa6-c0ca12306837 |
+| Mission unlock conditions logic (chapter + prereqs + flags evaluator) | 34f7700f-d0fb-81d4-83c7-e20dd059b1e7 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Asset folder reorganization + centralized AssetPaths | 3357700f-d0fb-8103-a1f7-d0a4233f3280 |
+| Hub scene framework (HubScene with NPC menu navigation) | 34f7700f-d0fb-81ce-a05e-ff441531e0a6 |
+| MissionData resource (mission definition) | 34f7700f-d0fb-819f-8cba-f5825ccdb5ba |
 | Chest opened state persistence (story flags) | 3147700f-d0fb-8144-b4f2-c5a86a55c8d5 |
 | Create town area maps (Willowbrook starter town + Forest Clearing) | 3147700f-d0fb-813e-877a-d3243e44be13 |
 | Quest EventBus integration (quest signals) | 3147700f-d0fb-81ec-8e9e-c87c73daa4e3 |
@@ -49,10 +53,10 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Battle → hub return flow (rewards + completion tracking) | 34f7700f-d0fb-81d2-8fe3-f605a60e8cb3 |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic enemy respawning system | 3477700f-d0fb-81a7-bc85-c28fa6540caa |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
-| Patrol path system for roaming enemies | 3477700f-d0fb-8104-8ba9-d793b9ed73c9 |
 
 ### Done
 | Name | Notion ID |
@@ -83,6 +87,11 @@
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
 | Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
+
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Patrol path system for roaming enemies | 3477700f-d0fb-8104-8ba9-d793b9ed73c9 |
 
 ## Items
 
@@ -145,12 +154,14 @@
 | INV-8: Item displacement to stash | 3377700f-d0fb-81a2-9bcc-df35ebd5377c |
 | INV-9: Clean up debug logs and dead code | 3377700f-d0fb-8134-ad77-eecdbc016220 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
+| Mission briefing screen (mission detail + start button) | 34f7700f-d0fb-810f-83a7-d8c026c7d253 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
 ### Done
 | Name | Notion ID |
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
+| Mission Board UI (list available missions) | 34f7700f-d0fb-8126-b6b9-eff3b77e0cc3 |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
 | Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
@@ -207,13 +218,9 @@
 | Name | Notion ID |
 |---|---|
 | 3D lighting system (DirectionalLight, ambient, per-zone lighting profiles) | 31a7700f-d0fb-8145-a7c2-ef8d8cde6072 |
+| Encounter battle map variants (5-8 small static backgrounds) | 34f7700f-d0fb-8177-a385-e380baffcae9 |
 | Expand passive skill tree (PoE-style, 1000-1500 nodes) | 3147700f-d0fb-8186-a0b1-d7f151d23b39 |
-| Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
-| Fog profiles per biome (BiomeFogProfile resource) | 3477700f-d0fb-8117-af69-d4cbe9419154 |
-| Modular quest/event trigger system for maps | 3477700f-d0fb-8164-98fb-c6d84fa1396f |
-| Weather system (rain, snow, wind intensity) | 3477700f-d0fb-81a3-a6ec-e1a3cd8b6207 |
-| Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
-| Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
+| Multi-hub system + travel UI (3-5 hubs across the game) | 34f7700f-d0fb-81c5-a0c2-ed34ca69f130 |
 
 ### Done
 | Name | Notion ID |
@@ -264,18 +271,23 @@
 | Better water visuals (animated shader, transparency, reflections, waves) | 3217700f-d0fb-8151-b808-ea6b486dcc33 |
 | Complex NPC behavior (pathfinding, schedules, interactions, not just circular wandering) | 3217700f-d0fb-8127-92fa-cb86bce17ec3 |
 | Enemy aggro system (monsters chase player when close enough) | 3217700f-d0fb-8192-8bff-c03350d5630d |
+| Fixed map system (editable, different placeable elements from DB) | 3147700f-d0fb-81e1-bb8b-efcc06f8f395 |
+| Fog profiles per biome (BiomeFogProfile resource) | 3477700f-d0fb-8117-af69-d4cbe9419154 |
+| Modular quest/event trigger system for maps | 3477700f-d0fb-8164-98fb-c6d84fa1396f |
+| Placeable fireflies (light at night, invisible during day) | 31e7700f-d0fb-8192-9f97-e4a5945f0c73 |
+| Torch and point light sources for caves/dungeons (OmniLight3D with flicker) | 31a7700f-d0fb-8124-97da-dfb58099b239 |
 | Voxel Phase 1: VoxelChunk with greedy meshing (16x16x16 chunks, face culling, quad merging) | 3217700f-d0fb-81f0-aa48-f23f133f2509 |
 | Voxel Phase 2: VoxelTerrain chunk manager (loading, culling, camera distance) | 3217700f-d0fb-8169-a991-fb61a97e4db2 |
 | Voxel Phase 3: VoxelMapData resource and MapLoader integration | 3217700f-d0fb-819e-ad44-c28b33c98060 |
 | Voxel Phase 5: Water shader system (animated waves, transparency, reflections) | 3217700f-d0fb-81cf-a027-c0c179306f22 |
 | Voxel Phase 6: Terrain texturing (triplanar shader, texture atlas) | 3217700f-d0fb-816b-b49b-cdbe27308f55 |
+| Weather system (rain, snow, wind intensity) | 3477700f-d0fb-81a3-a6ec-e1a3cd8b6207 |
 
 ## Audio
 
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Footstep sounds on overworld (terrain-aware, walk/sprint) | 3217700f-d0fb-8199-b95a-c20479fb2250 |
 
 ### Done
 | Name | Notion ID |
@@ -289,11 +301,17 @@
 | Sound effects for UI interactions (clicks, navigation, drag & drop) | 3147700f-d0fb-819d-841c-c48673a23278 |
 | Victory and defeat jingles | 3147700f-d0fb-810e-b701-f87c98675251 |
 
+### Canceled
+| Name | Notion ID |
+|---|---|
+| Footstep sounds on overworld (terrain-aware, walk/sprint) | 3217700f-d0fb-8199-b95a-c20479fb2250 |
+
 ## Story
 
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Story chapter system (chapter tracking + advancement) | 34f7700f-d0fb-81df-af43-e61e325281ea |
 
 ### OnHold
 | Name | Notion ID |
@@ -327,6 +345,7 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
+| Set up GUT test framework + starter test suite | 3527700f-d0fb-817d-9963-e83ebe0cfec4 |
 
 ### OnHold
 | Name | Notion ID |
@@ -362,13 +381,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Biome-aware generation system (generalize forest generator) | 3477700f-d0fb-8116-bc02-d46a2df6e9ec |
-| Building generator from modular pieces | 3477700f-d0fb-814e-857d-fd99e88f2491 |
-| Cave/indoor map generation system | 3477700f-d0fb-819f-b26e-fb4f61a2b7e2 |
-| Generator uses PropScatter for MultiMesh vegetation | 3477700f-d0fb-813c-ad3a-cb3a4c327eab |
-| Map encounter editor (place and edit encounters on map) | 3477700f-d0fb-8128-a5ef-e69f30660157 |
-| Scalable map generator: MultiMesh vegetation + chunk streaming | 3477700f-d0fb-8195-aafa-c8d52f25b7c7 |
-| Vegetation density mask for per-vertex prop density control | 3477700f-d0fb-81f4-a05f-fba254810bcd |
 
 ### Done
 | Name | Notion ID |
@@ -384,14 +396,21 @@
 ### Canceled
 | Name | Notion ID |
 |---|---|
+| Biome-aware generation system (generalize forest generator) | 3477700f-d0fb-8116-bc02-d46a2df6e9ec |
+| Building generator from modular pieces | 3477700f-d0fb-814e-857d-fd99e88f2491 |
 | Canvas interaction (select, place, drag, delete) | 3147700f-d0fb-8193-af8b-fdbfba5c26ef |
 | Canvas rendering (grid, elements by type, spawn marker) | 3147700f-d0fb-8188-b1f9-cc2fec86fa6b |
+| Cave/indoor map generation system | 3477700f-d0fb-819f-b26e-fb4f61a2b7e2 |
 | Default overworld map (export current overworld to MapData) | 3147700f-d0fb-813a-ac29-f0090ea6d61b |
+| Generator uses PropScatter for MultiMesh vegetation | 3477700f-d0fb-813c-ad3a-cb3a4c327eab |
 | Main menu button integration for map editor | 3147700f-d0fb-81e1-93d6-ecc0151abd58 |
 | Map editor save/load (ResourceSaver, MapDatabase.reload()) | 3147700f-d0fb-8139-ad92-ef4e504e0dcf |
 | Map editor scene layout (.tscn) | 3147700f-d0fb-8132-a958-fa6c3c4904c7 |
+| Map encounter editor (place and edit encounters on map) | 3477700f-d0fb-8128-a5ef-e69f30660157 |
 | Map list panel (CRUD, search, dirty tracking) | 3147700f-d0fb-8185-baad-fc2ffe8645d7 |
 | Property panel (map properties + per-element-type sections) | 3147700f-d0fb-8136-a690-d3203f860d02 |
+| Scalable map generator: MultiMesh vegetation + chunk streaming | 3477700f-d0fb-8195-aafa-c8d52f25b7c7 |
+| Vegetation density mask for per-vertex prop density control | 3477700f-d0fb-81f4-a05f-fba254810bcd |
 | Voxel Phase 4: 3D brush system for map editor (box/sphere, XYZ dimensions) | 3217700f-d0fb-811e-a902-df897ba5c3dd |
 | Voxel Phase 7: Map migration tool (convert 1x1 GridMap maps to 0.25 voxel format) | 3217700f-d0fb-8109-9e35-ca0cb7701fa8 |
 
@@ -400,16 +419,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Gen Overhaul P1: Beach strip enhancement (wider coast, sand splatmap) | PENDING-NOTION-SYNC |
-| Gen Overhaul P1: Slope-based cliff detection and splatmap painting | PENDING-NOTION-SYNC |
-| Gen Overhaul P1: Terrain erosion (thermal + hydraulic post-processing) | PENDING-NOTION-SYNC |
-| Gen Overhaul P3: Roads and paths (A* pathfinding, dirt splatmap, bridges) | PENDING-NOTION-SYNC |
-| Gen Overhaul P4: Named regions and encounter zone generation | PENDING-NOTION-SYNC |
-| Gen Overhaul P4: Points of interest (dungeons, ruins, camps, shrines) | PENDING-NOTION-SYNC |
-| Gen Overhaul P5: Farmland around towns | PENDING-NOTION-SYNC |
-| Gen Overhaul P5: Intelligent prop distribution (slope, water, road awareness) | PENDING-NOTION-SYNC |
-| Gen Overhaul P6: Map variety profiles (island, valley, peninsula, etc.) | PENDING-NOTION-SYNC |
-| Gen Overhaul P7: Overworld integration (town NPCs, encounters, enemies) | PENDING-NOTION-SYNC |
 
 ### Done
 | Name | Notion ID |

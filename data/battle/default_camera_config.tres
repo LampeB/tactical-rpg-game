@@ -8,7 +8,7 @@ script = ExtResource("2")
 preset_name = "Home"
 position_offset = Vector3(-7.0, 4.0, 2.2)
 look_offset = Vector3(2.0, 0.6, -0.3)
-fov = 40.0
+fov = 55.0
 transition_duration = 0.3
 transition_type = 0
 
@@ -17,7 +17,7 @@ script = ExtResource("2")
 preset_name = "Player Turn"
 position_offset = Vector3(-3.5, 2.5, 1.5)
 look_offset = Vector3(3.0, 0.5, 0.0)
-fov = 40.0
+fov = 55.0
 transition_duration = 0.6
 transition_type = 0
 
@@ -26,7 +26,7 @@ script = ExtResource("2")
 preset_name = "Attack"
 position_offset = Vector3(-2.0, 1.8, 2.0)
 look_offset = Vector3(2.5, 0.5, 0.0)
-fov = 45.0
+fov = 55.0
 transition_duration = 0.4
 transition_type = 0
 
@@ -35,7 +35,7 @@ script = ExtResource("2")
 preset_name = "Skill"
 position_offset = Vector3(-1.0, 3.5, 0.0)
 look_offset = Vector3(1.0, 0.0, 0.0)
-fov = 50.0
+fov = 60.0
 transition_duration = 0.5
 transition_type = 0
 
@@ -44,7 +44,7 @@ script = ExtResource("2")
 preset_name = "Item"
 position_offset = Vector3(-3.0, 2.0, 1.0)
 look_offset = Vector3(0.0, 0.5, 0.0)
-fov = 42.0
+fov = 55.0
 transition_duration = 0.4
 transition_type = 0
 
@@ -53,7 +53,7 @@ script = ExtResource("2")
 preset_name = "Defend"
 position_offset = Vector3(-4.0, 2.0, 0.5)
 look_offset = Vector3(-1.0, 0.8, 0.0)
-fov = 38.0
+fov = 50.0
 transition_duration = 0.3
 transition_type = 0
 
@@ -62,7 +62,7 @@ script = ExtResource("2")
 preset_name = "Flee"
 position_offset = Vector3(-6.0, 3.0, 3.0)
 look_offset = Vector3(-2.0, 0.5, 0.0)
-fov = 50.0
+fov = 60.0
 transition_duration = 0.5
 transition_type = 0
 
@@ -71,7 +71,7 @@ script = ExtResource("2")
 preset_name = "Victory"
 position_offset = Vector3(0.0, 3.0, 6.0)
 look_offset = Vector3(0.0, 0.5, 0.0)
-fov = 45.0
+fov = 55.0
 transition_duration = 1.0
 transition_type = 1
 
@@ -80,7 +80,7 @@ script = ExtResource("2")
 preset_name = "Defeat"
 position_offset = Vector3(0.0, 5.0, 0.0)
 look_offset = Vector3(0.0, 0.0, 0.0)
-fov = 35.0
+fov = 45.0
 transition_duration = 1.5
 transition_type = 0
 

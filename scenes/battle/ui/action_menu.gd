@@ -144,12 +144,20 @@ func show_disabled() -> void:
 
 func _on_attack() -> void:
 	category_selected.emit(Enums.CombatAction.ATTACK)
-	_hide_all_sub()
-	_show_action_buttons(false)
 
 	var weapons: Array = _current_entity.get_equipped_weapons() if _current_entity else []
 
-	# Always show weapon list (even with 1 weapon)
+	# UX improvement: skip the weapon-list step when there's only one option.
+	# Empty list also short-circuits to a null-weapon (bare-fist) attack so the
+	# player never gets stuck staring at an empty submenu.
+	if weapons.size() <= 1:
+		var chosen: ItemData = weapons[0] if weapons.size() == 1 else null
+		weapon_attack_chosen.emit(chosen)
+		return
+
+	# Multi-weapon: show the list
+	_hide_all_sub()
+	_show_action_buttons(false)
 	_build_weapon_list(weapons)
 	_skill_list_scroll.visible = true
 	_back_btn.visible = true
