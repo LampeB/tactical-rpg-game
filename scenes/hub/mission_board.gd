@@ -4,12 +4,9 @@ extends Control
 ## MVP: no filtering by chapter / unlock conditions yet, all missions shown.
 
 const MISSIONS_DIR := "res://data/missions/"
-## All missions currently use the same battle map. Later: MissionData.battle_map_id.
-const BATTLE_MAP_ID := "forest_clearing"
+## Path to the rich generator scene used as the battle background.
+## (Map id + arena center live in MissionLauncher so they stay testable.)
 const BATTLE_SCENE_PATH := "res://scenes/maps/forest_clearing.tscn"
-## Roughly the centre of the forest_clearing scene's playable area.
-## Camera will be positioned to look at this point during battle.
-const BATTLE_ARENA_CENTER := Vector3(128.0, 3.0, 145.0)
 
 @onready var _mission_list: VBoxContainer = $VBox/Scroll/MissionList
 @onready var _back_button: Button = $VBox/BackButton
@@ -76,23 +73,19 @@ func _on_mission_selected(mission: MissionData) -> void:
 			# spawned props). Battle adds the bg to its viewport, then we run gen.
 			bg.tree_entered.connect(_run_forest_generator.bind(bg), CONNECT_ONE_SHOT)
 			GameManager.preloaded_battle_bg = bg
-			GameManager.preloaded_battle_arena_center = BATTLE_ARENA_CENTER
+			GameManager.preloaded_battle_arena_center = MissionLauncher.BATTLE_ARENA_CENTER
 			GameManager.preloaded_battle_arena_rotation = 0.0
 		else:
 			push_warning("[MissionBoard] Failed to load %s as PackedScene" % BATTLE_SCENE_PATH)
 	else:
 		push_warning("[MissionBoard] Battle scene not found at %s" % BATTLE_SCENE_PATH)
 
+	# Build the data dict via the helper so the structure is unit-testable.
 	# Battle reads grid_inventories from the scene data, NOT from GameManager.party
 	# directly. Without this, equipped weapons are missing during the fight.
-	var grid_inventories: Dictionary = GameManager.party.grid_inventories if GameManager.party else {}
-
-	SceneManager.push_scene("res://scenes/battle/battle.tscn", {
-		"encounter": encounter,
-		"map_id": BATTLE_MAP_ID,
-		"fight_position": BATTLE_ARENA_CENTER,
-		"grid_inventories": grid_inventories,
-	})
+	var party_inv: Dictionary = GameManager.party.grid_inventories if GameManager.party else {}
+	var data: Dictionary = MissionLauncher.build_battle_data(mission, encounter, party_inv)
+	SceneManager.push_scene("res://scenes/battle/battle.tscn", data)
 
 
 func _on_back_pressed() -> void:

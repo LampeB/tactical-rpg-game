@@ -342,11 +342,6 @@
 
 ## QoL
 
-### In Progress
-| Name | Notion ID |
-|---|---|
-| Set up GUT test framework + starter test suite | 3527700f-d0fb-817d-9963-e83ebe0cfec4 |
-
 ### Todo
 | Name | Notion ID |
 |---|---|
@@ -360,6 +355,7 @@
 | Name | Notion ID |
 |---|---|
 | Batch sell items | 3147700f-d0fb-8156-8cd8-e5ddc36aaa8a |
+| Set up GUT test framework + starter test suite | 3527700f-d0fb-817d-9963-e83ebe0cfec4 |
 | Colorblind-friendly item rarity palette (alternate color scheme in settings) | 31a7700f-d0fb-81eb-b63a-eb24fa14c8ab |
 | Persist audio settings across sessions (save/load volumes to disk) | 3217700f-d0fb-811f-8fff-f9cff9730f9a |
 | Font size accessibility option in settings | 31a7700f-d0fb-819a-a559-e03b7a9161b8 |
