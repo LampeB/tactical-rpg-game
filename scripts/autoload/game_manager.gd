@@ -88,7 +88,7 @@ func new_game() -> void:
 		"cloth_gloves_common",       # 1x1 shape (gloves slot)
 		"leather_legs_common",       # 1x2 shape (legs slot)
 		"cloth_boots_common",        # 1x1 shape (boots slot)
-		"skeleton_arm",       # 1x3 shape (gloves slot, +1 hand slot!)
+		"skeleton_arm_common", # 1x3 shape (gloves slot, +1 hand slot!)
 
 		# Elemental gems - add elemental damage
 		"fire_gem_common",
