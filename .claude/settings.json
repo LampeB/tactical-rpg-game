@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "hooks": {
+        "Stop": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "shell": "powershell",
+                        "command": "& '.\\tools\\run_tests.ps1'",
+                        "timeout": 120,
+                        "statusMessage": "Running GUT test suite..."
+                    }
+                ]
+            }
+        ]
+    }
+}

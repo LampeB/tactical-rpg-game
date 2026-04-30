@@ -342,10 +342,14 @@
 
 ## QoL
 
-### Todo
+### In Progress
 | Name | Notion ID |
 |---|---|
 | Set up GUT test framework + starter test suite | 3527700f-d0fb-817d-9963-e83ebe0cfec4 |
+
+### Todo
+| Name | Notion ID |
+|---|---|
 
 ### OnHold
 | Name | Notion ID |

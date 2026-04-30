@@ -1,3 +1,55 @@
+# Tests
+
+Two test suites coexist in this directory:
+
+1. **GUT-based tests** (current direction) — under `unit/` and `integration/`. Use the GUT addon (`addons/gut/`) for assertions and the test runner. Cover hub flow, mission data, encounter generation, resource integrity, etc.
+2. **Custom hybrid-damage tests** (legacy, kept for reference) — `test_hybrid_damage_system.gd`, `test_integration_combat.gd`, `test_all.tscn`, `run_all_tests.gd`. Hand-rolled framework predating GUT. Still runnable via the F6 instructions further down. Migrating these to GUT is a future cleanup.
+
+---
+
+## GUT test suite
+
+### Layout
+```
+tests/
+├── unit/                                       # Pure-function / resource tests
+│   ├── test_resource_integrity.gd              # All .tres files load
+│   ├── test_random_encounter_generator.gd      # Encounter generation rules
+│   └── test_mission_data.gd                    # MissionData resources valid
+├── integration/                                # Multi-system tests (autoloads, scenes)
+│   └── test_new_game_state.gd                  # GameManager.new_game state
+└── .gutconfig.json                             # Default GUT runner config
+```
+
+### Running (editor)
+1. Open Godot → bottom dock → click the **GUT** tab (visible once the plugin is enabled)
+2. Click **Run All**, or pick a specific file/test
+
+### Running (CLI / CI-friendly)
+```powershell
+.\tools\run_tests.ps1
+```
+Set `$env:GODOT_BIN` if `godot` isn't on PATH:
+```powershell
+$env:GODOT_BIN = "C:\Path\To\Godot_v4.6-stable_win64.exe"
+.\tools\run_tests.ps1
+```
+
+### Writing GUT tests
+```gdscript
+extends GutTest
+
+func test_my_thing():
+    assert_eq(1 + 1, 2, "math should work")
+```
+Common assertions: `assert_eq`, `assert_ne`, `assert_true/false`, `assert_gt/gte/lt/lte`, `assert_between`, `assert_not_null`, `fail_test("reason")`. Hooks: `before_each`, `after_each`, `before_all`, `after_all`. Full docs: <https://gut.readthedocs.io/>.
+
+---
+
+## Legacy hybrid damage suite
+
+> Predates GUT. Kept until those tests are migrated.
+
 # Hybrid Damage System Tests
 
 Automated test suite for validating the damage system refactoring.
