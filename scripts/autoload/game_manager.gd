@@ -11,11 +11,6 @@ var completed_missions: Array[String] = []
 var is_game_started: bool = false
 var current_location_name: String = "Overworld"
 var current_map_id: String = "forest_clearing"  ## Fallback id for battle background lookup
-var current_heightmap_data: Resource = null  ## Transient HeightmapData for battle backgrounds (not saved)
-
-## Preloaded battle background (generated in overworld when player nears a battle area)
-## Cache of instantiated map scene roots (Node3D) — reparented instead of re-instantiated.
-var cached_map_nodes: Dictionary = {}  # map_scene_path → Node3D
 
 var scene_battle_areas: Array = []  ## BattleAreaData from generator scenes (transient)
 var preloaded_battle_bg: Node3D = null
