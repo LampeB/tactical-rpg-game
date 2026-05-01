@@ -154,7 +154,6 @@
 | INV-8: Item displacement to stash | 3377700f-d0fb-81a2-9bcc-df35ebd5377c |
 | INV-9: Clean up debug logs and dead code | 3377700f-d0fb-8134-ad77-eecdbc016220 |
 | Make it possible to use sprites for every UI element | 3147700f-d0fb-8125-924b-dd89c0d6c368 |
-| Mission briefing screen (mission detail + start button) | 34f7700f-d0fb-810f-83a7-d8c026c7d253 |
 | Skill visual effects / particles | 3147700f-d0fb-81ca-b249-d2ef0b18fe13 |
 
 ### Done
@@ -162,6 +161,7 @@
 |---|---|
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
 | Mission Board UI (list available missions) | 34f7700f-d0fb-8126-b6b9-eff3b77e0cc3 |
+| Mission briefing screen (mission detail + start button) | 34f7700f-d0fb-810f-83a7-d8c026c7d253 |
 | Add status effect proc roll results to battle log | 3147700f-d0fb-8185-87e1-f4c60ca022cd |
 | Buff/debuff UI indicators in battle (icons + remaining turns on entity bars) | 31e7700f-d0fb-81fe-9102-dd1f290f3df0 |
 | Brightness/gamma setting in graphics options | 31a7700f-d0fb-81bd-97d2-c12bd9665a8e |
