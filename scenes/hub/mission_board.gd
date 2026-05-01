@@ -11,10 +11,17 @@ const BATTLE_SCENE_PATH := "res://scenes/maps/forest_clearing.tscn"
 @onready var _mission_list: VBoxContainer = $VBox/Scroll/MissionList
 @onready var _back_button: Button = $VBox/BackButton
 
+## Mission whose battle is currently in flight. Set in _on_mission_selected,
+## consumed in _on_combat_ended. Null at all other times.
+var _active_mission: MissionData = null
+
 
 func _ready() -> void:
 	_back_button.pressed.connect(_on_back_pressed)
 	_populate_missions()
+	# Connect once for the lifetime of the scene (persists while stashed).
+	if not EventBus.combat_ended.is_connected(_on_combat_ended):
+		EventBus.combat_ended.connect(_on_combat_ended)
 
 
 func _populate_missions() -> void:
@@ -85,7 +92,29 @@ func _on_mission_selected(mission: MissionData) -> void:
 	# directly. Without this, equipped weapons are missing during the fight.
 	var party_inv: Dictionary = GameManager.party.grid_inventories if GameManager.party else {}
 	var data: Dictionary = MissionLauncher.build_battle_data(mission, encounter, party_inv)
+	_active_mission = mission  # remembered for the combat_ended handler
 	SceneManager.push_scene("res://scenes/battle/battle.tscn", data)
+
+
+func _on_combat_ended(victory: bool, _defeated_ids: Array) -> void:
+	## Receives the EventBus.combat_ended signal fired by Battle on win/loss.
+	## Applies mission completion + xp via the pure helper.
+	if _active_mission == null:
+		return  # Battle wasn't launched from this Mission Board (e.g., overworld encounter)
+	var outcome: Dictionary = MissionLauncher.compute_battle_outcome(
+		_active_mission, victory, GameManager.completed_missions
+	)
+	if outcome.complete:
+		GameManager.mark_mission_complete(_active_mission.id)
+		if outcome.xp_awarded > 0:
+			# XP system isn't wired yet — store as a story flag for later consumption.
+			GameManager.set_flag(
+				"mission_%s_xp_awarded" % _active_mission.id, outcome.xp_awarded
+			)
+		DebugLogger.log_info("[MissionBoard] Mission '%s' complete (xp=%d)" % [
+			_active_mission.id, outcome.xp_awarded
+		], "MissionBoard")
+	_active_mission = null
 
 
 func _on_back_pressed() -> void:

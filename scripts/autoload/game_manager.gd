@@ -5,6 +5,9 @@ extends Node
 var party: Party
 var gold: int = 0
 var story_flags: Dictionary = {}
+## Mission ids the player has completed (set by mission_board on victory).
+## Used by Mission Board to filter / mark missions and by save system.
+var completed_missions: Array[String] = []
 var is_game_started: bool = false
 var current_location_name: String = "Overworld"
 var current_map_id: String = "example_overworld"
@@ -43,6 +46,7 @@ func new_game() -> void:
 	party = Party.new()
 	gold = Constants.STARTING_GOLD
 	story_flags.clear()
+	completed_missions.clear()
 	is_game_started = true
 
 	# Add starter characters
@@ -157,6 +161,19 @@ func get_flag(flag: String, default: Variant = false) -> Variant:
 
 func has_flag(flag: String) -> bool:
 	return story_flags.has(flag)
+
+
+# === Missions ===
+
+## Mark a mission as completed. Idempotent — repeated calls are no-ops.
+func mark_mission_complete(mission_id: String) -> void:
+	if mission_id == "" or mission_id in completed_missions:
+		return
+	completed_missions.append(mission_id)
+
+
+func is_mission_complete(mission_id: String) -> bool:
+	return mission_id in completed_missions
 
 
 func is_quest_done(quest_id: String) -> bool:

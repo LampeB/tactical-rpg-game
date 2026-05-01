@@ -101,6 +101,34 @@ func test_round_trip_preserves_is_game_started() -> void:
 		"is_game_started should be true after loading a real save")
 
 
+func test_round_trip_preserves_completed_missions() -> void:
+	GameManager.new_game()
+	GameManager.mark_mission_complete("mission_easy_01")
+	GameManager.mark_mission_complete("mission_medium_01")
+	SaveManager.save_to_slot(TEST_SLOT)
+
+	# Wipe before load to verify the save actually restores the list
+	GameManager.completed_missions.clear()
+	SaveManager.load_from_slot(TEST_SLOT)
+
+	assert_true(GameManager.is_mission_complete("mission_easy_01"))
+	assert_true(GameManager.is_mission_complete("mission_medium_01"))
+	assert_eq(GameManager.completed_missions.size(), 2,
+		"completed_missions should round-trip with exactly the saved entries")
+
+
+func test_round_trip_completed_missions_idempotent_on_double_load() -> void:
+	# Loading the same save twice shouldn't duplicate entries.
+	GameManager.new_game()
+	GameManager.mark_mission_complete("mission_easy_01")
+	SaveManager.save_to_slot(TEST_SLOT)
+
+	SaveManager.load_from_slot(TEST_SLOT)
+	SaveManager.load_from_slot(TEST_SLOT)
+	assert_eq(GameManager.completed_missions.size(), 1,
+		"Loading twice should still produce exactly 1 completed mission")
+
+
 # === Auto-save ===
 
 func test_auto_save_succeeds_when_game_started() -> void:

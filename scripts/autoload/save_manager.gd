@@ -2,7 +2,7 @@ extends Node
 ## Handles serialization/deserialization of game state to/from JSON.
 ## Supports 5 manual save slots + 1 auto-save slot, each with a ring-buffer history.
 
-const SAVE_VERSION := 8
+const SAVE_VERSION := 9  # +completed_missions
 const MAX_SLOTS := 5
 const MAX_HISTORY := 5
 const AUTO_HISTORY := 3
@@ -337,6 +337,7 @@ func _serialize() -> Dictionary:
 		"playtime_seconds": _playtime_accumulator,
 		"gold": GameManager.gold,
 		"story_flags": GameManager.story_flags.duplicate(),
+		"completed_missions": Array(GameManager.completed_missions),
 		"roster": party.roster.keys(),
 		"squad": Array(party.squad),
 		"stash": _serialize_stash(party.stash),
@@ -418,6 +419,12 @@ func _deserialize(data: Dictionary) -> void:
 	var location: String = data.get("location", "Overworld")
 	var map_id: String = data.get("map_id", "example_map")
 	GameManager.restore_game_state(party, int(data.get("gold", 0)), flags, location, map_id)
+
+	# Mission completion list (added in SAVE_VERSION 9; default to empty for older saves).
+	var saved_missions: Array = data.get("completed_missions", [])
+	GameManager.completed_missions.clear()
+	for m in saved_missions:
+		GameManager.mark_mission_complete(str(m))
 
 	# Restore overworld position and step count via setter API
 	var pos_data: Dictionary = data.get("overworld_position", {})

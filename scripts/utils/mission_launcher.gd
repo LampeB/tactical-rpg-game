@@ -35,3 +35,31 @@ static func build_battle_data(
 		"fight_position": BATTLE_ARENA_CENTER,
 		"grid_inventories": party_grid_inventories,
 	}
+
+
+## Computes what should change in GameManager when a mission's battle ends.
+## Returns a dict with:
+##   - "complete": bool   — true if this mission should be marked completed now
+##   - "xp_awarded": int  — XP to record (0 if no reward / already claimed)
+## Caller applies the changes via GameManager.mark_mission_complete() and
+## GameManager.set_flag(). Pure (no autoload access) so it's unit-testable.
+##
+## Idempotent: if `already_completed` already contains the mission id,
+## returns no-op (complete=false, xp_awarded=0). Repeating a finished mission
+## should not re-award XP — bookkeeping responsibility lives with the caller
+## via the already_completed input.
+static func compute_battle_outcome(
+	mission: MissionData,
+	victory: bool,
+	already_completed: Array,
+) -> Dictionary:
+	if mission == null:
+		return {"complete": false, "xp_awarded": 0}
+	if not victory:
+		return {"complete": false, "xp_awarded": 0}
+	if mission.id in already_completed:
+		return {"complete": false, "xp_awarded": 0}
+	return {
+		"complete": true,
+		"xp_awarded": maxi(mission.xp_reward, 0),
+	}

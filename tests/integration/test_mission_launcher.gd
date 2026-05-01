@@ -77,3 +77,42 @@ func test_handles_missing_party_with_empty_dict() -> void:
 		assert_true(data.has(key), "Missing key %s when party_grid_inventories is empty" % key)
 	assert_eq(data["grid_inventories"], {},
 		"Empty inventories dict should pass through (battle handles missing player gear)")
+
+
+# === compute_battle_outcome ===
+
+func test_outcome_victory_first_time_marks_complete_and_awards_xp() -> void:
+	var outcome: Dictionary = _MissionLauncher.compute_battle_outcome(_mission, true, [])
+	assert_true(outcome.complete, "First-time victory should mark complete=true")
+	assert_eq(outcome.xp_awarded, _mission.xp_reward, "XP awarded should equal mission.xp_reward")
+
+
+func test_outcome_defeat_returns_no_completion() -> void:
+	var outcome: Dictionary = _MissionLauncher.compute_battle_outcome(_mission, false, [])
+	assert_false(outcome.complete, "Defeat should not mark mission complete")
+	assert_eq(outcome.xp_awarded, 0, "Defeat should award 0 XP")
+
+
+func test_outcome_already_completed_no_op() -> void:
+	# Replaying a finished mission shouldn't re-mark it or re-award XP.
+	var outcome: Dictionary = _MissionLauncher.compute_battle_outcome(
+		_mission, true, [_mission.id]
+	)
+	assert_false(outcome.complete, "Already-completed mission should not complete again")
+	assert_eq(outcome.xp_awarded, 0, "Already-completed mission should not re-award XP")
+
+
+func test_outcome_null_mission_returns_no_op() -> void:
+	# Defensive: if somehow called with no mission, must not crash.
+	var outcome: Dictionary = _MissionLauncher.compute_battle_outcome(null, true, [])
+	assert_false(outcome.complete)
+	assert_eq(outcome.xp_awarded, 0)
+
+
+func test_outcome_handles_missions_in_array_with_other_ids() -> void:
+	# already_completed contains other ids — the test mission should still complete.
+	var outcome: Dictionary = _MissionLauncher.compute_battle_outcome(
+		_mission, true, ["other_mission_a", "other_mission_b"]
+	)
+	assert_true(outcome.complete,
+		"Mission not in already_completed should still complete on victory")
