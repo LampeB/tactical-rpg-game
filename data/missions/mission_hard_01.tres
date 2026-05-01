@@ -8,6 +8,7 @@ id = "mission_hard_01"
 display_name = "The Beast in the Woods"
 summary = "Something large and dangerous has been heard deep in the forest. Investigate."
 recommended_level = 5
+encounter_path = "res://data/encounters/encounter_minotaur.tres"
 enemy_count_min = 3
 enemy_count_max = 5
 gold_reward = 100

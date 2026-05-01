@@ -37,6 +37,31 @@ static func build_battle_data(
 	}
 
 
+## Resolves the EncounterData a mission should run.
+## - If mission.encounter_path is set and resolves to a valid EncounterData,
+##   loads + returns that resource (mission designers fight EXACTLY the
+##   roster they specified — no random spawn).
+## - Otherwise falls back to the random generator using the mission's
+##   enemy_count_min/max, display_name, and gold_reward.
+##
+## Each call returns a fresh EncounterData instance (or the loaded resource);
+## callers shouldn't mutate it expecting isolation across calls.
+static func resolve_encounter(mission: MissionData) -> EncounterData:
+	if mission == null:
+		return null
+	if mission.encounter_path != "" and ResourceLoader.exists(mission.encounter_path):
+		var loaded: Resource = load(mission.encounter_path)
+		if loaded is EncounterData:
+			return loaded as EncounterData
+		push_warning("[MissionLauncher] %s loaded but is not EncounterData — falling back to random" % mission.encounter_path)
+	return RandomEncounterGenerator.generate(
+		mission.enemy_count_min,
+		mission.enemy_count_max,
+		mission.display_name,
+		mission.gold_reward,
+	)
+
+
 ## Computes what should change in GameManager when a mission's battle ends.
 ## Returns a dict with:
 ##   - "complete": bool   — true if this mission should be marked completed now

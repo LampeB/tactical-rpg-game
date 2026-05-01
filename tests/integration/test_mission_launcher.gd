@@ -116,3 +116,51 @@ func test_outcome_handles_missions_in_array_with_other_ids() -> void:
 	)
 	assert_true(outcome.complete,
 		"Mission not in already_completed should still complete on victory")
+
+
+# === resolve_encounter ===
+
+func test_resolve_encounter_uses_fixed_path_when_set() -> void:
+	# mission_easy_01 ships with encounter_path set to the wolves encounter.
+	var encounter: EncounterData = _MissionLauncher.resolve_encounter(_mission)
+	assert_not_null(encounter)
+	assert_eq(encounter.id, "encounter_wolves",
+		"resolve_encounter should return the exact EncounterData referenced by mission.encounter_path")
+	# Wolf encounter has 2 wolves
+	assert_eq(encounter.enemies.size(), 2,
+		"Wolf encounter should have exactly 2 wolves — no random count")
+
+
+func test_resolve_encounter_falls_back_to_random_when_path_empty() -> void:
+	# Construct a mission with no encounter_path → must use random generator.
+	var m := MissionData.new()
+	m.id = "test_random_fallback"
+	m.display_name = "Test Random"
+	m.encounter_path = ""  # explicit empty
+	m.enemy_count_min = 2
+	m.enemy_count_max = 2
+	m.gold_reward = 0
+	m.xp_reward = 0
+	var enc: EncounterData = _MissionLauncher.resolve_encounter(m)
+	assert_not_null(enc, "Random fallback should produce an encounter")
+	assert_eq(enc.enemies.size(), 2,
+		"Random fallback must respect enemy_count_min == max")
+
+
+func test_resolve_encounter_returns_null_for_null_mission() -> void:
+	assert_null(_MissionLauncher.resolve_encounter(null),
+		"resolve_encounter(null) must not crash; should return null")
+
+
+func test_resolve_encounter_falls_back_when_path_invalid() -> void:
+	# encounter_path points at a nonexistent file → fall back to random generator
+	# rather than crashing the mission.
+	var m := MissionData.new()
+	m.id = "test_invalid_path"
+	m.display_name = "Test Invalid"
+	m.encounter_path = "res://data/encounters/this_file_does_not_exist.tres"
+	m.enemy_count_min = 1
+	m.enemy_count_max = 1
+	var enc: EncounterData = _MissionLauncher.resolve_encounter(m)
+	assert_not_null(enc, "Invalid path should fall through to random, not crash")
+	assert_gt(enc.enemies.size(), 0)

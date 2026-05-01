@@ -8,6 +8,7 @@ id = "mission_medium_01"
 display_name = "Bandit Camp Raid"
 summary = "Reports of a bandit camp threatening the trade routes. Clear them out."
 recommended_level = 3
+encounter_path = "res://data/encounters/encounter_bandits.tres"
 enemy_count_min = 2
 enemy_count_max = 4
 gold_reward = 50

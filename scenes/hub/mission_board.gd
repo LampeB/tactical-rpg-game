@@ -60,40 +60,11 @@ func _build_mission_button(mission: MissionData) -> Button:
 
 
 func _on_mission_selected(mission: MissionData) -> void:
-	var encounter: EncounterData = RandomEncounterGenerator.generate(
-		mission.enemy_count_min,
-		mission.enemy_count_max,
-		mission.display_name,
-		mission.gold_reward,
-	)
-	if not encounter:
-		push_error("[MissionBoard] Failed to generate random encounter for mission %s" % mission.id)
-		return
-
-	# Load the rich forest_clearing.tscn and run its @tool generator at runtime
-	# so trees/water/props are built fresh each battle (no need to save baked).
-	if ResourceLoader.exists(BATTLE_SCENE_PATH):
-		var scene: PackedScene = load(BATTLE_SCENE_PATH) as PackedScene
-		if scene:
-			var bg: Node3D = scene.instantiate() as Node3D
-			# Generator's _generate_all() needs the node in tree (to add_child for
-			# spawned props). Battle adds the bg to its viewport, then we run gen.
-			bg.tree_entered.connect(_run_forest_generator.bind(bg), CONNECT_ONE_SHOT)
-			GameManager.preloaded_battle_bg = bg
-			GameManager.preloaded_battle_arena_center = MissionLauncher.BATTLE_ARENA_CENTER
-			GameManager.preloaded_battle_arena_rotation = 0.0
-		else:
-			push_warning("[MissionBoard] Failed to load %s as PackedScene" % BATTLE_SCENE_PATH)
-	else:
-		push_warning("[MissionBoard] Battle scene not found at %s" % BATTLE_SCENE_PATH)
-
-	# Build the data dict via the helper so the structure is unit-testable.
-	# Battle reads grid_inventories from the scene data, NOT from GameManager.party
-	# directly. Without this, equipped weapons are missing during the fight.
-	var party_inv: Dictionary = GameManager.party.grid_inventories if GameManager.party else {}
-	var data: Dictionary = MissionLauncher.build_battle_data(mission, encounter, party_inv)
+	## Selecting a mission opens the briefing screen. Briefing handles the
+	## actual battle launch (Start button) so the player can review enemies
+	## and rewards first.
 	_active_mission = mission  # remembered for the combat_ended handler
-	SceneManager.push_scene("res://scenes/battle/battle.tscn", data)
+	SceneManager.push_scene("res://scenes/hub/mission_briefing.tscn", {"mission": mission})
 
 
 func _on_combat_ended(victory: bool, _defeated_ids: Array) -> void:

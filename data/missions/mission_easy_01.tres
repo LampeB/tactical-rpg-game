@@ -8,6 +8,7 @@ id = "mission_easy_01"
 display_name = "Wolves at the Edge"
 summary = "A small pack of wolves has been spotted near the village outskirts. Drive them back."
 recommended_level = 1
+encounter_path = "res://data/encounters/encounter_wolves.tres"
 enemy_count_min = 1
 enemy_count_max = 2
 gold_reward = 20

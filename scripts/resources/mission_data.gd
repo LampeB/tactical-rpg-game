@@ -12,7 +12,12 @@ extends Resource
 @export_group("Difficulty")
 ## Hint shown to the player; doesn't directly affect generation yet.
 @export_range(1, 20) var recommended_level: int = 1
-## Min/max enemies for the random encounter generator. Inclusive.
+## Path to a fixed EncounterData .tres. When set, this exact encounter is
+## used in battle (no random spawn). When empty, falls back to the random
+## generator with the min/max range below.
+@export_file("*.tres") var encounter_path: String = ""
+## Min/max enemies for the random encounter fallback. Used only when
+## encounter_path is empty. Inclusive.
 @export_range(1, 10) var enemy_count_min: int = 1
 @export_range(1, 10) var enemy_count_max: int = 5
 
