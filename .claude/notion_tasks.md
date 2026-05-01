@@ -53,7 +53,6 @@
 ### Todo
 | Name | Notion ID |
 |---|---|
-| Battle → hub return flow (rewards + completion tracking) | 34f7700f-d0fb-81d2-8fe3-f605a60e8cb3 |
 | Camera movements during battle action selection (attack, defend, skill, item) | 31e7700f-d0fb-812e-8d98-c9959dd2fdef |
 | Dynamic enemy respawning system | 3477700f-d0fb-81a7-bc85-c28fa6540caa |
 | Dynamic spell lighting (temporary lights on fireballs, explosions, healing) | 31a7700f-d0fb-81d9-b5fd-dad335dd6b8e |
@@ -62,6 +61,7 @@
 | Name | Notion ID |
 |---|---|
 | 3D damage popup positioning (Camera3D.unproject_position) | 3157700f-d0fb-81ce-a429-c4b709ed7255 |
+| Battle → hub return flow (rewards + completion tracking) | 34f7700f-d0fb-81d2-8fe3-f605a60e8cb3 |
 | Buff/debuff status effects library (minor + major tiers, 14 effects) | 31e7700f-d0fb-814f-93c7-e11a5a71d06b |
 | Buff/debuff tier override system (major replaces minor, same-tier refreshes duration) | 31e7700f-d0fb-8187-ad93-d343525886c0 |
 | Battle backgrounds from map areas (editor tool + runtime rendering) | 31d7700f-d0fb-8135-b97a-e4a8d1f2eb4c |
