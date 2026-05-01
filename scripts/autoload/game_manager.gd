@@ -12,7 +12,6 @@ var is_game_started: bool = false
 var current_location_name: String = "Overworld"
 var current_map_id: String = "forest_clearing"  ## Fallback id for battle background lookup
 
-var scene_battle_areas: Array = []  ## BattleAreaData from generator scenes (transient)
 var preloaded_battle_bg: Node3D = null
 var preloaded_battle_arena_center: Vector3 = Vector3.ZERO
 var preloaded_battle_arena_rotation: float = 0.0

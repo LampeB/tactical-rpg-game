@@ -242,9 +242,8 @@ func _on_load_slot(slot_index: int, is_auto: bool, history_index: int) -> void:
 	if ok:
 		SaveManager.start_playtime_tracking()
 		SceneManager.clear_stack()
-		var target_map: MapData = MapDatabase.get_map(GameManager.current_map_id)
-		var scene: String = "res://scenes/world/overworld.tscn" if (target_map and target_map.is_overworld) else "res://scenes/world/local_map.tscn"
-		SceneManager.replace_scene(scene)
+		# Tactics-hub direction: load returns to the hub, not the overworld.
+		SceneManager.replace_scene("res://scenes/hub/hub.tscn")
 
 
 func _on_delete_slot(slot_index: int) -> void:

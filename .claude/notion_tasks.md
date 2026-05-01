@@ -1,8 +1,8 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 324 (Todo: 32, Done: 242, OnHold: 8, Canceled: 42) -->
-<\!-- Last updated: 2026-04-27 (tactics-hub pivot: cancelled 15 obsolete exploration tasks, added 10 hub/mission tasks) -->
+<\!-- Total tasks: 325 (Todo: 32, Done: 243, OnHold: 8, Canceled: 42) -->
+<\!-- Last updated: 2026-05-01 (cleanup pass 3: removed MapDatabase, MapData family, LocationData, dead overworld tools) -->
 
 ## Prerequisites
 
@@ -229,6 +229,7 @@
 | Animated 3D character system (skeletal models + UAL animations) | 3357700f-d0fb-814b-9267-d6a50eed6735 |
 | Base map refactor (base_map + overworld + local_map architecture) | 3357700f-d0fb-813a-a9e5-efb96a5e286c |
 | Character database | 3147700f-d0fb-8131-889b-f4923fdd4e7f |
+| Cleanup pass 3: remove MapDatabase autoload, MapData family, dead overworld tools and locations | 3537700f-d0fb-817a-b388-fbbde01d47f1 |
 | Forest zone system (noise-based patches per island) | 32e7700f-d0fb-81d1-a252-dfe00875daea |
 | GIMP-based map painting system (ORA export/import) | 32e7700f-d0fb-8178-b6ed-c513803d0e04 |
 | Invisible wall system (7168×7168 grid from GIMP painting) | 32e7700f-d0fb-81d4-bb98-ce42c7e2af75 |
