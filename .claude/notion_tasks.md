@@ -1,17 +1,23 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 325 (Todo: 32, Done: 243, OnHold: 8, Canceled: 42) -->
-<\!-- Last updated: 2026-05-01 (cleanup pass 3: removed MapDatabase, MapData family, LocationData, dead overworld tools) -->
+<\!-- Total tasks: 332 (Todo: 38, Done: 243, OnHold: 7, Canceled: 43) -->
+<\!-- Last updated: 2026-05-11 (MissionDatabase autoload → In Progress) -->
 
 ## Prerequisites
+
+### In Progress
+| Name | Notion ID |
+|---|---|
+| MissionDatabase autoload (scans data/missions/) | 34f7700f-d0fb-8109-9fa6-c0ca12306837 |
 
 ### Todo
 | Name | Notion ID |
 |---|---|
 | Design multi-floor dungeons (5-7 dungeons, 3-5 floors, bosses) | 3147700f-d0fb-81fa-83e2-f2424660f5ef |
+| Read BATTLE_ARENA_CENTER dynamically from BattleArea3D node | 35d7700f-d0fb-8120-8571-fd81553f6446 |
+| Replace GameManager.preloaded_battle_bg hack with SceneManager data dict | 35d7700f-d0fb-81fb-aadd-d2b7362b6145 |
 | In-game shop editor (create/manage shops, define inventory and pricing) | 3147700f-d0fb-81ba-88fa-d2f169fb6a3b |
-| MissionDatabase autoload (scans data/missions/) | 34f7700f-d0fb-8109-9fa6-c0ca12306837 |
 | Mission unlock conditions logic (chapter + prereqs + flags evaluator) | 34f7700f-d0fb-81d4-83c7-e20dd059b1e7 |
 
 ### Done
@@ -85,12 +91,12 @@
 | Name | Notion ID |
 |---|---|
 | In-game enemy editor (debug/dev tool) | 3147700f-d0fb-8107-bc59-e7045338d970 |
-| Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Procedural cast/spell animations (channel, release, recoil) | 3167700f-d0fb-81fb-a067-c9a60e934df5 |
 
 ### Canceled
 | Name | Notion ID |
 |---|---|
+| Overworld encounter balancing (enemy count, spawn positions) | 3147700f-d0fb-819c-8b91-c1216a41e3db |
 | Patrol path system for roaming enemies | 3477700f-d0fb-8104-8ba9-d793b9ed73c9 |
 
 ## Items
@@ -145,6 +151,7 @@
 | Name | Notion ID |
 |---|---|
 | INV-1: Extract InventoryDragState class | 3377700f-d0fb-81cf-8cb0-c3a93fd385c2 |
+| Wire game_menu.tscn as ESC overlay and connect show_message toast | 35d7700f-d0fb-81ec-a5c1-d7f164d28229 |
 | INV-2: Consolidate input handling | 3377700f-d0fb-816f-b4e5-fcef85480665 |
 | INV-3: Add glow effect to grid cells | 3377700f-d0fb-8179-8daa-e690d5330501 |
 | INV-4: Rework star overlay system | 3377700f-d0fb-8150-8647-e78eee207ca5 |
@@ -461,6 +468,20 @@
 | Phase 8: Terrain height painting tool (@tool editor plugin) | 3227700f-d0fb-8156-9136-e1c7e14fe2a8 |
 | Phase 8: Terrain splatmap painting tool | 3227700f-d0fb-81c5-b323-fdb4215e8c06 |
 | Phase 9: Distant landmark rendering (LOD billboards for far landmarks) | 3227700f-d0fb-8112-8e55-cbece3fb04a2 |
+
+## Cleanup
+
+### Todo
+| Name | Notion ID |
+|---|---|
+| Delete hidden MapEditorButton from main_menu.tscn | 35d7700f-d0fb-8107-bfa1-d72ddbbbff7d |
+| Remove 12 dead overworld terrain scripts | 35d7700f-d0fb-818d-aefc-f06cea650764 |
+| Remove dead EventBus signals: location_prompt_visible, quest_failed | 35d7700f-d0fb-8115-93a0-c18a40255ef9 |
+| Remove dead scenes: test_3d, ortho_test, pause_menu | 35d7700f-d0fb-8113-847e-e25493abfe0f |
+
+### Done
+| Name | Notion ID |
+|---|---|
 
 ## 3D Migration
 
