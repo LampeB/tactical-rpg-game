@@ -1,15 +1,10 @@
 # Notion Tasks Map
 <\!-- Auto-generated from Notion Tasks database (787232f1-3840-4c99-9f5b-a4e3da59293c) -->
 <\!-- Data source (Claude AI connector): fe3e9c59-0d0b-4072-a5ee-96051dc534b9 -->
-<\!-- Total tasks: 332 (Todo: 38, Done: 243, OnHold: 7, Canceled: 43) -->
-<\!-- Last updated: 2026-05-11 (MissionDatabase autoload → In Progress) -->
+<\!-- Total tasks: 332 (Todo: 38, Done: 244, OnHold: 7, Canceled: 43) -->
+<\!-- Last updated: 2026-05-11 (MissionDatabase autoload → Done) -->
 
 ## Prerequisites
-
-### In Progress
-| Name | Notion ID |
-|---|---|
-| MissionDatabase autoload (scans data/missions/) | 34f7700f-d0fb-8109-9fa6-c0ca12306837 |
 
 ### Todo
 | Name | Notion ID |
@@ -23,6 +18,7 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| MissionDatabase autoload (scans data/missions/) | 34f7700f-d0fb-8109-9fa6-c0ca12306837 |
 | Asset folder reorganization + centralized AssetPaths | 3357700f-d0fb-8103-a1f7-d0a4233f3280 |
 | Hub scene framework (HubScene with NPC menu navigation) | 34f7700f-d0fb-81ce-a05e-ff441531e0a6 |
 | MissionData resource (mission definition) | 34f7700f-d0fb-819f-8cba-f5825ccdb5ba |
@@ -147,11 +143,15 @@
 
 ## UI
 
+### In Progress
+| Name | Notion ID |
+|---|---|
+| Wire game_menu.tscn as ESC overlay and connect show_message toast | 35d7700f-d0fb-81ec-a5c1-d7f164d28229 |
+
 ### Todo
 | Name | Notion ID |
 |---|---|
 | INV-1: Extract InventoryDragState class | 3377700f-d0fb-81cf-8cb0-c3a93fd385c2 |
-| Wire game_menu.tscn as ESC overlay and connect show_message toast | 35d7700f-d0fb-81ec-a5c1-d7f164d28229 |
 | INV-2: Consolidate input handling | 3377700f-d0fb-816f-b4e5-fcef85480665 |
 | INV-3: Add glow effect to grid cells | 3377700f-d0fb-8179-8daa-e690d5330501 |
 | INV-4: Rework star overlay system | 3377700f-d0fb-8150-8647-e78eee207ca5 |

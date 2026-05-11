@@ -5,6 +5,8 @@ extends Control
 
 const SHOP_ID := "merchant_general"     ## data/shops/{SHOP_ID}.tres
 const STATION_ID := "blacksmith"        ## data/crafting/{STATION_ID}.tres
+const _GameMenuScene := preload("res://scenes/menus/game_menu.tscn")
+const _GameMenuScript := preload("res://scenes/menus/game_menu.gd")
 
 @onready var _mission_board_button: Button = $CenterPanel/VBox/MissionBoardButton
 @onready var _party_button: Button = $CenterPanel/VBox/PartyButton
@@ -14,6 +16,8 @@ const STATION_ID := "blacksmith"        ## data/crafting/{STATION_ID}.tres
 @onready var _quit_button: Button = $CenterPanel/VBox/QuitButton
 @onready var _gold_label: Label = $TopBar/GoldLabel
 @onready var _status_label: Label = $StatusLabel  ## Brief feedback after actions (e.g. "Party fully healed")
+
+var _game_menu: _GameMenuScript
 
 
 func _ready() -> void:
@@ -26,6 +30,15 @@ func _ready() -> void:
 	_ensure_party_initialized()
 	_refresh_gold()
 	_status_label.text = ""
+	_game_menu = _GameMenuScene.instantiate()
+	add_child(_game_menu)
+	EventBus.show_message.connect(_game_menu.show_toast)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		_game_menu.toggle()
+		get_viewport().set_input_as_handled()
 
 
 func _ensure_party_initialized() -> void:

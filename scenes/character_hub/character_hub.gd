@@ -8,7 +8,7 @@ enum ViewType { STATS, PASSIVES, SKILLS }
 @onready var _bg: ColorRect = $BG
 @onready var _back_btn: Button = $VBox/TopBar/BackButton
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
-@onready var _character_tabs: HBoxContainer = $VBox/CharacterTabs
+@onready var _character_tabs: VBoxContainer = $VBox/CharacterTabs
 @onready var _stats_tab: Button = $VBox/ViewTabs/StatsTab
 @onready var _passives_tab: Button = $VBox/ViewTabs/SkillsTab
 @onready var _skills_tab: Button = $VBox/ViewTabs/AbilitiesTab

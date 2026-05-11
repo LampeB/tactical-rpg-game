@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Unified game menu — sidebar navigation with embedded content views.
-## Replaces pause_menu + character_hub. Opened with ESC or shortcut keys.
+## Persistent ESC-key overlay instantiated once by hub.gd and kept alive.
+## Opened/closed via toggle(); never freed until the hub scene exits.
 
 signal closed
 
@@ -50,25 +51,32 @@ var _tab_buttons: Dictionary = {}  # Tab → Button
 # UI references
 var _sidebar: VBoxContainer
 var _content_area: Control
-var _carousel: HBoxContainer  # character_tabs instance
+var _carousel: VBoxContainer  # character_tabs instance
 var _gold_label: Label
 var _bg: ColorRect
+var _menu_ui: Control
+var _is_open: bool = false
+var _toast_bg: ColorRect
+var _toast_label: Label
+var _toast_timer: Timer
 
 const _CharacterTabsScene := preload("res://scenes/inventory/ui/character_tabs.tscn")
+const TOAST_DURATION_SEC := 3.0
 
 
 func _ready() -> void:
 	layer = 100
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	# Set character before building UI so carousel highlights correctly
 	if GameManager.party and not GameManager.party.squad.is_empty():
 		_current_character_id = GameManager.party.squad[0]
 
 	_build_ui()
+	_build_toast()
 
-	# Start paused
-	get_tree().paused = true
-	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Start hidden — hub instantiates this once and keeps it alive
+	_bg.visible = false
+	_menu_ui.visible = false
 
 
 func _build_ui() -> void:
@@ -100,6 +108,7 @@ func _build_ui() -> void:
 	window_style.content_margin_bottom = 12.0
 	window.add_theme_stylebox_override("panel", window_style)
 	add_child(window)
+	_menu_ui = window
 
 	# Main layout: sidebar + content
 	var main_hbox := HBoxContainer.new()
@@ -198,7 +207,32 @@ func _build_ui() -> void:
 	_content_area.clip_contents = true
 	right_vbox.add_child(_content_area)
 
-	# Options sub-menu is created as a content view (like glossary)
+
+# ---------------------------------------------------------------------------
+# Open / Close / Toggle
+# ---------------------------------------------------------------------------
+
+func toggle() -> void:
+	if _is_open:
+		_close()
+	else:
+		_open()
+
+
+func _open() -> void:
+	_is_open = true
+	_bg.visible = true
+	_menu_ui.visible = true
+	get_tree().paused = true
+	if _current_tab == -1:
+		open_tab(Tab.INVENTORY)
+
+
+func show_toast(message: String) -> void:
+	_toast_label.text = message
+	_toast_bg.visible = true
+	_toast_timer.stop()
+	_toast_timer.start(TOAST_DURATION_SEC)
 
 
 func open_tab(tab: int) -> void:
@@ -340,7 +374,6 @@ func _create_glossary_placeholder() -> Control:
 # ---------------------------------------------------------------------------
 
 func _build_carousel() -> void:
-	## Sets up the shared character_tabs component.
 	if not GameManager.party or GameManager.party.squad.is_empty():
 		return
 	_carousel.setup(GameManager.party.squad, GameManager.party.roster)
@@ -437,18 +470,19 @@ func _on_option_pressed(option: String) -> void:
 func _shortcut_input(event: InputEvent) -> void:
 	if not event is InputEventKey or event.echo or event.pressed:
 		return
-	# All shortcuts trigger on key RELEASE
 
 	if event.keycode == KEY_ESCAPE:
-		_close()
-		get_viewport().set_input_as_handled()
+		if _is_open:
+			_close()
+			get_viewport().set_input_as_handled()
 		return
 
 	for tab_id in TAB_ACTIONS:
 		if event.is_action(TAB_ACTIONS[tab_id]):
-			if _current_tab == tab_id:
+			if _is_open and _current_tab == tab_id:
 				_close()
 			else:
+				_open()
 				open_tab(tab_id)
 			get_viewport().set_input_as_handled()
 			return
@@ -468,8 +502,41 @@ func _on_gold_changed(_amount: int) -> void:
 
 
 func _close() -> void:
+	_is_open = false
+	_bg.visible = false
+	_menu_ui.visible = false
 	get_tree().paused = false
-	if EventBus.gold_changed.is_connected(_on_gold_changed):
-		EventBus.gold_changed.disconnect(_on_gold_changed)
 	closed.emit()
-	queue_free()
+
+
+# ---------------------------------------------------------------------------
+# Toast notification
+# ---------------------------------------------------------------------------
+
+func _build_toast() -> void:
+	_toast_bg = ColorRect.new()
+	_toast_bg.color = Color(0.05, 0.05, 0.08, 0.85)
+	_toast_bg.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_toast_bg.offset_top = -56.0
+	_toast_bg.offset_bottom = -16.0
+	_toast_bg.offset_left = 300.0
+	_toast_bg.offset_right = -300.0
+	_toast_bg.visible = false
+	add_child(_toast_bg)
+
+	_toast_label = Label.new()
+	_toast_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_toast_label.add_theme_font_size_override("font_size", 18)
+	_toast_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
+	_toast_bg.add_child(_toast_label)
+
+	_toast_timer = Timer.new()
+	_toast_timer.one_shot = true
+	add_child(_toast_timer)
+	_toast_timer.timeout.connect(_on_toast_timeout)
+
+
+func _on_toast_timeout() -> void:
+	_toast_bg.visible = false
