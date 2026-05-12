@@ -60,16 +60,12 @@ func refresh() -> void:
 			cell_node.set_state(cell_node.CellState.EMPTY)
 		else:
 			cell_node.set_state(cell_node.CellState.INACTIVE)
-	# Mark occupied cells with rarity tint
-	var slot_colors_cache: Dictionary = {}
+	# Mark occupied cells
 	for i in range(_grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = _grid_inventory.get_all_placed_items()[i]
-		var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
-		var bg_color: Color = slot_colors[0] if slot_colors.size() >= 1 else Color(0.5, 0.5, 0.5)
 		for cell in placed.get_occupied_cells():
 			if _cells.has(cell):
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				_cells[cell].set_rarity_tint(bg_color)
 	_update_item_visuals()
 
 
@@ -168,11 +164,11 @@ func show_placement_preview(item_data: ItemData, grid_pos: Vector2i, rotation: i
 				_preview_modified_cells.append(rc)
 			if reached_weapon_map.has(rc):
 				if reached_weapon_map[rc]:
-					_add_star_at_cell(rc, Color.YELLOW)
+					_add_star_at_cell(rc, Color(0.69, 0.53, 0.27))
 				else:
-					_add_star_at_cell(rc, Color(1, 1, 1, 0.4))
+					_add_star_at_cell(rc, Color(0.47, 0.44, 0.39, 0.6))
 			else:
-				_add_star_at_cell(rc, Color(1, 1, 1, 0.15))
+				_add_star_at_cell(rc, Color(0.18, 0.16, 0.12, 0.25))
 
 	# Dragging a WEAPON (ACTIVE_TOOL only): glow on modifier ITEMS that would affect it
 	if not affecting_modifiers.is_empty() and (can_place or is_swap) and item_data.item_type == Enums.ItemType.ACTIVE_TOOL:
@@ -225,7 +221,7 @@ func show_hover_feedback(placed: GridInventory.PlacedItem) -> void:
 		if bright_items.has(placed_key):
 			container.modulate = Color.WHITE
 		else:
-			container.modulate = Color(0.4, 0.4, 0.4, 0.55)
+			container.modulate = Color(0.55, 0.50, 0.42, 0.5)
 
 	# Weapon (ACTIVE_TOOL) hovered: glow on affecting modifiers
 	if placed.item_data.item_type == Enums.ItemType.ACTIVE_TOOL and not modifiers.is_empty():
@@ -268,11 +264,11 @@ func show_hover_feedback(placed: GridInventory.PlacedItem) -> void:
 			_hover_reach_cells.append(rc)
 			if reached_weapon_cells.has(rc):
 				if reached_weapon_cells[rc]:
-					_add_star_at_cell(rc, Color.YELLOW)
+					_add_star_at_cell(rc, Color(0.69, 0.53, 0.27))
 				else:
-					_add_star_at_cell(rc, Color(1, 1, 1, 0.4))
+					_add_star_at_cell(rc, Color(0.47, 0.44, 0.39, 0.6))
 			else:
-				_add_star_at_cell(rc, Color(1, 1, 1, 0.15))
+				_add_star_at_cell(rc, Color(0.18, 0.16, 0.12, 0.25))
 
 
 func clear_hover_feedback() -> void:
@@ -308,7 +304,7 @@ func clear_item_highlights() -> void:
 	clear_hover_feedback()
 
 func set_items_greyed_out(greyed: bool) -> void:
-	_items_layer.modulate = Color(0.4, 0.4, 0.4, 0.55) if greyed else Color.WHITE
+	_items_layer.modulate = Color(0.55, 0.50, 0.42, 0.5) if greyed else Color.WHITE
 
 
 # ---------------------------------------------------------------------------
@@ -343,9 +339,6 @@ func clear_upgradeable_highlights() -> void:
 		for cell in placed.get_occupied_cells():
 			if _cells.has(cell) and _cells[cell].cell_state == _cells[cell].CellState.UPGRADEABLE:
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
-				if slot_colors.size() >= 1:
-					_cells[cell].set_rarity_tint(slot_colors[0])
 
 
 func highlight_matching_ingredient(ingredient: CraftingIngredient) -> void:
@@ -365,9 +358,6 @@ func clear_ingredient_highlights() -> void:
 		for cell in placed.get_occupied_cells():
 			if _cells.has(cell) and _cells[cell].cell_state == _cells[cell].CellState.INGREDIENT_MATCH:
 				_cells[cell].set_state(_cells[cell].CellState.OCCUPIED)
-				var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
-				if slot_colors.size() >= 1:
-					_cells[cell].set_rarity_tint(slot_colors[0])
 
 
 func set_cell_purchasable(cell: Vector2i) -> void:
@@ -467,7 +457,9 @@ func _build_cells() -> void:
 	_grid_width_cells = max_x - _grid_origin.x + 1
 	_grid_height_cells = max_y - _grid_origin.y + 1
 
-	_recompute_cell_size()
+	# Always start at max — layout hasn't settled yet when _build_cells runs.
+	# _deferred_resize will shrink if the container is genuinely smaller.
+	cell_size = CELL_SIZE_MAX
 
 	# Create cell nodes
 	for pos in positions:
@@ -521,17 +513,6 @@ func _deferred_resize() -> void:
 		custom_minimum_size = Vector2(_grid_width_cells * cell_size, _grid_height_cells * cell_size)
 		size = custom_minimum_size
 	_update_item_visuals()
-	# Build border sprites after cells are at final positions
-	if _grid_inventory:
-		var template: GridTemplate = _grid_inventory.grid_template
-		var positions: Array[Vector2i] = []
-		if template.layout_cells.is_empty():
-			for y in range(template.height):
-				for x in range(template.width):
-					positions.append(Vector2i(x, y))
-		else:
-			positions = template.layout_cells.duplicate()
-		_build_zone_borders(template, positions)
 
 
 # ---------------------------------------------------------------------------
@@ -547,6 +528,21 @@ func _update_item_visuals() -> void:
 	for i in range(_grid_inventory.get_all_placed_items().size()):
 		var placed: GridInventory.PlacedItem = _grid_inventory.get_all_placed_items()[i]
 		_create_item_visual(placed)
+
+
+func _item_type_colors(item_type: Enums.ItemType) -> Array:
+	match item_type:
+		Enums.ItemType.ACTIVE_TOOL:
+			return [Color(0.62, 0.52, 0.78, 1.0), Color(0.38, 0.28, 0.56, 1.0)]
+		Enums.ItemType.PASSIVE_GEAR:
+			return [Color(0.50, 0.65, 0.82, 1.0), Color(0.28, 0.42, 0.62, 1.0)]
+		Enums.ItemType.MODIFIER:
+			return [Color(0.50, 0.75, 0.70, 1.0), Color(0.26, 0.52, 0.48, 1.0)]
+		Enums.ItemType.CONSUMABLE:
+			return [Color(0.82, 0.55, 0.44, 1.0), Color(0.58, 0.30, 0.22, 1.0)]
+		Enums.ItemType.MATERIAL:
+			return [Color(0.64, 0.72, 0.52, 1.0), Color(0.40, 0.50, 0.30, 1.0)]
+	return [Color(0.62, 0.57, 0.49, 1.0), Color(0.38, 0.32, 0.25, 1.0)]
 
 
 func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
@@ -572,50 +568,75 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	container.size = Vector2(bbox_w, bbox_h)
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Background + border per cell (ColorRect — responds to modulate)
-	var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
-	var bg_color: Color = slot_colors[0] if slot_colors.size() >= 1 else Color(0.3, 0.3, 0.3)
-	var border_color: Color = slot_colors[1] if slot_colors.size() >= 2 else Color(0.5, 0.5, 0.5)
-	bg_color.a = 1.0
-	border_color.a = 1.0
-	@warning_ignore("integer_division")
-	var bw: int = maxi(1, cell_size / 24)
+	# Flat type-based color zone
+	var type_colors: Array = _item_type_colors(placed.item_data.item_type)
+	var fill_color: Color = type_colors[0]
+	var border_color: Color = type_colors[1]
 
-	var shape_outline: Control = Control.new()
-	shape_outline.position = Vector2.ZERO
-	shape_outline.size = Vector2(bbox_w, bbox_h)
-	shape_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(shape_outline)
+	var cell_set: Dictionary = {}
+	for cell in cells:
+		cell_set[cell] = true
 
+	var bw: float = 1.5
 	for cell in cells:
 		var cx: float = float((cell.x - min_pos.x) * cell_size)
 		var cy: float = float((cell.y - min_pos.y) * cell_size)
 		var cs: float = float(cell_size)
-		var border_rect := ColorRect.new()
-		border_rect.position = Vector2(cx, cy)
-		border_rect.size = Vector2(cs, cs)
-		border_rect.color = border_color
-		border_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		shape_outline.add_child(border_rect)
-		var left: float = float(bw) if not cells.has(cell + Vector2i(-1, 0)) else 0.0
-		var right: float = float(bw) if not cells.has(cell + Vector2i(1, 0)) else 0.0
-		var top_edge: float = float(bw) if not cells.has(cell + Vector2i(0, -1)) else 0.0
-		var bottom: float = float(bw) if not cells.has(cell + Vector2i(0, 1)) else 0.0
-		var bg_rect := ColorRect.new()
-		bg_rect.position = Vector2(cx + left, cy + top_edge)
-		bg_rect.size = Vector2(cs - left - right, cs - top_edge - bottom)
-		bg_rect.color = bg_color
-		bg_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		shape_outline.add_child(bg_rect)
+		var fill_rect := ColorRect.new()
+		fill_rect.position = Vector2(cx, cy)
+		fill_rect.size = Vector2(cs, cs)
+		fill_rect.color = fill_color
+		fill_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		container.add_child(fill_rect)
+		if not cell_set.has(cell + Vector2i(0, -1)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(cx, cy)
+			seg.size = Vector2(cs, bw)
+			seg.color = border_color
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+		if not cell_set.has(cell + Vector2i(0, 1)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(cx, cy + cs - bw)
+			seg.size = Vector2(cs, bw)
+			seg.color = border_color
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+		if not cell_set.has(cell + Vector2i(-1, 0)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(cx, cy)
+			seg.size = Vector2(bw, cs)
+			seg.color = border_color
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
+		if not cell_set.has(cell + Vector2i(1, 0)):
+			var seg := ColorRect.new()
+			seg.position = Vector2(cx + cs - bw, cy)
+			seg.size = Vector2(bw, cs)
+			seg.color = border_color
+			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			container.add_child(seg)
 
-	# Item icon
+	# Item name label — small uppercase, top-left of bounding box
+	var name_label := Label.new()
+	name_label.text = placed.item_data.display_name.to_upper()
+	name_label.add_theme_font_size_override("font_size", 8)
+	name_label.add_theme_color_override("font_color", Color(0.18, 0.14, 0.10, 0.85))
+	name_label.position = Vector2(3.0, 2.0)
+	name_label.size = Vector2(float(bbox_w) - 4.0, 12.0)
+	name_label.clip_text = true
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(name_label)
+
+	# Centered icon at 55% of the shorter bounding-box dimension
+	var icon_size: float = float(mini(bbox_w, bbox_h)) * 0.55
 	var tex_rect: TextureRect = TextureRect.new()
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex_rect.texture = placed.item_data.icon
-	tex_rect.position = Vector2.ZERO
-	tex_rect.size = Vector2(bbox_w, bbox_h)
-	tex_rect.pivot_offset = Vector2(bbox_w, bbox_h) / 2.0
+	tex_rect.size = Vector2(icon_size, icon_size)
+	tex_rect.position = Vector2((float(bbox_w) - icon_size) * 0.5, (float(bbox_h) - icon_size) * 0.5)
+	tex_rect.pivot_offset = Vector2(icon_size, icon_size) / 2.0
 	tex_rect.rotation = placed.rotation * PI / 2.0
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(tex_rect)
@@ -730,7 +751,7 @@ func _add_glow_for_item(item_cells: Array[Vector2i]) -> void:
 
 	# Shared animated color — all segments reference the same ColorRect array
 	var segments: Array[ColorRect] = []
-	var color_a := Color(1.0, 0.85, 0.2, 1.0)
+	var color_a := Color(0.85, 0.66, 0.34, 1.0)
 
 	for pos in item_cells:
 		var px: float = float((pos.x - _grid_origin.x) * cs)
@@ -778,12 +799,12 @@ func _add_glow_for_item(item_cells: Array[Vector2i]) -> void:
 		var tween := container.create_tween().set_loops()
 		tween.tween_callback(func() -> void:
 			for seg in segments:
-				seg.color = Color(1.0, 0.85, 0.2, 1.0)
+				seg.color = Color(0.85, 0.66, 0.34, 1.0)
 		)
 		tween.tween_interval(0.5)
 		tween.tween_callback(func() -> void:
 			for seg in segments:
-				seg.color = Color(1.0, 0.55, 0.0, 1.0)
+				seg.color = Color(0.69, 0.53, 0.27, 1.0)
 		)
 		tween.tween_interval(0.5)
 
@@ -878,8 +899,5 @@ func _restore_cell_state(pos: Vector2i) -> void:
 	var placed: GridInventory.PlacedItem = _grid_inventory.get_item_at(pos)
 	if placed:
 		cell_node.set_state(cell_node.CellState.OCCUPIED)
-		var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(placed.item_data.rarity, [])
-		if slot_colors.size() >= 1:
-			cell_node.set_rarity_tint(slot_colors[0])
 	else:
 		cell_node.set_state(cell_node.CellState.EMPTY)

@@ -33,7 +33,7 @@ var _filter_active: Dictionary = {
 }
 
 @onready var _count_label: Label = $VBox/StashLabel
-@onready var _item_list: VBoxContainer = $VBox/ScrollContainer/ItemList
+@onready var _item_list: GridContainer = $VBox/ScrollContainer/ItemList
 @onready var _tools_btn: Button = $VBox/FilterGrid/ToolsBtn
 @onready var _gear_btn: Button = $VBox/FilterGrid/GearBtn
 @onready var _mods_btn: Button = $VBox/FilterGrid/ModsBtn
@@ -136,13 +136,29 @@ func clear_displaced_highlights() -> void:
 func highlight_drop_target(highlighted: bool) -> void:
 	_drop_highlighted = highlighted
 	if highlighted:
-		self_modulate = Color(0.3, 0.8, 0.3, 1.0)
+		var base: StyleBox = get_theme_stylebox("panel")
+		var style: StyleBoxFlat
+		if base is StyleBoxFlat:
+			style = (base as StyleBoxFlat).duplicate() as StyleBoxFlat
+		else:
+			style = StyleBoxFlat.new()
+			style.bg_color = Color(0.91, 0.866, 0.79, 1.0)
+		style.border_color = Color(0.40, 0.72, 0.40, 1.0)
+		style.set_border_width_all(2)
+		add_theme_stylebox_override("panel", style)
 	else:
-		self_modulate = Color.WHITE
+		remove_theme_stylebox_override("panel")
 
 
 func is_mouse_over() -> bool:
 	return get_global_rect().has_point(get_global_mouse_position())
+
+
+func get_item_at_global_pos(pos: Vector2) -> Dictionary:
+	for slot in _slots:
+		if slot.get_global_rect().has_point(pos):
+			return {"item": slot.item_data, "index": slot.index}
+	return {}
 
 
 func _on_slot_clicked(index: int, item: ItemData) -> void:

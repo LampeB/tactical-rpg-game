@@ -1,5 +1,5 @@
 extends PanelContainer
-## A single row in the stash list showing an item's icon and name.
+## A single grid cell in the stash showing an item's icon.
 
 signal clicked(index: int)
 signal hovered(item: ItemData, global_pos: Vector2)
@@ -9,41 +9,43 @@ signal discard_requested(index: int)
 
 var item_data: ItemData
 var index: int
-var _use_button: Button = null
 var _is_returnable: bool = false
+
+
+func _ready() -> void:
+	_restore_base_style()
+
+
+func _restore_base_style() -> void:
+	var slot_colors: Array = Constants.RARITY_SLOT_COLORS.get(
+		item_data.rarity if item_data else Enums.Rarity.COMMON, [])
+	var stripe_color: Color = slot_colors[1] if slot_colors.size() >= 2 else Color(0.45, 0.40, 0.33, 1.0)
+	stripe_color.a = 1.0
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.91, 0.87, 0.80, 1.0)
+	style.border_color = stripe_color
+	style.border_width_left = 0
+	style.border_width_top = 0
+	style.border_width_right = 0
+	style.border_width_bottom = 4
+	style.content_margin_left = 2.0
+	style.content_margin_top = 2.0
+	style.content_margin_right = 2.0
+	style.content_margin_bottom = 2.0
+	add_theme_stylebox_override("panel", style)
 
 
 func setup(item: ItemData, idx: int, is_returnable: bool = false) -> void:
 	item_data = item
 	index = idx
 	_is_returnable = is_returnable
-
-	$HBox/Icon.texture = item.icon
-	$HBox/NameLabel.text = item.display_name
-	var rarity_color: Color = Constants.get_rarity_color(item.rarity)
-	$HBox/NameLabel.add_theme_color_override("font_color", rarity_color)
-	$HBox/TypeLabel.text = Enums.get_item_type_short_name(item.item_type)
-
-	# Tint returnable items amber
+	$Icon.texture = item.icon
+	tooltip_text = item.display_name
+	_restore_base_style()
 	if _is_returnable:
 		self_modulate = Color(1.0, 0.9, 0.7)
 	else:
 		self_modulate = Color.WHITE
-
-	# Add "Use" button for consumables with use_skill, or "Learn" for blueprints
-	if item.item_type == Enums.ItemType.CONSUMABLE and item.use_skill:
-		_use_button = Button.new()
-		_use_button.text = "Use"
-		_use_button.custom_minimum_size = Vector2(60, 0)
-		_use_button.pressed.connect(_on_use_button_pressed)
-		$HBox.add_child(_use_button)
-	elif item.item_type == Enums.ItemType.BLUEPRINT:
-		_use_button = Button.new()
-		_use_button.text = "Learn"
-		_use_button.custom_minimum_size = Vector2(60, 0)
-		_use_button.pressed.connect(_on_use_button_pressed)
-		$HBox.add_child(_use_button)
-
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -58,31 +60,19 @@ func _notification(what: int) -> void:
 		exited.emit()
 
 
-func _on_use_button_pressed() -> void:
-	use_requested.emit(index)
-
-
-func _on_discard_pressed() -> void:
-	discard_requested.emit(index)
-
-
 func set_upgradeable_highlight(enabled: bool) -> void:
-	## Highlights this slot as upgradeable with green background and yellow outline
 	if enabled:
-		# Green tint with yellow outline
-		self_modulate = Color(0.5, 1.0, 0.5)  # Brighter green
+		self_modulate = Color(0.5, 1.0, 0.5)
 		add_theme_stylebox_override("panel", _create_upgradeable_style())
 	else:
-		# Reset to default
 		if _is_returnable:
 			self_modulate = Color(1.0, 0.9, 0.7)
 		else:
 			self_modulate = Color.WHITE
-		remove_theme_stylebox_override("panel")
+		_restore_base_style()
 
 
 func set_ingredient_highlight(enabled: bool) -> void:
-	## Highlights this slot as matching a crafting ingredient (cyan tint).
 	if enabled:
 		self_modulate = Color(0.5, 0.9, 1.0)
 	else:
@@ -94,8 +84,8 @@ func set_ingredient_highlight(enabled: bool) -> void:
 
 func _create_upgradeable_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.2, 0.6, 0.2, 0.8)  # Dark green background
-	style.border_color = Color(1.0, 0.9, 0.2, 1.0)  # Yellow outline
+	style.bg_color = Color(0.2, 0.6, 0.2, 0.8)
+	style.border_color = Color(1.0, 0.9, 0.2, 1.0)
 	style.border_width_left = 2
 	style.border_width_right = 2
 	style.border_width_top = 2
@@ -104,4 +94,8 @@ func _create_upgradeable_style() -> StyleBoxFlat:
 	style.corner_radius_top_right = 4
 	style.corner_radius_bottom_left = 4
 	style.corner_radius_bottom_right = 4
+	style.content_margin_left = 1.0
+	style.content_margin_top = 1.0
+	style.content_margin_right = 1.0
+	style.content_margin_bottom = 1.0
 	return style

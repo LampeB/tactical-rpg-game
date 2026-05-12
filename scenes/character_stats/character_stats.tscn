@@ -9,75 +9,63 @@
 [ext_resource type="Texture2D" uid="uid://mpxc0h376rsd" path="res://assets/sprites/ui/theme/panel.png" id="7_panel"]
 [ext_resource type="Texture2D" uid="uid://tig6lrd2wsrw" path="res://assets/sprites/ui/theme/panel_dark.png" id="8_panel_dark"]
 [ext_resource type="Texture2D" uid="uid://diikgy8pkfuc6" path="res://assets/sprites/ui/theme/panel_accent.png" id="9_panel_accent"]
-[ext_resource type="Texture2D" uid="uid://cjg5l5xsi670l" path="res://assets/sprites/ui/theme/portrait_frame.png" id="11_portrait"]
-[ext_resource type="Texture2D" uid="uid://d2uhpjr4n8tqq" path="res://assets/sprites/ui/theme/banner.png" id="12_banner"]
-[ext_resource type="Texture2D" uid="uid://bar_hp_fill01" path="res://assets/sprites/ui/bars/hp_fill.png" id="13_hp_fill"]
-[ext_resource type="Texture2D" uid="uid://bar_hp_empt01" path="res://assets/sprites/ui/bars/hp_empty.png" id="14_hp_empty"]
-[ext_resource type="Texture2D" uid="uid://bar_hp_fram01" path="res://assets/sprites/ui/bars/hp_frame.png" id="15_hp_frame"]
-[ext_resource type="Texture2D" uid="uid://bar_mp_fill01" path="res://assets/sprites/ui/bars/mp_fill.png" id="16_mp_fill"]
-[ext_resource type="Texture2D" uid="uid://bar_mp_empt01" path="res://assets/sprites/ui/bars/mp_empty.png" id="17_mp_empty"]
-[ext_resource type="Texture2D" uid="uid://bar_mp_fram01" path="res://assets/sprites/ui/bars/mp_frame.png" id="18_mp_frame"]
+[ext_resource type="Theme" path="res://assets/ui/theme/inventory_paper.tres" id="19_theme"]
+[ext_resource type="PackedScene" uid="uid://c5kbdchip01" path="res://scenes/ui/components/kbd_chip.tscn" id="20_kbd"]
+[ext_resource type="PackedScene" uid="uid://c5sechdr001" path="res://scenes/ui/components/section_header.tscn" id="21_section"]
+[ext_resource type="Script" path="res://scenes/ui/components/paper_panel.gd" id="22_paper_panel"]
 
-[sub_resource type="StyleBoxTexture" id="style_window"]
+[sub_resource type="StyleBoxFlat" id="style_window"]
 content_margin_left = 12.0
 content_margin_top = 12.0
 content_margin_right = 12.0
 content_margin_bottom = 12.0
-texture = ExtResource("7_panel")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
+bg_color = Color(0.953, 0.91, 0.838, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184, 0.157, 0.122, 1)
 
-[sub_resource type="StyleBoxTexture" id="style_left_panel"]
+[sub_resource type="StyleBoxFlat" id="style_left_panel"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
-texture = ExtResource("8_panel_dark")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
+bg_color = Color(0.91, 0.866, 0.79, 1)
+border_width_right = 1
+border_color = Color(0.682, 0.624, 0.557, 1)
 
-[sub_resource type="StyleBoxTexture" id="style_center_panel"]
+[sub_resource type="StyleBoxFlat" id="style_center_panel"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
-texture = ExtResource("8_panel_dark")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
+bg_color = Color(0.953, 0.91, 0.838, 1)
+border_width_right = 1
+border_color = Color(0.682, 0.624, 0.557, 1)
 
-[sub_resource type="StyleBoxTexture" id="style_right_panel"]
+[sub_resource type="StyleBoxFlat" id="style_right_panel"]
 content_margin_left = 10.0
 content_margin_top = 10.0
 content_margin_right = 10.0
 content_margin_bottom = 10.0
-texture = ExtResource("9_panel_accent")
-texture_margin_left = 5.0
-texture_margin_top = 5.0
-texture_margin_right = 5.0
-texture_margin_bottom = 5.0
+bg_color = Color(0.91, 0.866, 0.79, 1)
 
-[sub_resource type="StyleBoxTexture" id="style_topbar"]
+[sub_resource type="StyleBoxFlat" id="style_topbar"]
 content_margin_left = 12.0
 content_margin_top = 6.0
 content_margin_right = 12.0
 content_margin_bottom = 6.0
-texture = ExtResource("12_banner")
-texture_margin_left = 6.0
-texture_margin_top = 4.0
-texture_margin_right = 6.0
-texture_margin_bottom = 4.0
+bg_color = Color(0.87, 0.821, 0.741, 1)
+border_width_bottom = 1
+border_color = Color(0.682, 0.624, 0.557, 1)
 
 [node name="CharacterStats" type="Control" unique_id=431178530]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource("19_theme")
 script = ExtResource("1_script")
 
 [node name="BG" type="ColorRect" parent="." unique_id=1028162929]
@@ -85,19 +73,14 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.05, 0.05, 0.08, 0.85)
+visible = false
+color = Color(0.1, 0.08, 0.05, 0.92)
 
 [node name="Window" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -880.0
-offset_top = -480.0
-offset_right = 880.0
-offset_bottom = 480.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("style_window")
@@ -108,7 +91,7 @@ layout_mode = 2
 [node name="TopBar" type="PanelContainer" parent="Window/VBox" unique_id=419489994]
 layout_mode = 1
 anchor_right = 1.0
-offset_bottom = 40.0
+offset_bottom = 64.0
 theme_override_styles/panel = SubResource("style_topbar")
 
 [node name="HBox" type="HBoxContainer" parent="Window/VBox/TopBar"]
@@ -121,188 +104,153 @@ text = "< Back"
 [node name="Title" type="Label" parent="Window/VBox/TopBar/HBox" unique_id=338401100]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
 text = "Character"
 horizontal_alignment = 1
 
-[node name="Gold" type="Label" parent="Window/VBox/TopBar/HBox" unique_id=103561512]
+[node name="HeaderRight" type="Control" parent="Window/VBox/TopBar/HBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(1, 0.84, 0, 1)
-text = "Gold: 0"
-
-[node name="CharacterTabs" parent="Window/VBox" unique_id=244643830 instance=ExtResource("2_tabs")]
-layout_mode = 1
-anchor_right = 1.0
-offset_top = 46.0
-offset_bottom = 76.0
+custom_minimum_size = Vector2(80, 0)
 
 [node name="Content" type="Control" parent="Window/VBox" unique_id=1367058883]
 layout_mode = 1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 82.0
+offset_top = 70.0
+offset_bottom = -52.0
+
+[node name="Footer" type="PanelContainer" parent="Window/VBox"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+theme_override_styles/panel = SubResource("style_topbar")
+
+[node name="HBox" type="HBoxContainer" parent="Window/VBox/Footer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="HintMove" parent="Window/VBox/Footer/HBox" instance=ExtResource("20_kbd")]
+layout_mode = 2
+key = "←→↑↓"
+label = "MOVE"
+
+[node name="HintPick" parent="Window/VBox/Footer/HBox" instance=ExtResource("20_kbd")]
+layout_mode = 2
+key = "LMB"
+label = "PICK / PLACE"
+
+[node name="HintRotate" parent="Window/VBox/Footer/HBox" instance=ExtResource("20_kbd")]
+layout_mode = 2
+key = "RMB"
+label = "ROTATE"
+
+[node name="HintSwitch" parent="Window/VBox/Footer/HBox" instance=ExtResource("20_kbd")]
+layout_mode = 2
+key = "TAB"
+label = "SWITCH CHARACTER"
+
+[node name="Spacer" type="Control" parent="Window/VBox/Footer/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Breadcrumb" type="Label" parent="Window/VBox/Footer/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.471, 0.435, 0.388, 1)
+text = "HUB · CHARACTER"
 
 [node name="LeftPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=2003998376]
 layout_mode = 1
-anchor_right = 0.28
+anchor_right = 0.16
 anchor_bottom = 1.0
 offset_right = -4.0
 theme_override_styles/panel = SubResource("style_left_panel")
 
-[node name="Scroll" type="ScrollContainer" parent="Window/VBox/Content/LeftPanel"]
+[node name="Body" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel"]
 layout_mode = 2
-horizontal_scroll_mode = 0
-
-[node name="VBox" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll" unique_id=267067553]
-layout_mode = 2
-size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="PortraitFrame" type="NinePatchRect" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+[node name="PartyHeader" type="Label" parent="Window/VBox/Content/LeftPanel/Body"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 120)
-texture = ExtResource("11_portrait")
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.471, 0.435, 0.388, 1)
+text = "PARTY"
 
-[node name="Portrait" type="TextureRect" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/PortraitFrame"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 5.0
-offset_top = 5.0
-offset_right = -5.0
-offset_bottom = -5.0
-expand_mode = 1
-stretch_mode = 5
-
-[node name="CharHeader" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1526585790]
+[node name="CharacterTabs" parent="Window/VBox/Content/LeftPanel/Body" unique_id=244643830 instance=ExtResource("2_tabs")]
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 4
 
-[node name="CharName" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=154196784]
+[node name="PartySep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Body"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
-theme_override_font_sizes/font_size = 22
-text = "Kael"
 
-[node name="ClassLevel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=1176554054]
+[node name="Spacer" type="Control" parent="Window/VBox/Content/LeftPanel/Body"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.68, 0.58, 1)
-theme_override_font_sizes/font_size = 14
-text = "Warrior  —  Level 1"
+size_flags_vertical = 3
 
-[node name="CharDesc" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox/CharHeader" unique_id=1307696741]
+[node name="FundsSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Body"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.55, 0.48, 1)
+
+[node name="FundsHeader" type="Label" parent="Window/VBox/Content/LeftPanel/Body"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "A seasoned warrior with balanced stats."
-autowrap_mode = 2
+theme_override_colors/font_color = Color(0.471, 0.435, 0.388, 1)
+text = "FUNDS"
 
-[node name="VitalsSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
+[node name="Gold" type="Label" parent="Window/VBox/Content/LeftPanel/Body" unique_id=103561512]
 layout_mode = 2
-
-[node name="HPLabel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1226551526]
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "HP: 90 / 90"
-
-[node name="HPBar" type="TextureProgressBar" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1689670767]
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-nine_patch_stretch = true
-stretch_margin_left = 6
-stretch_margin_top = 6
-stretch_margin_right = 6
-stretch_margin_bottom = 6
-texture_under = ExtResource("14_hp_empty")
-texture_over = ExtResource("15_hp_frame")
-texture_progress = ExtResource("13_hp_fill")
-
-[node name="MPLabel" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=2030662267]
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-text = "MP: 26 / 30"
-
-[node name="MPBar" type="TextureProgressBar" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1876936093]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-nine_patch_stretch = true
-stretch_margin_left = 6
-stretch_margin_top = 6
-stretch_margin_right = 6
-stretch_margin_bottom = 6
-texture_under = ExtResource("17_mp_empty")
-texture_over = ExtResource("18_mp_frame")
-texture_progress = ExtResource("16_mp_fill")
-
-[node name="StatsSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
-layout_mode = 2
-
-[node name="StatRows" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1392470829]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="AdvancedStatsBtn" type="Button" parent="Window/VBox/Content/LeftPanel/Scroll/VBox" unique_id=1292874684]
-layout_mode = 2
-text = "Advanced Stats"
-
-[node name="CombatSep" type="HSeparator" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
-layout_mode = 2
-
-[node name="CombatStatsHeader" type="Label" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
-text = "Combat"
-
-[node name="CombatStats" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="SpecialMechanics" type="VBoxContainer" parent="Window/VBox/Content/LeftPanel/Scroll/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 3
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.69, 0.53, 0.27, 1)
+text = "0  gold"
 
 [node name="CenterPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=1254802211]
 layout_mode = 1
-anchor_left = 0.28
-anchor_right = 0.62
+anchor_left = 0.16
+anchor_right = 0.7
 anchor_bottom = 1.0
 offset_left = 4.0
 offset_right = -4.0
 theme_override_styles/panel = SubResource("style_center_panel")
+script = ExtResource("22_paper_panel")
 
 [node name="VBox" type="VBoxContainer" parent="Window/VBox/Content/CenterPanel" unique_id=1772668398]
 layout_mode = 2
 
-[node name="InventoryLabel" type="Label" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=1576857238]
+[node name="InventoryLabel" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=1576857238 instance=ExtResource("21_section")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
-text = "Inventory"
-horizontal_alignment = 1
+title = "Inventory"
+title_size = 26
 
 [node name="ElementBar" type="HBoxContainer" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=1404927054]
 layout_mode = 2
 theme_override_constants/separation = 2
 alignment = 1
 
-[node name="GridCentering" type="CenterContainer" parent="Window/VBox/Content/CenterPanel/VBox" unique_id=2104351029]
+[node name="GridStashHBox" type="HBoxContainer" parent="Window/VBox/Content/CenterPanel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="GridPanel" parent="Window/VBox/Content/CenterPanel/VBox/GridCentering" unique_id=1649482720 instance=ExtResource("3_grid")]
+[node name="GridCentering" type="CenterContainer" parent="Window/VBox/Content/CenterPanel/VBox/GridStashHBox" unique_id=2104351029]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+
+[node name="GridPanel" parent="Window/VBox/Content/CenterPanel/VBox/GridStashHBox/GridCentering" unique_id=1649482720 instance=ExtResource("3_grid")]
+layout_mode = 2
+
+[node name="StashPanel" parent="Window/VBox/Content/CenterPanel/VBox/GridStashHBox" unique_id=286218055 instance=ExtResource("6_stash")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
 
 [node name="RightPanel" type="PanelContainer" parent="Window/VBox/Content" unique_id=591403696]
 layout_mode = 1
-anchor_left = 0.62
+anchor_left = 0.7
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
@@ -312,14 +260,42 @@ theme_override_styles/panel = SubResource("style_right_panel")
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="TopSlot" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1596738573]
+[node name="InspectorHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
+text = "Inspector"
+horizontal_alignment = 1
+
+[node name="ItemTooltip" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1379029608 instance=ExtResource("5_tooltip")]
 layout_mode = 2
 size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="StatsSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+
+[node name="StatsHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
+text = "Character Stats"
+
+[node name="StatsBars" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ElementSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
+layout_mode = 2
+
+[node name="TopSlot" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1596738573]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 110)
 theme_override_constants/separation = 6
 
 [node name="SkillsHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=1583336109]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
 theme_override_font_sizes/font_size = 17
 text = "Active Skills"
 horizontal_alignment = 1
@@ -337,21 +313,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
 
-[node name="ItemTooltip" parent="Window/VBox/Content/RightPanel/VBox/TopSlot" unique_id=1379029608 instance=ExtResource("5_tooltip")]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="ElementSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
-layout_mode = 2
-
 [node name="ElementHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
 layout_mode = 2
+visible = false
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
 text = "Element Points"
 
 [node name="ElementRows" type="VBoxContainer" parent="Window/VBox/Content/RightPanel/VBox"]
 layout_mode = 2
+visible = false
 theme_override_constants/separation = 2
 
 [node name="PassiveSep" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox"]
@@ -360,7 +331,7 @@ layout_mode = 2
 [node name="PassiveHeader" type="Label" parent="Window/VBox/Content/RightPanel/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_color = Color(0.184, 0.157, 0.122, 1)
 text = "Passive Abilities"
 
 [node name="PassiveScroll" type="ScrollContainer" parent="Window/VBox/Content/RightPanel/VBox"]
@@ -372,13 +343,6 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
-
-[node name="HSeparator2" type="HSeparator" parent="Window/VBox/Content/RightPanel/VBox" unique_id=1291282664]
-layout_mode = 2
-
-[node name="StashPanel" parent="Window/VBox/Content/RightPanel/VBox" unique_id=286218055 instance=ExtResource("6_stash")]
-layout_mode = 2
-size_flags_vertical = 3
 
 [node name="DragLayer" type="CanvasLayer" parent="." unique_id=1266779583]
 layer = 110
