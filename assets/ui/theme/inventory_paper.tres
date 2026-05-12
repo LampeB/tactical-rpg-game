@@ -1,0 +1,134 @@
+[gd_resource type="Theme" load_steps=12 format=3]
+
+[sub_resource type="StyleBoxFlat" id="panel_default"]
+bg_color = Color(0.953, 0.91, 0.838, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184, 0.157, 0.122, 1)
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="btn_normal"]
+bg_color = Color(0.953, 0.91, 0.838, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.471, 0.435, 0.388, 1)
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="btn_hover"]
+bg_color = Color(0.91, 0.866, 0.79, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184, 0.157, 0.122, 1)
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="btn_pressed"]
+bg_color = Color(0.184, 0.157, 0.122, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184, 0.157, 0.122, 1)
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="btn_disabled"]
+bg_color = Color(0.91, 0.866, 0.79, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.682, 0.624, 0.557, 1)
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="btn_focus"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.69, 0.53, 0.27, 1)
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="separator_h"]
+bg_color = Color(0.682, 0.624, 0.557, 1)
+content_margin_top = 0.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="popup_panel"]
+bg_color = Color(0.953, 0.91, 0.838, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.184, 0.157, 0.122, 1)
+shadow_color = Color(0.184, 0.157, 0.122, 0.4)
+shadow_size = 6
+shadow_offset = Vector2(2, 2)
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="progress_bg"]
+bg_color = Color(0.87, 0.821, 0.741, 1)
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="progress_fill"]
+bg_color = Color(0.376, 0.561, 0.376, 1)
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxFlat" id="scroll_grabber"]
+bg_color = Color(0.471, 0.435, 0.388, 0.7)
+
+[resource]
+default_font_size = 13
+Button/colors/font_color = Color(0.184, 0.157, 0.122, 1)
+Button/colors/font_hover_color = Color(0.184, 0.157, 0.122, 1)
+Button/colors/font_pressed_color = Color(0.953, 0.91, 0.838, 1)
+Button/colors/font_disabled_color = Color(0.471, 0.435, 0.388, 1)
+Button/colors/font_focus_color = Color(0.184, 0.157, 0.122, 1)
+Button/styles/normal = SubResource("btn_normal")
+Button/styles/hover = SubResource("btn_hover")
+Button/styles/pressed = SubResource("btn_pressed")
+Button/styles/disabled = SubResource("btn_disabled")
+Button/styles/focus = SubResource("btn_focus")
+Label/colors/font_color = Color(0.184, 0.157, 0.122, 1)
+Label/font_sizes/font_size = 13
+HSeparator/constants/separation = 6
+HSeparator/styles/separator = SubResource("separator_h")
+PanelContainer/styles/panel = SubResource("panel_default")
+PopupPanel/styles/panel = SubResource("popup_panel")
+ProgressBar/styles/background = SubResource("progress_bg")
+ProgressBar/styles/fill = SubResource("progress_fill")
+ProgressBar/colors/font_color = Color(0.184, 0.157, 0.122, 1)
+HScrollBar/styles/grabber = SubResource("scroll_grabber")
+VScrollBar/styles/grabber = SubResource("scroll_grabber")
