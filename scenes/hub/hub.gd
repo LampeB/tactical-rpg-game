@@ -1,23 +1,23 @@
 extends Control
 ## Hub scene — main out-of-battle area.
-## POC: Mission Board, Party (stats + inventory), Merchant, Blacksmith,
-## Doctor (heal), Save & Quit. Multi-hub travel + tavern + dialogue NPCs come later.
 
-const SHOP_ID := "merchant_general"     ## data/shops/{SHOP_ID}.tres
-const STATION_ID := "blacksmith"        ## data/crafting/{STATION_ID}.tres
-const _GameMenuScene := preload("res://scenes/menus/game_menu.tscn")
-const _GameMenuScript := preload("res://scenes/menus/game_menu.gd")
+const SHOP_ID := "merchant_general"
+const STATION_ID := "blacksmith"
 
 @onready var _mission_board_button: Button = $CenterPanel/VBox/MissionBoardButton
 @onready var _party_button: Button = $CenterPanel/VBox/PartyButton
 @onready var _merchant_button: Button = $CenterPanel/VBox/MerchantButton
 @onready var _blacksmith_button: Button = $CenterPanel/VBox/BlacksmithButton
 @onready var _doctor_button: Button = $CenterPanel/VBox/DoctorButton
+@onready var _quest_log_button: Button = $CenterPanel/VBox/QuestLogButton
+@onready var _map_button: Button = $CenterPanel/VBox/MapButton
+@onready var _glossary_button: Button = $CenterPanel/VBox/GlossaryButton
+@onready var _settings_button: Button = $CenterPanel/VBox/SettingsButton
+@onready var _load_button: Button = $CenterPanel/VBox/LoadButton
+@onready var _save_to_slot_button: Button = $CenterPanel/VBox/SaveToSlotButton
 @onready var _quit_button: Button = $CenterPanel/VBox/QuitButton
 @onready var _gold_label: Label = $TopBar/GoldLabel
-@onready var _status_label: Label = $StatusLabel  ## Brief feedback after actions (e.g. "Party fully healed")
-
-var _game_menu: _GameMenuScript
+@onready var _status_label: Label = $StatusLabel
 
 
 func _ready() -> void:
@@ -26,25 +26,21 @@ func _ready() -> void:
 	_merchant_button.pressed.connect(_on_merchant_pressed)
 	_blacksmith_button.pressed.connect(_on_blacksmith_pressed)
 	_doctor_button.pressed.connect(_on_doctor_pressed)
+	_quest_log_button.pressed.connect(_on_quest_log_pressed)
+	_map_button.pressed.connect(_on_map_pressed)
+	_glossary_button.pressed.connect(_on_glossary_pressed)
+	_settings_button.pressed.connect(_on_settings_pressed)
+	_load_button.pressed.connect(_on_load_pressed)
+	_save_to_slot_button.pressed.connect(_on_save_to_slot_pressed)
 	_quit_button.pressed.connect(_on_quit_pressed)
 	_ensure_party_initialized()
 	_refresh_gold()
 	_status_label.text = ""
-	_game_menu = _GameMenuScene.instantiate()
-	add_child(_game_menu)
-	EventBus.show_message.connect(_game_menu.show_toast)
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
-		_game_menu.toggle()
-		get_viewport().set_input_as_handled()
 
 
 func _ensure_party_initialized() -> void:
 	## When running hub.tscn directly via F6 (no main-menu New Game flow),
-	## GameManager.party is null and the battle has no player characters.
-	## Auto-init a default party so the MVP loop works standalone.
+	## GameManager.party is null. Auto-init so the MVP loop works standalone.
 	if GameManager.party == null or GameManager.party.roster.is_empty():
 		GameManager.new_game()
 		DebugLogger.log_info("[Hub] Auto-initialized new game (no party found)", "Hub")
@@ -52,10 +48,6 @@ func _ensure_party_initialized() -> void:
 
 
 func _auto_equip_starter_weapons() -> void:
-	## new_game() drops starter weapons into the stash but doesn't equip them on
-	## characters. Without an equipped weapon, the Attack button shows an empty
-	## weapon list and target selection never starts.
-	## MVP: place a basic weapon at grid (0,0) for each starter character.
 	const STARTER_WEAPON_BY_ID := {
 		"warrior": "sword_common",
 		"mage": "staff_common",
@@ -76,7 +68,6 @@ func _auto_equip_starter_weapons() -> void:
 			continue
 		var placed = inv.place_item(weapon, Vector2i(0, 0), 0)
 		if placed:
-			# Remove the duplicate copy from the stash (since we equipped one).
 			party.remove_from_stash(weapon)
 			DebugLogger.log_info("[Hub] Equipped %s on %s" % [weapon_id, char_id], "Hub")
 		else:
@@ -84,8 +75,8 @@ func _auto_equip_starter_weapons() -> void:
 
 
 func receive_data(_data: Dictionary) -> void:
-	# Returning from Mission Board / battle / loot — refresh displayed state.
 	_refresh_gold()
+	_status_label.text = ""
 
 
 func _refresh_gold() -> void:
@@ -93,14 +84,14 @@ func _refresh_gold() -> void:
 		_gold_label.text = "Gold: %d" % GameManager.gold
 
 
+# === Navigation ===
+
 func _on_mission_board_pressed() -> void:
 	SceneManager.push_scene("res://scenes/hub/mission_board.tscn")
 
 
 func _on_party_pressed() -> void:
-	## Open the character stats / inventory editor.
-	## character_stats.tscn reads GameManager.party directly — no scene data needed.
-	SceneManager.push_scene("res://scenes/character_stats/character_stats.tscn")
+	SceneManager.push_scene("res://scenes/character_hub/character_hub.tscn")
 
 
 func _on_merchant_pressed() -> void:
@@ -112,7 +103,6 @@ func _on_blacksmith_pressed() -> void:
 
 
 func _on_doctor_pressed() -> void:
-	## No UI scene yet — heal the active squad to full HP/MP in place.
 	if not GameManager.party:
 		return
 	var tree: PassiveTreeData = PassiveTreeDatabase.get_passive_tree()
@@ -127,6 +117,31 @@ func _on_doctor_pressed() -> void:
 	DebugLogger.log_info("[Hub] Doctor healed %d squad members" % healed_count, "Hub")
 
 
+func _on_quest_log_pressed() -> void:
+	SceneManager.push_scene("res://scenes/menus/quest_log_ui.tscn")
+
+
+func _on_map_pressed() -> void:
+	_status_label.text = "Map — coming soon."
+
+
+func _on_glossary_pressed() -> void:
+	_status_label.text = "Glossary — coming soon."
+
+
+func _on_settings_pressed() -> void:
+	SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")
+
+
+func _on_load_pressed() -> void:
+	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "load"})
+
+
+func _on_save_to_slot_pressed() -> void:
+	SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "save"})
+
+
 func _on_quit_pressed() -> void:
 	SaveManager.auto_save()
+	GameManager.is_game_started = false
 	SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")

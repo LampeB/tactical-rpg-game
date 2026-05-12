@@ -34,7 +34,7 @@ grow_horizontal = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Tactical RPG — Hub"
+text = "Hub"
 
 [node name="GoldLabel" type="Label" parent="TopBar" unique_id=1393009948]
 layout_mode = 2
@@ -49,57 +49,105 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -180.0
-offset_top = -260.0
-offset_right = 180.0
-offset_bottom = 260.0
+offset_left = -240.0
+offset_top = -450.0
+offset_right = 240.0
+offset_bottom = 450.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterPanel" unique_id=756053438]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 6
 
 [node name="HeadingLabel" type="Label" parent="CenterPanel/VBox" unique_id=58070404]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "Where to next?"
 horizontal_alignment = 1
 
-[node name="MissionBoardButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087489]
-custom_minimum_size = Vector2(320, 56)
+[node name="Sep1" type="HSeparator" parent="CenterPanel/VBox" unique_id=831070366]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+
+[node name="MissionBoardButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087489]
+custom_minimum_size = Vector2(420, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
 text = "Mission Board"
 
 [node name="PartyButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087490]
-custom_minimum_size = Vector2(320, 48)
+custom_minimum_size = Vector2(420, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Party (Stats / Inventory)"
+theme_override_font_sizes/font_size = 15
+text = "Party"
+
+[node name="Sep2" type="HSeparator" parent="CenterPanel/VBox" unique_id=831070367]
+layout_mode = 2
 
 [node name="MerchantButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087491]
-custom_minimum_size = Vector2(320, 48)
+custom_minimum_size = Vector2(420, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Merchant"
 
 [node name="BlacksmithButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087492]
-custom_minimum_size = Vector2(320, 48)
+custom_minimum_size = Vector2(420, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Blacksmith"
 
 [node name="DoctorButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087493]
-custom_minimum_size = Vector2(320, 48)
+custom_minimum_size = Vector2(420, 42)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Doctor (Heal Party)"
 
-[node name="QuitButton" type="Button" parent="CenterPanel/VBox" unique_id=831070358]
-custom_minimum_size = Vector2(320, 48)
+[node name="Sep3" type="HSeparator" parent="CenterPanel/VBox" unique_id=831070368]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+
+[node name="QuestLogButton" type="Button" parent="CenterPanel/VBox" unique_id=831070361]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Quest Log"
+
+[node name="MapButton" type="Button" parent="CenterPanel/VBox" unique_id=831070362]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Map"
+
+[node name="GlossaryButton" type="Button" parent="CenterPanel/VBox" unique_id=831070363]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Glossary"
+
+[node name="Sep4" type="HSeparator" parent="CenterPanel/VBox" unique_id=831070369]
+layout_mode = 2
+
+[node name="SettingsButton" type="Button" parent="CenterPanel/VBox" unique_id=831070364]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Settings"
+
+[node name="LoadButton" type="Button" parent="CenterPanel/VBox" unique_id=831070365]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Load"
+
+[node name="SaveToSlotButton" type="Button" parent="CenterPanel/VBox" unique_id=831070360]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Save"
+
+[node name="QuitButton" type="Button" parent="CenterPanel/VBox" unique_id=831070358]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
 text = "Save & Quit"
 
 [node name="StatusLabel" type="Label" parent="." unique_id=1606899130]
