@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c5statbar01"]
+
+[ext_resource type="Script" path="res://scenes/ui/components/stat_bar_row.gd" id="1_script"]
+
+[node name="StatBarRow" type="HBoxContainer"]
+script = ExtResource("1_script")

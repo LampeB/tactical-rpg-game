@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5partycrd1"]
+
+[ext_resource type="Script" path="res://scenes/ui/components/party_card.gd" id="1_script"]
+
+[node name="PartyCard" type="Button"]
+toggle_mode = true
+script = ExtResource("1_script")

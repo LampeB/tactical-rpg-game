@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5kbdchip01"]
+
+[ext_resource type="Script" path="res://scenes/ui/components/kbd_chip.gd" id="1_script"]
+
+[node name="KbdChip" type="HBoxContainer"]
+script = ExtResource("1_script")

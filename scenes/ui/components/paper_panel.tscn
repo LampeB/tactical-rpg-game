@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5paperpnl01"]
+
+[ext_resource type="Script" path="res://scenes/ui/components/paper_panel.gd" id="1_script"]
+
+[node name="PaperPanel" type="PanelContainer"]
+script = ExtResource("1_script")
