@@ -6,13 +6,14 @@ extends Control
 enum ViewType { STATS, PASSIVES, SKILLS }
 
 @onready var _bg: ColorRect = $BG
-@onready var _back_btn: Button = $VBox/TopBar/BackButton
+@onready var _back_btn: Button = $VBox/ContentHBox/LeftPanel/Body/BackButton
 @onready var _gold_label: Label = $VBox/TopBar/GoldLabel
-@onready var _character_tabs: VBoxContainer = $VBox/CharacterTabs
-@onready var _stats_tab: Button = $VBox/ViewTabs/StatsTab
-@onready var _passives_tab: Button = $VBox/ViewTabs/SkillsTab
-@onready var _skills_tab: Button = $VBox/ViewTabs/AbilitiesTab
-@onready var _view_container: Control = $VBox/ViewContainer
+@onready var _character_tabs: VBoxContainer = $VBox/ContentHBox/LeftPanel/Body/CharacterTabs
+@onready var _gold_left: Label = $VBox/ContentHBox/LeftPanel/Body/GoldLeft
+@onready var _stats_tab: Button = $VBox/ContentHBox/LeftPanel/Body/StatsTab
+@onready var _passives_tab: Button = $VBox/ContentHBox/LeftPanel/Body/SkillsTab
+@onready var _skills_tab: Button = $VBox/ContentHBox/LeftPanel/Body/AbilitiesTab
+@onready var _view_container: Control = $VBox/ContentHBox/RightVBox/ViewContainer
 
 var _current_character_id: String = ""
 var _current_view: ViewType = ViewType.STATS
@@ -170,3 +171,4 @@ func _on_gold_changed(_new_gold: int) -> void:
 
 func _update_gold_display() -> void:
 	_gold_label.text = "Gold: %d" % GameManager.gold
+	_gold_left.text = "%d  gold" % GameManager.gold
