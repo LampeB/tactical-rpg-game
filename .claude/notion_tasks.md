@@ -143,11 +143,6 @@
 
 ## UI
 
-### In Progress
-| Name | Notion ID |
-|---|---|
-| Wire game_menu.tscn as ESC overlay and connect show_message toast | 35d7700f-d0fb-81ec-a5c1-d7f164d28229 |
-
 ### Todo
 | Name | Notion ID |
 |---|---|
@@ -166,6 +161,7 @@
 ### Done
 | Name | Notion ID |
 |---|---|
+| Wire game_menu.tscn as ESC overlay and connect show_message toast | 35d7700f-d0fb-81ec-a5c1-d7f164d28229 |
 | Active skills summary on inventory tab | 3147700f-d0fb-8114-988a-fc8f39722d9f |
 | Mission Board UI (list available missions) | 34f7700f-d0fb-8126-b6b9-eff3b77e0cc3 |
 | Mission briefing screen (mission detail + start button) | 34f7700f-d0fb-810f-83a7-d8c026c7d253 |

@@ -25,18 +25,17 @@ var _current_placed = null
 
 
 func _ready() -> void:
-	var tex: Texture2D = preload("res://assets/sprites/ui/theme/tooltip.png")
-	var style := StyleBoxTexture.new()
-	style.texture = tex
-	style.texture_margin_left = 5.0
-	style.texture_margin_top = 5.0
-	style.texture_margin_right = 5.0
-	style.texture_margin_bottom = 5.0
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.84, 0.796, 0.72, 1.0)
+	style.border_color = Color(0.682, 0.624, 0.557, 1.0)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 	style.content_margin_left = 8.0
 	style.content_margin_top = 8.0
 	style.content_margin_right = 8.0
 	style.content_margin_bottom = 8.0
-	style.modulate_color = Color(0.45, 0.4, 0.35, 1.0)
 	add_theme_stylebox_override("panel", style)
 
 
@@ -52,7 +51,7 @@ func show_for_item(item: ItemData, placed: GridInventory.PlacedItem = null, grid
 
 	# Name with rarity color
 	_name_label.text = item.display_name
-	var rarity_color: Color = Constants.get_rarity_color(item.rarity)
+	var rarity_color: Color = _for_light_bg(Constants.get_rarity_color(item.rarity))
 	_name_label.add_theme_color_override("font_color", rarity_color)
 
 	# Rarity
@@ -266,7 +265,7 @@ func show_empty_state() -> void:
 	_modifier_section.visible = false
 	_clear_container(_modifier_list)
 	_description_label.text = "Hover an item to see details"
-	_description_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1.0))
+	_description_label.add_theme_color_override("font_color", Color(0.42, 0.37, 0.32, 1.0))
 	_description_label.visible = true
 	visible = true
 
@@ -295,7 +294,7 @@ func _add_header_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	UIThemes.set_font_size(label, FONT_SIZE)
-	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_color", _for_light_bg(color))
 	_modifier_list.add_child(label)
 
 
@@ -303,15 +302,25 @@ func _add_modifier_label(text: String, color: Color) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	UIThemes.set_font_size(label, FONT_SIZE)
-	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_color", _for_light_bg(color))
 	_modifier_list.add_child(label)
 
 
 # ─── Comparison vs equipped ──────────────────────────────────────────────────
 
-const COLOR_UPGRADE := Color(0.3, 1.0, 0.3)
-const COLOR_DOWNGRADE := Color(1.0, 0.3, 0.3)
-const COLOR_COMPARISON_HEADER := Color(0.7, 0.7, 0.7)
+const COLOR_UPGRADE := Color(0.08, 0.48, 0.08)
+const COLOR_DOWNGRADE := Color(0.65, 0.1, 0.1)
+const COLOR_COMPARISON_HEADER := Color(0.38, 0.33, 0.28)
+
+
+func _for_light_bg(color: Color) -> Color:
+	## Darkens colors designed for dark backgrounds so they read on cream.
+	var luminance: float = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b
+	if luminance > 0.6:
+		return color.darkened(0.58)
+	elif luminance > 0.35:
+		return color.darkened(0.32)
+	return color
 
 
 func _build_comparison(item: ItemData, placed: GridInventory.PlacedItem, grid_inv: GridInventory) -> void:
@@ -420,7 +429,7 @@ func _add_comparison_vs(hovered_item: ItemData, equipped_item: ItemData, hand: S
 	var header := Label.new()
 	header.text = header_text
 	UIThemes.set_font_size(header, FONT_SIZE)
-	header.add_theme_color_override("font_color", COLOR_COMPARISON_HEADER)
+	header.add_theme_color_override("font_color", _for_light_bg(COLOR_COMPARISON_HEADER))
 	_comparison_container.add_child(header)
 
 	# Delta labels

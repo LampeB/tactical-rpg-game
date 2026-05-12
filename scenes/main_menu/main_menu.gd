@@ -45,14 +45,11 @@ func _update_button_states() -> void:
 
 
 func _on_continue_pressed() -> void:
-	if GameManager.is_game_started:
-		SceneManager.clear_stack()
-		SceneManager.replace_scene("res://scenes/hub/hub.tscn")
-	else:
-		SaveManager.load_most_recent()
-		SaveManager.start_playtime_tracking()
-		SceneManager.clear_stack()
-		SceneManager.replace_scene("res://scenes/hub/hub.tscn")
+	if not SaveManager.load_most_recent():
+		return
+	SaveManager.start_playtime_tracking()
+	SceneManager.clear_stack()
+	SceneManager.replace_scene("res://scenes/hub/hub.tscn")
 
 
 func _on_load_game_pressed() -> void:

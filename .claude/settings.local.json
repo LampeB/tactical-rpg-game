@@ -22,7 +22,15 @@
       "mcp__claude_ai_Notion__notion-search",
       "mcp__claude_ai_Notion__notion-fetch",
       "mcp__claude_ai_Notion__notion-update-page",
-      "mcp__claude_ai_Notion__notion-create-pages"
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"e:\\\\Projects\\\\tactical-rpg-game\\\\.agent\\\\history\")",
+      "Bash(find \"e:/Projects/tactical-rpg-game\" -name \"*.gd\" -type f | sort > /tmp/all_gd_files.txt && wc -l /tmp/all_gd_files.txt)",
+      "Bash(find \"e:/Projects/tactical-rpg-game\" -name \"*.tscn\" -type f | grep -v \"addons/\" | sort > /tmp/all_tscn_files.txt && wc -l /tmp/all_tscn_files.txt)",
+      "Bash(Get-Content project.godot)",
+      "Bash(Select-String -Pattern \"autoload|singleton\" -Context 0,1)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

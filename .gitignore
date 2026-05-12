@@ -33,3 +33,7 @@ builds/
 # Old root-level directories (not used)
 /src/
 /sprites/
+
+# Agent pipeline working files (history is committed)
+.agent/*
+!.agent/history/

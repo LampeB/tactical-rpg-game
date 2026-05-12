@@ -236,6 +236,11 @@ func show_toast(message: String) -> void:
 
 
 func open_tab(tab: int) -> void:
+	if tab == Tab.PASSIVES:
+		_close()
+		SceneManager.push_scene("res://scenes/passive_tree/passive_tree.tscn")
+		return
+
 	if tab == _current_tab:
 		return
 
@@ -252,7 +257,7 @@ func open_tab(tab: int) -> void:
 
 	# Show/hide carousel and gold
 	_carousel.visible = tab in CHARACTER_TABS
-	_gold_label.visible = tab in [Tab.INVENTORY, Tab.PASSIVES]
+	_gold_label.visible = (tab == Tab.INVENTORY)
 	_update_gold()
 
 	# Create or show view
@@ -271,12 +276,6 @@ func _create_view(tab: int) -> Control:
 			view.setup_embedded(_current_character_id)
 		Tab.SKILLS:
 			view = load("res://scenes/character_skills/character_skills.tscn").instantiate()
-			_content_area.add_child(view)
-			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			if view.has_method("setup_embedded"):
-				view.setup_embedded(_current_character_id)
-		Tab.PASSIVES:
-			view = load("res://scenes/passive_tree/passive_tree.tscn").instantiate()
 			_content_area.add_child(view)
 			view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			if view.has_method("setup_embedded"):
@@ -423,7 +422,7 @@ func _create_options_view() -> Control:
 	var sep := HSeparator.new()
 	opt_list.add_child(sep)
 
-	for opt in [["Save", "save"], ["Load", "load"], ["Settings", "settings"], ["Quit to Menu", "quit"]]:
+	for opt in [["Quick Save", "quick_save"], ["Save to Slot", "save"], ["Load", "load"], ["Settings", "settings"], ["Quit to Menu", "quit"]]:
 		var btn := Button.new()
 		btn.text = opt[0]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -448,6 +447,11 @@ func _create_options_view() -> Control:
 
 func _on_option_pressed(option: String) -> void:
 	match option:
+		"quick_save":
+			if SaveManager.auto_save():
+				show_toast("Game saved!")
+			else:
+				show_toast("Nothing to save.")
 		"save":
 			_close()
 			SceneManager.push_scene("res://scenes/menus/save_load_menu.tscn", {"mode": "save"})
@@ -458,6 +462,8 @@ func _on_option_pressed(option: String) -> void:
 			_close()
 			SceneManager.push_scene("res://scenes/settings/settings_menu.tscn")
 		"quit":
+			SaveManager.auto_save()
+			GameManager.is_game_started = false
 			_close()
 			SceneManager.clear_stack()
 			SceneManager.replace_scene("res://scenes/main_menu/main_menu.tscn")
