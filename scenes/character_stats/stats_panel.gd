@@ -30,15 +30,22 @@ func _build_view() -> void:
 	# 3-column layout
 	var columns := HBoxContainer.new()
 	columns.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	columns.add_theme_constant_override("separation", 12)
+	columns.add_theme_constant_override("separation", 8)
 	add_child(columns)
 
 	# === LEFT: Identity + Vitals + Stats ===
+	var left_card := PanelContainer.new()
+	left_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	left_card.size_flags_stretch_ratio = 1.0
+	left_card.add_theme_stylebox_override("panel", DesignTokens.make_paper_panel(12, 1))
+	columns.add_child(left_card)
+
 	var left_scroll := ScrollContainer.new()
 	left_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_scroll.size_flags_stretch_ratio = 1.0
+	left_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	columns.add_child(left_scroll)
+	left_card.add_child(left_scroll)
 
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -73,7 +80,7 @@ func _build_view() -> void:
 	var name_lbl := Label.new()
 	name_lbl.text = char_data.display_name
 	name_lbl.add_theme_font_size_override("font_size", 24)
-	name_lbl.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
+	name_lbl.add_theme_color_override("font_color", DesignTokens.INK)
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	left.add_child(name_lbl)
 
@@ -84,7 +91,7 @@ func _build_view() -> void:
 	var class_lbl := Label.new()
 	class_lbl.text = "%s  —  Level %d" % [char_class, level]
 	class_lbl.add_theme_font_size_override("font_size", 15)
-	class_lbl.add_theme_color_override("font_color", Color(0.75, 0.68, 0.58))
+	class_lbl.add_theme_color_override("font_color", DesignTokens.INK_3)
 	class_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	left.add_child(class_lbl)
 
@@ -93,7 +100,7 @@ func _build_view() -> void:
 		var desc_lbl := Label.new()
 		desc_lbl.text = char_data.description
 		desc_lbl.add_theme_font_size_override("font_size", 13)
-		desc_lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+		desc_lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		left.add_child(desc_lbl)
@@ -111,11 +118,7 @@ func _build_view() -> void:
 	left.add_child(HSeparator.new())
 
 	# Stat table header
-	var stat_header := Label.new()
-	stat_header.text = "Attributes"
-	stat_header.add_theme_font_size_override("font_size", 16)
-	stat_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	left.add_child(stat_header)
+	_add_section_header(left, "Attributes")
 
 	var equip_stats: Dictionary = inv.get_computed_stats().get("stats", {}) if inv else {}
 	var passive_mods: Array = passive_bonuses.get("stat_modifiers", [])
@@ -139,121 +142,99 @@ func _build_view() -> void:
 		_add_stat_row(left, stat_name, base, equip, passive, total)
 
 	# === CENTER: Equipment + Combat ===
+	var center_card := PanelContainer.new()
+	center_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	center_card.size_flags_stretch_ratio = 1.0
+	center_card.add_theme_stylebox_override("panel", DesignTokens.make_paper_panel(12, 1))
+	columns.add_child(center_card)
+
 	var center_scroll := ScrollContainer.new()
 	center_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	center_scroll.size_flags_stretch_ratio = 1.0
+	center_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	center_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	columns.add_child(center_scroll)
+	center_card.add_child(center_scroll)
 
 	var center := VBoxContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.add_theme_constant_override("separation", 8)
 	center_scroll.add_child(center)
 
-	# Equipment header
-	var equip_header := Label.new()
-	equip_header.text = "Equipment"
-	equip_header.add_theme_font_size_override("font_size", 16)
-	equip_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	equip_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	center.add_child(equip_header)
-
-	# Weapon slots
+	_add_section_header(center, "Equipment")
 	_build_equipment_section(center, inv, entity)
 
 	center.add_child(HSeparator.new())
-
-	# === Offense ===
-	var offense_header := Label.new()
-	offense_header.text = "Offense"
-	offense_header.add_theme_font_size_override("font_size", 16)
-	offense_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	center.add_child(offense_header)
+	_add_section_header(center, "Offense")
 
 	var phys_power: int = entity.get_total_weapon_physical_power()
 	var mag_power: int = entity.get_total_weapon_magical_power()
-	_add_kv_row(center, "Weapon Power", str(phys_power), Color(1.0, 0.85, 0.5))
-	_add_kv_row(center, "Magic Power", str(mag_power), Color(0.6, 0.7, 1.0))
+	_add_kv_row(center, "Weapon Power", str(phys_power), DesignTokens.BRASS)
+	_add_kv_row(center, "Magic Power", str(mag_power), DesignTokens.INDIGO)
 
 	var crit_rate: float = Constants.BASE_CRITICAL_RATE * 100.0 + equip_stats.get(Enums.Stat.CRITICAL_RATE, 0.0) + _get_passive_flat(Enums.Stat.CRITICAL_RATE, passive_mods)
 	var crit_dmg: float = Constants.BASE_CRITICAL_DAMAGE * 100.0 + equip_stats.get(Enums.Stat.CRITICAL_DAMAGE, 0.0) + _get_passive_flat(Enums.Stat.CRITICAL_DAMAGE, passive_mods)
-	_add_kv_row(center, "Crit Rate", "%.0f%%" % crit_rate, Color(0.9, 0.75, 0.3))
-	_add_kv_row(center, "Crit Damage", "%.0f%%" % crit_dmg, Color(0.9, 0.75, 0.3))
+	_add_kv_row(center, "Crit Rate", "%.0f%%" % crit_rate, DesignTokens.BRASS)
+	_add_kv_row(center, "Crit Damage", "%.0f%%" % crit_dmg, DesignTokens.BRASS)
 
 	center.add_child(HSeparator.new())
+	_add_section_header(center, "Defense")
 
-	# === Defense ===
-	var defense_header := Label.new()
-	defense_header.text = "Defense"
-	defense_header.add_theme_font_size_override("font_size", 16)
-	defense_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	center.add_child(defense_header)
-
-	# Defense % stats (always shown — base mitigation)
 	var phys_def: float = clampf(entity.get_effective_stat(Enums.Stat.PHYSICAL_DEFENSE), 0.0, 100.0)
 	var mag_def: float = clampf(entity.get_effective_stat(Enums.Stat.MAGICAL_DEFENSE), 0.0, 100.0)
-	_add_kv_row(center, "Phys. Mitigation", "%.0f%%" % phys_def, Color(0.85, 0.65, 0.4))
-	_add_kv_row(center, "Magic Mitigation", "%.0f%%" % mag_def, Color(0.55, 0.65, 0.95))
-
-	# Armor pools (refilled each turn)
-	_add_kv_row(center, "Phys. Armor", "%d / turn" % entity.base_armor, Color(0.85, 0.65, 0.4))
-	_add_kv_row(center, "Spirit Shield", "%d / turn" % entity.base_spirit_shield, Color(0.55, 0.65, 0.95))
+	_add_kv_row(center, "Phys. Mitigation", "%.0f%%" % phys_def, DesignTokens.BRASS)
+	_add_kv_row(center, "Magic Mitigation", "%.0f%%" % mag_def, DesignTokens.INDIGO)
+	_add_kv_row(center, "Phys. Armor", "%d / turn" % entity.base_armor, DesignTokens.BRASS)
+	_add_kv_row(center, "Spirit Shield", "%d / turn" % entity.base_spirit_shield, DesignTokens.INDIGO)
 
 	var armor_hint := Label.new()
 	armor_hint.text = "Armor & shield absorb flat damage and refill each turn."
 	armor_hint.add_theme_font_size_override("font_size", 11)
-	armor_hint.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42))
+	armor_hint.add_theme_color_override("font_color", DesignTokens.INK_4)
 	armor_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	center.add_child(armor_hint)
 
 	center.add_child(HSeparator.new())
-
-	# Special mechanics
-	var specials_header := Label.new()
-	specials_header.text = "Special Effects"
-	specials_header.add_theme_font_size_override("font_size", 16)
-	specials_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	center.add_child(specials_header)
+	_add_section_header(center, "Special Effects")
 
 	var has_specials: bool = false
-
 	var lifesteal: float = entity.get_item_lifesteal_percent()
 	if lifesteal > 0.0:
-		_add_bullet(center, "Lifesteal: %d%%" % int(lifesteal * 100), Color(0.4, 1.0, 0.4))
+		_add_bullet(center, "Lifesteal: %d%%" % int(lifesteal * 100), DesignTokens.MOSS)
 		has_specials = true
 	var on_kill_heal: float = entity.get_on_kill_heal_percent()
 	if on_kill_heal > 0.0:
-		_add_bullet(center, "On Kill: Heal %d%% HP" % int(on_kill_heal * 100), Color(0.4, 1.0, 0.4))
+		_add_bullet(center, "On Kill: Heal %d%% HP" % int(on_kill_heal * 100), DesignTokens.MOSS)
 		has_specials = true
 	if entity.has_force_aoe() or entity.has_innate_force_aoe():
-		_add_bullet(center, "Attacks hit all enemies", Color(1.0, 0.7, 0.3))
+		_add_bullet(center, "Attacks hit all enemies", DesignTokens.EMBER)
 		has_specials = true
 	var extra_hits: int = entity.get_extra_hit_count()
 	if extra_hits > 0:
-		_add_bullet(center, "+%d extra hit(s)" % extra_hits, Color(1.0, 0.85, 0.2))
+		_add_bullet(center, "+%d extra hit(s)" % extra_hits, DesignTokens.BRASS)
 		has_specials = true
-
 	if not has_specials:
 		_add_faded(center, "None")
 
 	# === RIGHT: Skills + Elements + Passives ===
+	var right_card := PanelContainer.new()
+	right_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_card.size_flags_stretch_ratio = 1.0
+	right_card.add_theme_stylebox_override("panel", DesignTokens.make_paper_panel(12, 1))
+	columns.add_child(right_card)
+
 	var right_scroll := ScrollContainer.new()
 	right_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_scroll.size_flags_stretch_ratio = 1.0
+	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	columns.add_child(right_scroll)
+	right_card.add_child(right_scroll)
 
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.add_theme_constant_override("separation", 6)
 	right_scroll.add_child(right)
 
-	# Skills
-	var skills_header := Label.new()
-	skills_header.text = "Active Skills"
-	skills_header.add_theme_font_size_override("font_size", 16)
-	skills_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	right.add_child(skills_header)
+	_add_section_header(right, "Active Skills")
 
 	var element_points: Dictionary = inv.get_element_points() if inv else {}
 	var has_skills: bool = false
@@ -279,13 +260,7 @@ func _build_view() -> void:
 		_add_faded(right, "No active skills")
 
 	right.add_child(HSeparator.new())
-
-	# Element points
-	var elem_header := Label.new()
-	elem_header.text = "Element Points"
-	elem_header.add_theme_font_size_override("font_size", 16)
-	elem_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	right.add_child(elem_header)
+	_add_section_header(right, "Element Points")
 
 	var elements: Array = [
 		[Enums.Element.FIRE, "Fire"], [Enums.Element.WATER, "Water"],
@@ -300,20 +275,14 @@ func _build_view() -> void:
 		if pts <= 0:
 			continue
 		has_elements = true
-		var color: Color = Constants.ELEMENT_COLORS.get(elem, Color.WHITE)
+		var color: Color = Constants.ELEMENT_COLORS.get(elem, DesignTokens.INK_3)
 		_add_kv_row(right, elem_info[1], str(pts), color)
 
 	if not has_elements:
 		_add_faded(right, "No element gems equipped")
 
 	right.add_child(HSeparator.new())
-
-	# Passive abilities
-	var passive_header := Label.new()
-	passive_header.text = "Passive Abilities"
-	passive_header.add_theme_font_size_override("font_size", 16)
-	passive_header.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85))
-	right.add_child(passive_header)
+	_add_section_header(right, "Passive Abilities")
 
 	var effects: Array = passive_bonuses.get("special_effects", [])
 	if effects.is_empty():
@@ -323,7 +292,7 @@ func _build_view() -> void:
 			var effect_id: String = effects[i]
 			var desc: String = PassiveEffects.get_description(effect_id)
 			if not desc.is_empty():
-				_add_bullet(right, desc, Color(0.7, 0.85, 1.0))
+				_add_bullet(right, desc, DesignTokens.INDIGO)
 
 
 # === Equipment Section with Runewood Slots ===
@@ -333,19 +302,17 @@ func _build_equipment_section(parent: VBoxContainer, inv: GridInventory, _entity
 	var used_hands: int = inv.get_used_hand_slots() if inv else 0
 	var available_hands: int = inv.get_available_hand_slots() if inv else 2
 
-	# Two-column layout: Left = Weapons + Armor, Right = Jewelry + Rings
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 12)
-	columns.alignment = BoxContainer.ALIGNMENT_CENTER
-	parent.add_child(columns)
+	var eq_columns := HBoxContainer.new()
+	eq_columns.add_theme_constant_override("separation", 12)
+	eq_columns.alignment = BoxContainer.ALIGNMENT_CENTER
+	parent.add_child(eq_columns)
 
 	# === LEFT COLUMN ===
 	var left_col := VBoxContainer.new()
 	left_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left_col.add_theme_constant_override("separation", 8)
-	columns.add_child(left_col)
+	eq_columns.add_child(left_col)
 
-	# Weapons section
 	_add_section_label(left_col, "WEAPONS")
 	var weapons_row := HBoxContainer.new()
 	weapons_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -356,13 +323,9 @@ func _build_equipment_section(parent: VBoxContainer, inv: GridInventory, _entity
 
 	left_col.add_child(HSeparator.new())
 
-	# Armor section
 	_add_section_label(left_col, "ARMOR")
-
-	# Helmet (centered, alone on top)
 	_add_slot_with_label(left_col, "Helmet", equipped_armor.has(Enums.EquipmentCategory.HELMET))
 
-	# Chest + Gloves (side by side)
 	var chest_gloves_row := HBoxContainer.new()
 	chest_gloves_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	chest_gloves_row.add_theme_constant_override("separation", 16)
@@ -370,27 +333,20 @@ func _build_equipment_section(parent: VBoxContainer, inv: GridInventory, _entity
 	chest_gloves_row.add_child(_make_labeled_slot("Gloves", equipped_armor.has(Enums.EquipmentCategory.GLOVES)))
 	left_col.add_child(chest_gloves_row)
 
-	# Legs (centered)
 	_add_slot_with_label(left_col, "Legs", equipped_armor.has(Enums.EquipmentCategory.LEGS))
-
-	# Boots (centered)
 	_add_slot_with_label(left_col, "Boots", equipped_armor.has(Enums.EquipmentCategory.BOOTS))
 
 	# === RIGHT COLUMN ===
 	var right_col := VBoxContainer.new()
 	right_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right_col.add_theme_constant_override("separation", 6)
-	columns.add_child(right_col)
+	eq_columns.add_child(right_col)
 
-	# Jewelry section
 	_add_section_label(right_col, "JEWELRY")
-
-	# Necklace
 	_add_slot_with_label(right_col, "Necklace", equipped_armor.has(Enums.EquipmentCategory.NECKLACE))
 
 	right_col.add_child(HSeparator.new())
 
-	# Rings — count equipped
 	var ring_count: int = 0
 	if inv:
 		for pi_idx in range(inv.placed_items.size()):
@@ -401,7 +357,7 @@ func _build_equipment_section(parent: VBoxContainer, inv: GridInventory, _entity
 	var rings_label := Label.new()
 	rings_label.text = "Rings"
 	rings_label.add_theme_font_size_override("font_size", 12)
-	rings_label.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	rings_label.add_theme_color_override("font_color", DesignTokens.INK_4)
 	rings_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	right_col.add_child(rings_label)
 
@@ -410,40 +366,39 @@ func _build_equipment_section(parent: VBoxContainer, inv: GridInventory, _entity
 	ring_columns.add_theme_constant_override("separation", 12)
 	right_col.add_child(ring_columns)
 
-	# Left rings column (5 slots)
-	var left_rings := VBoxContainer.new()
-	left_rings.add_theme_constant_override("separation", 4)
-	left_rings.alignment = BoxContainer.ALIGNMENT_CENTER
-	var left_label := Label.new()
-	left_label.text = "Left"
-	left_label.add_theme_font_size_override("font_size", 11)
-	left_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
-	left_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	left_rings.add_child(left_label)
-	for i in range(5):
-		left_rings.add_child(_make_slot_icon(i < ring_count, 22))
-	ring_columns.add_child(left_rings)
+	for side in [["Left", 0], ["Right", 5]]:
+		var col := VBoxContainer.new()
+		col.add_theme_constant_override("separation", 4)
+		col.alignment = BoxContainer.ALIGNMENT_CENTER
+		var lbl := Label.new()
+		lbl.text = side[0]
+		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		col.add_child(lbl)
+		var offset: int = side[1]
+		for i in range(5):
+			col.add_child(_make_slot_icon((i + offset) < ring_count, 22))
+		ring_columns.add_child(col)
 
-	# Right rings column (5 slots)
-	var right_rings := VBoxContainer.new()
-	right_rings.add_theme_constant_override("separation", 4)
-	right_rings.alignment = BoxContainer.ALIGNMENT_CENTER
-	var right_label := Label.new()
-	right_label.text = "Right"
-	right_label.add_theme_font_size_override("font_size", 11)
-	right_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
-	right_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	right_rings.add_child(right_label)
-	for i in range(5):
-		right_rings.add_child(_make_slot_icon((i + 5) < ring_count, 22))
-	ring_columns.add_child(right_rings)
+
+# === Section helpers ===
+
+func _add_section_header(parent: VBoxContainer, text: String) -> void:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_color_override("font_color", DesignTokens.INK)
+	parent.add_child(lbl)
+	var sep := HSeparator.new()
+	parent.add_child(sep)
 
 
 func _add_section_label(parent: VBoxContainer, text: String) -> void:
 	var lbl := Label.new()
 	lbl.text = text
 	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	lbl.add_theme_color_override("font_color", DesignTokens.INK_3)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(lbl)
 
@@ -455,12 +410,12 @@ func _add_slot_with_label(parent: VBoxContainer, slot_name: String, filled: bool
 	var lbl := Label.new()
 	lbl.text = slot_name
 	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(lbl)
-	var center := CenterContainer.new()
-	center.add_child(_make_slot_icon(filled, 36))
-	box.add_child(center)
+	var c := CenterContainer.new()
+	c.add_child(_make_slot_icon(filled, 36))
+	box.add_child(c)
 	parent.add_child(box)
 
 
@@ -471,12 +426,12 @@ func _make_labeled_slot(slot_name: String, filled: bool) -> VBoxContainer:
 	var lbl := Label.new()
 	lbl.text = slot_name
 	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(lbl)
-	var center := CenterContainer.new()
-	center.add_child(_make_slot_icon(filled, 36))
-	box.add_child(center)
+	var c := CenterContainer.new()
+	c.add_child(_make_slot_icon(filled, 36))
+	box.add_child(c)
 	return box
 
 
@@ -486,19 +441,17 @@ func _make_slot_icon(filled: bool, icon_size: int = 28) -> TextureRect:
 	tex_rect.custom_minimum_size = Vector2(icon_size, icon_size)
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	if filled:
-		tex_rect.modulate = Color(1.4, 1.2, 0.6, 1.0)  # Bright gold tint for equipped
-	else:
-		tex_rect.modulate = Color(0.55, 0.5, 0.45, 0.7)  # Dim for empty
+	tex_rect.modulate = DesignTokens.BRASS if filled else Color(DesignTokens.INK_4.r, DesignTokens.INK_4.g, DesignTokens.INK_4.b, 0.5)
 	return tex_rect
 
 
-# === Helpers ===
+# === Row / label helpers ===
 
 func _add_bar(parent: VBoxContainer, label_text: String, current: int, maximum: int, is_hp: bool) -> void:
 	var lbl := Label.new()
 	lbl.text = "%s: %d / %d" % [label_text, current, maximum]
 	lbl.add_theme_font_size_override("font_size", 15)
+	lbl.add_theme_color_override("font_color", DesignTokens.INK_2)
 	parent.add_child(lbl)
 	var bar := TextureProgressBar.new()
 	bar.max_value = maximum
@@ -521,14 +474,14 @@ func _add_stat_row(parent: VBoxContainer, stat_name: String, base: int, equip: i
 	lbl_name.text = stat_name
 	lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl_name.add_theme_font_size_override("font_size", 14)
-	lbl_name.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	lbl_name.add_theme_color_override("font_color", DesignTokens.INK_3)
 	row.add_child(lbl_name)
 
+	var has_bonus: bool = equip > 0 or passive > 0
 	var lbl_total := Label.new()
 	lbl_total.text = str(total)
 	lbl_total.add_theme_font_size_override("font_size", 14)
-	var has_bonus: bool = equip > 0 or passive > 0
-	lbl_total.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4) if has_bonus else Color(0.9, 0.85, 0.75))
+	lbl_total.add_theme_color_override("font_color", DesignTokens.MOSS if has_bonus else DesignTokens.INK)
 	lbl_total.custom_minimum_size = Vector2(40, 0)
 	lbl_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(lbl_total)
@@ -543,7 +496,7 @@ func _add_stat_row(parent: VBoxContainer, stat_name: String, base: int, equip: i
 			parts.append("+%d passive" % passive)
 		detail.text = "(%s)" % " ".join(parts)
 		detail.add_theme_font_size_override("font_size", 11)
-		detail.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42))
+		detail.add_theme_color_override("font_color", DesignTokens.INK_4)
 		row.add_child(detail)
 
 	parent.add_child(row)
@@ -557,20 +510,20 @@ func _add_skill_row(parent: VBoxContainer, skill: SkillData, is_innate: bool) ->
 	name_lbl.text = skill.display_name
 	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_lbl.add_theme_font_size_override("font_size", 14)
-	name_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.75) if is_innate else Color(0.7, 0.85, 1.0))
+	name_lbl.add_theme_color_override("font_color", DesignTokens.INK if is_innate else DesignTokens.INDIGO)
 	row.add_child(name_lbl)
 
 	var source_lbl := Label.new()
 	source_lbl.text = "(innate)" if is_innate else "(element)"
 	source_lbl.add_theme_font_size_override("font_size", 11)
-	source_lbl.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42))
+	source_lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
 	row.add_child(source_lbl)
 
 	if skill.mp_cost > 0:
 		var mp_lbl := Label.new()
 		mp_lbl.text = "%d MP" % skill.mp_cost
 		mp_lbl.add_theme_font_size_override("font_size", 12)
-		mp_lbl.add_theme_color_override("font_color", Color(0.4, 0.6, 1.0))
+		mp_lbl.add_theme_color_override("font_color", DesignTokens.INDIGO)
 		row.add_child(mp_lbl)
 
 	parent.add_child(row)
@@ -582,7 +535,7 @@ func _add_kv_row(parent: VBoxContainer, key: String, value: String, value_color:
 	k.text = key
 	k.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	k.add_theme_font_size_override("font_size", 14)
-	k.add_theme_color_override("font_color", Color(0.7, 0.65, 0.58))
+	k.add_theme_color_override("font_color", DesignTokens.INK_3)
 	row.add_child(k)
 	var v := Label.new()
 	v.text = value
@@ -606,7 +559,7 @@ func _add_faded(parent: VBoxContainer, text: String) -> void:
 	var lbl := Label.new()
 	lbl.text = text
 	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.45, 0.42, 0.38))
+	lbl.add_theme_color_override("font_color", DesignTokens.INK_4)
 	parent.add_child(lbl)
 
 
