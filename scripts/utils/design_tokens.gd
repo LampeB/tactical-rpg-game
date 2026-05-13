@@ -28,6 +28,7 @@ const INDIGO := Color(0.290, 0.353, 0.561)
 
 # === Stage / vignette ===
 const STAGE_DARK := Color(0.10, 0.08, 0.05)
+const MODAL_DIM  := Color(0.10, 0.08, 0.05, 0.65)  ## dimmer behind paper modals
 
 # === Rarity (paper-friendly desaturated palette) ===
 const R_COMMON := Color(0.55, 0.54, 0.52)
@@ -93,6 +94,21 @@ static func make_paper_soft(content_margin: int = 12) -> StyleBoxFlat:
 	sb.content_margin_right = content_margin
 	sb.content_margin_bottom = content_margin
 	return sb
+
+
+## Build the normal/hover/pressed StyleBoxFlat trio for a brass accent button.
+## Returns [normal, hover, pressed] — add_theme_stylebox_override each.
+static func make_brass_button() -> Array[StyleBoxFlat]:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = BRASS
+	normal.border_color = INK
+	normal.set_border_width_all(1)
+	normal.set_content_margin_all(8)
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = BRASS_BRIGHT
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = INK_2
+	return [normal, hover, pressed]
 
 
 ## Build a hairline separator stylebox (1px tall).

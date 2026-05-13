@@ -130,9 +130,9 @@ func _build_ui() -> void:
 	_canvas.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_canvas)
 
-	# Dimmer
+	# Dimmer — warm dark vignette
 	_dimmer = ColorRect.new()
-	_dimmer.color = Color(0.0, 0.0, 0.0, 0.5)
+	_dimmer.color = DesignTokens.MODAL_DIM
 	_dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
 	_canvas.add_child(_dimmer)
@@ -143,34 +143,23 @@ func _build_ui() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(center)
 
-	# Panel
+	# Panel — paper surface with 24px padding built into the stylebox
 	_panel = PanelContainer.new()
 	_panel.custom_minimum_size = Vector2(500, 0)
 	_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.10, 0.12, 0.20, 0.95)
-	panel_style.border_color = Color(0.4, 0.5, 0.7, 0.6)
-	panel_style.set_border_width_all(1)
-	panel_style.set_corner_radius_all(6)
-	panel_style.set_content_margin_all(0)
-	_panel.add_theme_stylebox_override("panel", panel_style)
+	_panel.add_theme_stylebox_override("panel", DesignTokens.make_paper_panel(24, 1))
 	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	center.add_child(_panel)
-
-	# Margin
-	var margin := MarginContainer.new()
-	UIThemes.set_uniform_margins(margin, 20)
-	_panel.add_child(margin)
 
 	# VBox
 	var vbox := VBoxContainer.new()
 	UIThemes.set_separation(vbox, 12)
-	margin.add_child(vbox)
+	_panel.add_child(vbox)
 
 	# Title
 	_title_label = Label.new()
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UIThemes.style_label(_title_label, Constants.FONT_SIZE_TITLE, Constants.COLOR_TEXT_HEADER)
+	UIThemes.style_label(_title_label, Constants.FONT_SIZE_TITLE, DesignTokens.INK)
 	vbox.add_child(_title_label)
 
 	# Separator
@@ -187,16 +176,21 @@ func _build_ui() -> void:
 	_body_label.add_theme_font_size_override("normal_font_size", UIThemes.scaled_font_size(Constants.FONT_SIZE_NORMAL))
 	_body_label.set_meta("_base_bold_font_size", Constants.FONT_SIZE_NORMAL)
 	_body_label.add_theme_font_size_override("bold_font_size", UIThemes.scaled_font_size(Constants.FONT_SIZE_NORMAL))
-	_body_label.add_theme_color_override("default_color", Constants.COLOR_TEXT_PRIMARY)
+	_body_label.add_theme_color_override("default_color", DesignTokens.INK_2)
 	_body_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_body_label)
 
-	# Dismiss button
+	# Dismiss button — brass accent
 	_dismiss_btn = Button.new()
 	_dismiss_btn.text = "Got it"
 	_dismiss_btn.custom_minimum_size = Vector2(120, 36)
 	_dismiss_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	UIThemes.style_button(_dismiss_btn, Constants.FONT_SIZE_NORMAL, Constants.COLOR_TEXT_PRIMARY)
+	var btn_styles: Array[StyleBoxFlat] = DesignTokens.make_brass_button()
+	_dismiss_btn.add_theme_stylebox_override("normal", btn_styles[0])
+	_dismiss_btn.add_theme_stylebox_override("hover", btn_styles[1])
+	_dismiss_btn.add_theme_stylebox_override("pressed", btn_styles[2])
+	_dismiss_btn.add_theme_color_override("font_color", DesignTokens.PAPER)
+	_dismiss_btn.add_theme_font_size_override("font_size", UIThemes.scaled_font_size(Constants.FONT_SIZE_NORMAL))
 	_dismiss_btn.pressed.connect(_dismiss)
 	vbox.add_child(_dismiss_btn)
 
@@ -204,7 +198,7 @@ func _build_ui() -> void:
 	var hint := Label.new()
 	hint.text = "Click anywhere or press Space to dismiss"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UIThemes.style_label(hint, Constants.FONT_SIZE_SMALL, Constants.COLOR_TEXT_FADED)
+	UIThemes.style_label(hint, Constants.FONT_SIZE_SMALL, DesignTokens.INK_4)
 	vbox.add_child(hint)
 
 
