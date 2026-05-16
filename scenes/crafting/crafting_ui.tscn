@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://c5craftui001"]
+[gd_scene load_steps=8 format=3 uid="uid://c5craftui001"]
 
 [ext_resource type="Script" path="res://scenes/crafting/crafting_ui.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://c5chartabs01" path="res://scenes/inventory/ui/character_tabs.tscn" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c5stshpanl01" path="res://scenes/inventory/ui/stash_panel.tscn" id="4"]
 [ext_resource type="PackedScene" uid="uid://c5dragprvw01" path="res://scenes/inventory/ui/drag_preview.tscn" id="5"]
 [ext_resource type="PackedScene" uid="uid://c5itmtltip01" path="res://scenes/inventory/ui/item_tooltip.tscn" id="6"]
+[ext_resource type="Theme" path="res://assets/ui/theme/inventory_paper.tres" id="7"]
 
 [node name="CraftingUI" type="Control"]
 layout_mode = 3
@@ -19,119 +20,125 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.1, 0.14, 0.2, 1)
+color = Color(0.953, 0.91, 0.838, 1)
 
-[node name="VBox" type="Control" parent="."]
+[node name="HLayout" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-theme_override_constants/separation = 12
-
-[node name="TopBar" type="HBoxContainer" parent="VBox"]
-layout_mode = 1
-anchor_right = 1.0
-offset_bottom = 30.0
-
-[node name="TitleLabel" type="Label" parent="VBox/TopBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Forge"
-
-[node name="Content" type="Control" parent="VBox"]
-layout_mode = 1
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 40.0
-offset_bottom = -40.0
-
-[node name="LeftHalf" type="HBoxContainer" parent="VBox/Content"]
-layout_mode = 1
-anchor_left = 0.0
-anchor_right = 0.4
-anchor_bottom = 1.0
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.0
+offset_bottom = -44.0
 theme_override_constants/separation = 0
 
-[node name="IconScroll" type="ScrollContainer" parent="VBox/Content/LeftHalf"]
+[node name="LeftPanel" type="VBoxContainer" parent="HLayout"]
 layout_mode = 2
-size_flags_vertical = 3
-custom_minimum_size = Vector2(72, 0)
-horizontal_scroll_mode = 0
+custom_minimum_size = Vector2(220, 0)
+theme_override_constants/separation = 0
 
-[node name="IconList" type="VBoxContainer" parent="VBox/Content/LeftHalf/IconScroll"]
+[node name="StationHeader" type="VBoxContainer" parent="HLayout/LeftPanel"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
-[node name="ColDivider" type="VSeparator" parent="VBox/Content/LeftHalf"]
+[node name="HSep" type="HSeparator" parent="HLayout/LeftPanel"]
 layout_mode = 2
 
-[node name="CraftScroll" type="ScrollContainer" parent="VBox/Content/LeftHalf"]
+[node name="RecipeScroll" type="ScrollContainer" parent="HLayout/LeftPanel"]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="CraftDetail" type="VBoxContainer" parent="VBox/Content/LeftHalf/CraftScroll"]
+[node name="RecipeList" type="VBoxContainer" parent="HLayout/LeftPanel/RecipeScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 0
 
-[node name="PlayerSide" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 1
-anchor_left = 0.4
-anchor_right = 0.7
-anchor_bottom = 1.0
+[node name="BackSep" type="HSeparator" parent="HLayout/LeftPanel"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="HLayout/LeftPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "< Back to Hub"
+
+[node name="LeftSep" type="VSeparator" parent="HLayout"]
+layout_mode = 2
+
+[node name="CentreWrapper" type="MarginContainer" parent="HLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="CentrePanel" type="VBoxContainer" parent="HLayout/CentreWrapper"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="MidSep" type="VSeparator" parent="HLayout"]
+layout_mode = 2
+
+[node name="CharPanel" type="VBoxContainer" parent="HLayout"]
+layout_mode = 2
+custom_minimum_size = Vector2(520, 0)
+theme_override_constants/separation = 0
+
+[node name="SourceRow" type="HBoxContainer" parent="HLayout/CharPanel"]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="CharacterTabs" parent="VBox/Content/PlayerSide" instance=ExtResource("2")]
+[node name="FilterRow" type="HBoxContainer" parent="HLayout/CharPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CharSep" type="HSeparator" parent="HLayout/CharPanel"]
 layout_mode = 2
 
-[node name="GridCentering" type="CenterContainer" parent="VBox/Content/PlayerSide"]
+[node name="CharacterTabs" parent="HLayout/CharPanel" instance=ExtResource("2")]
 layout_mode = 2
 
-[node name="PlayerGridPanel" parent="VBox/Content/PlayerSide/GridCentering" instance=ExtResource("3")]
-
-[node name="RightPanel" type="VBoxContainer" parent="VBox/Content"]
-layout_mode = 1
-anchor_left = 0.7
-anchor_right = 1.0
-anchor_bottom = 1.0
-theme_override_constants/separation = 6
-
-[node name="ItemTooltip" parent="VBox/Content/RightPanel" instance=ExtResource("6")]
+[node name="InvHeader" type="HBoxContainer" parent="HLayout/CharPanel"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_constants/separation = 8
 
-[node name="HSeparator" type="HSeparator" parent="VBox/Content/RightPanel"]
-layout_mode = 2
-
-[node name="StashPanel" parent="VBox/Content/RightPanel" instance=ExtResource("4")]
+[node name="GridScroll" type="ScrollContainer" parent="HLayout/CharPanel"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="BottomBar" type="HBoxContainer" parent="VBox"]
+[node name="GridCentering" type="CenterContainer" parent="HLayout/CharPanel/GridScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PlayerGridPanel" parent="HLayout/CharPanel/GridScroll/GridCentering" instance=ExtResource("3")]
+
+[node name="RightSep" type="VSeparator" parent="HLayout"]
+layout_mode = 2
+
+[node name="StashColumn" type="VBoxContainer" parent="HLayout"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+theme_override_constants/separation = 0
+
+[node name="StashPanel" parent="HLayout/StashColumn" instance=ExtResource("4")]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("7")
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
 layout_mode = 1
+anchor_left = 0.0
 anchor_right = 1.0
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -30.0
-
-[node name="Spacer" type="Control" parent="VBox/BottomBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CloseButton" type="Button" parent="VBox/BottomBar"]
-layout_mode = 2
-text = "Close"
+offset_top = -44.0
+theme_override_constants/separation = 0
 
 [node name="DragLayer" type="CanvasLayer" parent="."]
 layer = 10
 
 [node name="DragPreview" parent="DragLayer" instance=ExtResource("5")]
+
+[node name="ItemTooltip" parent="DragLayer" instance=ExtResource("6")]

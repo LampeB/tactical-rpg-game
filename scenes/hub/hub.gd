@@ -9,6 +9,7 @@ const STATION_ID := "blacksmith"
 @onready var _merchant_button: Button = $CenterPanel/VBox/MerchantButton
 @onready var _blacksmith_button: Button = $CenterPanel/VBox/BlacksmithButton
 @onready var _doctor_button: Button = $CenterPanel/VBox/DoctorButton
+@onready var _weaver_button: Button  = $CenterPanel/VBox/WeaverButton
 @onready var _quest_log_button: Button = $CenterPanel/VBox/QuestLogButton
 @onready var _map_button: Button = $CenterPanel/VBox/MapButton
 @onready var _glossary_button: Button = $CenterPanel/VBox/GlossaryButton
@@ -26,6 +27,7 @@ func _ready() -> void:
 	_merchant_button.pressed.connect(_on_merchant_pressed)
 	_blacksmith_button.pressed.connect(_on_blacksmith_pressed)
 	_doctor_button.pressed.connect(_on_doctor_pressed)
+	_weaver_button.pressed.connect(_on_weaver_pressed)
 	_quest_log_button.pressed.connect(_on_quest_log_pressed)
 	_map_button.pressed.connect(_on_map_pressed)
 	_glossary_button.pressed.connect(_on_glossary_pressed)
@@ -44,34 +46,48 @@ func _ensure_party_initialized() -> void:
 	if GameManager.party == null or GameManager.party.roster.is_empty():
 		GameManager.new_game()
 		DebugLogger.log_info("[Hub] Auto-initialized new game (no party found)", "Hub")
-		_auto_equip_starter_weapons()
 
 
 func _auto_equip_starter_weapons() -> void:
-	const STARTER_WEAPON_BY_ID := {
-		"warrior": "sword_common",
-		"mage": "staff_common",
-		"rogue": "dagger_common",
+	# Each character starts with a different gear load to test inventory UI at
+	# various fill levels: warrior=low, mage=mid, rogue=high.
+	const STARTER_LOADOUTS := {
+		"warrior": ["sword_common"],
+		"mage":    ["staff_common", "cloth_helmet_common", "mystic_gem_common",
+		            "cloth_boots_common"],
+		"rogue":   ["dagger_common", "dagger_lshaped", "leather_chestplate_common",
+		            "leather_legs_common", "swift_gem_common", "poison_gem_common",
+		            "precision_gem_common"],
 	}
 	var party = GameManager.party
 	if not party:
 		return
 	for char_id in party.roster.keys():
-		var weapon_id: String = STARTER_WEAPON_BY_ID.get(char_id, "sword_common")
-		var weapon: ItemData = ItemDatabase.get_item(weapon_id)
-		if not weapon:
-			DebugLogger.log_warn("[Hub] Starter weapon %s not found for %s" % [weapon_id, char_id], "Hub")
-			continue
 		var inv: GridInventory = party.grid_inventories.get(char_id)
 		if not inv:
-			DebugLogger.log_warn("[Hub] No grid inventory for character %s" % char_id, "Hub")
+			DebugLogger.log_warn("[Hub] No grid inventory for %s" % char_id, "Hub")
 			continue
-		var placed = inv.place_item(weapon, Vector2i(0, 0), 0)
-		if placed:
-			party.remove_from_stash(weapon)
-			DebugLogger.log_info("[Hub] Equipped %s on %s" % [weapon_id, char_id], "Hub")
-		else:
-			DebugLogger.log_warn("[Hub] Could not place %s on %s at (0,0)" % [weapon_id, char_id], "Hub")
+		var loadout: Array = STARTER_LOADOUTS.get(char_id, ["sword_common"])
+		for item_id in loadout:
+			var item: ItemData = ItemDatabase.get_item(item_id)
+			if not item:
+				DebugLogger.log_warn("[Hub] Starter item %s not found" % item_id, "Hub")
+				continue
+			if _try_place_anywhere(inv, item):
+				party.remove_from_stash(item)
+				DebugLogger.log_info("[Hub] Equipped %s on %s" % [item_id, char_id], "Hub")
+			else:
+				DebugLogger.log_warn("[Hub] Could not place %s on %s" % [item_id, char_id], "Hub")
+
+
+func _try_place_anywhere(inv: GridInventory, item: ItemData) -> bool:
+	var rotations := [0, 1] if (item.shape and (item.shape.get_width() != item.shape.get_height())) else [0]
+	for y in range(20):
+		for x in range(20):
+			for rot in rotations:
+				if inv.can_place(item, Vector2i(x, y), rot):
+					return inv.place_item(item, Vector2i(x, y), rot) != null
+	return false
 
 
 func receive_data(_data: Dictionary) -> void:
@@ -100,6 +116,10 @@ func _on_merchant_pressed() -> void:
 
 func _on_blacksmith_pressed() -> void:
 	SceneManager.push_scene("res://scenes/crafting/crafting_ui.tscn", {"station_id": STATION_ID})
+
+
+func _on_weaver_pressed() -> void:
+	SceneManager.push_scene("res://scenes/dialogue/dialogue_ui.tscn", {"npc_id": "weaver"})
 
 
 func _on_doctor_pressed() -> void:

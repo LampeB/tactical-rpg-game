@@ -9,7 +9,8 @@ enum QuestTab { ACTIVE, COMPLETED, AVAILABLE }
 @onready var _tab_active: Button = $VBox/TopBar/TabActive
 @onready var _tab_completed: Button = $VBox/TopBar/TabCompleted
 @onready var _tab_available: Button = $VBox/TopBar/TabAvailable
-@onready var _quest_list: VBoxContainer = $VBox/Content/LeftPanel/QuestScroll/QuestList
+@onready var _back_btn: Button = $VBox/Content/LeftPanel/LeftBody/BackButton
+@onready var _quest_list: VBoxContainer = $VBox/Content/LeftPanel/LeftBody/QuestScroll/QuestList
 @onready var _detail_panel: VBoxContainer = $VBox/Content/RightPanel/DetailScroll/DetailContent
 
 var _current_tab: QuestTab = QuestTab.ACTIVE
@@ -24,6 +25,7 @@ func _ready() -> void:
 	_tab_active.pressed.connect(func() -> void: _switch_tab(QuestTab.ACTIVE))
 	_tab_completed.pressed.connect(func() -> void: _switch_tab(QuestTab.COMPLETED))
 	_tab_available.pressed.connect(func() -> void: _switch_tab(QuestTab.AVAILABLE))
+	_back_btn.pressed.connect(_on_close)
 
 	EventBus.quest_progressed.connect(_on_quest_progressed)
 	EventBus.quest_completed.connect(_on_quest_completed)

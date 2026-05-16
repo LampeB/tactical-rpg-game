@@ -119,10 +119,53 @@ func new_game() -> void:
 		else:
 			DebugLogger.log_warn("Starter item not found: %s" % item_id, "GameManager")
 
+	# Tier indices: 0 = level 1 (smallest), 4 = level 5 (mid), 9 = level 10 (largest)
+	var starter_tiers: Dictionary = {"warrior": 0, "mage": 4, "rogue": 9}
+	for char_id in starter_tiers.keys():
+		party.backpack_states[char_id] = {"tier": starter_tiers[char_id], "purchased_cells": []}
+
+	_auto_equip_starter_loadouts()
+
 	EventBus.gold_changed.emit(gold)
 	SaveManager._playtime_accumulator = 0.0
 	SaveManager.start_playtime_tracking()
 	DebugLogger.log_info("New game started — Gold: %d, Roster: %d, Stash: %d" % [gold, party.roster.size(), party.get_stash_size()], "GameManager")
+
+
+func _auto_equip_starter_loadouts() -> void:
+	# warrior = low fill, mage = mid fill, rogue = high fill (for inventory UI testing)
+	var loadouts: Dictionary = {
+		"warrior": ["sword_common"],
+		"mage":    ["staff_common", "cloth_helmet_common", "mystic_gem_common",
+		            "cloth_boots_common"],
+		"rogue":   ["dagger_common", "dagger_lshaped", "leather_chestplate_common",
+		            "leather_legs_common", "swift_gem_common", "poison_gem_common",
+		            "precision_gem_common"],
+	}
+	for char_id in loadouts.keys():
+		var inv = party.grid_inventories.get(char_id)
+		if not inv:
+			continue
+		var loadout: Array = loadouts[char_id]
+		for item_id in loadout:
+			var item = ItemDatabase.get_item(item_id)
+			if not item:
+				DebugLogger.log_warn("Loadout item not found: %s" % item_id, "GameManager")
+				continue
+			if _try_place_in_grid(inv, item):
+				party.remove_from_stash(item)
+
+
+func _try_place_in_grid(inv, item) -> bool:
+	var has_shape: bool = item.shape != null
+	var same_dims: bool = not has_shape or item.shape.get_width() == item.shape.get_height()
+	var rotations: Array = [0] if same_dims else [0, 1]
+	for y in range(20):
+		for x in range(20):
+			for rot in rotations:
+				if inv.can_place(item, Vector2i(x, y), rot):
+					return inv.place_item(item, Vector2i(x, y), rot) != null
+	return false
 
 ## Restore game state from a save. Called by SaveManager during deserialization.
 ## Keeps all direct property writes in one place instead of scattered in SaveManager.

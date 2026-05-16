@@ -102,6 +102,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "Doctor (Heal Party)"
 
+[node name="WeaverButton" type="Button" parent="CenterPanel/VBox" unique_id=1445087494]
+custom_minimum_size = Vector2(420, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Weaver"
+
 [node name="Sep3" type="HSeparator" parent="CenterPanel/VBox" unique_id=831070368]
 layout_mode = 2
 

@@ -438,18 +438,21 @@ func _update_stats_bars(char_data: CharacterData, inv: GridInventory) -> void:
 	_add_stat_bar_row("HP", hp_cur, hp_max, Color(0.78, 0.22, 0.22))
 	_add_stat_bar_row("MP", mp_cur, mp_max, Color(0.25, 0.45, 0.82))
 	var stats_to_show: Array = [
-		["ATK", Enums.Stat.PHYSICAL_ATTACK],
-		["DEF", Enums.Stat.PHYSICAL_DEFENSE],
-		["M.ATK", Enums.Stat.MAGICAL_ATTACK],
-		["M.DEF", Enums.Stat.MAGICAL_DEFENSE],
-		["SPD", Enums.Stat.SPEED],
+		["ATK",   Enums.Stat.PHYSICAL_ATTACK,  Color(0.69, 0.53, 0.27)],
+		["DEF",   Enums.Stat.PHYSICAL_DEFENSE, Color(0.87, 0.79, 0.62)],
+		["M.ATK", Enums.Stat.MAGICAL_ATTACK,   Color(0.29, 0.35, 0.56)],
+		["M.DEF", Enums.Stat.MAGICAL_DEFENSE,  Color(0.45, 0.53, 0.72)],
+		["SPD",   Enums.Stat.SPEED,            Color(0.38, 0.56, 0.38)],
 	]
+
+	var stat_totals: Array = []
 	for stat_info in stats_to_show:
-		var stat_name: String = stat_info[0]
-		var stat_id: int = stat_info[1]
-		var base_val: int = char_data.get_base_stat(stat_id)
-		var equip_bonus: int = int(equip_stats.get(stat_id, 0.0))
-		_add_stat_label_row(stat_name, base_val + equip_bonus, equip_bonus)
+		var base_val: int = char_data.get_base_stat(stat_info[1] as int)
+		var equip_bonus: int = int(equip_stats.get(stat_info[1], 0.0))
+		stat_totals.append(base_val + equip_bonus)
+
+	for i in range(stats_to_show.size()):
+		_add_stat_bar_row(stats_to_show[i][0], stat_totals[i], 200, stats_to_show[i][2])
 
 
 func _add_stat_bar_row(label_text: String, current: int, maximum: int, bar_color: Color) -> void:
@@ -457,7 +460,8 @@ func _add_stat_bar_row(label_text: String, current: int, maximum: int, bar_color
 	hbox.add_theme_constant_override("separation", 4)
 	var lbl := Label.new()
 	lbl.text = label_text
-	lbl.custom_minimum_size = Vector2(28, 0)
+	lbl.custom_minimum_size = Vector2(40, 0)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, Color(0.35, 0.28, 0.18))
 	hbox.add_child(lbl)
 	var bar := ProgressBar.new()
@@ -489,20 +493,6 @@ func _add_stat_bar_row(label_text: String, current: int, maximum: int, bar_color
 	hbox.add_child(val_lbl)
 	_stats_bars.add_child(hbox)
 
-
-func _add_stat_label_row(label_text: String, value: int, bonus: int) -> void:
-	var hbox := HBoxContainer.new()
-	var lbl := Label.new()
-	lbl.text = label_text
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UIThemes.style_label(lbl, Constants.FONT_SIZE_TINY, Color(0.35, 0.28, 0.18))
-	hbox.add_child(lbl)
-	var val_lbl := Label.new()
-	val_lbl.text = str(value)
-	var val_color: Color = Color(0.35, 0.28, 0.18) if bonus == 0 else Color(0.2, 0.6, 0.2)
-	UIThemes.style_label(val_lbl, Constants.FONT_SIZE_TINY, val_color)
-	hbox.add_child(val_lbl)
-	_stats_bars.add_child(hbox)
 
 
 func _build_skill_row(skill: SkillData, is_innate: bool) -> HBoxContainer:

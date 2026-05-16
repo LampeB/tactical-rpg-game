@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/characters/human1.png" id="4"]
 
 [sub_resource type="Resource" id="choice_bye"]
 script = ExtResource("3")
@@ -63,5 +62,4 @@ choices = [SubResource("choice_rune_confirm"), SubResource("choice_rune_decline"
 script = ExtResource("1")
 id = "weaver"
 display_name = "The Weaver"
-sprite = ExtResource("4")
 conversations = [SubResource("conv_greeting"), SubResource("conv_unlock_offer"), SubResource("conv_give_rune")]

@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/characters/human2.png" id="4"]
 
 [sub_resource type="Resource" id="choice_craft"]
 script = ExtResource("3")
@@ -49,7 +48,6 @@ choices = [SubResource("choice_craft"), SubResource("choice_goodbye")]
 script = ExtResource("1")
 id = "blacksmith"
 display_name = "Aldric the Blacksmith"
-sprite = ExtResource("4")
 role = 3
 crafting_station_id = "blacksmith"
 conversations = [SubResource("conv_quest_handoff"), SubResource("conv_greeting"), SubResource("conv_crafting")]

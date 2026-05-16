@@ -1,13 +1,13 @@
 class_name CraftingSlot
 extends PanelContainer
 ## Visual display for a single ingredient slot in the crafting UI.
-## Shows the item's shape grid with the icon overlaid on top.
+## Shows a rarity badge header, item shape/icon display, and ingredient label.
 ## All DnD logic is handled by CraftingUI — this node only emits clicked().
 
 signal clicked(slot_index: int)
 
-const DISPLAY_SZ := 50   ## Canvas size for the shape+icon display (px)
-const MAX_CELL   := 14   ## Maximum cell size before shrinking to fit DISPLAY_SZ
+const DISPLAY_SZ := 70   ## Canvas size for the shape+icon display (px)
+const MAX_CELL   := 18   ## Maximum cell size before shrinking to fit DISPLAY_SZ
 
 var slot_index: int = 0
 var ingredient: CraftingIngredient = null
@@ -15,35 +15,33 @@ var assigned_item: ItemData = null
 
 var _style: StyleBoxFlat = null
 var _content: VBoxContainer = null
-var _representative: ItemData = null   ## example item used in empty-state display
+var _representative: ItemData = null
 
 
 func setup(idx: int, ingr: CraftingIngredient) -> void:
 	slot_index = idx
 	ingredient  = ingr
-	custom_minimum_size = Vector2(66, 100)
+	custom_minimum_size = Vector2(150, 170)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
 	_style = StyleBoxFlat.new()
-	_style.bg_color = Color(0.10, 0.12, 0.17)
-	_style.corner_radius_top_left    = 5
-	_style.corner_radius_top_right   = 5
-	_style.corner_radius_bottom_left = 5
-	_style.corner_radius_bottom_right = 5
+	_style.bg_color = DesignTokens.PAPER_2
+	_style.corner_radius_top_left    = 6
+	_style.corner_radius_top_right   = 6
+	_style.corner_radius_bottom_left = 6
+	_style.corner_radius_bottom_right = 6
 	add_theme_stylebox_override("panel", _style)
-	var setup_border_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
-	_set_border(setup_border_col, 2)
+	_set_border(Constants.get_rarity_color(ingredient.min_rarity), 2)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left",   6)
-	margin.add_theme_constant_override("margin_right",  6)
-	margin.add_theme_constant_override("margin_top",    6)
-	margin.add_theme_constant_override("margin_bottom", 6)
+	margin.add_theme_constant_override("margin_left",   10)
+	margin.add_theme_constant_override("margin_right",  10)
+	margin.add_theme_constant_override("margin_top",    8)
+	margin.add_theme_constant_override("margin_bottom", 10)
 	add_child(margin)
 
 	_content = VBoxContainer.new()
-	_content.add_theme_constant_override("separation", 4)
-	_content.alignment = BoxContainer.ALIGNMENT_CENTER
+	_content.add_theme_constant_override("separation", 6)
 	margin.add_child(_content)
 
 	_representative = _find_representative()
@@ -52,15 +50,13 @@ func setup(idx: int, ingr: CraftingIngredient) -> void:
 
 func assign(item: ItemData) -> void:
 	assigned_item = item
-	var assign_border_col: Color = Constants.get_rarity_color(item.rarity)
-	_set_border(assign_border_col, 2)
+	_set_border(Constants.get_rarity_color(item.rarity), 2)
 	_refresh()
 
 
 func clear() -> void:
 	assigned_item = null
-	var clear_border_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
-	_set_border(clear_border_col, 2)
+	_set_border(Constants.get_rarity_color(ingredient.min_rarity), 2)
 	_refresh()
 
 
@@ -70,8 +66,7 @@ func set_highlight(color: Color) -> void:
 
 func clear_highlight() -> void:
 	var rarity := assigned_item.rarity if assigned_item else ingredient.min_rarity
-	var col: Color = Constants.get_rarity_color(rarity)
-	_set_border(col, 2)
+	_set_border(Constants.get_rarity_color(rarity), 2)
 
 
 func _set_border(color: Color, width: int) -> void:
@@ -97,12 +92,15 @@ func _refresh() -> void:
 	for child in _content.get_children():
 		child.free()
 
-	var display_item := assigned_item if assigned_item else _representative
-	var alpha        := 1.0 if assigned_item else 0.28
+	_build_header_row()
 
-	# Shape + icon display centered in DISPLAY_SZ × DISPLAY_SZ box
+	var display_item := assigned_item if assigned_item else _representative
+	var alpha        := 1.0 if assigned_item else 0.25
+
+	# Shape + icon display — expands to fill remaining vertical space
 	var center := CenterContainer.new()
 	center.custom_minimum_size = Vector2(DISPLAY_SZ, DISPLAY_SZ)
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_content.add_child(center)
 
 	if display_item and display_item.shape:
@@ -118,42 +116,83 @@ func _refresh() -> void:
 	else:
 		var ph := ColorRect.new()
 		ph.custom_minimum_size = Vector2(DISPLAY_SZ, DISPLAY_SZ)
-		ph.color = Color(0.1, 0.1, 0.15)
+		ph.color = Color(DesignTokens.PAPER_3.r, DesignTokens.PAPER_3.g, DesignTokens.PAPER_3.b, alpha)
 		center.add_child(ph)
 
-	# Name label
-	var name_lbl := Label.new()
-	UIThemes.set_font_size(name_lbl, 10)
-	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_build_footer_label()
+
+
+func _build_header_row() -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	_content.add_child(row)
+
+	var slot_lbl := Label.new()
+	UIThemes.set_font_size(slot_lbl, 9)
+	slot_lbl.text = "SLOT"
+	slot_lbl.add_theme_color_override("font_color", DesignTokens.INK_3)
+	row.add_child(slot_lbl)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+
+	var rarity: int
+	var pill_text: String
 	if assigned_item:
-		name_lbl.text = assigned_item.display_name
-		var name_col: Color = Constants.get_rarity_color(assigned_item.rarity)
-		name_lbl.add_theme_color_override("font_color", name_col)
+		rarity = assigned_item.rarity
+		var rname: String = Constants.RARITY_NAMES.get(rarity, "Common")
+		pill_text = rname.left(3).to_upper()
 	else:
-		name_lbl.text = ingredient.item_family.replace("_", " ").capitalize()
-		name_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
-	_content.add_child(name_lbl)
+		rarity = ingredient.min_rarity
+		var rname: String = Constants.RARITY_NAMES.get(rarity, "Common")
+		pill_text = rname.left(3).to_upper() + "+"
 
-	# Rarity label
-	var rarity_lbl := Label.new()
-	UIThemes.set_font_size(rarity_lbl, 9)
-	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	row.add_child(_make_rarity_pill(pill_text, Constants.get_rarity_color(rarity)))
+
+
+func _build_footer_label() -> void:
+	var lbl := Label.new()
+	UIThemes.set_font_size(lbl, 10)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if assigned_item:
-		var rarity_name: String = Constants.RARITY_NAMES.get(assigned_item.rarity, "Common")
-		rarity_lbl.text = rarity_name
-		var rarity_col: Color = Constants.get_rarity_color(assigned_item.rarity)
-		rarity_lbl.add_theme_color_override("font_color", rarity_col)
+		lbl.text = assigned_item.display_name
+		lbl.add_theme_color_override("font_color", Constants.get_rarity_color(assigned_item.rarity))
 	else:
-		var rarity_name: String = Constants.RARITY_NAMES.get(ingredient.min_rarity, "Common")
-		rarity_lbl.text = rarity_name + "+"
-		var rarity_col: Color = Constants.get_rarity_color(ingredient.min_rarity)
-		rarity_lbl.add_theme_color_override("font_color", rarity_col)
-	_content.add_child(rarity_lbl)
+		lbl.text = ingredient.item_family.replace("_", " ").capitalize()
+		lbl.add_theme_color_override("font_color", DesignTokens.INK_3)
+	_content.add_child(lbl)
 
 
-## Builds a Control sized to the item's shape bounding box, with shape cells
-## drawn as ColorRects and the icon overlaid on top.
+func _make_rarity_pill(text: String, color: Color) -> PanelContainer:
+	var pill := PanelContainer.new()
+	var s := StyleBoxFlat.new()
+	s.bg_color = Color(color.r, color.g, color.b, 0.15)
+	s.border_color = color
+	s.border_width_left   = 1
+	s.border_width_right  = 1
+	s.border_width_top    = 1
+	s.border_width_bottom = 1
+	s.corner_radius_top_left    = 3
+	s.corner_radius_top_right   = 3
+	s.corner_radius_bottom_left = 3
+	s.corner_radius_bottom_right = 3
+	s.content_margin_left   = 4
+	s.content_margin_right  = 4
+	s.content_margin_top    = 1
+	s.content_margin_bottom = 1
+	pill.add_theme_stylebox_override("panel", s)
+
+	var lbl := Label.new()
+	UIThemes.set_font_size(lbl, 8)
+	lbl.text = text
+	lbl.add_theme_color_override("font_color", color)
+	pill.add_child(lbl)
+	return pill
+
+
 func _build_shape_display(item: ItemData, alpha: float) -> Control:
 	var w         := item.shape.get_width()
 	var h         := item.shape.get_height()
@@ -163,15 +202,13 @@ func _build_shape_display(item: ItemData, alpha: float) -> Control:
 	var container := Control.new()
 	container.custom_minimum_size = Vector2(w * cell_size, h * cell_size)
 
-	# Shape cells
 	for cell in item.shape.cells:
 		var rect := ColorRect.new()
 		rect.position = Vector2(cell.x * cell_size + 1, cell.y * cell_size + 1)
 		rect.size     = Vector2(cell_size - 2, cell_size - 2)
-		rect.color    = Color(0.28, 0.32, 0.42, alpha)
+		rect.color    = Color(DesignTokens.PAPER_3.r, DesignTokens.PAPER_3.g, DesignTokens.PAPER_3.b, alpha)
 		container.add_child(rect)
 
-	# Icon overlay — inset by 1px to match the cell border gaps
 	if item.icon:
 		var tex := TextureRect.new()
 		tex.position     = Vector2(1, 1)
@@ -188,11 +225,9 @@ func _build_shape_display(item: ItemData, alpha: float) -> Control:
 func _find_representative() -> ItemData:
 	if not ingredient:
 		return null
-	# Prefer exact min_rarity match
 	for item in ItemDatabase.get_all_items():
 		if item.id.begins_with(ingredient.item_family) and item.rarity == ingredient.min_rarity:
 			return item
-	# Fallback: any matching family
 	for item in ItemDatabase.get_all_items():
 		if item.id.begins_with(ingredient.item_family):
 			return item

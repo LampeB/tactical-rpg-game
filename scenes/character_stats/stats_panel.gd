@@ -124,22 +124,36 @@ func _build_view() -> void:
 	var passive_mods: Array = passive_bonuses.get("stat_modifiers", [])
 
 	var stats: Array = [
-		["Physical Attack", Enums.Stat.PHYSICAL_ATTACK],
-		["Physical Defense", Enums.Stat.PHYSICAL_DEFENSE],
-		["Magical Attack", Enums.Stat.MAGICAL_ATTACK],
-		["Magical Defense", Enums.Stat.MAGICAL_DEFENSE],
-		["Speed", Enums.Stat.SPEED],
-		["Luck", Enums.Stat.LUCK],
+		["Physical Attack", Enums.Stat.PHYSICAL_ATTACK, DesignTokens.BRASS],
+		["Physical Defense", Enums.Stat.PHYSICAL_DEFENSE, DesignTokens.BRASS_SOFT],
+		["Magical Attack", Enums.Stat.MAGICAL_ATTACK, DesignTokens.INDIGO],
+		["Magical Defense", Enums.Stat.MAGICAL_DEFENSE, Color(0.45, 0.53, 0.72)],
+		["Speed", Enums.Stat.SPEED, DesignTokens.MOSS],
+		["Luck", Enums.Stat.LUCK, DesignTokens.EMBER],
 	]
 
+	# Compute totals first so bars share a common max
+	var stat_totals: Array[int] = []
 	for stat_info in stats:
-		var stat_name: String = stat_info[0]
-		var stat_id: int = stat_info[1]
+		var base: int = char_data.get_base_stat(stat_info[1] as int)
+		var equip: int = int(equip_stats.get(stat_info[1], 0.0))
+		var passive: int = _get_passive_flat(stat_info[1] as int, passive_mods)
+		stat_totals.append(base + equip + passive)
+	var bar_max: int = 0
+	for t in stat_totals:
+		if t > bar_max:
+			bar_max = t
+	bar_max = max(bar_max, 1)
+
+	for i in range(stats.size()):
+		var stat_name: String = stats[i][0]
+		var stat_id: int = stats[i][1]
+		var fill_color: Color = stats[i][2]
 		var base: int = char_data.get_base_stat(stat_id)
 		var equip: int = int(equip_stats.get(stat_id, 0.0))
 		var passive: int = _get_passive_flat(stat_id, passive_mods)
-		var total: int = base + equip + passive
-		_add_stat_row(left, stat_name, base, equip, passive, total)
+		var total: int = stat_totals[i]
+		_add_stat_bar(left, stat_name, base, equip, passive, total, bar_max, fill_color)
 
 	# === CENTER: Equipment + Combat ===
 	var center_card := PanelContainer.new()
@@ -468,38 +482,55 @@ func _add_bar(parent: VBoxContainer, label_text: String, current: int, maximum: 
 	parent.add_child(bar)
 
 
-func _add_stat_row(parent: VBoxContainer, stat_name: String, base: int, equip: int, passive: int, total: int) -> void:
-	var row := HBoxContainer.new()
+func _add_stat_bar(parent: VBoxContainer, stat_name: String, base: int, equip: int, passive: int, total: int, max_val: int, fill_color: Color) -> void:
+	var has_bonus: bool = equip > 0 or passive > 0
+
+	var header_row := HBoxContainer.new()
 	var lbl_name := Label.new()
 	lbl_name.text = stat_name
 	lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl_name.add_theme_font_size_override("font_size", 14)
+	lbl_name.add_theme_font_size_override("font_size", 13)
 	lbl_name.add_theme_color_override("font_color", DesignTokens.INK_3)
-	row.add_child(lbl_name)
+	header_row.add_child(lbl_name)
 
-	var has_bonus: bool = equip > 0 or passive > 0
-	var lbl_total := Label.new()
-	lbl_total.text = str(total)
-	lbl_total.add_theme_font_size_override("font_size", 14)
-	lbl_total.add_theme_color_override("font_color", DesignTokens.MOSS if has_bonus else DesignTokens.INK)
-	lbl_total.custom_minimum_size = Vector2(40, 0)
-	lbl_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	row.add_child(lbl_total)
+	var lbl_val := Label.new()
+	lbl_val.text = str(total)
+	lbl_val.add_theme_font_size_override("font_size", 13)
+	lbl_val.add_theme_color_override("font_color", DesignTokens.MOSS if has_bonus else DesignTokens.INK)
+	header_row.add_child(lbl_val)
+
+	parent.add_child(header_row)
+
+	var bar := ProgressBar.new()
+	bar.max_value = max_val
+	bar.value = total
+	bar.custom_minimum_size = Vector2(0, 8)
+	bar.show_percentage = false
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var fill_sb := StyleBoxFlat.new()
+	fill_sb.bg_color = fill_color
+	fill_sb.set_corner_radius_all(2)
+	fill_sb.set_content_margin_all(0)
+	bar.add_theme_stylebox_override("fill", fill_sb)
+	var bg_sb := StyleBoxFlat.new()
+	bg_sb.bg_color = DesignTokens.PAPER_3
+	bg_sb.set_corner_radius_all(2)
+	bg_sb.set_content_margin_all(0)
+	bar.add_theme_stylebox_override("background", bg_sb)
+	parent.add_child(bar)
 
 	if has_bonus:
-		var detail := Label.new()
 		var parts: Array[String] = []
-		parts.append(str(base))
+		parts.append(str(base) + " base")
 		if equip > 0:
 			parts.append("+%d equip" % equip)
 		if passive > 0:
 			parts.append("+%d passive" % passive)
-		detail.text = "(%s)" % " ".join(parts)
+		var detail := Label.new()
+		detail.text = "  ".join(parts)
 		detail.add_theme_font_size_override("font_size", 11)
 		detail.add_theme_color_override("font_color", DesignTokens.INK_4)
-		row.add_child(detail)
-
-	parent.add_child(row)
+		parent.add_child(detail)
 
 
 func _add_skill_row(parent: VBoxContainer, skill: SkillData, is_innate: bool) -> void:

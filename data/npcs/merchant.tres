@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="NpcData" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="NpcData" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/npc_data.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_conversation.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/resources/dialogue_choice.gd" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/characters/elder.png" id="4"]
 
 [sub_resource type="Resource" id="choice_browse"]
 script = ExtResource("3")
@@ -41,7 +40,6 @@ choices = [SubResource("choice_haggle_bye")]
 script = ExtResource("1")
 id = "merchant"
 display_name = "Lyra the Merchant"
-sprite = ExtResource("4")
 role = 1
 shop_id = "merchant_general"
 conversations = [SubResource("conv_greeting"), SubResource("conv_haggle")]

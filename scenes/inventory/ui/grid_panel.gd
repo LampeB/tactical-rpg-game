@@ -530,19 +530,15 @@ func _update_item_visuals() -> void:
 		_create_item_visual(placed)
 
 
-func _item_type_colors(item_type: Enums.ItemType) -> Array:
-	match item_type:
-		Enums.ItemType.ACTIVE_TOOL:
-			return [Color(0.62, 0.52, 0.78, 1.0), Color(0.38, 0.28, 0.56, 1.0)]
-		Enums.ItemType.PASSIVE_GEAR:
-			return [Color(0.50, 0.65, 0.82, 1.0), Color(0.28, 0.42, 0.62, 1.0)]
-		Enums.ItemType.MODIFIER:
-			return [Color(0.50, 0.75, 0.70, 1.0), Color(0.26, 0.52, 0.48, 1.0)]
-		Enums.ItemType.CONSUMABLE:
-			return [Color(0.82, 0.55, 0.44, 1.0), Color(0.58, 0.30, 0.22, 1.0)]
-		Enums.ItemType.MATERIAL:
-			return [Color(0.64, 0.72, 0.52, 1.0), Color(0.40, 0.50, 0.30, 1.0)]
-	return [Color(0.62, 0.57, 0.49, 1.0), Color(0.38, 0.32, 0.25, 1.0)]
+func _item_rarity_colors(rarity: Enums.Rarity) -> Array:
+	match rarity:
+		Enums.Rarity.COMMON:    return [Color(0.40, 0.64, 0.43, 1.0), Color(0.24, 0.40, 0.26, 1.0)]
+		Enums.Rarity.MAGIC:     return [Color(0.35, 0.60, 0.75, 1.0), Color(0.20, 0.38, 0.52, 1.0)]
+		Enums.Rarity.RARE:      return [Color(0.48, 0.36, 0.70, 1.0), Color(0.26, 0.18, 0.48, 1.0)]
+		Enums.Rarity.MYTHIC:    return [Color(0.85, 0.50, 0.28, 1.0), Color(0.52, 0.28, 0.12, 1.0)]
+		Enums.Rarity.LEGENDARY: return [Color(0.68, 0.24, 0.20, 1.0), Color(0.40, 0.12, 0.12, 1.0)]
+		Enums.Rarity.UNIQUE:    return [Color(0.78, 0.754, 0.0, 1.0), Color(0.42, 0.48, 0.18, 1.0)]
+	return [Color(0.40, 0.64, 0.43, 1.0), Color(0.24, 0.40, 0.26, 1.0)]
 
 
 func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
@@ -568,10 +564,9 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	container.size = Vector2(bbox_w, bbox_h)
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Flat type-based color zone
-	var type_colors: Array = _item_type_colors(placed.item_data.item_type)
-	var fill_color: Color = type_colors[0]
-	var border_color: Color = type_colors[1]
+	var rarity_colors: Array = _item_rarity_colors(placed.item_data.rarity)
+	var fill_color: Color = rarity_colors[0]
+	var border_color: Color = rarity_colors[1]
 
 	var cell_set: Dictionary = {}
 	for cell in cells:
@@ -617,7 +612,19 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 			seg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			container.add_child(seg)
 
-	# Item name label — small uppercase, top-left of bounding box
+	# Icon fills the full bounding box, keeping aspect ratio centered
+	var tex_rect: TextureRect = TextureRect.new()
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex_rect.texture = placed.item_data.icon
+	tex_rect.size = Vector2(float(bbox_w), float(bbox_h))
+	tex_rect.position = Vector2.ZERO
+	tex_rect.pivot_offset = Vector2(float(bbox_w), float(bbox_h)) / 2.0
+	tex_rect.rotation = placed.rotation * PI / 2.0
+	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(tex_rect)
+
+	# Name label on top of icon
 	var name_label := Label.new()
 	name_label.text = placed.item_data.display_name.to_upper()
 	name_label.add_theme_font_size_override("font_size", 8)
@@ -627,19 +634,6 @@ func _create_item_visual(placed: GridInventory.PlacedItem) -> void:
 	name_label.clip_text = true
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(name_label)
-
-	# Centered icon at 55% of the shorter bounding-box dimension
-	var icon_size: float = float(mini(bbox_w, bbox_h)) * 0.55
-	var tex_rect: TextureRect = TextureRect.new()
-	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tex_rect.texture = placed.item_data.icon
-	tex_rect.size = Vector2(icon_size, icon_size)
-	tex_rect.position = Vector2((float(bbox_w) - icon_size) * 0.5, (float(bbox_h) - icon_size) * 0.5)
-	tex_rect.pivot_offset = Vector2(icon_size, icon_size) / 2.0
-	tex_rect.rotation = placed.rotation * PI / 2.0
-	tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(tex_rect)
 
 	_items_layer.add_child(container)
 	_item_visuals[placed] = container

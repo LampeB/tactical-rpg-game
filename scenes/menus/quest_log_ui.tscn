@@ -62,12 +62,24 @@ anchor_right = 0.3
 anchor_bottom = 1.0
 offset_right = -6.0
 
-[node name="QuestScroll" type="ScrollContainer" parent="VBox/Content/LeftPanel"]
+[node name="LeftBody" type="VBoxContainer" parent="VBox/Content/LeftPanel"]
 layout_mode = 2
 
-[node name="QuestList" type="VBoxContainer" parent="VBox/Content/LeftPanel/QuestScroll"]
+[node name="QuestScroll" type="ScrollContainer" parent="VBox/Content/LeftPanel/LeftBody"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="QuestList" type="VBoxContainer" parent="VBox/Content/LeftPanel/LeftBody/QuestScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="BackSep" type="HSeparator" parent="VBox/Content/LeftPanel/LeftBody"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="VBox/Content/LeftPanel/LeftBody"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "< Back to Hub"
 
 [node name="RightPanel" type="PanelContainer" parent="VBox/Content"]
 layout_mode = 1
