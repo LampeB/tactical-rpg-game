@@ -1,0 +1,475 @@
+{
+  "$schema": "RPG2 Design System / Color Tokens v0.1",
+  "$note": "Each token has its source OKLCH (CSS-authoritative) and a resolved sRGB equivalent (hex + r,g,b + alpha 0-255).",
+  "generated": "2026-05-13T20:12:59.176Z",
+  "tokens": {
+    "paper": {
+      "css": "--paper",
+      "group": "surface_paper",
+      "source": "oklch(0.945 0.012 75)",
+      "hex": "#F2EDE5",
+      "rgb": [
+        242,
+        237,
+        229
+      ],
+      "alpha": 1
+    },
+    "paper-2": {
+      "css": "--paper-2",
+      "group": "surface_paper",
+      "source": "oklch(0.918 0.014 72)",
+      "hex": "#EAE3DA",
+      "rgb": [
+        234,
+        227,
+        218
+      ],
+      "alpha": 1
+    },
+    "paper-3": {
+      "css": "--paper-3",
+      "group": "surface_paper",
+      "source": "oklch(0.885 0.016 70)",
+      "hex": "#E1D9CE",
+      "rgb": [
+        225,
+        217,
+        206
+      ],
+      "alpha": 1
+    },
+    "paper-edge": {
+      "css": "--paper-edge",
+      "group": "surface_paper",
+      "source": "oklch(0.84  0.02  68)",
+      "hex": "#D4C9BC",
+      "rgb": [
+        212,
+        201,
+        188
+      ],
+      "alpha": 1
+    },
+    "ink": {
+      "css": "--ink",
+      "group": "text_ink",
+      "source": "oklch(0.22  0.02  60)",
+      "hex": "#231911",
+      "rgb": [
+        35,
+        25,
+        17
+      ],
+      "alpha": 1
+    },
+    "ink-2": {
+      "css": "--ink-2",
+      "group": "text_ink",
+      "source": "oklch(0.34  0.018 60)",
+      "hex": "#3E362E",
+      "rgb": [
+        62,
+        54,
+        46
+      ],
+      "alpha": 1
+    },
+    "ink-3": {
+      "css": "--ink-3",
+      "group": "text_ink",
+      "source": "oklch(0.50  0.014 60)",
+      "hex": "#69635A",
+      "rgb": [
+        105,
+        99,
+        90
+      ],
+      "alpha": 1
+    },
+    "ink-4": {
+      "css": "--ink-4",
+      "group": "text_ink",
+      "source": "oklch(0.66  0.012 60)",
+      "hex": "#98908A",
+      "rgb": [
+        152,
+        144,
+        138
+      ],
+      "alpha": 1
+    },
+    "hairline": {
+      "css": "--hairline",
+      "group": "text_ink",
+      "source": "oklch(0.78  0.018 65)",
+      "hex": "#C0B4AD",
+      "rgb": [
+        192,
+        180,
+        173
+      ],
+      "alpha": 1
+    },
+    "brass": {
+      "css": "--brass",
+      "group": "accent",
+      "source": "oklch(0.62  0.13  75)",
+      "hex": "#B27803",
+      "rgb": [
+        178,
+        120,
+        3
+      ],
+      "alpha": 1
+    },
+    "brass-soft": {
+      "css": "--brass-soft",
+      "group": "accent",
+      "source": "oklch(0.86  0.06  78)",
+      "hex": "#E6CCA5",
+      "rgb": [
+        230,
+        204,
+        165
+      ],
+      "alpha": 1
+    },
+    "ember": {
+      "css": "--ember",
+      "group": "accent",
+      "source": "oklch(0.58  0.16  35)",
+      "hex": "#C74F31",
+      "rgb": [
+        199,
+        79,
+        49
+      ],
+      "alpha": 1
+    },
+    "moss": {
+      "css": "--moss",
+      "group": "accent",
+      "source": "oklch(0.55  0.10  150)",
+      "hex": "#438352",
+      "rgb": [
+        67,
+        131,
+        82
+      ],
+      "alpha": 1
+    },
+    "indigo": {
+      "css": "--indigo",
+      "group": "accent",
+      "source": "oklch(0.45  0.10  265)",
+      "hex": "#3B538C",
+      "rgb": [
+        59,
+        83,
+        140
+      ],
+      "alpha": 1
+    },
+    "r-common": {
+      "css": "--r-common",
+      "group": "rarity",
+      "source": "oklch(0.62  0.09  145)",
+      "hex": "#629565",
+      "rgb": [
+        98,
+        149,
+        101
+      ],
+      "alpha": 1
+    },
+    "r-uncommon": {
+      "css": "--r-uncommon",
+      "group": "rarity",
+      "source": "oklch(0.58  0.11  230)",
+      "hex": "#1785AF",
+      "rgb": [
+        23,
+        133,
+        175
+      ],
+      "alpha": 1
+    },
+    "r-rare": {
+      "css": "--r-rare",
+      "group": "rarity",
+      "source": "oklch(0.55  0.13  295)",
+      "hex": "#7860B5",
+      "rgb": [
+        120,
+        96,
+        181
+      ],
+      "alpha": 1
+    },
+    "r-elite": {
+      "css": "--r-elite",
+      "group": "rarity",
+      "source": "oklch(0.62  0.14   55)",
+      "hex": "#C46D21",
+      "rgb": [
+        196,
+        109,
+        33
+      ],
+      "alpha": 1
+    },
+    "r-legendary": {
+      "css": "--r-legendary",
+      "group": "rarity",
+      "source": "oklch(0.55  0.15   25)",
+      "hex": "#B84643",
+      "rgb": [
+        184,
+        70,
+        67
+      ],
+      "alpha": 1
+    },
+    "r-unique": {
+      "css": "--r-unique",
+      "group": "rarity",
+      "source": "oklch(0.72  0.14  110)",
+      "hex": "#ABAC30",
+      "rgb": [
+        171,
+        172,
+        48
+      ],
+      "alpha": 1
+    },
+    "r-common-dim": {
+      "css": "--r-common-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.40  0.06  145)",
+      "hex": "#325033",
+      "rgb": [
+        50,
+        80,
+        51
+      ],
+      "alpha": 1
+    },
+    "r-uncommon-dim": {
+      "css": "--r-uncommon-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.38  0.07  230)",
+      "hex": "#0D4961",
+      "rgb": [
+        13,
+        73,
+        97
+      ],
+      "alpha": 1
+    },
+    "r-rare-dim": {
+      "css": "--r-rare-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.36  0.08  295)",
+      "hex": "#413362",
+      "rgb": [
+        65,
+        51,
+        98
+      ],
+      "alpha": 1
+    },
+    "r-elite-dim": {
+      "css": "--r-elite-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.40  0.09   55)",
+      "hex": "#6C380D",
+      "rgb": [
+        108,
+        56,
+        13
+      ],
+      "alpha": 1
+    },
+    "r-legendary-dim": {
+      "css": "--r-legendary-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.36  0.09   25)",
+      "hex": "#642625",
+      "rgb": [
+        100,
+        38,
+        37
+      ],
+      "alpha": 1
+    },
+    "r-unique-dim": {
+      "css": "--r-unique-dim",
+      "group": "rarity_dim",
+      "source": "oklch(0.48  0.09  110)",
+      "hex": "#61631D",
+      "rgb": [
+        97,
+        99,
+        29
+      ],
+      "alpha": 1
+    },
+    "g-fire": {
+      "css": "--g-fire",
+      "group": "gem",
+      "source": "oklch(0.62  0.16  30)",
+      "hex": "#D55849",
+      "rgb": [
+        213,
+        88,
+        73
+      ],
+      "alpha": 1
+    },
+    "g-frost": {
+      "css": "--g-frost",
+      "group": "gem",
+      "source": "oklch(0.68  0.10  220)",
+      "hex": "#42A7C3",
+      "rgb": [
+        66,
+        167,
+        195
+      ],
+      "alpha": 1
+    },
+    "g-earth": {
+      "css": "--g-earth",
+      "group": "gem",
+      "source": "oklch(0.55  0.08  100)",
+      "hex": "#7C7338",
+      "rgb": [
+        124,
+        115,
+        56
+      ],
+      "alpha": 1
+    },
+    "g-bolt": {
+      "css": "--g-bolt",
+      "group": "gem",
+      "source": "oklch(0.72  0.14  90)",
+      "hex": "#C6A01F",
+      "rgb": [
+        198,
+        160,
+        31
+      ],
+      "alpha": 1
+    },
+    "g-void": {
+      "css": "--g-void",
+      "group": "gem",
+      "source": "oklch(0.40  0.08  300)",
+      "hex": "#4E3D6C",
+      "rgb": [
+        78,
+        61,
+        108
+      ],
+      "alpha": 1
+    },
+    "success": {
+      "css": "--success",
+      "group": "status",
+      "source": "oklch(0.55  0.12  150)",
+      "hex": "#33844B",
+      "rgb": [
+        51,
+        132,
+        75
+      ],
+      "alpha": 1
+    },
+    "success-bright": {
+      "css": "--success-bright",
+      "group": "status",
+      "source": "oklch(0.55  0.16  150)",
+      "hex": "#008A39",
+      "rgb": [
+        0,
+        138,
+        57
+      ],
+      "alpha": 1
+    },
+    "stage-deep": {
+      "css": "--stage-deep",
+      "group": "stage",
+      "source": "#0e0a07",
+      "hex": "#0E0B06",
+      "rgb": [
+        14,
+        11,
+        6
+      ],
+      "alpha": 1
+    },
+    "stage-warm": {
+      "css": "--stage-warm",
+      "group": "stage",
+      "source": "#2a221a",
+      "hex": "#2B221B",
+      "rgb": [
+        43,
+        34,
+        27
+      ],
+      "alpha": 1
+    },
+    "glyph-ink": {
+      "css": "--glyph-ink",
+      "group": "special",
+      "source": "oklch(0.18  0.02  60)",
+      "hex": "#190F08",
+      "rgb": [
+        25,
+        15,
+        8
+      ],
+      "alpha": 1
+    },
+    "modal-veil": {
+      "css": "--modal-veil",
+      "group": "special",
+      "source": "rgba(0, 0, 0, 0.45)",
+      "hex": "#000000",
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "alpha": 0.45098039215686275
+    },
+    "backdrop": {
+      "css": "--backdrop",
+      "group": "backdrop",
+      "source": "oklch(0.30  0.05   50)",
+      "hex": "#432617",
+      "rgb": [
+        67,
+        38,
+        23
+      ],
+      "alpha": 1
+    },
+    "backdrop-deep": {
+      "css": "--backdrop-deep",
+      "group": "backdrop",
+      "source": "oklch(0.22  0.04   50)",
+      "hex": "#281408",
+      "rgb": [
+        40,
+        20,
+        8
+      ],
+      "alpha": 1
+    }
+  }
+}
